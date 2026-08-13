@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { MapPin, Clock, ExternalLink, Check, ArrowRight, ArrowLeft, Pencil, Sparkles, Copy, Loader2, CheckCircle2, Circle, Search, Bookmark, X, RotateCcw } from "lucide-react";
 import { ResumeTemplate } from "./ResumeTemplate.jsx";
+import { Analytics } from "@vercel/analytics/react";
 
 const SYS_FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, sans-serif";
 const SUPABASE_URL = "https://rewqochjjdsgkeintdfj.supabase.co";
@@ -543,6 +544,7 @@ export default function Wavelength() {
         <span style={{ fontSize: 12, color: C.textFaint }}>Live sources: We Work Remotely • Adzuna • Craigslist (temporarily paused)</span>
         <span style={{ fontSize: 12, color: C.textFaint }}>Refreshed daily</span>
       </div>
+      <Analytics />
     </div>
   );
 }
