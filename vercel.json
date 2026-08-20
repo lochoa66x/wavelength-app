@@ -5,12 +5,19 @@
     },
     "api/cron/adzuna.js": {
       "maxDuration": 300
+    },
+    "api/cron/jooble.js": {
+      "maxDuration": 300
     }
   },
   "crons": [
     {
       "path": "/api/cron/adzuna",
       "schedule": "20 6 * * *"
+    },
+    {
+      "path": "/api/cron/jooble",
+      "schedule": "50 6 * * *"
     }
   ],
   "rewrites": [

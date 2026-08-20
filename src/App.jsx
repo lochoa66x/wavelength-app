@@ -38,6 +38,7 @@ const ADZUNA_ATTRIBUTION_STYLE = {
 };
 const ADZUNA_LINK_STYLE = { color: "inherit", textDecoration: "none" };
 const ADZUNA_NAME_LINK_STYLE = { ...ADZUNA_LINK_STYLE, fontWeight: 700 };
+const SOURCE_LINK_STYLE = { color: "inherit" };
 
 const STYLE_TAG = `
 *, *::before, *::after { box-sizing: border-box; }
@@ -323,6 +324,10 @@ function TierBadge({ tier }) {
 }
 
 function SourceAttribution({ source }) {
+  if (source === "Jooble") {
+    return <a href="https://ca.jooble.org/" target="_blank" rel="noreferrer" style={SOURCE_LINK_STYLE}>Jooble</a>;
+  }
+
   if (source !== "Jobs by Adzuna") return <span>{source}</span>;
 
   return (
@@ -1336,7 +1341,7 @@ export default function Gigscapes() {
       </div>
       <div style={{ marginTop: 28, paddingTop: 18, borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between" }}>
         <span style={{ fontSize: 12, color: C.textFaint, fontWeight: 500, display: "flex", alignItems: "center", flexWrap: "wrap" }}>
-          Live sources: We Work Remotely&nbsp;•&nbsp;<SourceAttribution source="Jobs by Adzuna" />&nbsp;•&nbsp;Craigslist (temporarily paused)
+          Live sources: We Work Remotely&nbsp;•&nbsp;<SourceAttribution source="Jobs by Adzuna" />&nbsp;•&nbsp;<SourceAttribution source="Jooble" />&nbsp;•&nbsp;Craigslist (temporarily paused)
         </span>
         <span style={{ fontSize: 12, color: C.textFaint }}>Refreshed daily</span>
       </div>
