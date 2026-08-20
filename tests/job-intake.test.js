@@ -1,0 +1,99 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+
+import { createJobIntakeHandler, fetchPublicJobPage, validatePublicHttpsUrl } from "../api/job-intake.js";
+
+function responseRecorder() {
+  return {
+    statusCode: 200,
+    body: null,
+    status(code) { this.statusCode = code; return this; },
+    json(body) { this.body = body; return this; },
+  };
+}
+
+function headers(values = {}) {
+  const normalized = Object.fromEntries(Object.entries(values).map(([key, value]) => [key.toLowerCase(), value]));
+  return { get: (name) => normalized[String(name).toLowerCase()] || null };
+}
+
+test("job URL validation rejects loopback and private DNS results", async () => {
+  await assert.rejects(() => validatePublicHttpsUrl("https://127.0.0.1/job"), /private or reserved/);
+  await assert.rejects(() => validatePublicHttpsUrl("https://[::ffff:7f00:1]/job"), /private or reserved/);
+  await assert.rejects(
+    () => validatePublicHttpsUrl("https://jobs.example.com/role", async () => [{ address: "10.0.0.4" }]),
+    /private or reserved/,
+  );
+});
+
+test("job page redirects are revalidated before another request", async () => {
+  let calls = 0;
+  await assert.rejects(() => fetchPublicJobPage("https://jobs.example.com/role", {
+    resolveHost: async () => [{ address: "93.184.216.34" }],
+    fetchImpl: async () => {
+      calls += 1;
+      return {
+        status: 302,
+        ok: false,
+        headers: headers({ location: "https://127.0.0.1/internal" }),
+      };
+    },
+  }), /private or reserved/);
+  assert.equal(calls, 1);
+});
+
+test("job intake authenticates before reading or extracting a posting", async () => {
+  let fetched = false;
+  const handler = createJobIntakeHandler({
+    authenticate: async () => null,
+    fetchImpl: async () => { fetched = true; throw new Error("should not fetch"); },
+    getApiKey: () => "test-key",
+  });
+  const res = responseRecorder();
+
+  await handler({ method: "POST", headers: {}, body: { mode: "paste", text: "A".repeat(100) } }, res);
+
+  assert.equal(res.statusCode, 401);
+  assert.equal(fetched, false);
+});
+
+test("pasted posting is extracted into a normalized editable brief", async () => {
+  let requestBody;
+  const handler = createJobIntakeHandler({
+    authenticate: async () => ({ user: { id: "user-1" } }),
+    fetchImpl: async (_url, options) => {
+      requestBody = JSON.parse(options.body);
+      return {
+        ok: true,
+        json: async () => ({
+          content: [{
+            type: "tool_use",
+            name: "return_job_brief",
+            input: {
+              title: "Administrative Assistant",
+              company: "Example Co",
+              location: "Toronto, Ontario",
+              type: "Full-time",
+              category: "admin",
+              description: "Coordinate office operations and support a cross-functional team.",
+              responsibilities: ["Coordinate calendars"],
+              required_qualifications: ["Two years of administrative experience"],
+              preferred_qualifications: [],
+              keywords: ["cross-functional team", "calendar management"],
+            },
+          }],
+        }),
+      };
+    },
+    getApiKey: () => "test-key",
+  });
+  const res = responseRecorder();
+  const posting = "Administrative Assistant at Example Co in Toronto. Coordinate office operations, calendars, records, and support a cross-functional team.";
+
+  await handler({ method: "POST", headers: { authorization: "Bearer valid" }, body: { mode: "paste", text: posting } }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.brief.category, "admin");
+  assert.equal(res.body.brief.source_url, "");
+  assert.match(requestBody.messages[0].content, /<UNTRUSTED_JOB_POSTING>/);
+});

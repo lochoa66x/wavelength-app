@@ -1,5 +1,5 @@
-import { Copy, ExternalLink } from "lucide-react";
-import { DOC, SERIF, SANS, SectionHeader, resumeDataToPlainText } from "./resumeShared.jsx";
+import { ResumeActions } from "./ResumeActions.jsx";
+import { DOC, SERIF, SANS, SectionHeader } from "./resumeShared.jsx";
 
 export function ResumeTemplateProfessional({ resumeData, item, hasLink, C, primaryBtnStyle }) {
   const r = resumeData;
@@ -212,29 +212,7 @@ export function ResumeTemplateProfessional({ resumeData, item, hasLink, C, prima
         )}
       </div>
 
-      <p style={{ fontSize: 12, color: C.textFaint, margin: "0 0 12px" }}>
-        Review this before sending anything — nothing gets submitted automatically.
-      </p>
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-        <button
-          onClick={() => navigator.clipboard?.writeText(resumeDataToPlainText(resumeData, "professional"))}
-          className="wl-btn"
-          style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 13, fontWeight: 500, padding: "9px 16px", borderRadius: 980, border: `1px solid ${C.border}`, background: C.bgCard, color: C.text, cursor: "pointer" }}
-        >
-          <Copy size={12} /> Copy tailored text
-        </button>
-        {hasLink && (
-          <a
-            href={item.url}
-            target="_blank"
-            rel="noreferrer"
-            className="wl-btn"
-            style={{ ...primaryBtnStyle(false), fontSize: 13, padding: "9px 16px", textDecoration: "none" }}
-          >
-            Open application to send it <ExternalLink size={12} />
-          </a>
-        )}
-      </div>
+      <ResumeActions resumeData={resumeData} template="professional" item={item} hasLink={hasLink} C={C} primaryBtnStyle={primaryBtnStyle} />
     </div>
   );
 }

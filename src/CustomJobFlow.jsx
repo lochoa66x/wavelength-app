@@ -1,0 +1,255 @@
+import { useState } from "react";
+import { ArrowLeft, Check, FileImage, Link2, Loader2, Pencil, Sparkles, Text, Upload } from "lucide-react";
+
+import { AtsReview } from "./AtsReview.jsx";
+import { isTradesLikeCategory } from "./listingCategories.js";
+import { ResumeTemplateProfessional } from "./ResumeTemplateProfessional.jsx";
+import { ResumeTemplateTrades } from "./ResumeTemplateTrades.jsx";
+import { extractCustomJob, tailorResume } from "./tailorClient.js";
+
+const CATEGORY_OPTIONS = [
+  ["tech", "Technology & IT"], ["design", "Design"], ["writing", "Writing & content"],
+  ["marketing", "Marketing"], ["sales", "Sales"], ["admin", "Administration"],
+  ["customer_service", "Customer service"], ["business", "Business & management"],
+  ["finance", "Finance & accounting"], ["trades", "Skilled trades"],
+  ["home_services", "Home & outdoor services"], ["logistics", "Logistics & labour"],
+  ["hospitality", "Hospitality & retail"], ["care", "Care & education"], ["other", "Other"],
+];
+
+const MODES = [
+  { id: "paste", label: "Paste posting", icon: Text, hint: "Most reliable" },
+  { id: "url", label: "Job URL", icon: Link2, hint: "Public HTTPS page" },
+  { id: "screenshots", label: "Screenshots", icon: FileImage, hint: "Up to 4 images" },
+];
+
+function imageToDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error(`Could not read ${file.name}.`));
+    reader.onload = () => resolve(reader.result);
+    reader.readAsDataURL(file);
+  });
+}
+
+async function compressScreenshot(file) {
+  if (!file.type.startsWith("image/")) throw new Error(`${file.name} is not an image.`);
+  if (file.size > 10_000_000) throw new Error(`${file.name} is larger than 10 MB.`);
+
+  const originalUrl = await imageToDataUrl(file);
+  const image = await new Promise((resolve, reject) => {
+    const element = new Image();
+    element.onload = () => resolve(element);
+    element.onerror = () => reject(new Error(`Could not decode ${file.name}.`));
+    element.src = originalUrl;
+  });
+  const scale = Math.min(1, 1800 / Math.max(image.width, image.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.max(1, Math.round(image.width * scale));
+  canvas.height = Math.max(1, Math.round(image.height * scale));
+  const context = canvas.getContext("2d", { alpha: false });
+  if (!context) throw new Error(`Could not prepare ${file.name}.`);
+  context.drawImage(image, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL("image/jpeg", 0.82);
+}
+
+function Field({ label, children }) {
+  return (
+    <label style={{ display: "grid", gap: 6, color: "#6E6E73", fontSize: 12, fontWeight: 600 }}>
+      {label}
+      {children}
+    </label>
+  );
+}
+
+export function CustomJobFlow({ resume, C, primaryBtnStyle, glassBtnStyle, onBack, onEditResume }) {
+  const [mode, setMode] = useState("paste");
+  const [postingText, setPostingText] = useState("");
+  const [jobUrl, setJobUrl] = useState("");
+  const [files, setFiles] = useState([]);
+  const [brief, setBrief] = useState(null);
+  const [status, setStatus] = useState("idle");
+  const [error, setError] = useState("");
+  const [tailored, setTailored] = useState(null);
+
+  const fieldStyle = {
+    width: "100%", border: `1px solid ${C.border}`, borderRadius: 11, padding: "10px 12px",
+    background: C.bgCard, color: C.text, fontSize: 14, fontFamily: "inherit",
+  };
+
+  const handleExtract = async () => {
+    setStatus("extracting");
+    setError("");
+    try {
+      const payload = mode === "paste"
+        ? { mode, text: postingText }
+        : mode === "url"
+          ? { mode, url: jobUrl }
+          : { mode, images: await Promise.all(files.map(compressScreenshot)) };
+      setBrief(await extractCustomJob(payload));
+      setStatus("review");
+    } catch (extractError) {
+      setError(extractError.message);
+      setStatus("idle");
+    }
+  };
+
+  const updateBrief = (patch) => setBrief((current) => ({ ...current, ...patch }));
+  const listValue = (key) => (brief?.[key] || []).join("\n");
+  const updateList = (key, value) => updateBrief({ [key]: value.split("\n").map((item) => item.trim()).filter(Boolean) });
+
+  const handleTailor = async () => {
+    if (!resume) {
+      setError("Add your base résumé before tailoring this posting.");
+      return;
+    }
+    setStatus("tailoring");
+    setError("");
+    setTailored(null);
+    try {
+      setTailored(await tailorResume(resume, { customJob: brief }));
+      setStatus("done");
+    } catch (tailorError) {
+      setError(tailorError.message);
+      setStatus("review");
+    }
+  };
+
+  const customItem = brief ? {
+    title: brief.title,
+    company: brief.company || "Candidate-provided posting",
+    category: brief.category,
+    url: brief.source_url || "",
+  } : null;
+  const Template = brief && isTradesLikeCategory(brief.category) ? ResumeTemplateTrades : ResumeTemplateProfessional;
+
+  if (!resume) {
+    return (
+      <div style={{ maxWidth: 760, margin: "0 auto" }}>
+        <button type="button" onClick={onBack} className="wl-btn" style={{ ...glassBtnStyle(), padding: 0, marginBottom: 18, background: "transparent" }}>
+          <ArrowLeft size={15} /> Back to matches
+        </button>
+        <div style={{ marginBottom: 20 }}>
+          <div style={{ color: C.green, fontSize: 12, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", marginBottom: 5 }}>Bring your own job</div>
+          <h2 style={{ color: C.text, fontSize: 26, margin: "0 0 8px" }}>Add your base résumé first</h2>
+          <p style={{ color: C.textSub, fontSize: 14, lineHeight: 1.55, margin: 0 }}>It stays in this browser. Once it is saved, you can paste a posting, share a public job link, or upload screenshots.</p>
+        </div>
+        <button type="button" onClick={onEditResume} className="wl-btn" style={primaryBtnStyle(false)}><Pencil size={14} /> Add my résumé</button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ maxWidth: 760, margin: "0 auto" }}>
+      <button type="button" onClick={onBack} className="wl-btn" style={{ ...glassBtnStyle(), padding: 0, marginBottom: 18, background: "transparent" }}>
+        <ArrowLeft size={15} /> Back to matches
+      </button>
+
+      <div style={{ marginBottom: 20 }}>
+        <div style={{ color: C.green, fontSize: 12, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", marginBottom: 5 }}>Bring your own job</div>
+        <h2 style={{ color: C.text, fontSize: 26, margin: "0 0 8px" }}>Tailor for a posting you found</h2>
+        <p style={{ color: C.textSub, fontSize: 14, lineHeight: 1.55, margin: 0 }}>
+          Paste the posting, share its public link, or upload screenshots. You review the extracted facts before your locally saved résumé is tailored.
+        </p>
+      </div>
+
+      {!brief && (
+        <div style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 18, padding: 18 }}>
+          <div role="tablist" aria-label="Posting input method" style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8, marginBottom: 16 }}>
+            {MODES.map(({ id, label, icon: Icon, hint }) => {
+              const active = mode === id;
+              return (
+                <button key={id} type="button" role="tab" aria-selected={active} onClick={() => { setMode(id); setError(""); }} className="wl-btn" style={{ border: `1px solid ${active ? C.text : C.border}`, background: active ? "#F0EFEE" : C.bgCard, borderRadius: 12, padding: "10px 8px", color: C.text, cursor: "pointer", display: "grid", justifyItems: "center", gap: 3 }}>
+                  <Icon size={16} color={active ? C.green : C.textSub} />
+                  <span style={{ fontSize: 12.5, fontWeight: 650 }}>{label}</span>
+                  <span style={{ color: C.textFaint, fontSize: 10.5 }}>{hint}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {mode === "paste" && (
+            <Field label="Full job posting">
+              <textarea value={postingText} onChange={(event) => setPostingText(event.target.value)} rows={14} placeholder="Paste the title, responsibilities, requirements, and company details…" style={{ ...fieldStyle, resize: "vertical" }} />
+            </Field>
+          )}
+          {mode === "url" && (
+            <>
+              <Field label="Public HTTPS job URL">
+                <input type="url" value={jobUrl} onChange={(event) => setJobUrl(event.target.value)} placeholder="https://company.com/careers/job" style={fieldStyle} />
+              </Field>
+              <p style={{ color: C.textFaint, fontSize: 12, lineHeight: 1.5, margin: "10px 0 0" }}>Some career sites block automated reading. If that happens, paste the posting or use screenshots.</p>
+            </>
+          )}
+          {mode === "screenshots" && (
+            <div>
+              <label style={{ display: "grid", justifyItems: "center", gap: 8, border: `1px dashed ${C.border}`, borderRadius: 14, padding: "28px 16px", color: C.textSub, cursor: "pointer" }}>
+                <Upload size={22} color={C.green} />
+                <strong style={{ color: C.text, fontSize: 14 }}>Choose up to 4 screenshots</strong>
+                <span style={{ fontSize: 12 }}>PNG, JPEG, WebP, or GIF · compressed before upload</span>
+                <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden onChange={(event) => setFiles(Array.from(event.target.files || []).slice(0, 4))} />
+              </label>
+              {files.length > 0 && <p style={{ color: C.textSub, fontSize: 12, margin: "10px 0 0" }}>{files.map((file) => file.name).join(" · ")}</p>}
+            </div>
+          )}
+
+          {error && <p role="alert" style={{ color: C.red, fontSize: 13, margin: "12px 0 0" }}>{error}</p>}
+          <button type="button" onClick={handleExtract} disabled={status === "extracting" || (mode === "paste" ? postingText.trim().length < 80 : mode === "url" ? !jobUrl.trim() : files.length === 0)} className="wl-btn" style={{ ...primaryBtnStyle(status === "extracting"), marginTop: 16 }}>
+            {status === "extracting" ? <Loader2 size={15} className="wl-spin" /> : <Sparkles size={15} />}
+            {status === "extracting" ? "Reading the posting…" : "Extract posting details"}
+          </button>
+          <p style={{ color: C.textFaint, fontSize: 11.5, lineHeight: 1.45, margin: "12px 0 0" }}>Posting inputs are processed for this request and are not saved to your Gigscapes profile.</p>
+        </div>
+      )}
+
+      {brief && status !== "done" && (
+        <div style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 18, padding: 18 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", marginBottom: 14 }}>
+            <div>
+              <h3 style={{ color: C.text, fontSize: 18, margin: "0 0 3px" }}>Review the extracted job</h3>
+              <p style={{ color: C.textSub, fontSize: 12.5, margin: 0 }}>Correct anything the page reader or screenshot OCR misunderstood.</p>
+            </div>
+            <button type="button" onClick={() => { setBrief(null); setTailored(null); setStatus("idle"); }} className="wl-btn" style={{ ...glassBtnStyle(), padding: "7px 10px", border: `1px solid ${C.border}` }}><Pencil size={12} /> Change source</button>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
+            <Field label="Job title"><input value={brief.title} onChange={(event) => updateBrief({ title: event.target.value })} style={fieldStyle} /></Field>
+            <Field label="Company"><input value={brief.company} onChange={(event) => updateBrief({ company: event.target.value })} style={fieldStyle} /></Field>
+            <Field label="Location"><input value={brief.location} onChange={(event) => updateBrief({ location: event.target.value })} style={fieldStyle} /></Field>
+            <Field label="Employment type"><input value={brief.type} onChange={(event) => updateBrief({ type: event.target.value })} style={fieldStyle} /></Field>
+            <Field label="Category">
+              <select value={brief.category} onChange={(event) => updateBrief({ category: event.target.value })} style={fieldStyle}>{CATEGORY_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select>
+            </Field>
+          </div>
+          <div style={{ display: "grid", gap: 12, marginTop: 12 }}>
+            <Field label="Role description"><textarea value={brief.description} onChange={(event) => updateBrief({ description: event.target.value })} rows={7} style={{ ...fieldStyle, resize: "vertical" }} /></Field>
+            <Field label="Responsibilities · one per line"><textarea value={listValue("responsibilities")} onChange={(event) => updateList("responsibilities", event.target.value)} rows={5} style={{ ...fieldStyle, resize: "vertical" }} /></Field>
+            <Field label="Required qualifications · one per line"><textarea value={listValue("required_qualifications")} onChange={(event) => updateList("required_qualifications", event.target.value)} rows={5} style={{ ...fieldStyle, resize: "vertical" }} /></Field>
+            <Field label="Preferred qualifications · one per line"><textarea value={listValue("preferred_qualifications")} onChange={(event) => updateList("preferred_qualifications", event.target.value)} rows={4} style={{ ...fieldStyle, resize: "vertical" }} /></Field>
+            <Field label="High-signal keywords · one per line"><textarea value={listValue("keywords")} onChange={(event) => updateList("keywords", event.target.value)} rows={4} style={{ ...fieldStyle, resize: "vertical" }} /></Field>
+          </div>
+
+          {error && <p role="alert" style={{ color: C.red, fontSize: 13, margin: "12px 0 0" }}>{error}</p>}
+          <button type="button" onClick={handleTailor} disabled={status === "tailoring" || !brief.title.trim() || !brief.description.trim()} className="wl-btn" style={{ ...primaryBtnStyle(status === "tailoring"), marginTop: 16 }}>
+            {status === "tailoring" ? <Loader2 size={15} className="wl-spin" /> : <Sparkles size={15} />}
+            {status === "tailoring" ? "Tailoring and checking evidence…" : "Tailor my résumé"}
+          </button>
+        </div>
+      )}
+
+      {brief && tailored && status === "done" && (
+        <div>
+          <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", marginBottom: 14 }}>
+            <div><h3 style={{ color: C.text, fontSize: 20, margin: "0 0 3px" }}>Tailored for {brief.title}</h3><p style={{ color: C.textSub, fontSize: 13, margin: 0 }}>{brief.company || "Candidate-provided posting"}</p></div>
+            <button type="button" onClick={() => { setTailored(null); setStatus("review"); }} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, padding: "8px 11px" }}><Pencil size={12} /> Review posting</button>
+          </div>
+          {tailored.resume.fit_assessment?.path === "career_change" && (
+            <div style={{ background: C.amberTint, border: `1px solid ${C.amberBorder}`, borderRadius: 12, padding: "12px 14px", marginBottom: 14, color: C.text, fontSize: 13, lineHeight: 1.5 }}>
+              <strong>Recommended positioning: {tailored.resume.fit_assessment.recommended_level}</strong><br />{tailored.resume.fit_assessment.note}
+            </div>
+          )}
+          <AtsReview review={tailored.atsReview} C={C} />
+          <Template resumeData={tailored.resume} item={customItem} hasLink={Boolean(brief.source_url)} C={C} primaryBtnStyle={primaryBtnStyle} />
+        </div>
+      )}
+    </div>
+  );
+}

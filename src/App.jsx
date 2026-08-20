@@ -1,12 +1,15 @@
 import { useState, useEffect, useRef } from "react";
 import { MapPin, Clock, ExternalLink, Check, ArrowRight, ArrowLeft, Pencil, Sparkles, Loader2, CheckCircle2, Circle, Search, Bookmark, X, RotateCcw, LogOut } from "lucide-react";
 import { BrandMark } from "./BrandMark.jsx";
+import { AtsReview } from "./AtsReview.jsx";
+import { CustomJobFlow } from "./CustomJobFlow.jsx";
 import { ResumeTemplateProfessional } from "./ResumeTemplateProfessional.jsx";
 import { ResumeTemplateTrades } from "./ResumeTemplateTrades.jsx";
 import { loadLocalResume, saveLocalResume } from "./resumeStorage.js";
 import { listingStateKey } from "./listingIdentity.js";
 import { migrateCloudResume } from "./resumeMigration.js";
 import { supabase } from "./supabase.js";
+import { tailorResume } from "./tailorClient.js";
 import { useAuth } from "./auth.jsx";
 import {
   COUNTRY_OPTIONS,
@@ -177,29 +180,6 @@ function useProfile(session) {
   };
 
   return { profile, loading, error, writeError, updateProfile, reloadProfile };
-}
-
-async function tailorResume(resume, listingId) {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.access_token) throw new Error("Your session expired. Sign in again to tailor your résumé.");
-
-  const response = await fetch("/api/tailor", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session.access_token}`,
-    },
-    body: JSON.stringify({ resume, listingId }),
-  });
-
-  if (!response.ok) {
-    const body = await response.json().catch(() => ({}));
-    throw new Error(body.error || `Tailor request failed (${response.status})`);
-  }
-
-  const data = await response.json();
-  if (!data.resume || !data.resume.profile) throw new Error("empty response");
-  return data.resume;
 }
 
 function itemKey(item) {
@@ -501,6 +481,7 @@ export default function Gigscapes() {
   const [quickRegion, setQuickRegion] = useState("");
   const [onboardingLocationMode, setOnboardingLocationMode] = useState("");
   const [resumeDraft, setResumeDraft] = useState("");
+  const [resumeReturnStep, setResumeReturnStep] = useState("digest");
   const [localResume, setLocalResume] = useState("");
   const [resumeStorageError, setResumeStorageError] = useState("");
   const [cloudResumeWarning, setCloudResumeWarning] = useState("");
@@ -551,8 +532,8 @@ export default function Gigscapes() {
   const handleTailor = async (item, stateKey) => {
     setTailored((t) => ({ ...t, [stateKey]: { status: "loading" } }));
     try {
-      const resumeData = await tailorResume(resume, item.id);
-      setTailored((t) => ({ ...t, [stateKey]: { status: "done", resumeData } }));
+      const result = await tailorResume(resume, { listingId: item.id });
+      setTailored((t) => ({ ...t, [stateKey]: { status: "done", resumeData: result.resume, atsReview: result.atsReview } }));
     } catch (err) {
       setTailored((t) => ({ ...t, [stateKey]: { status: "error", message: err.message } }));
     }
@@ -1000,11 +981,11 @@ export default function Gigscapes() {
           style={{ width: "100%", background: C.bgCard, border: `1.5px solid ${C.border}`, borderRadius: 14, padding: "14px 16px", color: C.text, fontSize: 14, fontFamily: SYS_FONT, resize: "vertical", marginBottom: 16, boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}
         />
         <div style={{ display: "flex", gap: 10, justifyContent: "space-between" }}>
-          <button onClick={() => setStep("digest")} className="wl-btn" style={{ ...glassBtnStyle(), background: "none", border: `1px solid ${C.border}` }}>
+          <button onClick={() => setStep(resumeReturnStep)} className="wl-btn" style={{ ...glassBtnStyle(), background: "none", border: `1px solid ${C.border}` }}>
             <ArrowLeft size={15} /> Back
           </button>
           <button
-            onClick={() => { if (saveResume(resumeDraft)) setStep("digest"); }}
+            onClick={() => { if (saveResume(resumeDraft)) setStep(resumeReturnStep); }}
             disabled={!resumeDraft.trim()}
             className="wl-btn"
             style={primaryBtnStyle(!resumeDraft.trim())}
@@ -1024,6 +1005,24 @@ export default function Gigscapes() {
     );
   }
 
+  if (step === "custom_job") {
+    return shell(
+      <CustomJobFlow
+        resume={resume}
+        C={C}
+        primaryBtnStyle={primaryBtnStyle}
+        glassBtnStyle={glassBtnStyle}
+        onBack={() => setStep("digest")}
+        onEditResume={() => {
+          setResumeDraft(resume || "");
+          setResumeReturnStep("custom_job");
+          setStep("resume");
+        }}
+      />,
+      { showSignOut: true },
+    );
+  }
+
   // digest
   return shell(
     <div style={{ maxWidth: 720, margin: "0 auto" }}>
@@ -1032,7 +1031,7 @@ export default function Gigscapes() {
         <div style={{ display: "flex", gap: 14 }}>
           {resume && (
             <button
-              onClick={() => { setResumeDraft(resume); setStep("resume"); }}
+              onClick={() => { setResumeDraft(resume); setResumeReturnStep("digest"); setStep("resume"); }}
               className="wl-btn"
               style={{ display: "flex", alignItems: "center", gap: 4, background: "none", border: "none", color: C.textSub, fontSize: 13, fontWeight: 500, cursor: "pointer" }}
             >
@@ -1060,6 +1059,16 @@ export default function Gigscapes() {
         )}
         {listingsStatus === "ready" && lastFetched && `Updated ${lastFetched.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.`}
       </p>
+
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 14, padding: "14px 16px", margin: "0 0 16px", background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 14 }}>
+        <div>
+          <div style={{ color: C.text, fontSize: 14, fontWeight: 700, marginBottom: 3 }}>Already found a job elsewhere?</div>
+          <div style={{ color: C.textSub, fontSize: 12.5, lineHeight: 1.4 }}>Paste it, share its link, or upload screenshots — then tailor your résumé here.</div>
+        </div>
+        <button type="button" onClick={() => setStep("custom_job")} className="wl-btn" style={{ ...primaryBtnStyle(false), flexShrink: 0, fontSize: 12.5, padding: "9px 14px" }}>
+          <Sparkles size={13} /> Tailor a job I found
+        </button>
+      </div>
 
       <div style={{ marginBottom: 16 }}>
         <div style={{ position: "relative", width: "100%", maxWidth: 440 }}>
@@ -1283,7 +1292,7 @@ export default function Gigscapes() {
                         Add your résumé first so we can tailor it for this gig.
                       </p>
                       <button
-                        onClick={() => { setResumeDraft(""); setStep("resume"); }}
+                        onClick={() => { setResumeDraft(""); setResumeReturnStep("digest"); setStep("resume"); }}
                         className="wl-btn"
                         style={{ ...primaryBtnStyle(false), fontSize: 13, padding: "10px 18px" }}
                       >
@@ -1325,6 +1334,7 @@ export default function Gigscapes() {
                           <div style={{ color: C.text, fontSize: 13, lineHeight: 1.5 }}>{t.resumeData.fit_assessment.note}</div>
                         </div>
                       )}
+                      <AtsReview review={t.atsReview} C={C} />
                       <TemplateComponent
                         resumeData={t.resumeData}
                         item={item}

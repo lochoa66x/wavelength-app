@@ -1,7 +1,10 @@
 {
   "functions": {
     "api/tailor.js": {
-      "maxDuration": 60
+      "maxDuration": 120
+    },
+    "api/job-intake.js": {
+      "maxDuration": 90
     },
     "api/cron/adzuna.js": {
       "maxDuration": 300

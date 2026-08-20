@@ -122,3 +122,57 @@ test("tailoring loads the trusted listing by id and ignores a caller URL", async
   assert.doesNotMatch(prompt, /127\.0\.0\.1|Untrusted description/);
   assert.equal(res.statusCode, 200);
 });
+
+test("tailoring accepts a reviewed custom job without loading a database listing", async () => {
+  let loadCalled = false;
+  let anthropicRequest;
+  const handler = createTailorHandler({
+    authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
+    loadListing: async () => { loadCalled = true; return null; },
+    fetchImpl: async (_url, options) => {
+      anthropicRequest = JSON.parse(options.body);
+      return {
+        ok: true,
+        json: async () => ({
+          content: [{
+            type: "tool_use",
+            name: "return_tailored_resume",
+            input: {
+              profile: "Operations manager with stakeholder management experience.",
+              experience: [{ role: "Operations Manager", company: "Real Corp", dates: "2020–2023", bullets: ["Led stakeholder programs."] }],
+              skills: ["Stakeholder management"],
+              fit_assessment: { path: "direct", recommended_level: "Manager", note: "Direct experience." },
+            },
+          }],
+        }),
+      };
+    },
+    getApiKey: () => "test-key",
+  });
+  const res = responseRecorder();
+
+  await handler({
+    method: "POST",
+    headers: { authorization: "Bearer valid" },
+    body: {
+      resume: "Operations Manager — Real Corp — 2020–2023\nLed stakeholder programs.",
+      customJob: {
+        title: "Operations Manager",
+        company: "Target Co",
+        location: "Toronto",
+        type: "Full-time",
+        category: "business",
+        description: "Lead operational programs and stakeholder management across the organization.",
+        responsibilities: ["Lead operational programs"],
+        required_qualifications: [],
+        preferred_qualifications: [],
+        keywords: ["stakeholder management"],
+      },
+    },
+  }, res);
+
+  assert.equal(loadCalled, false);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.ats_review.status, "ready");
+  assert.match(anthropicRequest.messages[0].content, /Candidate-provided posting reviewed before tailoring|Lead operational programs/);
+});

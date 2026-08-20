@@ -1,0 +1,54 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+
+import { buildAtsReview, enforceReverseChronology } from "../api/_lib/atsValidation.js";
+
+test("experience is deterministically restored to reverse chronological order", () => {
+  const result = enforceReverseChronology({
+    experience: [
+      { role: "Older", dates: "2018–2020", bullets: [] },
+      { role: "Current", dates: "2023–Present", bullets: [] },
+      { role: "Middle", dates: "2020–2023", bullets: [] },
+    ],
+  });
+
+  assert.deepEqual(result.experience.map((entry) => entry.role), ["Current", "Middle", "Older"]);
+});
+
+test("ATS truth check blocks numbers and employment history absent from the base resume", () => {
+  const review = buildAtsReview({
+    profile: "Operations leader",
+    skills: ["Stakeholder management"],
+    experience: [{
+      role: "Invented Director",
+      company: "Imaginary Corp",
+      dates: "2024–Present",
+      bullets: ["Increased revenue by 45% across 12 countries."],
+    }],
+  }, "Real Manager — Real Corp — 2020–2023\nLed stakeholder programs.", { keywords: ["stakeholder management"] });
+
+  assert.equal(review.status, "blocked");
+  assert.deepEqual(review.unsupported_metrics.map((issue) => issue.claim), ["2024", "45%", "12"]);
+  assert.deepEqual(review.unsupported_history.map((issue) => issue.field), ["role", "company", "dates"]);
+});
+
+test("ATS review recognizes supported history, metrics, verbs, and keywords", () => {
+  const review = buildAtsReview({
+    profile: "Operations leader with cross-functional collaboration experience.",
+    skills: ["Stakeholder management"],
+    experience: [{
+      role: "Operations Manager",
+      company: "Real Corp",
+      dates: "2020–2023",
+      bullets: ["Led an 8-person team and reduced cycle time by 20%."],
+    }],
+  }, "Operations Manager — Real Corp — 2020–2023\nLed an 8-person team and reduced cycle time by 20%.", {
+    keywords: ["stakeholder management", "cross-functional collaboration"],
+  });
+
+  assert.equal(review.status, "ready");
+  assert.equal(review.reverse_chronological, true);
+  assert.equal(review.unsupported_metrics.length, 0);
+  assert.equal(review.unsupported_history.length, 0);
+  assert.deepEqual(review.missing_keywords, []);
+});
