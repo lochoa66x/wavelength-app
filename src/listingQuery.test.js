@@ -14,7 +14,7 @@ import {
 function createQueryRecorder() {
   const calls = [];
   const query = {};
-  for (const method of ["select", "order", "eq", "ilike", "range"]) {
+  for (const method of ["select", "order", "neq", "eq", "ilike", "range"]) {
     query[method] = (...args) => {
       calls.push([method, ...args]);
       return query;
@@ -44,6 +44,7 @@ test("structured filters are applied before an inclusive database page range", (
     ["select", "*", { count: "exact" }],
     ["order", "fetched_at", { ascending: false }],
     ["order", "id", { ascending: false }],
+    ["neq", "source", "craigslist"],
     ["eq", "location_type", "remote"],
     ["eq", "country_code", "CA"],
     ["eq", "region", "ontario"],

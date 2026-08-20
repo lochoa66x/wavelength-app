@@ -5,6 +5,7 @@ import {
 } from "./listingLocations.js";
 
 export const LISTINGS_PAGE_SIZE = 100;
+export const INACTIVE_LISTING_SOURCES = ["craigslist"];
 
 export function escapeLikePattern(value = "") {
   return String(value).replace(/[\\%_]/g, "\\$&");
@@ -56,6 +57,10 @@ export function createListingsQuery(
     .select("*", { count: "exact" })
     .order("fetched_at", { ascending: false })
     .order("id", { ascending: false });
+
+  for (const source of INACTIVE_LISTING_SOURCES) {
+    query = query.neq("source", source);
+  }
 
   if (includeStructuredFilters) query = applyStructuredLocationFilters(query, criteria);
   return query.range(from, to);

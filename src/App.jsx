@@ -39,6 +39,15 @@ const ADZUNA_ATTRIBUTION_STYLE = {
 const ADZUNA_LINK_STYLE = { color: "inherit", textDecoration: "none" };
 const ADZUNA_NAME_LINK_STYLE = { ...ADZUNA_LINK_STYLE, fontWeight: 700 };
 const SOURCE_LINK_STYLE = { color: "inherit" };
+const MANUAL_SOURCE_LINK_STYLE = {
+  alignItems: "center",
+  color: "inherit",
+  display: "inline-flex",
+  fontSize: 12,
+  fontWeight: 500,
+  gap: 4,
+  width: "fit-content",
+};
 
 const STYLE_TAG = `
 *, *::before, *::after { box-sizing: border-box; }
@@ -1339,10 +1348,15 @@ export default function Gigscapes() {
           </button>
         )}
       </div>
-      <div style={{ marginTop: 28, paddingTop: 18, borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between" }}>
-        <span style={{ fontSize: 12, color: C.textFaint, fontWeight: 500, display: "flex", alignItems: "center", flexWrap: "wrap" }}>
-          Live sources: We Work Remotely&nbsp;•&nbsp;<SourceAttribution source="Jobs by Adzuna" />&nbsp;•&nbsp;<SourceAttribution source="Jooble" />&nbsp;•&nbsp;Craigslist (temporarily paused)
-        </span>
+      <div style={{ marginTop: 28, paddingTop: 18, borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", gap: 16 }}>
+        <div style={{ color: C.textFaint, display: "flex", flexDirection: "column", gap: 6 }}>
+          <span style={{ fontSize: 12, fontWeight: 500, display: "flex", alignItems: "center", flexWrap: "wrap" }}>
+            Live feeds: We Work Remotely&nbsp;•&nbsp;<SourceAttribution source="Jobs by Adzuna" />&nbsp;•&nbsp;<SourceAttribution source="Jooble" />
+          </span>
+          <a href="https://www.craigslist.org/about/sites#CA" target="_blank" rel="noreferrer" style={MANUAL_SOURCE_LINK_STYLE}>
+            Browse Craigslist Canada directly (not imported) <ExternalLink size={11} aria-hidden="true" />
+          </a>
+        </div>
         <span style={{ fontSize: 12, color: C.textFaint }}>Refreshed daily</span>
       </div>
     </div>,
