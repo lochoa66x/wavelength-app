@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 
+import { runJobicyIngestion } from "../_lib/jobicy.js";
 import { runJoobleIngestion } from "../_lib/jooble.js";
 
 export function getJoobleCronConfig(env = process.env) {
@@ -28,6 +29,7 @@ export function createJoobleCronHandler({
   getConfig = getJoobleCronConfig,
   createClientImpl = createClient,
   ingest = runJoobleIngestion,
+  jobicyIngest = runJobicyIngestion,
 } = {}) {
   return async function handler(req, res) {
     if (req.method !== "GET") {
@@ -50,16 +52,40 @@ export function createJoobleCronHandler({
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    try {
-      const summary = await ingest({
+    const [joobleResult, jobicyResult] = await Promise.allSettled([
+      ingest({
         supabase,
         apiKey: config.joobleApiKey,
-      });
-      return res.status(200).json({ ok: true, source: "jooble", country: "CA", ...summary });
-    } catch (error) {
-      console.error(`Jooble cron failed: ${error.message}`);
-      return res.status(502).json({ error: "Jooble import failed" });
+      }),
+      jobicyIngest({ supabase }),
+    ]);
+
+    const sources = {
+      jooble: joobleResult.status === "fulfilled"
+        ? { ok: true, ...joobleResult.value }
+        : { ok: false, error: "Jooble import failed" },
+      jobicy: jobicyResult.status === "fulfilled"
+        ? { ok: true, ...jobicyResult.value }
+        : { ok: false, error: "Jobicy import failed" },
+    };
+    const successfulSources = Object.values(sources).filter(({ ok }) => ok).length;
+
+    if (joobleResult.status === "rejected") {
+      console.error(`Jooble cron failed: ${joobleResult.reason?.message || "Unknown error"}`);
     }
+    if (jobicyResult.status === "rejected") {
+      console.error(`Jobicy companion import failed: ${jobicyResult.reason?.message || "Unknown error"}`);
+    }
+    if (successfulSources === 0) {
+      return res.status(502).json({ ok: false, error: "Scheduled imports failed", country: "CA", sources });
+    }
+
+    return res.status(200).json({
+      ok: true,
+      partial: successfulSources < Object.keys(sources).length,
+      country: "CA",
+      sources,
+    });
   };
 }
 

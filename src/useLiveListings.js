@@ -20,6 +20,7 @@ const SOURCE_DISPLAY_NAMES = {
   wwr: "We Work Remotely",
   adzuna: "Jobs by Adzuna",
   jooble: "Jooble",
+  jobicy: "Jobicy",
   craigslist: "Craigslist",
 };
 

@@ -243,6 +243,7 @@ test("Jooble cron returns an operational summary after a successful import", asy
       assert.equal(apiKey, "jooble-key");
       return { requests: 12, saved: 300, inserted: 250, updated: 50, pruned: 40 };
     },
+    jobicyIngest: async () => ({ requests: 1, saved: 80, inserted: 70, updated: 10, pruned: 5 }),
   });
   const res = responseRecorder();
 
@@ -250,9 +251,45 @@ test("Jooble cron returns an operational summary after a successful import", asy
 
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.ok, true);
-  assert.equal(res.body.source, "jooble");
   assert.equal(res.body.country, "CA");
-  assert.equal(res.body.saved, 300);
+  assert.equal(res.body.partial, false);
+  assert.equal(res.body.sources.jooble.saved, 300);
+  assert.equal(res.body.sources.jobicy.saved, 80);
+});
+
+test("Jooble cron isolates a Jobicy outage and reports a partial success", async () => {
+  const handler = createJoobleCronHandler({
+    getConfig: () => config,
+    createClientImpl: () => ({ from: () => ({}) }),
+    ingest: async () => ({ requests: 12, saved: 300 }),
+    jobicyIngest: async () => { throw new Error("Jobicy unavailable"); },
+  });
+  const res = responseRecorder();
+
+  await handler({ method: "GET", headers: { authorization: "Bearer cron-secret" } }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.ok, true);
+  assert.equal(res.body.partial, true);
+  assert.equal(res.body.sources.jooble.ok, true);
+  assert.equal(res.body.sources.jobicy.ok, false);
+});
+
+test("Jooble cron fails only when both scheduled imports fail", async () => {
+  const handler = createJoobleCronHandler({
+    getConfig: () => config,
+    createClientImpl: () => ({ from: () => ({}) }),
+    ingest: async () => { throw new Error("Jooble unavailable"); },
+    jobicyIngest: async () => { throw new Error("Jobicy unavailable"); },
+  });
+  const res = responseRecorder();
+
+  await handler({ method: "GET", headers: { authorization: "Bearer cron-secret" } }, res);
+
+  assert.equal(res.statusCode, 502);
+  assert.equal(res.body.ok, false);
+  assert.equal(res.body.sources.jooble.ok, false);
+  assert.equal(res.body.sources.jobicy.ok, false);
 });
 
 test("Jooble server configuration never accepts browser-exposed secrets", () => {

@@ -337,6 +337,10 @@ function SourceAttribution({ source }) {
     return <a href="https://ca.jooble.org/" target="_blank" rel="noreferrer" style={SOURCE_LINK_STYLE}>Jooble</a>;
   }
 
+  if (source === "Jobicy") {
+    return <a href="https://jobicy.com/" target="_blank" rel="noreferrer" style={SOURCE_LINK_STYLE}>Jobicy</a>;
+  }
+
   if (source !== "Jobs by Adzuna") return <span>{source}</span>;
 
   return (
@@ -440,7 +444,7 @@ function ScanningTransition({ onDone }) {
         <div style={{ position: "absolute", inset: 14, borderRadius: "50%", background: C.green }} />
       </div>
       <div style={{ fontFamily: SYS_FONT, fontSize: 14, color: C.textSub, fontWeight: 500 }}>
-        Scanning We Work Remotely, Adzuna…
+        Scanning We Work Remotely, Adzuna, Jooble, and Jobicy…
       </div>
     </div>
   );
@@ -1351,7 +1355,7 @@ export default function Gigscapes() {
       <div style={{ marginTop: 28, paddingTop: 18, borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", gap: 16 }}>
         <div style={{ color: C.textFaint, display: "flex", flexDirection: "column", gap: 6 }}>
           <span style={{ fontSize: 12, fontWeight: 500, display: "flex", alignItems: "center", flexWrap: "wrap" }}>
-            Live feeds: We Work Remotely&nbsp;•&nbsp;<SourceAttribution source="Jobs by Adzuna" />&nbsp;•&nbsp;<SourceAttribution source="Jooble" />
+            Live feeds: We Work Remotely&nbsp;•&nbsp;<SourceAttribution source="Jobs by Adzuna" />&nbsp;•&nbsp;<SourceAttribution source="Jooble" />&nbsp;•&nbsp;<SourceAttribution source="Jobicy" />
           </span>
           <a href="https://www.craigslist.org/about/sites#CA" target="_blank" rel="noreferrer" style={MANUAL_SOURCE_LINK_STYLE}>
             Browse Craigslist Canada directly (not imported) <ExternalLink size={11} aria-hidden="true" />
