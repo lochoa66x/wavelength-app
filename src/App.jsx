@@ -9,32 +9,26 @@ import { migrateCloudResume } from "./resumeMigration.js";
 import { supabase } from "./supabase.js";
 import { useAuth } from "./auth.jsx";
 import {
+  COUNTRY_OPTIONS,
   LOCATION_OPTIONS,
-  formatListingLocation,
   formatLocationPreference,
-  isMissingStructuredLocationColumn,
+  hasStructuredLocationFilter,
   locationMatches,
-  normalizeListingLocation,
-  normalizeLocationPreference,
-  structuredLocationModeFilter,
+  normalizeLocationCriteria,
+  regionOptionsForCountry,
 } from "./listingLocations.js";
+import { useLiveListings } from "./useLiveListings.js";
 import {
   CATEGORY_FIELDS,
   WORK_ARRANGEMENT_OPTIONS,
   categoriesForField,
-  classifyListingTitle,
-  formatWorkArrangement,
   inferKeywordIntent,
   isTradesLikeCategory,
   normalizeFieldLabel,
-  normalizeListingReason,
-  normalizeWorkArrangement,
   scoreListingRelevance,
 } from "./listingCategories.js";
 
 const SYS_FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, sans-serif";
-
-const SOURCE_DISPLAY_NAMES = { wwr: "We Work Remotely", adzuna: "Adzuna", craigslist: "Craigslist" };
 
 const STYLE_TAG = `
 *, *::before, *::after { box-sizing: border-box; }
@@ -76,7 +70,16 @@ const STRICTNESS = [
   { id: "loose", label: "Flexible", hint: "include otherwise relevant unlabeled listings" },
 ];
 
-const DEFAULT_CRITERIA = { keyword: "", field: null, location: null, city: "", workTypes: [], strictness: null };
+const DEFAULT_CRITERIA = {
+  keyword: "",
+  field: null,
+  location: "either",
+  countryCode: "",
+  region: "",
+  city: "",
+  workTypes: [],
+  strictness: null,
+};
 
 // ============================================================================
 // Profile hook
@@ -155,71 +158,6 @@ function useProfile(session) {
   };
 
   return { profile, loading, error, writeError, updateProfile, reloadProfile };
-}
-
-function useLiveListings(locationMode = "either") {
-  const [listings, setListings] = useState([]);
-  const [status, setStatus] = useState("loading");
-  const [lastFetched, setLastFetched] = useState(null);
-  const modeFilter = structuredLocationModeFilter(locationMode);
-
-  const fetchListings = async () => {
-    setStatus("loading");
-    try {
-      const buildQuery = (includeStructuredFilter) => {
-        let query = supabase
-          .from("listings")
-          .select("*")
-          .order("fetched_at", { ascending: false })
-          .limit(1000);
-        if (includeStructuredFilter && modeFilter) query = query.eq("location_type", modeFilter);
-        return query;
-      };
-
-      let { data: rows, error } = await buildQuery(Boolean(modeFilter));
-      if (error && modeFilter && isMissingStructuredLocationColumn(error)) {
-        ({ data: rows, error } = await buildQuery(false));
-      }
-      if (error) throw error;
-
-      const mapped = rows.map((row) => {
-        const classification = classifyListingTitle(row.title, row.category);
-        const workArrangement = normalizeWorkArrangement(row.job_type, row.title);
-        const locationData = normalizeListingLocation(row);
-        const displayLocation = formatListingLocation(locationData, row.location);
-
-        return {
-          id: row.id,
-          category: classification.category,
-          subcategory: classification.subcategory,
-          classificationConfidence: classification.confidence,
-          tier: row.tier,
-          title: row.title,
-          company: row.company || "Unknown",
-          location: displayLocation,
-          locationData,
-          locationQuality: locationData.source,
-          type: formatWorkArrangement(workArrangement),
-          workArrangement,
-          source: SOURCE_DISPLAY_NAMES[row.source] || row.source,
-          city: row.city,
-          reason: normalizeListingReason(row.reason, row.category, classification.category),
-          description: row.description || null,
-          url: row.url,
-        };
-      });
-
-      setListings(mapped);
-      setStatus("ready");
-      setLastFetched(new Date());
-    } catch {
-      setStatus("error");
-    }
-  };
-
-  useEffect(() => { fetchListings(); }, [modeFilter]);
-
-  return { listings, status, lastFetched, refetch: fetchListings };
 }
 
 async function tailorResume(resume, listingId) {
@@ -375,6 +313,86 @@ function TierBadge({ tier }) {
   );
 }
 
+function LocationFields({
+  countryCode = "",
+  region = "",
+  city = "",
+  onCountryChange,
+  onRegionChange,
+  onCityChange,
+  onApply,
+}) {
+  const regionOptions = regionOptionsForCountry(countryCode);
+  const fieldStyle = {
+    width: "100%",
+    minWidth: 0,
+    background: C.bgCard,
+    border: `1px solid ${C.border}`,
+    borderRadius: 10,
+    padding: "9px 11px",
+    color: C.text,
+    fontSize: 14,
+    fontFamily: SYS_FONT,
+  };
+
+  return (
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10 }}>
+      <label style={{ minWidth: 0, color: C.textSub, fontSize: 11.5, fontWeight: 600 }}>
+        Country
+        <select
+          value={countryCode}
+          onChange={(event) => onCountryChange(event.target.value)}
+          style={{ ...fieldStyle, marginTop: 5 }}
+        >
+          {COUNTRY_OPTIONS.map((option) => (
+            <option key={option.id || "any"} value={option.id}>{option.label}</option>
+          ))}
+        </select>
+      </label>
+      <label style={{ minWidth: 0, color: C.textSub, fontSize: 11.5, fontWeight: 600 }}>
+        Province or state
+        <select
+          value={region}
+          onChange={(event) => onRegionChange(event.target.value)}
+          disabled={!countryCode}
+          style={{ ...fieldStyle, marginTop: 5, opacity: countryCode ? 1 : 0.55 }}
+        >
+          <option value="">{countryCode ? "Any province or state" : "Choose a country first"}</option>
+          {regionOptions.map((option) => (
+            <option key={option.id} value={option.id}>{option.label}</option>
+          ))}
+        </select>
+      </label>
+      <label style={{ minWidth: 0, color: C.textSub, fontSize: 11.5, fontWeight: 600 }}>
+        City
+        <div style={{ display: "flex", gap: 6, marginTop: 5 }}>
+          <input
+            value={city}
+            onChange={(event) => onCityChange(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter" && onApply) onApply();
+            }}
+            placeholder="Any city"
+            aria-label="Preferred city"
+            style={fieldStyle}
+          />
+          {onApply && (
+            <button
+              type="button"
+              onClick={onApply}
+              className="wl-btn"
+              aria-label="Apply city filter"
+              style={{ width: 38, height: 38, flexShrink: 0, borderRadius: 10, border: "none", background: C.green, color: "#FFFFFF", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+            >
+              <ArrowRight size={16} />
+            </button>
+          )}
+        </div>
+      </label>
+    </div>
+  );
+}
+
 function ScanningTransition({ onDone }) {
   useEffect(() => {
     const t = setTimeout(onDone, 1900);
@@ -400,32 +418,13 @@ function ScanningTransition({ onDone }) {
 export default function Gigscapes() {
   const { session, signOut } = useAuth();
   const { profile, loading: profileLoading, error: profileError, writeError: profileWriteError, updateProfile, reloadProfile } = useProfile(session);
-  const preferredLocationMode = normalizeLocationPreference(profile?.criteria?.location) || "either";
-  const { listings: liveListings, status: listingsStatus, lastFetched, refetch: refetchListings } = useLiveListings(preferredLocationMode);
-
-  const [step, setStep] = useState("loading");
-  const [expandedApply, setExpandedApply] = useState(null);
-  const [tailored, setTailored] = useState({});
-  const [viewFilter, setViewFilter] = useState("all");
-  const [showDismissed, setShowDismissed] = useState(false);
-  const [quickSearch, setQuickSearch] = useState("");
-  const [quickLocation, setQuickLocation] = useState("");
-  const [onboardingLocationMode, setOnboardingLocationMode] = useState("");
-  const [resumeDraft, setResumeDraft] = useState("");
-  const [localResume, setLocalResume] = useState("");
-  const [resumeStorageError, setResumeStorageError] = useState("");
-  const [cloudResumeWarning, setCloudResumeWarning] = useState("");
-  const injected = useRef(false);
-  const resumeMigrationStarted = useRef(new Set());
-
-  // Derive persisted state from profile (with sensible defaults during load)
-  const resume = localResume;
   const storedCriteria = profile?.criteria && Object.keys(profile.criteria).length ? profile.criteria : DEFAULT_CRITERIA;
+  const normalizedLocationCriteria = normalizeLocationCriteria(storedCriteria);
   const criteria = {
     ...DEFAULT_CRITERIA,
     ...storedCriteria,
+    ...normalizedLocationCriteria,
     field: normalizeFieldLabel(storedCriteria.field),
-    location: normalizeLocationPreference(storedCriteria.location),
     // Profiles created before taxonomy v2 used a duration preference that was
     // never connected to listing data. Preserve them as "Any work type".
     workTypes: Array.isArray(storedCriteria.workTypes)
@@ -434,6 +433,42 @@ export default function Gigscapes() {
         ? ["any"]
         : [],
   };
+  const listingResetKey = [
+    criteria.keyword,
+    criteria.field,
+    ...(criteria.workTypes || []),
+    criteria.strictness,
+  ].join("|");
+  const {
+    listings: liveListings,
+    status: listingsStatus,
+    error: listingsError,
+    lastFetched,
+    total: listingsTotal,
+    hasMore: hasMoreListings,
+    loadMore: loadMoreListings,
+    refetch: refetchListings,
+    legacyFallback: legacyLocationFallback,
+  } = useLiveListings(criteria, { resetKey: listingResetKey });
+
+  const [step, setStep] = useState("loading");
+  const [expandedApply, setExpandedApply] = useState(null);
+  const [tailored, setTailored] = useState({});
+  const [viewFilter, setViewFilter] = useState("all");
+  const [showDismissed, setShowDismissed] = useState(false);
+  const [quickSearch, setQuickSearch] = useState("");
+  const [quickLocation, setQuickLocation] = useState("");
+  const [quickCountryCode, setQuickCountryCode] = useState("");
+  const [quickRegion, setQuickRegion] = useState("");
+  const [onboardingLocationMode, setOnboardingLocationMode] = useState("");
+  const [resumeDraft, setResumeDraft] = useState("");
+  const [localResume, setLocalResume] = useState("");
+  const [resumeStorageError, setResumeStorageError] = useState("");
+  const [cloudResumeWarning, setCloudResumeWarning] = useState("");
+  const injected = useRef(false);
+  const resumeMigrationStarted = useRef(new Set());
+
+  const resume = localResume;
   const dismissed = profile?.dismissed_listings || [];
   const saved = profile?.saved_listings || [];
 
@@ -560,9 +595,18 @@ export default function Gigscapes() {
     if (step === "digest" || step === "location") {
       setQuickSearch(criteria.keyword || "");
       setQuickLocation(criteria.city || "");
+      setQuickCountryCode(criteria.countryCode || "");
+      setQuickRegion(criteria.region || "");
     }
     if (step === "location") setOnboardingLocationMode(criteria.location || "");
-  }, [step]);
+  }, [
+    step,
+    criteria.keyword,
+    criteria.city,
+    criteria.countryCode,
+    criteria.region,
+    criteria.location,
+  ]);
 
   const stepIndex = { field: 1, location: 2, tuning: 3, review: 4, resume_onboarding: 5 }[step] || 0;
 
@@ -590,13 +634,17 @@ export default function Gigscapes() {
     });
 
   const filtered = relevantListings
-    .filter((item) => locationMatches(item.locationData, { mode: criteria.location, query: criteria.city }))
+    .filter((item) => locationMatches(item.locationData, criteria))
     .sort((a, b) => b.relevance - a.relevance);
 
   const keywordExactFound = keywordInput && filtered.some((item) => item.title.toLowerCase().includes(keywordInput.toLowerCase()));
   const hasKeywordMatches = Boolean(keywordInput && relevantListings.length);
-  const hasLocationFilter = criteria.location && (criteria.location !== "either" || Boolean(criteria.city?.trim()));
-  const locationFilteredOut = Boolean(hasLocationFilter && relevantListings.length && !filtered.length);
+  const hasLocationFilter = hasStructuredLocationFilter(criteria);
+  const locationFilteredOut = Boolean(
+    hasLocationFilter
+    && listingsStatus === "ready"
+    && liveListings.length === 0,
+  );
   const dismissedCount = filtered.filter((item) => dismissed.includes(itemKey(item))).length;
   const visibleFiltered = filtered.filter((item) => {
     const key = itemKey(item);
@@ -739,35 +787,37 @@ export default function Gigscapes() {
             <Chip
               key={option.id}
               active={onboardingLocationMode === option.id}
-              onClick={() => {
-                const keepsQuery = option.id === "hybrid" || option.id === "onsite";
-                if (!keepsQuery) setQuickLocation("");
-                setOnboardingLocationMode(option.id);
-              }}
+              onClick={() => setOnboardingLocationMode(option.id)}
             >
               {option.label}
             </Chip>
           ))}
         </div>
-        {(onboardingLocationMode === "hybrid" || onboardingLocationMode === "onsite") && (
-          <input
-            value={quickLocation}
-            onChange={(e) => setQuickLocation(e.target.value)}
-            placeholder="City or province"
-            aria-label="Preferred city or province"
-            style={{ marginTop: 12, background: C.bgCard, border: `1.5px solid ${C.border}`, borderRadius: 14, padding: "13px 16px", color: C.text, fontSize: 16, fontFamily: SYS_FONT, width: "100%", boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}
+        <div style={{ marginTop: 14 }}>
+          <LocationFields
+            countryCode={quickCountryCode}
+            region={quickRegion}
+            city={quickLocation}
+            onCountryChange={(countryCode) => {
+              setQuickCountryCode(countryCode);
+              setQuickRegion("");
+            }}
+            onRegionChange={setQuickRegion}
+            onCityChange={setQuickLocation}
           />
-        )}
+        </div>
         <NavRow
           onBack={() => setStep("field")}
           onNext={() => {
             updateCriteria({
               location: onboardingLocationMode,
+              countryCode: quickCountryCode,
+              region: quickRegion,
               city: quickLocation.trim(),
             });
             setStep("tuning");
           }}
-          nextDisabled={!onboardingLocationMode || ((onboardingLocationMode === "hybrid" || onboardingLocationMode === "onsite") && !quickLocation.trim())}
+          nextDisabled={!onboardingLocationMode}
         />
       </div>,
       { showSignOut: true }
@@ -813,7 +863,7 @@ export default function Gigscapes() {
       .join(", ");
     const rows = [
       ["Search", criteria.keyword ? `"${criteria.keyword}"` : criteria.field],
-      ["Location", formatLocationPreference(criteria.location, criteria.city)],
+      ["Location", formatLocationPreference(criteria)],
       ["Work type", workTypeLabels || "Any work type"],
       ["Filtering", STRICTNESS.find((s) => s.id === criteria.strictness)?.label],
     ];
@@ -960,11 +1010,12 @@ export default function Gigscapes() {
         </div>
       </div>
       <p style={{ fontSize: 13.5, color: C.textSub, margin: "6px 0 12px" }}>
-        {filtered.length} matches for {criteria.keyword ? `"${criteria.keyword}"` : criteria.field?.toLowerCase()} · {formatLocationPreference(criteria.location, criteria.city)}. {" "}
+        {filtered.length} loaded matches for {criteria.keyword ? `"${criteria.keyword}"` : criteria.field?.toLowerCase()} · {formatLocationPreference(criteria)}. {" "}
         {listingsStatus === "loading" && "Loading live listings…"}
+        {listingsStatus === "loading_more" && "Loading more listings…"}
         {listingsStatus === "error" && (
           <>
-            Couldn't reach the listings database.{" "}
+            Couldn't reach the listings database{listingsError?.message ? `: ${listingsError.message}` : "."}{" "}
             <button onClick={refetchListings} className="wl-btn" style={{ background: "none", border: "none", padding: 0, color: C.green, fontWeight: 600, cursor: "pointer", font: "inherit" }}>Retry</button>
           </>
         )}
@@ -1005,7 +1056,9 @@ export default function Gigscapes() {
             <button
               onClick={() => {
                 setQuickLocation("");
-                updateCriteria({ location: "either", city: "" });
+                setQuickCountryCode("");
+                setQuickRegion("");
+                updateCriteria({ location: "either", countryCode: "", region: "", city: "" });
               }}
               className="wl-btn"
               style={{ display: "flex", alignItems: "center", gap: 4, padding: 0, border: "none", background: "transparent", color: C.textSub, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: SYS_FONT }}
@@ -1020,11 +1073,7 @@ export default function Gigscapes() {
             return (
               <button
                 key={option.id}
-                onClick={() => {
-                  const keepsQuery = option.id === "hybrid" || option.id === "onsite";
-                  if (!keepsQuery) setQuickLocation("");
-                  updateCriteria({ location: option.id, city: keepsQuery ? criteria.city : "" });
-                }}
+                onClick={() => updateCriteria({ location: option.id })}
                 className="wl-btn"
                 style={{
                   fontSize: 12.5,
@@ -1042,31 +1091,32 @@ export default function Gigscapes() {
             );
           })}
         </div>
-        {(criteria.location === "hybrid" || criteria.location === "onsite") && (
-          <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
-            <input
-              value={quickLocation}
-              onChange={(event) => setQuickLocation(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") updateCriteria({ city: quickLocation.trim() });
-              }}
-              placeholder="City or province"
-              aria-label="Filter by city or province"
-              style={{ flex: 1, minWidth: 0, background: C.bgApp, border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 12px", color: C.text, fontSize: 14, fontFamily: SYS_FONT }}
-            />
-            <button
-              onClick={() => updateCriteria({ city: quickLocation.trim() })}
-              className="wl-btn"
-              aria-label="Apply location filter"
-              style={{ width: 38, height: 38, flexShrink: 0, borderRadius: 10, border: "none", background: C.green, color: "#FFFFFF", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
-            >
-              <ArrowRight size={16} />
-            </button>
-          </div>
-        )}
+        <div style={{ marginTop: 10 }}>
+          <LocationFields
+            countryCode={quickCountryCode}
+            region={quickRegion}
+            city={quickLocation}
+            onCountryChange={(countryCode) => {
+              setQuickCountryCode(countryCode);
+              setQuickRegion("");
+              updateCriteria({ countryCode, region: "" });
+            }}
+            onRegionChange={(region) => {
+              setQuickRegion(region);
+              updateCriteria({ region });
+            }}
+            onCityChange={setQuickLocation}
+            onApply={() => updateCriteria({ city: quickLocation.trim() })}
+          />
+        </div>
         {hasLocationFilter && (
           <div aria-live="polite" style={{ marginTop: 10, color: C.textFaint, fontSize: 12.5 }}>
-            Showing {filtered.length} of {relevantListings.length} otherwise relevant listings · {formatLocationPreference(criteria.location, criteria.city)}
+            Showing {filtered.length} matching results from {liveListings.length} loaded location-matched listings{Number.isInteger(listingsTotal) ? ` (${listingsTotal} available)` : ""} · {formatLocationPreference(criteria)}
+          </div>
+        )}
+        {legacyLocationFallback && (
+          <div role="status" style={{ marginTop: 8, color: C.amber, fontSize: 12 }}>
+            Structured location columns are unavailable, so this session is using compatibility filtering.
           </div>
         )}
       </div>
@@ -1109,7 +1159,7 @@ export default function Gigscapes() {
       )}
       {locationFilteredOut && (
         <p style={{ fontSize: 13, color: C.blue, margin: "0 0 20px", padding: "12px 14px", background: C.blueTint, borderRadius: 12, border: `1px solid ${C.blueBorder}` }}>
-          We found {relevantListings.length} otherwise relevant listings, but none match {formatLocationPreference(criteria.location, criteria.city).toLowerCase()}. Try a broader city or province, or <button onClick={() => { setQuickLocation(""); updateCriteria({ location: "either", city: "" }); }} className="wl-btn" style={{ background: "none", border: "none", padding: 0, color: C.blue, fontWeight: 700, cursor: "pointer", font: "inherit", textDecoration: "underline" }}>search anywhere</button>.
+          No current listings match {formatLocationPreference(criteria).toLowerCase()}. Try a broader location, or <button onClick={() => { setQuickLocation(""); setQuickCountryCode(""); setQuickRegion(""); updateCriteria({ location: "either", countryCode: "", region: "", city: "" }); }} className="wl-btn" style={{ background: "none", border: "none", padding: 0, color: C.blue, fontWeight: 700, cursor: "pointer", font: "inherit", textDecoration: "underline" }}>search anywhere</button>.
         </p>
       )}
       {isValidatedField && hasKeywordMatches && filtered.length > 0 && !keywordExactFound && (
@@ -1250,6 +1300,18 @@ export default function Gigscapes() {
             </div>
           );
         })}
+        {hasMoreListings && (
+          <button
+            type="button"
+            onClick={loadMoreListings}
+            disabled={listingsStatus === "loading_more"}
+            className="wl-btn"
+            style={{ ...glassBtnStyle(), alignSelf: "center", marginTop: 6, background: C.bgCard, border: `1px solid ${C.border}` }}
+          >
+            {listingsStatus === "loading_more" ? <Loader2 size={14} className="wl-spin" /> : <ArrowRight size={14} />}
+            {listingsStatus === "loading_more" ? "Loading more…" : "Load more listings"}
+          </button>
+        )}
       </div>
       <div style={{ marginTop: 28, paddingTop: 18, borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between" }}>
         <span style={{ fontSize: 12, color: C.textFaint, fontWeight: 500 }}>

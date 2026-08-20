@@ -4,12 +4,15 @@ import assert from "node:assert/strict";
 import {
   formatListingLocation,
   formatLocationPreference,
+  hasStructuredLocationFilter,
   inferLocationType,
   isMissingStructuredLocationColumn,
   locationMatches,
   normalizeListingLocation,
+  normalizeLocationCriteria,
   normalizeLocationPreference,
   parseLocationText,
+  regionOptionsForCountry,
   structuredLocationModeFilter,
   summarizeLocationCoverage,
   toStructuredLocationPatch,
@@ -40,6 +43,7 @@ test("legacy query fallback is limited to missing structured columns", () => {
   }), true);
   assert.equal(isMissingStructuredLocationColumn({ code: "42501", message: "permission denied" }), false);
   assert.equal(isMissingStructuredLocationColumn({ code: "42703", message: "column category does not exist" }), false);
+  assert.equal(isMissingStructuredLocationColumn({ code: "PGRST204", message: "Could not find the 'city' column" }), true);
 });
 
 test("location type is inferred from structured values, titles, and locations", () => {
@@ -77,10 +81,54 @@ test("location mode filters remote, hybrid, and on-site listings", () => {
   assert.equal(locationMatches(onsite, { mode: "either" }), true);
 });
 
+test("remote listings can be restricted by country, region, and city", () => {
+  const canada = normalizeListingLocation({
+    title: "Remote Assistant",
+    location_type: "remote",
+    city: "Toronto",
+    region: "ON",
+    country_code: "CA",
+  });
+
+  assert.equal(locationMatches(canada, { location: "remote", countryCode: "CA" }), true);
+  assert.equal(locationMatches(canada, { location: "remote", countryCode: "US" }), false);
+  assert.equal(locationMatches(canada, { location: "remote", countryCode: "CA", region: "Ontario" }), true);
+  assert.equal(locationMatches(canada, { location: "remote", city: "Toronto" }), true);
+  assert.equal(locationMatches(canada, { location: "remote", city: "Vancouver" }), false);
+});
+
 test("location preference summaries are human-readable", () => {
   assert.equal(formatLocationPreference("either"), "Anywhere");
-  assert.equal(formatLocationPreference("remote", "Toronto"), "Remote");
-  assert.equal(formatLocationPreference("local", "Toronto"), "On-site near Toronto");
+  assert.equal(formatLocationPreference("remote", "Toronto"), "Remote in Toronto");
+  assert.equal(formatLocationPreference("local", "Toronto"), "On-site in Toronto");
+  assert.equal(formatLocationPreference({
+    location: "remote",
+    countryCode: "CA",
+    region: "Ontario",
+  }), "Remote in Ontario, Canada");
+});
+
+test("legacy location text upgrades into structured persisted criteria", () => {
+  assert.deepEqual(normalizeLocationCriteria({ location: "local", city: "Toronto, ON, Canada" }), {
+    location: "onsite",
+    countryCode: "CA",
+    region: "ontario",
+    city: "Toronto",
+  });
+  assert.equal(hasStructuredLocationFilter({ location: "either" }), false);
+  assert.equal(hasStructuredLocationFilter({ location: "either", countryCode: "CA" }), true);
+});
+
+test("province and state choices depend on the selected country", () => {
+  const provincesAndTerritories = regionOptionsForCountry("CA");
+  const statesAndDistrict = regionOptionsForCountry("US");
+
+  assert.equal(provincesAndTerritories.length, 13);
+  assert.equal(provincesAndTerritories.some(({ id }) => id === "ontario"), true);
+  assert.equal(statesAndDistrict.length, 51);
+  assert.equal(statesAndDistrict.some(({ id }) => id === "arizona"), true);
+  assert.equal(statesAndDistrict.some(({ id }) => id === "west virginia"), true);
+  assert.deepEqual(regionOptionsForCountry(""), []);
 });
 
 test("raw source locations are parsed into structured Canadian and US fields", () => {

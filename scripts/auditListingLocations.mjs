@@ -20,13 +20,21 @@ const supabase = createClient(url, publishableKey, {
   auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
 });
 
-const { data: rows, error } = await supabase
-  .from("listings")
-  .select("*")
-  .order("fetched_at", { ascending: false })
-  .limit(1000);
+const rows = [];
+const pageSize = 1000;
+for (let page = 0; ; page += 1) {
+  const from = page * pageSize;
+  const { data, error } = await supabase
+    .from("listings")
+    .select("*")
+    .order("fetched_at", { ascending: false })
+    .order("id", { ascending: false })
+    .range(from, from + pageSize - 1);
 
-if (error) throw error;
+  if (error) throw error;
+  rows.push(...(data || []));
+  if (!data || data.length < pageSize) break;
+}
 
 const normalization = rows.reduce((summary, row) => {
   const location = normalizeListingLocation(row);

@@ -5,37 +5,94 @@ export const LOCATION_OPTIONS = [
   { id: "onsite", label: "On-site" },
 ];
 
+export const COUNTRY_OPTIONS = [
+  { id: "", label: "Any country" },
+  { id: "CA", label: "Canada" },
+  { id: "US", label: "United States" },
+];
+
 const REMOTE_PATTERN = /\b(?:remote|anywhere|worldwide|work from home|home[- ]based|distributed)\b/i;
 const HYBRID_PATTERN = /\bhybrid\b/i;
 const ONSITE_PATTERN = /\b(?:on[- ]?site|in person|office[- ]based)\b/i;
 const LOCATION_PREFIX_PATTERN = /^\s*(?:remote|hybrid|on[- ]?site|in person|office[- ]based|anywhere|worldwide)\s*(?:[-–—|:/,]\s*)?/i;
 
-const REGION_DEFINITIONS = [
-  ["alberta", "CA", ["ab", "alta", "alberta"]],
-  ["british columbia", "CA", ["bc", "british columbia"]],
-  ["manitoba", "CA", ["mb", "manitoba"]],
-  ["new brunswick", "CA", ["nb", "new brunswick"]],
-  ["newfoundland and labrador", "CA", ["nl", "newfoundland", "newfoundland and labrador"]],
-  ["nova scotia", "CA", ["ns", "nova scotia"]],
-  ["northwest territories", "CA", ["nt", "northwest territories"]],
-  ["nunavut", "CA", ["nu", "nunavut"]],
-  ["ontario", "CA", ["on", "ont", "ontario"]],
-  ["prince edward island", "CA", ["pe", "pei", "prince edward island"]],
-  ["quebec", "CA", ["qc", "pq", "quebec"]],
-  ["saskatchewan", "CA", ["sk", "saskatchewan"]],
-  ["yukon", "CA", ["yt", "yukon"]],
-  ["california", "US", ["ca", "calif", "california"]],
-  ["colorado", "US", ["co", "colorado"]],
-  ["district of columbia", "US", ["dc", "district of columbia"]],
-  ["florida", "US", ["fl", "fla", "florida"]],
-  ["georgia", "US", ["ga", "georgia"]],
-  ["illinois", "US", ["il", "illinois"]],
-  ["massachusetts", "US", ["ma", "massachusetts"]],
-  ["new york", "US", ["ny", "new york"]],
-  ["oregon", "US", ["or", "oregon"]],
-  ["texas", "US", ["tx", "texas"]],
-  ["washington", "US", ["wa", "washington"]],
-];
+export const REGION_OPTIONS_BY_COUNTRY = {
+  CA: [
+    ["alberta", "Alberta", ["ab", "alta"]],
+    ["british columbia", "British Columbia", ["bc"]],
+    ["manitoba", "Manitoba", ["mb"]],
+    ["new brunswick", "New Brunswick", ["nb"]],
+    ["newfoundland and labrador", "Newfoundland and Labrador", ["nl", "newfoundland"]],
+    ["nova scotia", "Nova Scotia", ["ns"]],
+    ["northwest territories", "Northwest Territories", ["nt"]],
+    ["nunavut", "Nunavut", ["nu"]],
+    ["ontario", "Ontario", ["on", "ont"]],
+    ["prince edward island", "Prince Edward Island", ["pe", "pei"]],
+    ["quebec", "Quebec", ["qc", "pq"]],
+    ["saskatchewan", "Saskatchewan", ["sk"]],
+    ["yukon", "Yukon", ["yt"]],
+  ],
+  US: [
+    ["alabama", "Alabama", ["al"]],
+    ["alaska", "Alaska", ["ak"]],
+    ["arizona", "Arizona", ["az"]],
+    ["arkansas", "Arkansas", ["ar"]],
+    ["california", "California", ["ca", "calif"]],
+    ["colorado", "Colorado", ["co"]],
+    ["connecticut", "Connecticut", ["ct"]],
+    ["delaware", "Delaware", ["de"]],
+    ["district of columbia", "District of Columbia", ["dc"]],
+    ["florida", "Florida", ["fl", "fla"]],
+    ["georgia", "Georgia", ["ga"]],
+    ["hawaii", "Hawaii", ["hi"]],
+    ["idaho", "Idaho", ["id"]],
+    ["illinois", "Illinois", ["il"]],
+    ["indiana", "Indiana", ["in"]],
+    ["iowa", "Iowa", ["ia"]],
+    ["kansas", "Kansas", ["ks"]],
+    ["kentucky", "Kentucky", ["ky"]],
+    ["louisiana", "Louisiana", ["la"]],
+    ["maine", "Maine", ["me"]],
+    ["maryland", "Maryland", ["md"]],
+    ["massachusetts", "Massachusetts", ["ma"]],
+    ["michigan", "Michigan", ["mi"]],
+    ["minnesota", "Minnesota", ["mn"]],
+    ["mississippi", "Mississippi", ["ms"]],
+    ["missouri", "Missouri", ["mo"]],
+    ["montana", "Montana", ["mt"]],
+    ["nebraska", "Nebraska", ["ne"]],
+    ["nevada", "Nevada", ["nv"]],
+    ["new hampshire", "New Hampshire", ["nh"]],
+    ["new jersey", "New Jersey", ["nj"]],
+    ["new mexico", "New Mexico", ["nm"]],
+    ["new york", "New York", ["ny"]],
+    ["north carolina", "North Carolina", ["nc"]],
+    ["north dakota", "North Dakota", ["nd"]],
+    ["ohio", "Ohio", ["oh"]],
+    ["oklahoma", "Oklahoma", ["ok"]],
+    ["oregon", "Oregon", ["or"]],
+    ["pennsylvania", "Pennsylvania", ["pa"]],
+    ["rhode island", "Rhode Island", ["ri"]],
+    ["south carolina", "South Carolina", ["sc"]],
+    ["south dakota", "South Dakota", ["sd"]],
+    ["tennessee", "Tennessee", ["tn"]],
+    ["texas", "Texas", ["tx"]],
+    ["utah", "Utah", ["ut"]],
+    ["vermont", "Vermont", ["vt"]],
+    ["virginia", "Virginia", ["va"]],
+    ["washington", "Washington", ["wa"]],
+    ["west virginia", "West Virginia", ["wv"]],
+    ["wisconsin", "Wisconsin", ["wi"]],
+    ["wyoming", "Wyoming", ["wy"]],
+  ],
+};
+
+const REGION_DEFINITIONS = Object.entries(REGION_OPTIONS_BY_COUNTRY)
+  .flatMap(([countryCode, regions]) => regions.map(([region, , aliases]) => [
+    region,
+    countryCode,
+    [region, ...aliases],
+  ]));
 
 const COUNTRY_LABELS = { CA: "Canada", US: "United States" };
 const COUNTRY_ALIASES = new Map([
@@ -58,13 +115,13 @@ const REGION_ALIASES = new Map(
   ),
 );
 
-function canonicalRegion(value = "") {
+export function canonicalRegion(value = "") {
   const cleaned = cleanText(value);
   if (!cleaned) return { region: "", countryCode: "" };
   return REGION_ALIASES.get(cleaned) || { region: cleaned, countryCode: "" };
 }
 
-function normalizeCountryCode(value = "", allowTwoLetterCode = true) {
+export function normalizeCountryCode(value = "", allowTwoLetterCode = true) {
   const cleaned = cleanText(value);
   if (!cleaned) return "";
   const alias = COUNTRY_ALIASES.get(cleaned);
@@ -118,6 +175,39 @@ export function normalizeLocationPreference(preference) {
   return LOCATION_OPTIONS.some(({ id }) => id === preference) ? preference : preference || null;
 }
 
+export function regionOptionsForCountry(countryCode = "") {
+  return (REGION_OPTIONS_BY_COUNTRY[normalizeCountryCode(countryCode)] || [])
+    .map(([id, label]) => ({ id, label }));
+}
+
+export function normalizeLocationCriteria(criteria = {}) {
+  const location = normalizeLocationPreference(criteria.location || criteria.mode) || "either";
+  let countryCode = normalizeCountryCode(criteria.countryCode || criteria.country_code);
+  let { region, countryCode: regionCountryCode } = canonicalRegion(criteria.region);
+  let city = String(criteria.city || criteria.query || "").trim();
+
+  if (!region && city) {
+    const parsed = parseLocationText(city);
+    if (parsed.region || parsed.countryCode) {
+      city = parsed.city;
+      region = parsed.region;
+      countryCode ||= parsed.countryCode;
+      regionCountryCode ||= parsed.countryCode;
+    }
+  }
+
+  countryCode ||= regionCountryCode;
+  if (countryCode && regionCountryCode && countryCode !== regionCountryCode) region = "";
+
+  return { location, countryCode, region, city };
+}
+
+export function hasStructuredLocationFilter(criteria = {}) {
+  const normalized = normalizeLocationCriteria(criteria);
+  return normalized.location !== "either"
+    || Boolean(normalized.countryCode || normalized.region || normalized.city);
+}
+
 export function structuredLocationModeFilter(preference) {
   const normalized = normalizeLocationPreference(preference) || "either";
   return normalized === "remote" || normalized === "hybrid" || normalized === "onsite"
@@ -131,7 +221,7 @@ export function isMissingStructuredLocationColumn(error) {
     .filter(Boolean)
     .join(" ");
   return (code === "42703" || code === "PGRST204")
-    && /\b(location_type|region|country_code)\b/i.test(message);
+    && /\b(location_type|city|region|country_code)\b/i.test(message);
 }
 
 export function inferLocationType({ location = "", title = "", locationType = "", source = "" } = {}) {
@@ -214,22 +304,30 @@ export function summarizeLocationCoverage(rows = []) {
   }, { total: 0, structured: 0, parsed: 0, inferred: 0, unresolved: 0 });
 }
 
-export function locationMatches(locationData, { mode = "either", query = "" } = {}) {
-  const normalizedMode = normalizeLocationPreference(mode) || "either";
-  const normalizedQuery = expandRegionAliases(query);
+export function locationMatches(locationData, filters = {}) {
+  const normalized = normalizeLocationCriteria(filters);
   const data = locationData || { type: "unknown", searchText: "" };
 
-  if (normalizedMode !== "either" && data.type !== normalizedMode) return false;
-  if (!normalizedQuery || normalizedMode === "remote") return true;
+  if (normalized.location !== "either" && data.type !== normalized.location) return false;
+  if (normalized.countryCode && data.countryCode !== normalized.countryCode) return false;
+  if (normalized.region && canonicalRegion(data.region).region !== normalized.region) return false;
+  if (!normalized.city) return true;
 
-  const queryTokens = normalizedQuery.split(" ").filter(Boolean);
+  const queryTokens = cleanText(normalized.city).split(" ").filter(Boolean);
   return queryTokens.every((token) => data.searchText.includes(token));
 }
 
-export function formatLocationPreference(mode, query = "") {
-  const normalizedMode = normalizeLocationPreference(mode) || "either";
-  const label = LOCATION_OPTIONS.find(({ id }) => id === normalizedMode)?.label || "Anywhere";
-  return query.trim() && (normalizedMode === "hybrid" || normalizedMode === "onsite")
-    ? `${label} near ${query.trim()}`
-    : label;
+export function formatLocationPreference(criteriaOrMode, query = "") {
+  const criteria = typeof criteriaOrMode === "object"
+    ? criteriaOrMode
+    : { location: criteriaOrMode, city: query };
+  const normalized = normalizeLocationCriteria(criteria);
+  const label = LOCATION_OPTIONS.find(({ id }) => id === normalized.location)?.label || "Anywhere";
+  const region = normalized.region
+    ? normalized.region.replace(/\b\w/g, (letter) => letter.toUpperCase())
+    : "";
+  const place = [normalized.city, region, COUNTRY_LABELS[normalized.countryCode]]
+    .filter(Boolean)
+    .join(", ");
+  return place ? `${label} in ${place}` : label;
 }
