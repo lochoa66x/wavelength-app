@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { MapPin, Clock, ExternalLink, Check, ArrowRight, ArrowLeft, Pencil, Sparkles, Loader2, CheckCircle2, Circle, Search, Bookmark, X, RotateCcw, LogOut } from "lucide-react";
 import { BrandMark } from "./BrandMark.jsx";
 import { AtsReview } from "./AtsReview.jsx";
@@ -14,10 +14,12 @@ import { useAuth } from "./auth.jsx";
 import {
   COUNTRY_OPTIONS,
   LOCATION_OPTIONS,
+  formatLocationSearchValue,
   formatLocationPreference,
   hasStructuredLocationFilter,
   locationMatches,
   normalizeLocationCriteria,
+  parseLocationSearchValue,
   regionOptionsForCountry,
 } from "./listingLocations.js";
 import { useLiveListings } from "./useLiveListings.js";
@@ -74,6 +76,10 @@ html, body, #root { min-height: 100%; background: #F5F5F7; }
   border: 1px solid rgba(255,255,255,0.6);
   box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05);
 }
+@media (max-width: 700px) {
+  .wl-job-search-grid { grid-template-columns: 1fr !important; }
+  .wl-job-search-grid > button { width: 100%; justify-content: center; }
+}
 @media (max-width: 460px) {
   .wl-searchrow { flex-wrap: wrap; }
   .wl-searchrow > button { width: 100%; justify-content: center; }
@@ -96,7 +102,7 @@ const DEFAULT_CRITERIA = {
   keyword: "",
   field: null,
   location: "either",
-  countryCode: "",
+  countryCode: "CA",
   region: "",
   city: "",
   workTypes: [],
@@ -332,83 +338,80 @@ function SourceAttribution({ source }) {
   );
 }
 
-function LocationFields({
-  countryCode = "",
-  region = "",
-  city = "",
-  onCountryChange,
-  onRegionChange,
-  onCityChange,
-  onApply,
-}) {
-  const regionOptions = regionOptionsForCountry(countryCode);
-  const fieldStyle = {
-    width: "100%",
-    minWidth: 0,
-    background: C.bgCard,
-    border: `1px solid ${C.border}`,
-    borderRadius: 10,
-    padding: "9px 11px",
-    color: C.text,
-    fontSize: 14,
-    fontFamily: SYS_FONT,
-  };
+function buildLocationSuggestions(listings = []) {
+  const suggestions = new Set();
+
+  COUNTRY_OPTIONS.filter(({ id }) => id).forEach((country) => {
+    suggestions.add(country.label);
+    regionOptionsForCountry(country.id).forEach((region) => {
+      suggestions.add(`${region.label}, ${country.label}`);
+    });
+  });
+
+  listings.forEach((listing) => {
+    const label = formatLocationSearchValue(listing.locationData || {});
+    if (label) suggestions.add(label);
+  });
+
+  return [...suggestions];
+}
+
+function LocationSearchField({ id, value, onChange, suggestions = [] }) {
+  const listId = `${id}-suggestions`;
 
   return (
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 10 }}>
-      <label style={{ minWidth: 0, color: C.textSub, fontSize: 11.5, fontWeight: 600 }}>
-        Country
-        <select
-          value={countryCode}
-          onChange={(event) => onCountryChange(event.target.value)}
-          style={{ ...fieldStyle, marginTop: 5 }}
-        >
-          {COUNTRY_OPTIONS.map((option) => (
-            <option key={option.id || "any"} value={option.id}>{option.label}</option>
-          ))}
-        </select>
-      </label>
-      <label style={{ minWidth: 0, color: C.textSub, fontSize: 11.5, fontWeight: 600 }}>
-        Province or state
-        <select
-          value={region}
-          onChange={(event) => onRegionChange(event.target.value)}
-          disabled={!countryCode}
-          style={{ ...fieldStyle, marginTop: 5, opacity: countryCode ? 1 : 0.55 }}
-        >
-          <option value="">{countryCode ? "Any province or state" : "Choose a country first"}</option>
-          {regionOptions.map((option) => (
-            <option key={option.id} value={option.id}>{option.label}</option>
-          ))}
-        </select>
-      </label>
-      <label style={{ minWidth: 0, color: C.textSub, fontSize: 11.5, fontWeight: 600 }}>
-        City
-        <div style={{ display: "flex", gap: 6, marginTop: 5 }}>
-          <input
-            value={city}
-            onChange={(event) => onCityChange(event.target.value)}
-            onKeyDown={(event) => {
-              if (event.key === "Enter" && onApply) onApply();
-            }}
-            placeholder="Any city"
-            aria-label="Preferred city"
-            style={fieldStyle}
-          />
-          {onApply && (
+    <label htmlFor={id} style={{ display: "block", minWidth: 0 }}>
+      <span style={{ display: "block", color: C.textSub, fontSize: 12, fontWeight: 600, marginBottom: 6 }}>Where</span>
+      <div style={{ position: "relative" }}>
+        <MapPin size={15} color={C.textFaint} style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
+        <input
+          id={id}
+          value={value}
+          onChange={(event) => onChange(event.target.value)}
+          list={listId}
+          autoComplete="off"
+          placeholder="City, province, or country"
+          style={{ width: "100%", minWidth: 0, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 12, padding: "11px 12px 11px 38px", color: C.text, fontSize: 14, fontFamily: SYS_FONT }}
+        />
+        <datalist id={listId}>
+          {suggestions.map((suggestion) => <option key={suggestion} value={suggestion} />)}
+        </datalist>
+      </div>
+    </label>
+  );
+}
+
+function WorkplaceTypeChips({ value = "either", onChange }) {
+  return (
+    <fieldset style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>
+      <legend style={{ color: C.textSub, fontSize: 12, fontWeight: 600, marginBottom: 7 }}>Workplace</legend>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+        {LOCATION_OPTIONS.map((option) => {
+          const active = value === option.id;
+          return (
             <button
+              key={option.id}
               type="button"
-              onClick={onApply}
+              aria-pressed={active}
+              onClick={() => onChange(option.id)}
               className="wl-btn"
-              aria-label="Apply city filter"
-              style={{ width: 38, height: 38, flexShrink: 0, borderRadius: 10, border: "none", background: C.green, color: "#FFFFFF", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}
+              style={{
+                fontSize: 12.5,
+                fontWeight: 600,
+                padding: "7px 12px",
+                borderRadius: 980,
+                cursor: "pointer",
+                border: `1px solid ${active ? C.text : C.border}`,
+                background: active ? "#F0EFEE" : "transparent",
+                color: active ? C.text : C.textSub,
+              }}
             >
-              <ArrowRight size={16} />
+              {option.label}
             </button>
-          )}
-        </div>
-      </label>
-    </div>
+          );
+        })}
+      </div>
+    </fieldset>
   );
 }
 
@@ -476,10 +479,8 @@ export default function Gigscapes() {
   const [viewFilter, setViewFilter] = useState("all");
   const [showDismissed, setShowDismissed] = useState(false);
   const [quickSearch, setQuickSearch] = useState("");
-  const [quickLocation, setQuickLocation] = useState("");
-  const [quickCountryCode, setQuickCountryCode] = useState("");
-  const [quickRegion, setQuickRegion] = useState("");
-  const [onboardingLocationMode, setOnboardingLocationMode] = useState("");
+  const [quickWhere, setQuickWhere] = useState("Canada");
+  const [quickLocationMode, setQuickLocationMode] = useState("either");
   const [resumeDraft, setResumeDraft] = useState("");
   const [resumeReturnStep, setResumeReturnStep] = useState("digest");
   const [localResume, setLocalResume] = useState("");
@@ -491,11 +492,24 @@ export default function Gigscapes() {
   const resume = localResume;
   const dismissed = profile?.dismissed_listings || [];
   const saved = profile?.saved_listings || [];
+  const locationSuggestions = useMemo(
+    () => buildLocationSuggestions(liveListings),
+    [liveListings],
+  );
 
   // Search preferences and listing actions remain account-level. The resume is
   // intentionally device-only because it contains much more sensitive data.
   const updateCriteria = (patch) => {
     updateProfile({ criteria: { ...criteria, ...patch } }).catch(() => {});
+  };
+  const applyQuickSearch = () => {
+    const location = parseLocationSearchValue(quickWhere, "CA");
+    updateCriteria({
+      keyword: quickSearch.trim(),
+      field: quickSearch.trim() ? null : criteria.field,
+      location: quickLocationMode || "either",
+      ...location,
+    });
   };
   const toggleWorkType = (workType) => {
     const current = criteria.workTypes || [];
@@ -614,11 +628,9 @@ export default function Gigscapes() {
   useEffect(() => {
     if (step === "digest" || step === "location") {
       setQuickSearch(criteria.keyword || "");
-      setQuickLocation(criteria.city || "");
-      setQuickCountryCode(criteria.countryCode || "");
-      setQuickRegion(criteria.region || "");
+      setQuickWhere(formatLocationSearchValue(criteria) || (step === "location" ? "Canada" : ""));
+      setQuickLocationMode(criteria.location || "either");
     }
-    if (step === "location") setOnboardingLocationMode(criteria.location || "");
   }, [
     step,
     criteria.keyword,
@@ -801,43 +813,32 @@ export default function Gigscapes() {
         <ProgressBars current={stepIndex} total={5} />
         <div style={{ fontSize: 13, color: C.textSub, fontWeight: 500, marginBottom: 6 }}>Step 2 of 5</div>
         <h2 style={{ fontSize: 23, fontWeight: 700, margin: "0 0 6px", color: C.text }}>Where and how do you want to work?</h2>
-        <p style={{ fontSize: 14, color: C.textSub, margin: "0 0 20px" }}>Choose a location type. You can change it directly from your results later.</p>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {LOCATION_OPTIONS.map((option) => (
-            <Chip
-              key={option.id}
-              active={onboardingLocationMode === option.id}
-              onClick={() => setOnboardingLocationMode(option.id)}
-            >
-              {option.label}
-            </Chip>
-          ))}
-        </div>
-        <div style={{ marginTop: 14 }}>
-          <LocationFields
-            countryCode={quickCountryCode}
-            region={quickRegion}
-            city={quickLocation}
-            onCountryChange={(countryCode) => {
-              setQuickCountryCode(countryCode);
-              setQuickRegion("");
-            }}
-            onRegionChange={setQuickRegion}
-            onCityChange={setQuickLocation}
+        <p style={{ fontSize: 14, color: C.textSub, margin: "0 0 20px" }}>Start broad with Canada or choose a province or city. Workplace type stays separate.</p>
+        <div style={{ display: "grid", gap: 16, padding: 16, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 14 }}>
+          <LocationSearchField
+            id="onboarding-location"
+            value={quickWhere}
+            onChange={setQuickWhere}
+            suggestions={locationSuggestions}
           />
+          <WorkplaceTypeChips value={quickLocationMode} onChange={setQuickLocationMode} />
+          {quickLocationMode === "remote" && (
+            <div style={{ color: C.textFaint, fontSize: 12.5, lineHeight: 1.4 }}>
+              Remote jobs may still require you to live in the selected country or province.
+            </div>
+          )}
         </div>
         <NavRow
           onBack={() => setStep("field")}
           onNext={() => {
+            const location = parseLocationSearchValue(quickWhere, "CA");
             updateCriteria({
-              location: onboardingLocationMode,
-              countryCode: quickCountryCode,
-              region: quickRegion,
-              city: quickLocation.trim(),
+              location: quickLocationMode,
+              ...location,
             });
             setStep("tuning");
           }}
-          nextDisabled={!onboardingLocationMode}
+          nextDisabled={!quickLocationMode}
         />
       </div>,
       { showSignOut: true }
@@ -1070,104 +1071,71 @@ export default function Gigscapes() {
         </button>
       </div>
 
-      <div style={{ marginBottom: 16 }}>
-        <div style={{ position: "relative", width: "100%", maxWidth: 440 }}>
-          <Search size={14} color={C.textFaint} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
-          <input
-            value={quickSearch}
-            onChange={(e) => setQuickSearch(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter" && quickSearch.trim()) updateCriteria({ keyword: quickSearch.trim(), field: null }); }}
-            placeholder="Search something else"
-            style={{ width: "100%", boxSizing: "border-box", background: C.bgCard, border: `1.5px solid ${C.border}`, borderRadius: 980, padding: "10px 48px 10px 38px", color: C.text, fontSize: 16, fontFamily: SYS_FONT, boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}
+      <form
+        onSubmit={(event) => {
+          event.preventDefault();
+          applyQuickSearch();
+        }}
+        style={{ marginBottom: 16, padding: 14, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 14 }}
+      >
+        <div className="wl-job-search-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.1fr) minmax(220px, 0.9fr) auto", gap: 10, alignItems: "end" }}>
+          <label htmlFor="job-search-keyword" style={{ display: "block", minWidth: 0 }}>
+            <span style={{ display: "block", color: C.textSub, fontSize: 12, fontWeight: 600, marginBottom: 6 }}>What</span>
+            <div style={{ position: "relative" }}>
+              <Search size={15} color={C.textFaint} style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
+              <input
+                id="job-search-keyword"
+                value={quickSearch}
+                onChange={(event) => setQuickSearch(event.target.value)}
+                placeholder="Job title, skill, or gig"
+                style={{ width: "100%", minWidth: 0, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 12, padding: "11px 12px 11px 38px", color: C.text, fontSize: 14, fontFamily: SYS_FONT }}
+              />
+            </div>
+          </label>
+          <LocationSearchField
+            id="job-search-location"
+            value={quickWhere}
+            onChange={setQuickWhere}
+            suggestions={locationSuggestions}
           />
-          {/* Small inline submit — tappable on mobile, clickable on desktop.
-              Fades in only once there's a query, so an empty state isn't cluttered. */}
-          {quickSearch.trim() && (
-            <button
-              onClick={() => updateCriteria({ keyword: quickSearch.trim(), field: null })}
-              aria-label="Search"
-              className="wl-btn"
-              style={{ position: "absolute", right: 6, top: "50%", transform: "translateY(-50%)", width: 32, height: 32, borderRadius: "50%", border: "none", background: C.green, color: "#FFFFFF", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", padding: 0 }}
-            >
-              <ArrowRight size={16} strokeWidth={2.5} />
-            </button>
-          )}
+          <button
+            type="submit"
+            disabled={!quickSearch.trim() && !criteria.field}
+            className="wl-btn"
+            style={{ ...primaryBtnStyle(!quickSearch.trim() && !criteria.field), minHeight: 42, borderRadius: 12, padding: "10px 15px", fontSize: 13, whiteSpace: "nowrap" }}
+          >
+            Show jobs <ArrowRight size={15} />
+          </button>
         </div>
-      </div>
-
-      <div style={{ marginBottom: 16, padding: "12px", background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 14 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 12, marginBottom: 10 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.textSub, fontSize: 12.5, fontWeight: 600 }}>
-            <MapPin size={13} /> Location
-          </div>
-          {hasLocationFilter && (
-            <button
-              onClick={() => {
-                setQuickLocation("");
-                setQuickCountryCode("");
-                setQuickRegion("");
-                updateCriteria({ location: "either", countryCode: "", region: "", city: "" });
-              }}
-              className="wl-btn"
-              style={{ display: "flex", alignItems: "center", gap: 4, padding: 0, border: "none", background: "transparent", color: C.textSub, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: SYS_FONT }}
-            >
-              <X size={12} /> Clear
-            </button>
-          )}
-        </div>
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-          {LOCATION_OPTIONS.map((option) => {
-            const active = criteria.location === option.id;
-            return (
-              <button
-                key={option.id}
-                onClick={() => updateCriteria({ location: option.id })}
-                className="wl-btn"
-                style={{
-                  fontSize: 12.5,
-                  fontWeight: 600,
-                  padding: "7px 12px",
-                  borderRadius: 980,
-                  cursor: "pointer",
-                  border: `1px solid ${active ? C.text : C.border}`,
-                  background: active ? "#F0EFEE" : "transparent",
-                  color: active ? C.text : C.textSub,
-                }}
-              >
-                {option.label}
-              </button>
-            );
-          })}
-        </div>
-        <div style={{ marginTop: 10 }}>
-          <LocationFields
-            countryCode={quickCountryCode}
-            region={quickRegion}
-            city={quickLocation}
-            onCountryChange={(countryCode) => {
-              setQuickCountryCode(countryCode);
-              setQuickRegion("");
-              updateCriteria({ countryCode, region: "" });
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end", gap: 14, flexWrap: "wrap", marginTop: 14 }}>
+          <WorkplaceTypeChips value={quickLocationMode} onChange={setQuickLocationMode} />
+          <button
+            type="button"
+            onClick={() => {
+              setQuickWhere("Canada");
+              setQuickLocationMode("either");
             }}
-            onRegionChange={(region) => {
-              setQuickRegion(region);
-              updateCriteria({ region });
-            }}
-            onCityChange={setQuickLocation}
-            onApply={() => updateCriteria({ city: quickLocation.trim() })}
-          />
+            className="wl-btn"
+            style={{ border: 0, padding: "4px 0", background: "transparent", color: C.textSub, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: SYS_FONT }}
+          >
+            Reset to Canada
+          </button>
         </div>
-        {hasLocationFilter && (
-          <div aria-live="polite" style={{ marginTop: 10, color: C.textFaint, fontSize: 12.5 }}>
-            Showing {filtered.length} matching results from {liveListings.length} loaded location-matched listings{Number.isInteger(listingsTotal) ? ` (${listingsTotal} available)` : ""} · {formatLocationPreference(criteria)}
+        {quickLocationMode === "remote" && (
+          <div style={{ marginTop: 10, color: C.textFaint, fontSize: 12.5 }}>
+            Remote jobs may still require you to live in the selected country or province.
           </div>
         )}
+        <div aria-live="polite" style={{ marginTop: 10, color: C.textFaint, fontSize: 12.5 }}>
+          {filtered.length} {filtered.length === 1 ? "job matches" : "jobs match"} · {formatLocationPreference(criteria)}
+          {Number.isInteger(listingsTotal) ? ` · ${listingsTotal} listings available` : ""}
+        </div>
         {legacyLocationFallback && (
           <div role="status" style={{ marginTop: 8, color: C.amber, fontSize: 12 }}>
             Structured location columns are unavailable, so this session is using compatibility filtering.
           </div>
         )}
-      </div>
+      </form>
 
       <div className="wl-filterrow" style={{ display: "flex", gap: 8, marginBottom: 16 }}>
         <button

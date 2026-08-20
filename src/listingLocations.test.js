@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import {
   formatListingLocation,
+  formatLocationSearchValue,
   formatLocationPreference,
   hasStructuredLocationFilter,
   inferLocationType,
@@ -12,6 +13,7 @@ import {
   normalizeLocationCriteria,
   normalizeLocationPreference,
   parseLocationText,
+  parseLocationSearchValue,
   regionOptionsForCountry,
   structuredLocationModeFilter,
   summarizeLocationCoverage,
@@ -106,6 +108,34 @@ test("location preference summaries are human-readable", () => {
     countryCode: "CA",
     region: "Ontario",
   }), "Remote in Ontario, Canada");
+  assert.equal(formatLocationPreference({
+    location: "either",
+    countryCode: "CA",
+    region: "Quebec",
+  }), "Quebec, Canada");
+});
+
+test("one location search value round-trips to structured criteria", () => {
+  assert.deepEqual(parseLocationSearchValue("Montreal, Quebec, Canada"), {
+    city: "Montreal",
+    region: "quebec",
+    countryCode: "CA",
+  });
+  assert.deepEqual(parseLocationSearchValue("Quebec"), {
+    city: "",
+    region: "quebec",
+    countryCode: "CA",
+  });
+  assert.deepEqual(parseLocationSearchValue(""), {
+    city: "",
+    region: "",
+    countryCode: "CA",
+  });
+  assert.equal(formatLocationSearchValue({
+    city: "Montreal",
+    region: "QC",
+    countryCode: "CA",
+  }), "Montreal, Quebec, Canada");
 });
 
 test("legacy location text upgrades into structured persisted criteria", () => {

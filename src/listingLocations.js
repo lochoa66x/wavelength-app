@@ -1,5 +1,5 @@
 export const LOCATION_OPTIONS = [
-  { id: "either", label: "Anywhere" },
+  { id: "either", label: "All" },
   { id: "remote", label: "Remote" },
   { id: "hybrid", label: "Hybrid" },
   { id: "onsite", label: "On-site" },
@@ -94,7 +94,7 @@ const REGION_DEFINITIONS = Object.entries(REGION_OPTIONS_BY_COUNTRY)
     [region, ...aliases],
   ]));
 
-const COUNTRY_LABELS = { CA: "Canada", US: "United States" };
+export const COUNTRY_LABELS = { CA: "Canada", US: "United States" };
 const COUNTRY_ALIASES = new Map([
   ["canada", "CA"], ["canadian", "CA"], ["can", "CA"],
   ["united states", "US"], ["united states of america", "US"], ["usa", "US"], ["u s a", "US"], ["us", "US"],
@@ -169,6 +169,15 @@ export function parseLocationText(value = "") {
   };
 }
 
+export function parseLocationSearchValue(value = "", defaultCountryCode = "CA") {
+  const trimmed = String(value || "").trim();
+  if (!trimmed) {
+    return { city: "", region: "", countryCode: normalizeCountryCode(defaultCountryCode) };
+  }
+
+  return parseLocationText(trimmed);
+}
+
 export function normalizeLocationPreference(preference) {
   if (preference === "local") return "onsite";
   if (preference === "any") return "either";
@@ -200,6 +209,19 @@ export function normalizeLocationCriteria(criteria = {}) {
   if (countryCode && regionCountryCode && countryCode !== regionCountryCode) region = "";
 
   return { location, countryCode, region, city };
+}
+
+export function formatLocationSearchValue(criteria = {}) {
+  const normalized = normalizeLocationCriteria(criteria);
+  const regionLabel = normalized.region
+    ? regionOptionsForCountry(normalized.countryCode)
+      .find(({ id }) => id === normalized.region)?.label
+      || normalized.region.replace(/\b\w/g, (letter) => letter.toUpperCase())
+    : "";
+
+  return [normalized.city, regionLabel, COUNTRY_LABELS[normalized.countryCode]]
+    .filter(Boolean)
+    .join(", ");
 }
 
 export function hasStructuredLocationFilter(criteria = {}) {
@@ -322,12 +344,8 @@ export function formatLocationPreference(criteriaOrMode, query = "") {
     ? criteriaOrMode
     : { location: criteriaOrMode, city: query };
   const normalized = normalizeLocationCriteria(criteria);
-  const label = LOCATION_OPTIONS.find(({ id }) => id === normalized.location)?.label || "Anywhere";
-  const region = normalized.region
-    ? normalized.region.replace(/\b\w/g, (letter) => letter.toUpperCase())
-    : "";
-  const place = [normalized.city, region, COUNTRY_LABELS[normalized.countryCode]]
-    .filter(Boolean)
-    .join(", ");
+  const label = LOCATION_OPTIONS.find(({ id }) => id === normalized.location)?.label || "All";
+  const place = formatLocationSearchValue(normalized);
+  if (normalized.location === "either") return place || "Anywhere";
   return place ? `${label} in ${place}` : label;
 }
