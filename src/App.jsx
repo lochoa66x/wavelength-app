@@ -29,6 +29,15 @@ import {
 } from "./listingCategories.js";
 
 const SYS_FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, sans-serif";
+const ADZUNA_ATTRIBUTION_STYLE = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  minWidth: 116,
+  minHeight: 23,
+};
+const ADZUNA_LINK_STYLE = { color: "inherit", textDecoration: "none" };
+const ADZUNA_NAME_LINK_STYLE = { ...ADZUNA_LINK_STYLE, fontWeight: 700 };
 
 const STYLE_TAG = `
 *, *::before, *::after { box-sizing: border-box; }
@@ -310,6 +319,18 @@ function TierBadge({ tier }) {
         {isHigh ? "Strong match" : "Possible match"}
       </span>
     </div>
+  );
+}
+
+function SourceAttribution({ source }) {
+  if (source !== "Jobs by Adzuna") return <span>{source}</span>;
+
+  return (
+    <span aria-label="Jobs by Adzuna" style={ADZUNA_ATTRIBUTION_STYLE}>
+      <a href="https://www.adzuna.ca/" target="_blank" rel="noreferrer" style={ADZUNA_LINK_STYLE}>Jobs</a>
+      <span>&nbsp;by&nbsp;</span>
+      <a href="https://www.adzuna.ca/" target="_blank" rel="noreferrer" style={ADZUNA_NAME_LINK_STYLE}>Adzuna</a>
+    </span>
   );
 }
 
@@ -1203,7 +1224,7 @@ export default function Gigscapes() {
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 10, fontSize: 12.5, color: C.textFaint }}>
                       <span style={{ display: "flex", alignItems: "center", gap: 4 }}><MapPin size={12} /> {item.location}</span>
                       <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Clock size={12} /> {item.type}</span>
-                      <span>{item.source}</span>
+                      <SourceAttribution source={item.source} />
                     </div>
                     <div style={{ fontSize: 12.5, color: C.textFaint, marginTop: 8 }}>{item.reason}</div>
                   </div>
@@ -1314,8 +1335,8 @@ export default function Gigscapes() {
         )}
       </div>
       <div style={{ marginTop: 28, paddingTop: 18, borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between" }}>
-        <span style={{ fontSize: 12, color: C.textFaint, fontWeight: 500 }}>
-          Live sources: We Work Remotely • Adzuna • Craigslist (temporarily paused)
+        <span style={{ fontSize: 12, color: C.textFaint, fontWeight: 500, display: "flex", alignItems: "center", flexWrap: "wrap" }}>
+          Live sources: We Work Remotely&nbsp;•&nbsp;<SourceAttribution source="Jobs by Adzuna" />&nbsp;•&nbsp;Craigslist (temporarily paused)
         </span>
         <span style={{ fontSize: 12, color: C.textFaint }}>Refreshed daily</span>
       </div>

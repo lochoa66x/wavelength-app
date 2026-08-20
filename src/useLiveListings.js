@@ -18,7 +18,7 @@ import { supabase } from "./supabase.js";
 
 const SOURCE_DISPLAY_NAMES = {
   wwr: "We Work Remotely",
-  adzuna: "Adzuna",
+  adzuna: "Jobs by Adzuna",
   craigslist: "Craigslist",
 };
 

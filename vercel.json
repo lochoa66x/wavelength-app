@@ -2,8 +2,17 @@
   "functions": {
     "api/tailor.js": {
       "maxDuration": 60
+    },
+    "api/cron/adzuna.js": {
+      "maxDuration": 300
     }
   },
+  "crons": [
+    {
+      "path": "/api/cron/adzuna",
+      "schedule": "20 6 * * *"
+    }
+  ],
   "rewrites": [
     { "source": "/app", "destination": "/index.html" },
     { "source": "/app/:path*", "destination": "/index.html" },
