@@ -110,3 +110,26 @@ test("ATS truth check allows transferable-skills rewriting inside supported hist
   assert.equal(review.unsupported_history.length, 0);
   assert.equal(review.unsupported_metrics.length, 0);
 });
+
+test("ATS truth check ignores numbers in the non-exported fit assessment", () => {
+  const review = buildAtsReview({
+    profile: "Operations leader moving into web development.",
+    skills: ["Systems integration"],
+    experience: [{
+      role: "Operations Manager",
+      company: "Real Corp",
+      dates: "2020–2023",
+      bullets: ["Led systems integration programs."],
+    }],
+    fit_assessment: {
+      path: "career_change",
+      recommended_level: "Entry-level",
+      note: "The posting asks for 5 years of direct web development experience.",
+    },
+  }, "Operations Manager — Real Corp — 2020–2023\nLed systems integration programs.", {
+    keywords: ["systems integration"],
+  });
+
+  assert.notEqual(review.status, "blocked");
+  assert.equal(review.unsupported_metrics.length, 0);
+});

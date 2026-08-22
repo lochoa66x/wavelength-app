@@ -176,3 +176,72 @@ test("tailoring accepts a reviewed custom job without loading a database listing
   assert.equal(res.body.ats_review.status, "ready");
   assert.match(anthropicRequest.messages[0].content, /Candidate-provided posting reviewed before tailoring|Lead operational programs/);
 });
+
+test("tailoring automatically repairs one unsafe model draft before returning it", async () => {
+  const requests = [];
+  const drafts = [
+    {
+      profile: "Operations leader moving into web development.",
+      experience: [{
+        role: "Web Developer",
+        company: "Real Corp",
+        dates: "2020–2023",
+        bullets: ["Led 99 integration programs."],
+      }],
+      skills: ["Systems integration"],
+      fit_assessment: { path: "career_change", recommended_level: "Entry-level", note: "Transferable positioning." },
+    },
+    {
+      profile: "Operations leader moving into web development.",
+      experience: [{
+        role: "Operations Manager",
+        company: "Real Corp",
+        dates: "2020–2023",
+        bullets: ["Led integration programs."],
+      }],
+      skills: ["Systems integration"],
+      fit_assessment: { path: "career_change", recommended_level: "Entry-level", note: "Transferable positioning." },
+    },
+  ];
+  const handler = createTailorHandler({
+    authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
+    loadListing: async () => ({
+      id: 7,
+      title: "Web Developer",
+      company: "Target Co",
+      type: "Full-time",
+      category: "technology",
+      description: "Build and maintain web applications.",
+      reason: "Technology role",
+    }),
+    fetchImpl: async (_url, options) => {
+      requests.push(JSON.parse(options.body));
+      const input = drafts[requests.length - 1];
+      return {
+        ok: true,
+        json: async () => ({
+          content: [{ type: "tool_use", name: "return_tailored_resume", input }],
+        }),
+      };
+    },
+    getApiKey: () => "test-key",
+  });
+  const res = responseRecorder();
+
+  await handler({
+    method: "POST",
+    headers: { authorization: "Bearer valid" },
+    body: {
+      resume: "Operations Manager — Real Corp — 2020–2023\nLed integration programs.",
+      listingId: 7,
+    },
+  }, res);
+
+  assert.equal(requests.length, 2);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.repair_applied, true);
+  assert.equal(res.body.resume.experience[0].role, "Operations Manager");
+  assert.match(requests[1].messages[0].content, /EVIDENCE REPAIR PASS/);
+  assert.match(requests[1].messages[0].content, /unsupported_numbers.*99/);
+  assert.match(requests[1].messages[0].content, /unsupported_history.*role/);
+});

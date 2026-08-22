@@ -110,6 +110,23 @@ function textValues(value) {
   return [];
 }
 
+function exportedResumeValues(resumeData) {
+  const resume = resumeData || {};
+  return textValues({
+    name: resume.name,
+    title: resume.title,
+    contact: resume.contact,
+    profile: resume.profile,
+    skills: resume.skills,
+    experience: resume.experience,
+    education: resume.education,
+    languages: resume.languages,
+    certifications: resume.certifications,
+    safety_record: resume.safety_record,
+    safety_certifications: resume.safety_certifications,
+  });
+}
+
 function endYear(value) {
   const text = String(value || "").toLowerCase();
   if (/present|current|now|ongoing/.test(text)) return Number.POSITIVE_INFINITY;
@@ -152,7 +169,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief) {
   const verb_issues = [];
   const tense_issues = [];
 
-  const unsupportedClaims = [...new Set(textValues(resumeData).flatMap(numericClaims).filter((claim) => !allowedNumbers.has(claim)))];
+  const unsupportedClaims = [...new Set(exportedResumeValues(resumeData).flatMap(numericClaims).filter((claim) => !allowedNumbers.has(claim)))];
   unsupported_metrics.push(...unsupportedClaims.map((claim) => ({ claim })));
 
   for (const [experienceIndex, experience] of (resumeData.experience || []).entries()) {
