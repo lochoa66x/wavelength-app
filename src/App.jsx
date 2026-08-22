@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo, useRef } from "react";
-import { MapPin, Clock, ExternalLink, Check, ArrowRight, ArrowLeft, Pencil, Sparkles, Loader2, CheckCircle2, Circle, Search, Bookmark, X, RotateCcw, LogOut } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { MapPin, Clock, ExternalLink, Check, ArrowRight, ArrowLeft, Pencil, Sparkles, Loader2, CheckCircle2, Circle, Search, Bookmark, X, RotateCcw, LogOut, ChevronDown } from "lucide-react";
 import { BrandMark } from "./BrandMark.jsx";
 import { AtsReview } from "./AtsReview.jsx";
 import { CustomJobFlow } from "./CustomJobFlow.jsx";
@@ -19,7 +19,6 @@ import {
   hasStructuredLocationFilter,
   locationMatches,
   normalizeLocationCriteria,
-  parseLocationSearchValue,
   regionOptionsForCountry,
 } from "./listingLocations.js";
 import { useLiveListings } from "./useLiveListings.js";
@@ -66,6 +65,11 @@ html, body, #root { min-height: 100%; background: #F5F5F7; }
 .wl-btn:active:not(:disabled) { transform: scale(0.97); }
 .wl-card { transition: box-shadow 0.2s, transform 0.15s; }
 .wl-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 12px 28px rgba(0,0,0,0.07) !important; }
+.wl-digest-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; align-items: start; }
+.wl-digest-side { display: flex; flex-direction: column; gap: 14px; position: sticky; top: 20px; }
+.wl-primary-search-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: end; }
+.wl-location-editor-grid { display: grid; grid-template-columns: minmax(180px, 0.85fr) minmax(220px, 1.15fr); gap: 12px; align-items: end; }
+.wl-sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
 .wl-spin { animation: wl-spin 0.9s linear infinite; }
 @keyframes wl-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes wl-pulse { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.18); opacity: 0.35; } }
@@ -76,11 +80,17 @@ html, body, #root { min-height: 100%; background: #F5F5F7; }
   border: 1px solid rgba(255,255,255,0.6);
   box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05);
 }
+@media (max-width: 900px) {
+  .wl-digest-grid { grid-template-columns: 1fr; }
+  .wl-digest-side { position: static; order: -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
 @media (max-width: 700px) {
-  .wl-job-search-grid { grid-template-columns: 1fr !important; }
-  .wl-job-search-grid > button { width: 100%; justify-content: center; }
+  .wl-digest-side { grid-template-columns: 1fr; }
+  .wl-location-editor-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 460px) {
+  .wl-primary-search-row { grid-template-columns: 1fr; }
+  .wl-primary-search-row > button { width: 100%; justify-content: center; }
   .wl-searchrow { flex-wrap: wrap; }
   .wl-searchrow > button { width: 100%; justify-content: center; }
   .wl-filterrow { flex-wrap: wrap; row-gap: 8px; }
@@ -338,46 +348,124 @@ function SourceAttribution({ source }) {
   );
 }
 
-function buildLocationSuggestions(listings = []) {
-  const suggestions = new Set();
-
-  COUNTRY_OPTIONS.filter(({ id }) => id).forEach((country) => {
-    suggestions.add(country.label);
-    regionOptionsForCountry(country.id).forEach((region) => {
-      suggestions.add(`${region.label}, ${country.label}`);
-    });
-  });
-
-  listings.forEach((listing) => {
-    const label = formatLocationSearchValue(listing.locationData || {});
-    if (label) suggestions.add(label);
-  });
-
-  return [...suggestions];
-}
-
-function LocationSearchField({ id, value, onChange, suggestions = [] }) {
-  const listId = `${id}-suggestions`;
+function LocationPreferenceFields({
+  countryCode,
+  region,
+  city,
+  onCountryChange,
+  onRegionChange,
+  onCityChange,
+  cityExpanded,
+  onCityExpandedChange,
+  showCountryControl = true,
+  onChangeCountry,
+}) {
+  const regions = regionOptionsForCountry(countryCode);
+  const countryLabel = COUNTRY_OPTIONS.find(({ id }) => id === countryCode)?.label || "Any country";
+  const regionLabel = countryCode === "CA"
+    ? "Province or territory"
+    : countryCode === "US"
+      ? "State"
+      : "Province or state";
+  const anyRegionLabel = countryCode === "CA"
+    ? "Any province or territory"
+    : countryCode === "US"
+      ? "Any state"
+      : "Choose a country first";
+  const selectStyle = {
+    width: "100%",
+    minHeight: 43,
+    background: C.bgCard,
+    border: `1px solid ${C.border}`,
+    borderRadius: 12,
+    padding: "10px 12px",
+    color: C.text,
+    fontSize: 14,
+    fontFamily: SYS_FONT,
+  };
 
   return (
-    <label htmlFor={id} style={{ display: "block", minWidth: 0 }}>
-      <span style={{ display: "block", color: C.textSub, fontSize: 12, fontWeight: 600, marginBottom: 6 }}>Where</span>
-      <div style={{ position: "relative" }}>
-        <MapPin size={15} color={C.textFaint} style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
-        <input
-          id={id}
-          value={value}
-          onChange={(event) => onChange(event.target.value)}
-          list={listId}
-          autoComplete="off"
-          placeholder="City, province, or country"
-          style={{ width: "100%", minWidth: 0, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 12, padding: "11px 12px 11px 38px", color: C.text, fontSize: 14, fontFamily: SYS_FONT }}
-        />
-        <datalist id={listId}>
-          {suggestions.map((suggestion) => <option key={suggestion} value={suggestion} />)}
-        </datalist>
+    <div style={{ display: "grid", gap: 12 }}>
+      <div className="wl-location-editor-grid">
+        {showCountryControl ? (
+          <label htmlFor="preference-country" style={{ minWidth: 0 }}>
+            <span style={{ display: "block", color: C.textSub, fontSize: 12, fontWeight: 600, marginBottom: 6 }}>Country</span>
+            <select
+              id="preference-country"
+              value={countryCode}
+              onChange={(event) => {
+                onCountryChange(event.target.value);
+                onRegionChange("");
+                onCityChange("");
+                onCityExpandedChange(false);
+              }}
+              style={selectStyle}
+            >
+              {COUNTRY_OPTIONS.map((country) => <option key={country.id || "any"} value={country.id}>{country.label}</option>)}
+            </select>
+          </label>
+        ) : (
+          <div style={{ minWidth: 0 }}>
+            <span style={{ display: "block", color: C.textSub, fontSize: 12, fontWeight: 600, marginBottom: 6 }}>Country</span>
+            <div style={{ minHeight: 43, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, padding: "9px 12px", border: `1px solid ${C.border}`, borderRadius: 12, background: "#FAFAFB" }}>
+              <span style={{ color: C.text, fontSize: 14, fontWeight: 600 }}>{countryLabel}</span>
+              <button type="button" onClick={onChangeCountry} className="wl-btn" style={{ border: 0, padding: 0, background: "transparent", color: C.blue, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: SYS_FONT }}>Change</button>
+            </div>
+          </div>
+        )}
+        <label htmlFor="preference-region" style={{ minWidth: 0 }}>
+          <span style={{ display: "block", color: C.textSub, fontSize: 12, fontWeight: 600, marginBottom: 6 }}>{regionLabel}</span>
+          <select
+            id="preference-region"
+            value={region}
+            disabled={!countryCode}
+            onChange={(event) => {
+              onRegionChange(event.target.value);
+              onCityChange("");
+            }}
+            style={{ ...selectStyle, color: countryCode ? C.text : C.textFaint, cursor: countryCode ? "pointer" : "not-allowed" }}
+          >
+            <option value="">{anyRegionLabel}</option>
+            {regions.map((option) => <option key={option.id} value={option.id}>{option.label}</option>)}
+          </select>
+        </label>
       </div>
-    </label>
+
+      {(cityExpanded || city) ? (
+        <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", gap: 8, alignItems: "end" }}>
+          <label htmlFor="preference-city" style={{ minWidth: 0 }}>
+            <span style={{ display: "block", color: C.textSub, fontSize: 12, fontWeight: 600, marginBottom: 6 }}>City <span style={{ color: C.textFaint, fontWeight: 500 }}>(optional)</span></span>
+            <input
+              id="preference-city"
+              value={city}
+              onChange={(event) => onCityChange(event.target.value)}
+              placeholder="e.g. Montréal"
+              autoComplete="address-level2"
+              style={selectStyle}
+            />
+          </label>
+          <button
+            type="button"
+            aria-label="Remove city filter"
+            title="Remove city filter"
+            onClick={() => { onCityChange(""); onCityExpandedChange(false); }}
+            className="wl-btn"
+            style={{ width: 43, height: 43, display: "flex", alignItems: "center", justifyContent: "center", border: `1px solid ${C.border}`, borderRadius: 12, background: C.bgCard, color: C.textSub, cursor: "pointer" }}
+          >
+            <X size={15} />
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={() => onCityExpandedChange(true)}
+          className="wl-btn"
+          style={{ justifySelf: "start", border: 0, padding: "3px 0", background: "transparent", color: C.blue, fontSize: 12.5, fontWeight: 700, cursor: "pointer", fontFamily: SYS_FONT }}
+        >
+          + Narrow to a city
+        </button>
+      )}
+    </div>
   );
 }
 
@@ -479,8 +567,12 @@ export default function Gigscapes() {
   const [viewFilter, setViewFilter] = useState("all");
   const [showDismissed, setShowDismissed] = useState(false);
   const [quickSearch, setQuickSearch] = useState("");
-  const [quickWhere, setQuickWhere] = useState("Canada");
+  const [quickCountryCode, setQuickCountryCode] = useState("CA");
+  const [quickRegion, setQuickRegion] = useState("");
+  const [quickCity, setQuickCity] = useState("");
   const [quickLocationMode, setQuickLocationMode] = useState("either");
+  const [locationEditorOpen, setLocationEditorOpen] = useState(false);
+  const [cityEditorOpen, setCityEditorOpen] = useState(false);
   const [resumeDraft, setResumeDraft] = useState("");
   const [resumeReturnStep, setResumeReturnStep] = useState("digest");
   const [localResume, setLocalResume] = useState("");
@@ -492,24 +584,25 @@ export default function Gigscapes() {
   const resume = localResume;
   const dismissed = profile?.dismissed_listings || [];
   const saved = profile?.saved_listings || [];
-  const locationSuggestions = useMemo(
-    () => buildLocationSuggestions(liveListings),
-    [liveListings],
-  );
 
   // Search preferences and listing actions remain account-level. The resume is
   // intentionally device-only because it contains much more sensitive data.
   const updateCriteria = (patch) => {
     updateProfile({ criteria: { ...criteria, ...patch } }).catch(() => {});
   };
+  const quickLocationPatch = () => ({
+    location: quickLocationMode || "either",
+    countryCode: quickCountryCode,
+    region: quickRegion,
+    city: quickCity.trim(),
+  });
   const applyQuickSearch = () => {
-    const location = parseLocationSearchValue(quickWhere, "CA");
     updateCriteria({
       keyword: quickSearch.trim(),
       field: quickSearch.trim() ? null : criteria.field,
-      location: quickLocationMode || "either",
-      ...location,
+      ...quickLocationPatch(),
     });
+    setLocationEditorOpen(false);
   };
   const toggleWorkType = (workType) => {
     const current = criteria.workTypes || [];
@@ -628,8 +721,12 @@ export default function Gigscapes() {
   useEffect(() => {
     if (step === "digest" || step === "location") {
       setQuickSearch(criteria.keyword || "");
-      setQuickWhere(formatLocationSearchValue(criteria) || (step === "location" ? "Canada" : ""));
+      setQuickCountryCode(criteria.countryCode || "CA");
+      setQuickRegion(criteria.region || "");
+      setQuickCity(criteria.city || "");
       setQuickLocationMode(criteria.location || "either");
+      setCityEditorOpen(Boolean(criteria.city));
+      if (step !== "digest") setLocationEditorOpen(false);
     }
   }, [
     step,
@@ -707,12 +804,12 @@ export default function Gigscapes() {
         )}
       </div>
       {profileWriteError && (
-        <div role="alert" style={{ maxWidth: 720, margin: "-12px auto 20px", background: C.amberTint, border: `1px solid ${C.amberBorder}`, borderRadius: 12, padding: "10px 14px", color: C.text, fontSize: 13 }}>
+        <div role="alert" style={{ maxWidth: 1120, margin: "-12px auto 20px", background: C.amberTint, border: `1px solid ${C.amberBorder}`, borderRadius: 12, padding: "10px 14px", color: C.text, fontSize: 13 }}>
           {profileWriteError}
         </div>
       )}
       {cloudResumeWarning && (
-        <div role="alert" style={{ maxWidth: 720, margin: "-12px auto 20px", background: C.amberTint, border: `1px solid ${C.amberBorder}`, borderRadius: 12, padding: "10px 14px", color: C.text, fontSize: 13 }}>
+        <div role="alert" style={{ maxWidth: 1120, margin: "-12px auto 20px", background: C.amberTint, border: `1px solid ${C.amberBorder}`, borderRadius: 12, padding: "10px 14px", color: C.text, fontSize: 13 }}>
           {cloudResumeWarning}
         </div>
       )}
@@ -812,14 +909,18 @@ export default function Gigscapes() {
       <div style={{ maxWidth: 480 }}>
         <ProgressBars current={stepIndex} total={5} />
         <div style={{ fontSize: 13, color: C.textSub, fontWeight: 500, marginBottom: 6 }}>Step 2 of 5</div>
-        <h2 style={{ fontSize: 23, fontWeight: 700, margin: "0 0 6px", color: C.text }}>Where and how do you want to work?</h2>
-        <p style={{ fontSize: 14, color: C.textSub, margin: "0 0 20px" }}>Start broad with Canada or choose a province or city. Workplace type stays separate.</p>
+        <h2 style={{ fontSize: 23, fontWeight: 700, margin: "0 0 6px", color: C.text }}>Set your search area</h2>
+        <p style={{ fontSize: 14, color: C.textSub, margin: "0 0 20px", lineHeight: 1.5 }}>Your country becomes the default market. You can adjust the province and workplace type quickly from the matches page.</p>
         <div style={{ display: "grid", gap: 16, padding: 16, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 14 }}>
-          <LocationSearchField
-            id="onboarding-location"
-            value={quickWhere}
-            onChange={setQuickWhere}
-            suggestions={locationSuggestions}
+          <LocationPreferenceFields
+            countryCode={quickCountryCode}
+            region={quickRegion}
+            city={quickCity}
+            onCountryChange={setQuickCountryCode}
+            onRegionChange={setQuickRegion}
+            onCityChange={setQuickCity}
+            cityExpanded={cityEditorOpen}
+            onCityExpandedChange={setCityEditorOpen}
           />
           <WorkplaceTypeChips value={quickLocationMode} onChange={setQuickLocationMode} />
           {quickLocationMode === "remote" && (
@@ -831,10 +932,11 @@ export default function Gigscapes() {
         <NavRow
           onBack={() => setStep("field")}
           onNext={() => {
-            const location = parseLocationSearchValue(quickWhere, "CA");
             updateCriteria({
               location: quickLocationMode,
-              ...location,
+              countryCode: quickCountryCode,
+              region: quickRegion,
+              city: quickCity.trim(),
             });
             setStep("tuning");
           }}
@@ -904,6 +1006,10 @@ export default function Gigscapes() {
         <NavRow
           onBack={() => setStep("tuning")}
           onNext={async () => {
+            if (profile.onboarding_complete) {
+              setStep("digest");
+              return;
+            }
             try {
               await updateProfile({ onboarding_complete: true });
               setStep("resume_onboarding");
@@ -911,7 +1017,7 @@ export default function Gigscapes() {
               // The global account-change alert explains the failure.
             }
           }}
-          nextLabel="Next"
+          nextLabel={profile.onboarding_complete ? "Save preferences" : "Next"}
         />
       </div>,
       { showSignOut: true }
@@ -1025,8 +1131,12 @@ export default function Gigscapes() {
   }
 
   // digest
+  const appliedPlaceLabel = formatLocationSearchValue(criteria) || "Anywhere";
+  const appliedWorkplaceLabel = criteria.location === "either"
+    ? "All workplaces"
+    : LOCATION_OPTIONS.find(({ id }) => id === criteria.location)?.label || "All workplaces";
   return shell(
-    <div style={{ maxWidth: 720, margin: "0 auto" }}>
+    <div style={{ maxWidth: 1120, margin: "0 auto" }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 4, gap: 12, flexWrap: "wrap" }}>
         <span style={{ fontFamily: SYS_FONT, fontSize: 20, fontWeight: 700, color: C.text }}>Today's matches</span>
         <div style={{ display: "flex", gap: 14 }}>
@@ -1040,7 +1150,7 @@ export default function Gigscapes() {
             </button>
           )}
           <button
-            onClick={() => setStep("review")}
+            onClick={() => setStep("field")}
             className="wl-btn"
             style={{ display: "flex", alignItems: "center", gap: 4, background: "none", border: "none", color: C.textSub, fontSize: 13, fontWeight: 500, cursor: "pointer" }}
           >
@@ -1061,71 +1171,129 @@ export default function Gigscapes() {
         {listingsStatus === "ready" && lastFetched && `Updated ${lastFetched.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.`}
       </p>
 
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 14, padding: "14px 16px", margin: "0 0 16px", background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 14 }}>
-        <div>
-          <div style={{ color: C.text, fontSize: 14, fontWeight: 700, marginBottom: 3 }}>Already found a job elsewhere?</div>
-          <div style={{ color: C.textSub, fontSize: 12.5, lineHeight: 1.4 }}>Paste it, share its link, or upload screenshots — then tailor your résumé here.</div>
-        </div>
-        <button type="button" onClick={() => setStep("custom_job")} className="wl-btn" style={{ ...primaryBtnStyle(false), flexShrink: 0, fontSize: 12.5, padding: "9px 14px" }}>
-          <Sparkles size={13} /> Tailor a job I found
-        </button>
-      </div>
-
-      <form
-        onSubmit={(event) => {
-          event.preventDefault();
-          applyQuickSearch();
-        }}
-        style={{ marginBottom: 16, padding: 14, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 14 }}
-      >
-        <div className="wl-job-search-grid" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1.1fr) minmax(220px, 0.9fr) auto", gap: 10, alignItems: "end" }}>
-          <label htmlFor="job-search-keyword" style={{ display: "block", minWidth: 0 }}>
-            <span style={{ display: "block", color: C.textSub, fontSize: 12, fontWeight: 600, marginBottom: 6 }}>What</span>
-            <div style={{ position: "relative" }}>
-              <Search size={15} color={C.textFaint} style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
-              <input
-                id="job-search-keyword"
-                value={quickSearch}
-                onChange={(event) => setQuickSearch(event.target.value)}
-                placeholder="Job title, skill, or gig"
-                style={{ width: "100%", minWidth: 0, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 12, padding: "11px 12px 11px 38px", color: C.text, fontSize: 14, fontFamily: SYS_FONT }}
-              />
-            </div>
-          </label>
-          <LocationSearchField
-            id="job-search-location"
-            value={quickWhere}
-            onChange={setQuickWhere}
-            suggestions={locationSuggestions}
-          />
-          <button
-            type="submit"
-            disabled={!quickSearch.trim() && !criteria.field}
-            className="wl-btn"
-            style={{ ...primaryBtnStyle(!quickSearch.trim() && !criteria.field), minHeight: 42, borderRadius: 12, padding: "10px 15px", fontSize: 13, whiteSpace: "nowrap" }}
-          >
-            Show jobs <ArrowRight size={15} />
-          </button>
-        </div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "end", gap: 14, flexWrap: "wrap", marginTop: 14 }}>
-          <WorkplaceTypeChips value={quickLocationMode} onChange={setQuickLocationMode} />
+      <section aria-label="Search jobs and gigs" style={{ marginBottom: 18, padding: 16, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 16, boxShadow: "0 1px 2px rgba(0,0,0,0.025)" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+          <span style={{ color: C.textSub, fontSize: 12.5, fontWeight: 600 }}>Searching in</span>
           <button
             type="button"
-            onClick={() => {
-              setQuickWhere("Canada");
-              setQuickLocationMode("either");
-            }}
+            aria-expanded={locationEditorOpen}
+            aria-controls="digest-location-editor"
+            onClick={() => setLocationEditorOpen((open) => !open)}
             className="wl-btn"
-            style={{ border: 0, padding: "4px 0", background: "transparent", color: C.textSub, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: SYS_FONT }}
+            style={{ minHeight: 36, display: "inline-flex", alignItems: "center", gap: 6, border: `1px solid ${locationEditorOpen ? C.text : C.border}`, borderRadius: 980, padding: "7px 11px", background: locationEditorOpen ? "#F0EFEE" : C.bgCard, color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer", fontFamily: SYS_FONT }}
           >
-            Reset to Canada
+            <MapPin size={13} /> {appliedPlaceLabel} <ChevronDown size={13} />
+          </button>
+          <button
+            type="button"
+            aria-expanded={locationEditorOpen}
+            aria-controls="digest-location-editor"
+            onClick={() => setLocationEditorOpen(true)}
+            className="wl-btn"
+            style={{ minHeight: 36, display: "inline-flex", alignItems: "center", border: `1px solid ${C.border}`, borderRadius: 980, padding: "7px 11px", background: C.bgCard, color: C.textSub, fontSize: 12.5, fontWeight: 700, cursor: "pointer", fontFamily: SYS_FONT }}
+          >
+            {appliedWorkplaceLabel}
           </button>
         </div>
-        {quickLocationMode === "remote" && (
-          <div style={{ marginTop: 10, color: C.textFaint, fontSize: 12.5 }}>
-            Remote jobs may still require you to live in the selected country or province.
+
+        {locationEditorOpen && (
+          <div id="digest-location-editor" style={{ margin: "0 0 16px", padding: 14, border: `1px solid ${C.border}`, borderRadius: 14, background: "#FAFAFB" }}>
+            <LocationPreferenceFields
+              countryCode={quickCountryCode}
+              region={quickRegion}
+              city={quickCity}
+              onCountryChange={setQuickCountryCode}
+              onRegionChange={setQuickRegion}
+              onCityChange={setQuickCity}
+              cityExpanded={cityEditorOpen}
+              onCityExpandedChange={setCityEditorOpen}
+              showCountryControl={false}
+              onChangeCountry={() => setStep("location")}
+            />
+            <div style={{ marginTop: 14 }}>
+              <WorkplaceTypeChips value={quickLocationMode} onChange={setQuickLocationMode} />
+            </div>
+            {quickLocationMode === "remote" && (
+              <div style={{ marginTop: 10, color: C.textFaint, fontSize: 12.5, lineHeight: 1.45 }}>
+                Remote jobs may still require you to live in {COUNTRY_OPTIONS.find(({ id }) => id === quickCountryCode)?.label || "the selected market"}.
+              </div>
+            )}
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.border}` }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setQuickRegion("");
+                  setQuickCity("");
+                  setQuickLocationMode("either");
+                  setCityEditorOpen(false);
+                }}
+                className="wl-btn"
+                style={{ border: 0, padding: "7px 0", background: "transparent", color: C.textSub, fontSize: 12.5, fontWeight: 700, cursor: "pointer", fontFamily: SYS_FONT }}
+              >
+                Clear area filters
+              </button>
+              <div style={{ display: "flex", gap: 8 }}>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuickCountryCode(criteria.countryCode || "CA");
+                    setQuickRegion(criteria.region || "");
+                    setQuickCity(criteria.city || "");
+                    setQuickLocationMode(criteria.location || "either");
+                    setCityEditorOpen(Boolean(criteria.city));
+                    setLocationEditorOpen(false);
+                  }}
+                  className="wl-btn"
+                  style={{ border: `1px solid ${C.border}`, borderRadius: 980, padding: "8px 13px", background: C.bgCard, color: C.textSub, fontSize: 12.5, fontWeight: 700, cursor: "pointer", fontFamily: SYS_FONT }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    updateCriteria(quickLocationPatch());
+                    setLocationEditorOpen(false);
+                  }}
+                  className="wl-btn"
+                  style={{ ...primaryBtnStyle(false), padding: "8px 14px", fontSize: 12.5 }}
+                >
+                  Apply location
+                </button>
+              </div>
+            </div>
           </div>
         )}
+
+        <form
+          onSubmit={(event) => {
+            event.preventDefault();
+            applyQuickSearch();
+          }}
+        >
+          <label htmlFor="job-search-keyword" style={{ display: "block", minWidth: 0 }}>
+            <span style={{ display: "block", color: C.text, fontSize: 13, fontWeight: 700, marginBottom: 7 }}>What job or gig are you looking for?</span>
+            <div className="wl-primary-search-row">
+              <div style={{ position: "relative" }}>
+                <Search size={16} color={C.textFaint} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", pointerEvents: "none" }} />
+                <input
+                  id="job-search-keyword"
+                  value={quickSearch}
+                  onChange={(event) => setQuickSearch(event.target.value)}
+                  placeholder="IT manager, electrician, plumber, virtual assistant…"
+                  style={{ width: "100%", minWidth: 0, minHeight: 46, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 12, padding: "11px 13px 11px 41px", color: C.text, fontSize: 14.5, fontFamily: SYS_FONT }}
+                />
+              </div>
+              <button
+                type="submit"
+                disabled={!quickSearch.trim() && !criteria.field}
+                className="wl-btn"
+                style={{ ...primaryBtnStyle(!quickSearch.trim() && !criteria.field), minHeight: 46, borderRadius: 12, padding: "10px 17px", fontSize: 13, whiteSpace: "nowrap" }}
+              >
+                Search <ArrowRight size={15} />
+              </button>
+            </div>
+          </label>
+        </form>
         <div aria-live="polite" style={{ marginTop: 10, color: C.textFaint, fontSize: 12.5 }}>
           {filtered.length} {filtered.length === 1 ? "job matches" : "jobs match"} · {formatLocationPreference(criteria)}
           {Number.isInteger(listingsTotal) ? ` · ${listingsTotal} listings available` : ""}
@@ -1135,7 +1303,10 @@ export default function Gigscapes() {
             Structured location columns are unavailable, so this session is using compatibility filtering.
           </div>
         )}
-      </form>
+      </section>
+
+      <div className="wl-digest-grid">
+        <main style={{ minWidth: 0 }}>
 
       <div className="wl-filterrow" style={{ display: "flex", gap: 8, marginBottom: 16 }}>
         <button
@@ -1175,7 +1346,7 @@ export default function Gigscapes() {
       )}
       {locationFilteredOut && (
         <p style={{ fontSize: 13, color: C.blue, margin: "0 0 20px", padding: "12px 14px", background: C.blueTint, borderRadius: 12, border: `1px solid ${C.blueBorder}` }}>
-          No current listings match {formatLocationPreference(criteria).toLowerCase()}. Try a broader location, or <button onClick={() => { setQuickLocation(""); setQuickCountryCode(""); setQuickRegion(""); updateCriteria({ location: "either", countryCode: "", region: "", city: "" }); }} className="wl-btn" style={{ background: "none", border: "none", padding: 0, color: C.blue, fontWeight: 700, cursor: "pointer", font: "inherit", textDecoration: "underline" }}>search anywhere</button>.
+          No current listings match {formatLocationPreference(criteria).toLowerCase()}. Try a broader location, or <button onClick={() => { setQuickRegion(""); setQuickCity(""); setQuickLocationMode("either"); setCityEditorOpen(false); updateCriteria({ location: "either", region: "", city: "" }); }} className="wl-btn" style={{ background: "none", border: "none", padding: 0, color: C.blue, fontWeight: 700, cursor: "pointer", font: "inherit", textDecoration: "underline" }}>search the whole country</button>.
         </p>
       )}
       {isValidatedField && hasKeywordMatches && filtered.length > 0 && !keywordExactFound && (
@@ -1330,6 +1501,71 @@ export default function Gigscapes() {
           </button>
         )}
       </div>
+        </main>
+
+        <aside className="wl-digest-side" aria-label="Job search tools">
+          <section style={{ padding: 18, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 16, boxShadow: "0 1px 2px rgba(0,0,0,0.025)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.green, fontSize: 12.5, fontWeight: 700, marginBottom: 8 }}>
+              <Sparkles size={14} /> Bring your own posting
+            </div>
+            <h2 style={{ margin: "0 0 6px", color: C.text, fontSize: 16, lineHeight: 1.3 }}>Already found a job?</h2>
+            <p style={{ margin: "0 0 14px", color: C.textSub, fontSize: 12.5, lineHeight: 1.5 }}>
+              Paste the description, share its link, or upload screenshots. We&apos;ll tailor your résumé to it.
+            </p>
+            <button
+              type="button"
+              onClick={() => setStep("custom_job")}
+              className="wl-btn"
+              style={{ ...primaryBtnStyle(false), width: "100%", justifyContent: "center", padding: "10px 14px", fontSize: 12.5 }}
+            >
+              <Sparkles size={14} /> Tailor a job I found
+            </button>
+          </section>
+
+          <section style={{ padding: 18, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 16 }}>
+            <h2 style={{ margin: "0 0 12px", color: C.text, fontSize: 14.5 }}>Your search</h2>
+            <dl style={{ display: "grid", gridTemplateColumns: "auto minmax(0, 1fr)", gap: "9px 12px", margin: 0, fontSize: 12.5, lineHeight: 1.4 }}>
+              <dt style={{ color: C.textFaint }}>Looking for</dt>
+              <dd style={{ margin: 0, color: C.text, fontWeight: 650, textAlign: "right" }}>{criteria.keyword || criteria.field || "Any work"}</dd>
+              <dt style={{ color: C.textFaint }}>Location</dt>
+              <dd style={{ margin: 0, color: C.text, fontWeight: 650, textAlign: "right" }}>{appliedPlaceLabel}</dd>
+              <dt style={{ color: C.textFaint }}>Workplace</dt>
+              <dd style={{ margin: 0, color: C.text, fontWeight: 650, textAlign: "right" }}>{appliedWorkplaceLabel}</dd>
+            </dl>
+            <button
+              type="button"
+              onClick={() => setStep("field")}
+              className="wl-btn"
+              style={{ width: "100%", display: "flex", alignItems: "center", gap: 6, justifyContent: "center", marginTop: 14, border: `1px solid ${C.border}`, borderRadius: 980, padding: "8px 12px", background: "transparent", color: C.textSub, fontSize: 12.5, fontWeight: 700, cursor: "pointer", fontFamily: SYS_FONT }}
+            >
+              <Pencil size={13} /> Edit all preferences
+            </button>
+          </section>
+
+          <section style={{ padding: 18, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 16 }}>
+            <h2 style={{ margin: "0 0 10px", color: C.text, fontSize: 14.5 }}>Your workspace</h2>
+            <button
+              type="button"
+              onClick={() => setViewFilter("saved")}
+              className="wl-btn"
+              style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", border: 0, padding: "7px 0", background: "transparent", color: C.textSub, fontSize: 12.5, fontWeight: 650, cursor: "pointer", fontFamily: SYS_FONT }}
+            >
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}><Bookmark size={14} /> Saved jobs</span>
+              <span>{saved.length}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => { setResumeDraft(resume || ""); setResumeReturnStep("digest"); setStep("resume"); }}
+              className="wl-btn"
+              style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", border: 0, borderTop: `1px solid ${C.border}`, padding: "11px 0 5px", marginTop: 4, background: "transparent", color: C.textSub, fontSize: 12.5, fontWeight: 650, cursor: "pointer", fontFamily: SYS_FONT }}
+            >
+              <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}><Pencil size={14} /> Résumé</span>
+              <span style={{ color: resume ? C.green : C.amber }}>{resume ? "Ready" : "Add"}</span>
+            </button>
+          </section>
+        </aside>
+      </div>
+
       <div style={{ marginTop: 28, paddingTop: 18, borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", gap: 16 }}>
         <div style={{ color: C.textFaint, display: "flex", flexDirection: "column", gap: 6 }}>
           <span style={{ fontSize: 12, fontWeight: 500, display: "flex", alignItems: "center", flexWrap: "wrap" }}>
