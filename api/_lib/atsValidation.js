@@ -17,7 +17,85 @@ const WEAK_OPENERS = [
 ];
 
 function normalized(value) {
-  return String(value || "").toLowerCase().replace(/[^a-z0-9%+$]+/g, " ").trim();
+  return String(value || "")
+    .normalize("NFKD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9%+$]+/g, " ")
+    .trim();
+}
+
+const HISTORY_TOKEN_ALIASES = new Map([
+  ["sr", ["senior"]],
+  ["snr", ["senior"]],
+  ["jr", ["junior"]],
+  ["mgr", ["manager"]],
+  ["mgmt", ["management"]],
+  ["dir", ["director"]],
+  ["assoc", ["associate"]],
+  ["asst", ["assistant"]],
+  ["admin", ["administrator"]],
+  ["coord", ["coordinator"]],
+  ["dev", ["developer"]],
+  ["eng", ["engineer"]],
+  ["engr", ["engineer"]],
+  ["spec", ["specialist"]],
+]);
+
+const HISTORY_JOINERS = new Set(["a", "an", "and", "at", "for", "of", "the"]);
+const COMPANY_SUFFIXES = new Set([
+  "co", "company", "corp", "corporation", "inc", "incorporated", "llc", "limited", "ltd", "plc",
+]);
+
+function historyTokens(value, field) {
+  return normalized(value)
+    .split(/\s+/)
+    .filter(Boolean)
+    .flatMap((token) => HISTORY_TOKEN_ALIASES.get(token) || [token])
+    .filter((token) => !HISTORY_JOINERS.has(token))
+    .filter((token) => field !== "company" || !COMPANY_SUFFIXES.has(token));
+}
+
+function historySegments(baseResume) {
+  return String(baseResume || "")
+    .split(/\r?\n/)
+    .flatMap((line) => {
+      const parts = line.split(/\s+(?:[|•·]|[—–])\s+|\t+|\s{2,}/).map((part) => part.trim()).filter(Boolean);
+      return parts.length ? parts : [line];
+    })
+    .filter(Boolean);
+}
+
+function historyFieldSupported(value, baseResume, field) {
+  const candidateTokens = historyTokens(value, field);
+  if (!candidateTokens.length) return true;
+
+  const candidatePhrase = candidateTokens.join(" ");
+  const basePhrase = historyTokens(baseResume, field).join(" ");
+  if (basePhrase.includes(candidatePhrase)) return true;
+
+  return historySegments(baseResume).some((segment) => {
+    const sourceTokens = new Set(historyTokens(segment, field));
+    return candidateTokens.every((token) => sourceTokens.has(token));
+  });
+}
+
+function dateFieldSupported(value, baseResume) {
+  const candidate = normalized(value);
+  if (!candidate) return true;
+
+  const base = normalized(baseResume);
+  if (base.includes(candidate)) return true;
+
+  const years = [...candidate.matchAll(/\b(?:19|20)\d{2}\b/g)].map((match) => match[0]);
+  const current = isCurrent(candidate);
+  if (!years.length && !current) return false;
+
+  return String(baseResume || "").split(/\r?\n/).some((line) => {
+    const normalizedLine = normalized(line);
+    return years.every((year) => normalizedLine.includes(year))
+      && (!current || isCurrent(normalizedLine));
+  });
 }
 
 function numericClaims(value) {
@@ -68,7 +146,6 @@ export function enforceReverseChronology(resumeData) {
 
 export function buildAtsReview(resumeData, baseResume, jobBrief) {
   const base = String(baseResume || "");
-  const baseNormalized = normalized(base);
   const allowedNumbers = new Set(numericClaims(base));
   const unsupported_metrics = [];
   const unsupported_history = [];
@@ -83,13 +160,13 @@ export function buildAtsReview(resumeData, baseResume, jobBrief) {
     const company = String(experience?.company || "").trim();
     const dates = String(experience?.dates || "").trim();
 
-    if (role && !baseNormalized.includes(normalized(role))) {
+    if (role && !historyFieldSupported(role, base, "role")) {
       unsupported_history.push({ field: "role", value: role, experienceIndex });
     }
-    if (company && !baseNormalized.includes(normalized(company))) {
+    if (company && !historyFieldSupported(company, base, "company")) {
       unsupported_history.push({ field: "company", value: company, experienceIndex });
     }
-    if (dates && !baseNormalized.includes(normalized(dates))) {
+    if (dates && !dateFieldSupported(dates, base)) {
       unsupported_history.push({ field: "dates", value: dates, experienceIndex });
     }
 

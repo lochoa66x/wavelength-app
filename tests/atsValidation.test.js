@@ -52,3 +52,61 @@ test("ATS review recognizes supported history, metrics, verbs, and keywords", ()
   assert.equal(review.unsupported_history.length, 0);
   assert.deepEqual(review.missing_keywords, []);
 });
+
+test("ATS truth check accepts cosmetic history formatting changes", () => {
+  const review = buildAtsReview({
+    profile: "Technology leader translating enterprise delivery experience into web development.",
+    skills: ["Systems integration"],
+    experience: [{
+      role: "Sr. Manager",
+      company: "IBM Canada",
+      dates: "Jan 2020 – Present",
+      bullets: ["Lead cross-functional systems integration and delivery."],
+    }],
+  }, "Senior Manager — IBM Canada Ltd. — January 2020 to Present\nLed cross-functional systems integration and delivery.", {
+    keywords: ["systems integration"],
+  });
+
+  assert.equal(review.status, "ready");
+  assert.equal(review.unsupported_history.length, 0);
+});
+
+test("ATS truth check still blocks target-role history invented for a career change", () => {
+  const review = buildAtsReview({
+    profile: "Technology leader pursuing web development.",
+    skills: ["Systems integration"],
+    experience: [{
+      role: "Full Stack Engineering Manager",
+      company: "IBM Canada",
+      dates: "2020–Present",
+      bullets: ["Lead cross-functional systems integration and delivery."],
+    }],
+  }, "SAP Manager — IBM Canada — 2020–Present\nLed cross-functional systems integration and delivery.", {
+    keywords: ["systems integration"],
+  });
+
+  assert.equal(review.status, "blocked");
+  assert.deepEqual(review.unsupported_history.map((issue) => issue.field), ["role"]);
+});
+
+test("ATS truth check allows transferable-skills rewriting inside supported history", () => {
+  const review = buildAtsReview({
+    profile: "Entry-level construction candidate bringing planning, client communication, and dependable delivery.",
+    skills: ["Project planning", "Client communication"],
+    experience: [{
+      role: "Project Manager",
+      company: "Real Corp",
+      dates: "2018–2023",
+      bullets: [
+        "Coordinated schedules, stakeholders, and dependable project delivery.",
+        "Resolved practical delivery problems through clear client communication.",
+      ],
+    }],
+  }, "Project Manager — Real Corp — 2018–2023\nPlanned project schedules, communicated with clients, coordinated stakeholders, and resolved delivery problems.", {
+    keywords: ["planning", "client communication"],
+  });
+
+  assert.notEqual(review.status, "blocked");
+  assert.equal(review.unsupported_history.length, 0);
+  assert.equal(review.unsupported_metrics.length, 0);
+});

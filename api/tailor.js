@@ -47,9 +47,9 @@ const PROFESSIONAL_TOOL = {
         items: {
           type: "object",
           properties: {
-            role: { type: "string" },
-            company: { type: "string" },
-            dates: { type: "string", description: "e.g. '2022–2024'. Omit field if not in base resume." },
+            role: { type: "string", description: "Copy the historical job title from the base resume. Never replace it with the target role." },
+            company: { type: "string", description: "Copy the employer from the base resume. Omit only when the source omits it." },
+            dates: { type: "string", description: "Copy the employment dates from the base resume. Omit only when the source omits them." },
             bullets: { type: "array", items: { type: "string" } },
           },
           required: ["role", "bullets"],
@@ -131,7 +131,7 @@ const TRADES_TOOL = {
       },
       safety_record: {
         type: "string",
-        description: "One-sentence safety achievement, ONLY if the base resume explicitly states verifiable safety information (e.g. '12 years incident-free across residential and commercial sites' or 'Maintained zero-incident record across 8,000+ service hours'). Empty string if not in base resume. Never invent.",
+        description: "One-sentence safety achievement only when the base resume explicitly states verifiable safety information. Copy any measurement from the source rather than estimating it. Empty string if unsupported; never invent.",
       },
       safety_certifications: {
         type: "array",
@@ -144,9 +144,9 @@ const TRADES_TOOL = {
         items: {
           type: "object",
           properties: {
-            role: { type: "string" },
-            company: { type: "string" },
-            dates: { type: "string", description: "e.g. '2022–2024'. Omit field if not in base resume." },
+            role: { type: "string", description: "Copy the historical job title from the base resume. Never replace it with the target trade." },
+            company: { type: "string", description: "Copy the employer from the base resume. Omit only when the source omits it." },
+            dates: { type: "string", description: "Copy the employment dates from the base resume. Omit only when the source omits them." },
             bullets: { type: "array", items: { type: "string" } },
           },
           required: ["role", "bullets"],
@@ -290,19 +290,20 @@ ${cappedResume}
 INSTRUCTIONS
 - Compare the candidate's evidence against the FULL posting text before writing. Populate \`fit_assessment.path\` as direct, adjacent, or career_change and recommend a truthful level.
 - When the gap is large, position the candidate for the nearest realistic entry-level path rather than pretending they meet a senior posting. In regulated work, do not call someone licensed, certified, journeyperson, or registered apprentice unless the base résumé proves it.
-- Preserve every historical employer, job title, and date exactly. Work experience MUST remain in reverse chronological order. You may reorder and rewrite bullets within a role, but never reorder roles, rename history, or create a composite role.
+- Treat every historical employer, official job title, and date as an IMMUTABLE EVIDENCE FIELD: copy it from the base résumé rather than paraphrasing it. The target identity belongs in the top-level title and profile, never in a historical role. Work experience MUST remain in reverse chronological order. You may reorder and rewrite bullets within a role, but never reorder roles, rename history, or create a composite role.
 - Identify the skills/requirements this specific posting cares about most and make the bullets within each role lead with the most relevant supported evidence. Compress genuinely irrelevant older detail, but do not move an older role above a newer one.
-- If the candidate's background is in a different specific technology/domain than the target role (e.g. their real experience is enterprise SAP systems work but the target role is general web development), this is a TRANSLATION job, not just a reordering job: identify the underlying transferable capability behind each domain-specific achievement (e.g. "SAP PI/PO integration work" is fundamentally "systems integration and interface design"; "SAP MDG configuration" is fundamentally "data architecture and governance"; "leading UAT and regression cycles" is fundamentally "quality assurance and release management") and lead with that transferable framing in the profile and bullets. Keep specific tool names (SAP, etc.) in the skills list for technical credibility, but don't make them the headline language of every bullet. This is honest reframing of real experience, not invention.
-- If the candidate is pivoting careers, NEVER apologize for the pivot ("although I lack direct experience...") — frame the past as a deliberate advantage ("12 years in enterprise systems architecture gives me depth in..."). Follow the 4-part summary formula: (1) target role identity, (2) prior domain as foundation, (3) transferable skills mapped explicitly, (4) proof-of-transition (recent projects, courses, certifications) — but only include #4 if it's actually present in the base resume.
+- If the candidate's background is in a different specific technology/domain than the target role (e.g. their real experience is enterprise SAP systems work but the target role is general web development), this is a TRANSLATION job, not just a reordering job: identify the underlying transferable capability behind each domain-specific achievement (e.g. integration work can support systems integration and interface design; data-governance configuration can support data architecture and governance; leading testing cycles can support quality assurance and release management) and lead with that transferable framing in the profile and bullets. Keep proven specific tool names in the skills list for technical credibility, but don't make them the headline language of every bullet. This is honest reframing of real experience, not invention.
+- If the candidate is pivoting careers, NEVER apologize for the pivot. Frame the supported past experience as a deliberate advantage without calculating years or adding a number that is not stated in the base résumé. Follow the 4-part summary formula: (1) target role identity, (2) prior domain as foundation, (3) transferable skills mapped explicitly, (4) proof-of-transition such as projects, courses, or certifications — but only include the fourth part if it is actually present in the base resume.
+- Common transferable abilities—planning, reliability, customer communication, team coordination, problem solving, quality, safety awareness, organization, and learning agility—may be emphasized only when a concrete statement or accomplishment in the base résumé supports them. Rewrite that evidence for relevance; do not merely assume the ability because it is common.
 - Never state a skill, tool, employer, achievement, date, or credential that isn't already in the base resume above, and never claim experience with a specific technology (e.g. React, a specific language, a specific framework) that isn't in the base resume — describe the underlying capability honestly instead of borrowing the posting's specific tool names for something the candidate hasn't done.
 - For a major career change (for example SAP manager to a plumbing helper/apprentice path), emphasize only proven transferable capabilities such as perseverance, leading teams, safety awareness, planning, dependable execution, customer communication, and solving practical problems. De-emphasize domain-specific technical details that do not help the target role; retain only enough to keep the work history truthful.
 - If the candidate's real career is long (many roles, decades), use real editorial judgment: keep the roles and bullets most relevant to THIS gig in full detail, and compress the least relevant older/unrelated roles to one or two bullets each — the way a human resume writer would for a 1-2 page document. Don't just cut off the oldest roles entirely unless truly irrelevant.
 - Only include the education/languages fields if the base resume actually contains that information — omit them entirely rather than guessing.
 - ATS OPTIMIZATION (critical — modern applicant screeners like Greenhouse AI, Workday, and iCIMS parse bullets looking for these signals):
   * Every experience bullet must START with a strong action verb. Past tense for prior roles, present tense for the current role. Prefer verbs like: architected, led, delivered, launched, optimized, streamlined, reduced, increased, established, coordinated, mentored, migrated, deployed, negotiated, implemented, designed, built, scaled, drove, spearheaded, transformed. AVOID weak openers: "was responsible for", "helped with", "worked on", "assisted in", "participated in", "involved in", "duties included".
-  * Include quantifiable outcomes whenever the base resume honestly supports them — dollar amounts ($2M budget), team sizes (8-person team), percentages (35% cost reduction), volumes (500+ transactions/day), timeframes (2-week turnaround), scope (12 countries, 40 sites). NEVER invent numbers. If the base resume says "led a team", don't fabricate "led a team of 12". If no metric is present in the base resume for a bullet, write a strong verb + specific-scope bullet without a number.
+  * Include quantifiable outcomes whenever the base resume honestly supports them—budgets, team sizes, percentages, volumes, timeframes, or geographic scope—but copy the underlying value from the base résumé. NEVER estimate or calculate numbers. If the source says only "led a team", keep it unquantified. If no metric is present for a bullet, write a strong verb + specific-scope bullet without a number.
   * Mirror keywords from the target posting where they honestly describe the candidate's underlying capability. If the posting says "cross-functional collaboration" and the candidate has genuinely worked across teams, use that exact phrase. Same for "stakeholder management", "agile delivery", etc. Do NOT force keywords for capabilities the candidate doesn't actually have.
-  * Prefer specific over generic. "Configured HVAC systems across 40+ commercial installations" beats "Handled HVAC work". "Migrated 12 legacy interfaces to REST APIs" beats "Worked on API projects". Specificity is what makes an ATS score a bullet as high-signal.
+  * Prefer specific, source-supported context over generic wording. Name the real systems, environments, stakeholders, deliverables, or constraints from the base résumé. Specificity makes a bullet high-signal even when no number is available.
   * Structure bullets as: [action verb] + [what you did] + [scope/scale] + [outcome, when supported by the base resume]. Not every bullet needs all four — but every bullet must have at least verb + what + one of scope-or-outcome.${categoryAppendix}`;
 
   try {
@@ -353,9 +354,11 @@ INSTRUCTIONS
 
     const atsReview = buildAtsReview(resumeData, cappedResume, normalizedCustomJob || { keywords: [] });
     if (atsReview.status === "blocked") {
-      console.error(`Truth check blocked tailored resume for gig "${item.title}": metrics=${atsReview.unsupported_metrics.length}, history=${atsReview.unsupported_history.length}`);
+      const metricCount = atsReview.unsupported_metrics.length;
+      const historyCount = atsReview.unsupported_history.length;
+      console.error(`Truth check blocked tailored resume for gig "${item.title}": metrics=${metricCount}, history=${historyCount}`);
       return res.status(422).json({
-        error: "The draft failed its truth check because it introduced unsupported history or numbers. Try again; nothing was exported.",
+        error: `We stopped an unsafe draft before export because it changed ${historyCount} history field${historyCount === 1 ? "" : "s"} or added ${metricCount} unsupported number${metricCount === 1 ? "" : "s"}. Try again; your original résumé is unchanged.`,
         ats_review: atsReview,
       });
     }
