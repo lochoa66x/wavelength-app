@@ -48,7 +48,7 @@ export function resumeDataToPlainText(r, template = "professional") {
   lines.push("");
 
   if (r.profile) {
-    lines.push("PROFILE");
+    lines.push(template === "career-change" ? "CAREER TRANSITION PROFILE" : "PROFILE");
     lines.push(r.profile);
     lines.push("");
   }
@@ -71,6 +71,26 @@ export function resumeDataToPlainText(r, template = "professional") {
         lines.push("");
       }
     }
+  };
+
+  const emitProjects = () => {
+    if (!r.projects?.length) return;
+    lines.push("PROJECTS");
+    for (const project of r.projects) {
+      lines.push(project.name);
+      if (project.description) lines.push(project.description);
+      for (const bullet of project.bullets || []) lines.push(`• ${bullet}`);
+      lines.push("");
+    }
+  };
+
+  const emitTraining = () => {
+    if (!r.training?.length) return;
+    lines.push("TRAINING & CERTIFICATIONS");
+    for (const training of r.training) {
+      lines.push([training.name, training.provider, training.dates].filter(Boolean).join(" — "));
+    }
+    lines.push("");
   };
 
   const emitCertifications = () => {
@@ -105,9 +125,15 @@ export function resumeDataToPlainText(r, template = "professional") {
     emitSafety();
     emitExperience();
     emitSkills();
-  } else {
-    // professional
+  } else if (template === "career-change") {
     emitSkills();
+    emitProjects();
+    emitTraining();
+    emitExperience();
+  } else {
+    emitSkills();
+    emitProjects();
+    emitTraining();
     emitExperience();
   }
 

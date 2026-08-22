@@ -1,3 +1,5 @@
+import { findSemanticIntegrityIssues } from "./tailoringEvidence.js";
+
 const STRONG_VERBS = new Set([
   "achieve", "achieved", "administer", "administered", "architect", "architected",
   "build", "built", "coordinate", "coordinated", "create", "created", "deliver",
@@ -118,6 +120,8 @@ function exportedResumeValues(resumeData) {
     contact: resume.contact,
     profile: resume.profile,
     skills: resume.skills,
+    projects: resume.projects,
+    training: resume.training,
     experience: resume.experience,
     education: resume.education,
     languages: resume.languages,
@@ -161,7 +165,7 @@ export function enforceReverseChronology(resumeData) {
   };
 }
 
-export function buildAtsReview(resumeData, baseResume, jobBrief) {
+export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
   const base = String(baseResume || "");
   const allowedNumbers = new Set(numericClaims(base));
   const unsupported_metrics = [];
@@ -217,6 +221,23 @@ export function buildAtsReview(resumeData, baseResume, jobBrief) {
   const matched_keywords = keywords.filter((keyword) => searchableOutput.includes(normalized(keyword)));
   const missing_keywords = keywords.filter((keyword) => !searchableOutput.includes(normalized(keyword)));
 
+  const semantic = options.analysis
+    ? findSemanticIntegrityIssues(
+      resumeData,
+      baseResume,
+      options.analysis,
+      options.targetTitle,
+      { isTrades: options.isTrades },
+    )
+    : {
+      unsupported_skills: [],
+      unsupported_projects: [],
+      unsupported_training: [],
+      unsupported_target_terms: [],
+      unsupported_positioning: [],
+      risky_claims: [],
+    };
+
   let score = 100;
   score -= Math.min(50, unsupported_metrics.length * 20);
   score -= Math.min(40, unsupported_history.length * 15);
@@ -226,16 +247,91 @@ export function buildAtsReview(resumeData, baseResume, jobBrief) {
   if (keywords.length) score -= Math.round((missing_keywords.length / keywords.length) * 15);
   score = Math.max(0, Math.min(100, score));
 
+  const integrityBlocked = Boolean(
+    unsupported_metrics.length
+      || unsupported_history.length
+      || semantic.unsupported_skills.length
+      || semantic.unsupported_projects.length
+      || semantic.unsupported_training.length
+      || semantic.unsupported_target_terms.length
+      || semantic.unsupported_positioning.length
+      || semantic.risky_claims.length
+  );
+  const writingScore = Math.max(0, 100
+    - Math.min(20, verb_issues.length * 4)
+    - Math.min(16, tense_issues.length * 4));
+  const writingStatus = verb_issues.length || tense_issues.length ? "review" : "pass";
+  const postingAssessment = options.postingAssessment || options.analysis?.posting_assessment || {
+    status: "complete",
+    reason: "The posting was not independently assessed.",
+  };
+  const coverage = options.analysis?.coverage || {
+    direct: 0,
+    adjacent: 0,
+    transferable: 0,
+    missing: 0,
+  };
+  const coverageTotal = Object.values(coverage).reduce((total, value) => total + Number(value || 0), 0);
+  const readiness = options.analysis?.readiness || {
+    status: integrityBlocked ? "significant_gap" : "credible_stretch",
+    reason: "Application readiness requires a complete requirement-to-evidence analysis.",
+  };
+  const status = integrityBlocked
+    ? "blocked"
+    : writingStatus === "review" || postingAssessment.status !== "complete"
+      ? "review"
+      : "ready";
+
   return {
     score,
-    status: unsupported_metrics.length || unsupported_history.length ? "blocked" : score >= 85 ? "ready" : "review",
+    status,
     reverse_chronological,
     unsupported_metrics,
     unsupported_history,
+    unsupported_skills: semantic.unsupported_skills,
+    unsupported_projects: semantic.unsupported_projects,
+    unsupported_training: semantic.unsupported_training,
+    unsupported_target_terms: semantic.unsupported_target_terms,
+    unsupported_positioning: semantic.unsupported_positioning,
+    risky_claims: semantic.risky_claims,
     verb_issues,
     tense_issues,
     matched_keywords,
     missing_keywords,
-    disclaimer: "This checks structure and evidence alignment, but no résumé can guarantee an ATS score or interview.",
+    integrity: {
+      status: integrityBlocked ? "blocked" : "pass",
+      issue_count: unsupported_metrics.length
+        + unsupported_history.length
+        + semantic.unsupported_skills.length
+        + semantic.unsupported_projects.length
+        + semantic.unsupported_training.length
+        + semantic.unsupported_target_terms.length
+        + semantic.unsupported_positioning.length
+        + semantic.risky_claims.length,
+    },
+    posting: postingAssessment,
+    coverage: {
+      ...coverage,
+      total: coverageTotal,
+      matched_keywords,
+      missing_keywords,
+    },
+    parseability: {
+      status: reverse_chronological ? "pass" : "review",
+      checks: [
+        "Reverse-chronological work history",
+        "Single-column ATS-safe export",
+        "Standard section headings",
+      ],
+    },
+    writing: {
+      status: writingStatus,
+      score: writingScore,
+      issue_count: verb_issues.length + tense_issues.length,
+    },
+    readiness,
+    missing_evidence: options.analysis?.missing_evidence || [],
+    candidate_questions: options.analysis?.candidate_questions || [],
+    disclaimer: "This evaluates evidence integrity, requirement coverage, writing, and parseability separately. No résumé can guarantee an ATS result or interview.",
   };
 }

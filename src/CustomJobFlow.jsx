@@ -2,9 +2,11 @@ import { useState } from "react";
 import { ArrowLeft, Check, FileImage, Link2, Loader2, Pencil, Sparkles, Text, Upload } from "lucide-react";
 
 import { AtsReview } from "./AtsReview.jsx";
-import { isTradesLikeCategory } from "./listingCategories.js";
+import { PositioningSummary } from "./PositioningSummary.jsx";
+import { ResumeTemplateCareerChange } from "./ResumeTemplateCareerChange.jsx";
 import { ResumeTemplateProfessional } from "./ResumeTemplateProfessional.jsx";
 import { ResumeTemplateTrades } from "./ResumeTemplateTrades.jsx";
+import { resumeTemplateKind } from "./resumeStrategy.js";
 import { extractCustomJob, tailorResume } from "./tailorClient.js";
 
 const CATEGORY_OPTIONS = [
@@ -120,7 +122,12 @@ export function CustomJobFlow({ resume, C, primaryBtnStyle, glassBtnStyle, onBac
     category: brief.category,
     url: brief.source_url || "",
   } : null;
-  const Template = brief && isTradesLikeCategory(brief.category) ? ResumeTemplateTrades : ResumeTemplateProfessional;
+  const templateKind = resumeTemplateKind(brief?.category, tailored?.resume);
+  const Template = templateKind === "trades"
+    ? ResumeTemplateTrades
+    : templateKind === "career-change"
+      ? ResumeTemplateCareerChange
+      : ResumeTemplateProfessional;
 
   if (!resume) {
     return (
@@ -241,11 +248,7 @@ export function CustomJobFlow({ resume, C, primaryBtnStyle, glassBtnStyle, onBac
             <div><h3 style={{ color: C.text, fontSize: 20, margin: "0 0 3px" }}>Tailored for {brief.title}</h3><p style={{ color: C.textSub, fontSize: 13, margin: 0 }}>{brief.company || "Candidate-provided posting"}</p></div>
             <button type="button" onClick={() => { setTailored(null); setStatus("review"); }} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, padding: "8px 11px" }}><Pencil size={12} /> Review posting</button>
           </div>
-          {tailored.resume.fit_assessment?.path === "career_change" && (
-            <div style={{ background: C.amberTint, border: `1px solid ${C.amberBorder}`, borderRadius: 12, padding: "12px 14px", marginBottom: 14, color: C.text, fontSize: 13, lineHeight: 1.5 }}>
-              <strong>Recommended positioning: {tailored.resume.fit_assessment.recommended_level}</strong><br />{tailored.resume.fit_assessment.note}
-            </div>
-          )}
+          <PositioningSummary assessment={tailored.resume.fit_assessment} C={C} />
           <AtsReview review={tailored.atsReview} C={C} />
           <Template resumeData={tailored.resume} item={customItem} hasLink={Boolean(brief.source_url)} C={C} primaryBtnStyle={primaryBtnStyle} />
         </div>

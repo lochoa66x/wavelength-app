@@ -3,8 +3,11 @@ import { MapPin, Clock, ExternalLink, Check, ArrowRight, ArrowLeft, Pencil, Spar
 import { BrandMark } from "./BrandMark.jsx";
 import { AtsReview } from "./AtsReview.jsx";
 import { CustomJobFlow } from "./CustomJobFlow.jsx";
+import { PositioningSummary } from "./PositioningSummary.jsx";
+import { ResumeTemplateCareerChange } from "./ResumeTemplateCareerChange.jsx";
 import { ResumeTemplateProfessional } from "./ResumeTemplateProfessional.jsx";
 import { ResumeTemplateTrades } from "./ResumeTemplateTrades.jsx";
+import { resumeTemplateKind } from "./resumeStrategy.js";
 import { loadLocalResume, saveLocalResume } from "./resumeStorage.js";
 import { listingStateKey } from "./listingIdentity.js";
 import { migrateCloudResume } from "./resumeMigration.js";
@@ -1371,12 +1374,12 @@ export default function Gigscapes() {
           const key = itemKey(item);
           const isDismissed = dismissed.includes(key);
           const isSaved = saved.includes(key);
-          // Pick the résumé template that matches the listing's category —
-          // trades listings get the credential-forward Trades template with
-          // certifications and safety sections; everything else uses Professional.
-          const TemplateComponent = isTradesLikeCategory(item.category)
+          const templateKind = resumeTemplateKind(item.category, t?.resumeData);
+          const TemplateComponent = templateKind === "trades"
             ? ResumeTemplateTrades
-            : ResumeTemplateProfessional;
+            : templateKind === "career-change"
+              ? ResumeTemplateCareerChange
+              : ResumeTemplateProfessional;
           return (
             <div key={stateKey} className="wl-card" style={{ background: C.bgCard, borderRadius: 18, padding: "18px 20px", boxShadow: "0 1px 2px rgba(0,0,0,0.03), 0 6px 16px rgba(0,0,0,0.04)", opacity: isDismissed ? 0.5 : 1 }}>
               <div className="wl-cardhead" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 14 }}>
@@ -1466,13 +1469,7 @@ export default function Gigscapes() {
                   )}
                   {t?.status === "done" && (
                     <>
-                      {t.resumeData.fit_assessment?.path === "career_change" && (
-                        <div style={{ background: C.amberTint, border: `1px solid ${C.amberBorder}`, borderRadius: 12, padding: "12px 14px", marginBottom: 14 }}>
-                          <div style={{ color: C.amber, fontSize: 12.5, fontWeight: 700, marginBottom: 3 }}>Career-change version</div>
-                          <div style={{ color: C.text, fontSize: 13, fontWeight: 600, marginBottom: 3 }}>Recommended positioning: {t.resumeData.fit_assessment.recommended_level}</div>
-                          <div style={{ color: C.text, fontSize: 13, lineHeight: 1.5 }}>{t.resumeData.fit_assessment.note}</div>
-                        </div>
-                      )}
+                      <PositioningSummary assessment={t.resumeData.fit_assessment} C={C} />
                       <AtsReview review={t.atsReview} C={C} />
                       <TemplateComponent
                         resumeData={t.resumeData}

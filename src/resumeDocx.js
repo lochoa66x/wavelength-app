@@ -54,6 +54,20 @@ export async function createResumeDocxBlob(resumeData, template = "professional"
       }
     }
   };
+  const addProjects = () => {
+    if (!resumeData.projects?.length) return;
+    addHeading("PROJECTS");
+    for (const project of resumeData.projects) {
+      addParagraph(text(project.name, { bold: true }), { keepNext: true, spacing: { before: 80, after: 30 } });
+      if (project.description) addParagraph(project.description, { spacing: { after: 35 }, keepLines: true });
+      for (const bullet of project.bullets || []) addParagraph(bullet, { bullet: { level: 0 }, spacing: { after: 40 }, keepLines: true });
+    }
+  };
+  const addTraining = () => {
+    if (!resumeData.training?.length) return;
+    addHeading("TRAINING & CERTIFICATIONS");
+    for (const training of resumeData.training) addParagraph([training.name, training.provider, training.dates].filter(Boolean).join(" — "));
+  };
 
   if (resumeData.name) {
     addParagraph(text(resumeData.name, { bold: true, size: 32 }), {
@@ -64,7 +78,7 @@ export async function createResumeDocxBlob(resumeData, template = "professional"
   if (resumeData.title) addParagraph(text(resumeData.title, { bold: true, size: 22 }), { alignment: AlignmentType.CENTER });
   if (resumeData.contact) addParagraph(resumeData.contact, { alignment: AlignmentType.CENTER, spacing: { after: 140 } });
   if (resumeData.profile) {
-    addHeading("PROFESSIONAL SUMMARY");
+    addHeading(template === "career-change" ? "CAREER TRANSITION PROFILE" : "PROFESSIONAL SUMMARY");
     addParagraph(resumeData.profile, { spacing: { after: 80 } });
   }
 
@@ -84,6 +98,8 @@ export async function createResumeDocxBlob(resumeData, template = "professional"
     addSkills();
   } else {
     addSkills();
+    addProjects();
+    addTraining();
     addExperience();
   }
 
