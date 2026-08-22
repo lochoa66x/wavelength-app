@@ -32,6 +32,7 @@ export function AtsReview({ review, C }) {
   const readiness = review.readiness || { status: "credible_stretch", reason: "Review the tailored draft against the complete posting." };
   const postingComplete = posting.status === "complete";
   const integrityPass = integrity.status === "pass";
+  const safetyFallback = review.safety_fallback;
   const readinessLabel = READINESS_LABELS[readiness.status] || "Review required";
   const panelColor = integrityPass ? C.green : C.red;
   const panelBackground = integrityPass ? C.greenTint : (C.redTint || "#FDEBEC");
@@ -53,6 +54,11 @@ export function AtsReview({ review, C }) {
       </div>
 
       <StatusRow label="Evidence integrity" value={integrityPass ? "Pass" : "Blocked"} detail={integrity.issue_count ? `${integrity.issue_count} unsupported claim${integrity.issue_count === 1 ? "" : "s"}` : "No unsupported history, numbers, skills, projects, training, or positioning detected"} ok={integrityPass} C={C} />
+      {safetyFallback?.applied ? (
+        <div role="status" style={{ margin: "12px 0 4px", padding: "10px 12px", borderRadius: 10, background: C.amberTint, border: `1px solid ${C.amberBorder}`, color: C.textSub, fontSize: 12, lineHeight: 1.5 }}>
+          Gigscapes removed the final unverified content instead of failing your whole résumé. Review the output: {safetyFallback.omitted_experience_count || 0} experience entr{(safetyFallback.omitted_experience_count || 0) === 1 ? "y" : "ies"} and {safetyFallback.removed_numeric_claim_count || 0} unsupported number{(safetyFallback.removed_numeric_claim_count || 0) === 1 ? "" : "s"} were omitted.
+        </div>
+      ) : null}
       <StatusRow label="Posting completeness" value={posting.status === "complete" ? "Complete" : posting.status === "partial" ? "Partial" : "Insufficient"} detail={posting.reason} ok={postingComplete} C={C} />
       <StatusRow label="Requirement coverage" value={coverage.total ? `${coverage.total} requirements analyzed` : "Limited by posting data"} detail={`${coverage.direct || 0} direct · ${coverage.adjacent || 0} adjacent · ${coverage.transferable || 0} transferable · ${coverage.missing || 0} missing`} ok={Boolean(coverage.total) && (coverage.missing || 0) === 0} C={C} />
       <StatusRow label="ATS-safe structure" value={parseability.status === "pass" ? "Pass" : "Review"} detail="Single column, standard headings, chronological history" ok={parseability.status === "pass"} C={C} />

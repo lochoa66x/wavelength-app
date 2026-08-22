@@ -12,6 +12,7 @@ import { loadLocalResume, saveLocalResume } from "./resumeStorage.js";
 import { listingStateKey } from "./listingIdentity.js";
 import { migrateCloudResume } from "./resumeMigration.js";
 import { supabase } from "./supabase.js";
+import { isFutureJwtError, runWithFutureJwtRecovery } from "./supabaseRecovery.js";
 import { tailorResume } from "./tailorClient.js";
 import { useAuth } from "./auth.jsx";
 import {
@@ -145,15 +146,20 @@ function useProfile(session) {
     (async () => {
       setLoading(true);
       setError(null);
-      const { data, error: fetchError } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", session.user.id)
-        .single();
+      const { data, error: fetchError } = await runWithFutureJwtRecovery(
+        () => supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", session.user.id)
+          .single(),
+        { refreshSession: () => supabase.auth.refreshSession() },
+      );
       if (!mounted) return;
       if (fetchError) {
         console.error("Failed to load profile:", fetchError.message);
-        setError(fetchError.message || "Couldn't load your profile.");
+        setError(isFutureJwtError(fetchError)
+          ? "The secure session is briefly out of sync with the database. Wait a few seconds and try again."
+          : fetchError.message || "Couldn't load your profile.");
         setProfile(null);
       } else {
         setProfile(data);
@@ -174,12 +180,15 @@ function useProfile(session) {
     const previousProfile = profile;
     setWriteError("");
     setProfile((p) => (p ? { ...p, ...patch } : p));
-    const { data, error: updateError } = await supabase
-      .from("profiles")
-      .update(patch)
-      .eq("id", session.user.id)
-      .select("id")
-      .single();
+    const { data, error: updateError } = await runWithFutureJwtRecovery(
+      () => supabase
+        .from("profiles")
+        .update(patch)
+        .eq("id", session.user.id)
+        .select("id")
+        .single(),
+      { refreshSession: () => supabase.auth.refreshSession() },
+    );
 
     if (updateError || data?.id !== session.user.id) {
       setProfile((current) => {
@@ -823,6 +832,7 @@ export default function Gigscapes() {
   if (step === "loading") return shell(<div style={{ color: C.textSub, fontSize: 14 }}>Loading…</div>);
 
   if (step === "profile_error") {
+    const sessionClockSkew = profileError?.includes("briefly out of sync");
     return shell(
       <div style={{ maxWidth: 460, margin: "40px auto 0", textAlign: "center" }}>
         <div style={{ margin: "0 auto 20px", width: 56, height: 56, borderRadius: "50%", background: C.amberTint, border: `1px solid ${C.amberBorder}`, display: "flex", alignItems: "center", justifyContent: "center", color: C.amber, fontSize: 24, fontWeight: 700 }}>
@@ -832,7 +842,9 @@ export default function Gigscapes() {
           Couldn't load your profile
         </h2>
         <p style={{ fontSize: 14, color: C.textSub, margin: "0 0 22px", lineHeight: 1.55 }}>
-          Something got tangled between the app and the database. This usually clears on a retry. If it keeps happening, sign out and back in with a fresh magic link.
+          {sessionClockSkew
+            ? "Supabase is briefly rejecting a newly issued session. Wait a few seconds, then try again; signing out is usually unnecessary."
+            : "Something got tangled between the app and the database. This usually clears on a retry. If it keeps happening, sign out and back in with a fresh magic link."}
         </p>
         <p style={{ fontSize: 12, color: C.textFaint, fontFamily: "monospace", margin: "0 0 24px", padding: "8px 12px", background: "#F5F5F7", borderRadius: 8, wordBreak: "break-word" }}>
           {profileError || "Unknown error"}

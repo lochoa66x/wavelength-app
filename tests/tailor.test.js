@@ -278,3 +278,62 @@ test("tailoring automatically repairs one unsafe model draft before returning it
   assert.match(requests[2].messages[0].content, /unsupported_numbers.*99/);
   assert.match(requests[2].messages[0].content, /unsupported_history.*role/);
 });
+
+test("tailoring falls back to verified content when the model repair still has one unsafe entry", async () => {
+  const rejectedDraft = {
+    title: "Full Stack Web Developer",
+    profile: "Operations leader who delivered 47% faster releases.",
+    experience: [
+      { role: "Operations Manager", company: "Real Corp", dates: "2020–2023", bullets: ["Led systems integration programs."] },
+      { role: "Web Developer", company: "Real Corp", dates: "2020–2023", bullets: ["Built 8 applications."] },
+    ],
+    skills: ["Systems integration"],
+    projects: [],
+    training: [],
+    fit_assessment: { path: "career_change", recommended_level: "Entry-level", note: "Transferable positioning." },
+  };
+  const handler = createTailorHandler({
+    authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
+    loadListing: async () => ({
+      id: 8,
+      title: "Full Stack Web Developer",
+      company: "Target Co",
+      type: "Full-time",
+      category: "technology",
+      description: "Build and maintain web applications.",
+      reason: "Technology role",
+    }),
+    fetchImpl: async (_url, options) => {
+      const body = JSON.parse(options.body);
+      if (body.tool_choice.name === "return_tailoring_analysis") {
+        return toolResponse("return_tailoring_analysis", analysisInput({
+          fit_assessment: { path: "career_change", recommended_level: "Entry-level", note: "Transferable positioning." },
+          content_strategy: "career_change",
+          readiness: { status: "significant_gap", reason: "Direct development evidence is missing." },
+          requirements: [{ id: "R1", requirement: "Build web applications", priority: "responsibility", evidence_match: "missing", resume_evidence: "", safe_language: "", keywords: ["web applications"] }],
+          verified_transferable_skills: [{ skill: "Systems integration", resume_evidence: "Led systems integration programs." }],
+          target_keywords: ["web applications"],
+        }));
+      }
+      return toolResponse("return_tailored_resume", rejectedDraft);
+    },
+    getApiKey: () => "test-key",
+  });
+  const res = responseRecorder();
+
+  await handler({
+    method: "POST",
+    headers: { authorization: "Bearer valid" },
+    body: {
+      resume: "Operations Manager — Real Corp — 2020–2023\nLed systems integration programs.",
+      listingId: 8,
+    },
+  }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.safety_fallback_applied, true);
+  assert.notEqual(res.body.ats_review.status, "blocked");
+  assert.equal(res.body.resume.experience.length, 1);
+  assert.equal(res.body.resume.experience[0].role, "Operations Manager");
+  assert.equal(res.body.resume.title, "Operations Manager | Career Transition");
+});

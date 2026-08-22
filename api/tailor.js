@@ -2,6 +2,7 @@ import { isTradesLikeCategory, normalizeListingCategory } from "../src/listingCa
 import { buildAtsReview, enforceReverseChronology } from "./_lib/atsValidation.js";
 import { jobBriefToText, normalizeCustomJobBrief } from "./_lib/jobBrief.js";
 import { authenticateSupabaseRequest, bearerToken } from "./_lib/requestAuth.js";
+import { createSafeResumeFallback } from "./_lib/safeResumeFallback.js";
 import {
   assessPostingCompleteness,
   extractPostingKeywords,
@@ -564,6 +565,30 @@ INSTRUCTIONS
         };
         requestPrompt = `${baseDraftPrompt}\n\nEVIDENCE REPAIR PASS\nThe draft below failed validation. Return a complete corrected résumé using the ${toolName} tool. Preserve supported content, but repair every listed violation.\n- Copy unsupported historical fields from CANDIDATE EVIDENCE.\n- Remove or truthfully rewrite every unsupported number. Never estimate, calculate, or spell out a number to evade validation.\n- Remove unsupported skills and target terms rather than substituting a different unsupported synonym.\n- For career-change positioning, replace an unsupported target identity with a proven foundation plus an honest transition.\n- Remove equivalence language such as 'translates directly' and 'directly analogous'. State relevance without claiming target-domain experience.\n- Missing requirements remain missing. Do not convert them into résumé content.\n- Keep supported employment entries and reverse-chronological ordering intact.\n\nVALIDATION ISSUES\n${JSON.stringify(repairIssues)}\n\nREJECTED DRAFT\n${JSON.stringify(resumeData)}`;
         continue;
+      }
+
+      const { resume: safeResume, report: safetyReport } = createSafeResumeFallback(resumeData, atsReview, analysis);
+      const safeReview = buildAtsReview(
+        safeResume,
+        candidateEvidence,
+        { keywords: analysis.target_keywords },
+        {
+          analysis,
+          postingAssessment: analysis.posting_assessment,
+          targetTitle: item.title,
+          isTrades: isTradesGig,
+        },
+      );
+      if (safeReview.status !== "blocked" && safeResume.profile && safeResume.experience.length) {
+        safeReview.safety_fallback = { applied: true, ...safetyReport };
+        console.warn(`Applied deterministic safety fallback for gig "${item.title}": omitted_experience=${safetyReport.omitted_experience_count}, removed_numbers=${safetyReport.removed_numeric_claim_count}`);
+        return res.status(200).json({
+          resume: safeResume,
+          ats_review: safeReview,
+          tailoring_analysis: analysis,
+          repair_applied: true,
+          safety_fallback_applied: true,
+        });
       }
 
       console.error(`Truth check blocked repaired resume for gig "${item.title}": metrics=${metricCount}, history=${historyCount}, fields=${historyFields}`);
