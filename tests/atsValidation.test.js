@@ -133,3 +133,34 @@ test("ATS truth check ignores numbers in the non-exported fit assessment", () =>
   assert.notEqual(review.status, "blocked");
   assert.equal(review.unsupported_metrics.length, 0);
 });
+
+test("ATS writing review recognizes common truthful action verbs", () => {
+  const bullets = [
+    "Integrated enterprise platforms.",
+    "Prepared functional specifications.",
+    "Authored technical documentation.",
+    "Collaborated with business stakeholders.",
+    "Contributed to architecture decisions.",
+    "Oversaw release testing.",
+    "Validated end-to-end data flows.",
+  ];
+  const review = buildAtsReview({
+    name: "Luis Example",
+    profile: "Enterprise delivery professional.",
+    experience: [{ role: "Solution Architect", company: "Real Corp", dates: "2020–2024", bullets }],
+  }, `Solution Architect — Real Corp — 2020–2024\n${bullets.join("\n")}`, { keywords: [] });
+
+  assert.equal(review.verb_issues.length, 0);
+  assert.equal(review.writing.status, "pass");
+});
+
+test("ATS review reports a missing placeholder identity separately from evidence integrity", () => {
+  const review = buildAtsReview({
+    name: "<UNKNOWN>",
+    profile: "Operations leader.",
+    experience: [{ role: "Operations Manager", company: "Real Corp", dates: "2020–2023", bullets: ["Led operations."] }],
+  }, "Operations Manager — Real Corp — 2020–2023\nLed operations.", { keywords: [] });
+
+  assert.equal(review.identity.status, "missing");
+  assert.equal(review.integrity.status, "pass");
+});

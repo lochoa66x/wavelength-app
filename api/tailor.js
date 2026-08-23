@@ -3,6 +3,7 @@ import { buildAtsReview, enforceReverseChronology } from "./_lib/atsValidation.j
 import { jobBriefToText, normalizeCustomJobBrief } from "./_lib/jobBrief.js";
 import { authenticateSupabaseRequest, bearerToken } from "./_lib/requestAuth.js";
 import { createSafeResumeFallback } from "./_lib/safeResumeFallback.js";
+import { shapeTailoredResume } from "./_lib/resumeQuality.js";
 import {
   assessPostingCompleteness,
   extractPostingKeywords,
@@ -451,7 +452,7 @@ ANALYSIS RULES
 - Ask at most five candidate questions that could uncover real projects, courses, portfolios, licenses, credentials, or hands-on experience. Questions are not evidence.
 - Readiness is strong_fit only when the posting is complete and required capabilities are directly supported; credible_stretch for an adjacent fit; significant_gap for a major career change or missing hard requirements; needs_full_posting when the posting cannot be assessed completely.`;
 
-  const prompt = `You're a resume editor helping a candidate apply to ONE specific gig. Produce a tailored version via the ${toolName} tool. The evidence analysis below is authoritative. Produce a single-column, reverse-chronological resume with roughly 450-900 words of substantive content while preserving truthful history.
+  const prompt = `You're a resume editor helping a candidate apply to ONE specific gig. Produce a tailored version via the ${toolName} tool. The evidence analysis below is authoritative. Produce a single-column, reverse-chronological resume with roughly 450-900 words of substantive content while preserving truthful history. For a major career change, prefer a focused 350-650 word preliminary resume over padding it with unrelated history.
 
 ${targetContext}
 
@@ -463,6 +464,7 @@ __TAILORING_ANALYSIS__
 
 INSTRUCTIONS
 - Copy \`fit_assessment\` from the authoritative analysis. Do not upgrade the fit, readiness, or recommended level while drafting.
+- Copy the candidate's name and contact details exactly when present. If either is unavailable, return an empty string. Never emit placeholders such as UNKNOWN, <UNKNOWN>, Candidate, N/A, or invented contact details.
 - Use the analysis content strategy: direct for a conventional targeted resume, adjacent for a verified neighboring-role pivot, and career_change for a hybrid transition resume.
 - For a non-trades career change, the top title must identify the proven professional foundation plus an honest transition, such as "Enterprise Integration Professional | Web Development Transition". Never use the exact target title alone or imply the candidate already holds it. For trades, use Entry-Level or Helper Candidate unless registration or credentials are proven.
 - When the gap is large, position the candidate for the nearest realistic entry or transitional path rather than pretending they meet a senior posting. In regulated work, do not call someone licensed, certified, journeyperson, or registered apprentice unless the evidence proves it.
@@ -470,11 +472,15 @@ INSTRUCTIONS
 - Identify the skills/requirements this specific posting cares about most and make the bullets within each role lead with the most relevant supported evidence. Compress genuinely irrelevant older detail, but do not move an older role above a newer one.
 - Transferable framing must state relevance without equivalence. Never say experience "translates directly", is "directly analogous", or proves hands-on target-domain implementation when the analysis classifies it only as adjacent or transferable.
 - For a career change, lead with the proven prior foundation, state the transition honestly, map only verified transferable skills, and include proof-of-transition only when a real project, course, portfolio, or certification appears in CANDIDATE EVIDENCE.
+- For a career change, keep the profile to 60-90 words. Do not claim the candidate is "actively building", "currently learning", studying, training, or pursuing a credential unless CANDIDATE EVIDENCE explicitly proves that activity.
+- For a career change with no direct or adjacent requirement evidence, the skills section may contain only skills listed under \`verified_transferable_skills\`. Use at most 10 high-value items; never dump the candidate's unrelated software or domain inventory merely because it is truthful.
 - Common transferable abilities—planning, reliability, customer communication, team coordination, problem solving, quality, safety awareness, organization, and learning agility—may be emphasized only when a concrete statement or accomplishment in the base résumé supports them. Rewrite that evidence for relevance; do not merely assume the ability because it is common.
 - Every skills-section item must either appear in CANDIDATE EVIDENCE or be listed under verified_transferable_skills in the analysis. Never add a target technology, tool, credential, project, employer, achievement, or date merely because it appears in the posting.
 - A requirement classified as missing cannot be converted into a claimed skill, title, or accomplishment. It may only influence the candidate-facing fit note, missing-evidence list, or questions.
 - For a major career change (for example SAP manager to a plumbing helper/apprentice path), emphasize only proven transferable capabilities such as perseverance, leading teams, safety awareness, planning, dependable execution, customer communication, and solving practical problems. De-emphasize domain-specific technical details that do not help the target role; retain only enough to keep the work history truthful.
 - If the candidate's real career is long (many roles, decades), use real editorial judgment: keep the roles and bullets most relevant to THIS gig in full detail, and compress the least relevant older/unrelated roles to one or two bullets each — the way a human resume writer would for a 1-2 page document. Don't just cut off the oldest roles entirely unless truly irrelevant.
+- For a career change, use no more than three bullets for each of the two most recent roles and no more than two bullets for each older role. Rank bullets by verified relevance to the target; do not use volume to disguise a weak match.
+- Keep \`role\` to the exact official job title and \`company\` to the exact employer when the source distinguishes an employer from a client or project. Do not synthesize labels such as "Role at Client — Employer". A client or project may be mentioned in a supported bullet instead.
 - Populate projects and training only from explicit CANDIDATE EVIDENCE. Return empty arrays when there is no verified proof-of-transition.
 - Only include the education/languages fields if the base resume actually contains that information — omit them entirely rather than guessing.
 - ATS-READABLE WRITING:
@@ -511,11 +517,11 @@ INSTRUCTIONS
         maxTokens: 5200,
         timeoutMs: attempt === 0 ? 65000 : 50000,
       });
-      const resumeData = enforceReverseChronology({
+      const resumeData = shapeTailoredResume(enforceReverseChronology({
         ...rawResumeData,
         fit_assessment: analysis.fit_assessment,
         content_strategy: analysis.content_strategy,
-      });
+      }), analysis);
       if (!resumeData.profile || !Array.isArray(resumeData.experience) || resumeData.experience.length === 0) {
         console.error(`Incomplete structured resume for gig "${item.title}": ${JSON.stringify(resumeData)}`);
         return res.status(502).json({ error: "Model returned incomplete resume data" });
@@ -567,7 +573,8 @@ INSTRUCTIONS
         continue;
       }
 
-      const { resume: safeResume, report: safetyReport } = createSafeResumeFallback(resumeData, atsReview, analysis);
+      const { resume: fallbackResume, report: safetyReport } = createSafeResumeFallback(resumeData, atsReview, analysis);
+      const safeResume = shapeTailoredResume(fallbackResume, analysis);
       const safeReview = buildAtsReview(
         safeResume,
         candidateEvidence,

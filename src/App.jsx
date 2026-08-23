@@ -1487,6 +1487,8 @@ export default function Gigscapes() {
                         resumeData={t.resumeData}
                         item={item}
                         hasLink={hasLink}
+                        atsReview={t.atsReview}
+                        onEditResume={() => { setResumeDraft(resume || ""); setResumeReturnStep("digest"); setStep("resume"); }}
                         C={C}
                         primaryBtnStyle={primaryBtnStyle}
                       />

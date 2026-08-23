@@ -1,4 +1,5 @@
 import { findSemanticIntegrityIssues } from "./tailoringEvidence.js";
+import { isPlaceholderIdentity } from "./resumeQuality.js";
 
 const STRONG_VERBS = new Set([
   "achieve", "achieved", "administer", "administered", "architect", "architected",
@@ -10,7 +11,11 @@ const STRONG_VERBS = new Set([
   "migrate", "migrated", "negotiate", "negotiated", "optimize", "optimized", "organize",
   "organized", "reduce", "reduced", "resolve", "resolved", "scale", "scaled", "spearhead",
   "spearheaded", "streamline", "streamlined", "supervise", "supervised", "transform",
-  "transformed", "troubleshoot", "troubleshot",
+  "transformed", "troubleshoot", "troubleshot", "analyze", "analyzed", "author", "authored",
+  "collaborate", "collaborated", "contribute", "contributed", "document", "documented",
+  "facilitate", "facilitated", "integrate", "integrated", "oversee", "oversaw", "perform",
+  "performed", "prepare", "prepared", "produce", "produced", "review", "reviewed", "support",
+  "supported", "validate", "validated",
 ]);
 
 const WEAK_OPENERS = [
@@ -261,6 +266,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
     - Math.min(20, verb_issues.length * 4)
     - Math.min(16, tense_issues.length * 4));
   const writingStatus = verb_issues.length || tense_issues.length ? "review" : "pass";
+  const identityMissing = isPlaceholderIdentity(resumeData?.name);
   const postingAssessment = options.postingAssessment || options.analysis?.posting_assessment || {
     status: "complete",
     reason: "The posting was not independently assessed.",
@@ -328,6 +334,12 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
       status: writingStatus,
       score: writingScore,
       issue_count: verb_issues.length + tense_issues.length,
+    },
+    identity: {
+      status: identityMissing ? "missing" : "complete",
+      reason: identityMissing
+        ? "A real candidate name is required before export; placeholders are never inserted."
+        : "Candidate name is present.",
     },
     readiness,
     missing_evidence: options.analysis?.missing_evidence || [],

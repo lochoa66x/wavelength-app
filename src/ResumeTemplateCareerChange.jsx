@@ -5,7 +5,7 @@ function ExperienceSection({ experience }) {
   if (!experience?.length) return null;
   return (
     <>
-      <SectionHeader>Selected Relevant Experience</SectionHeader>
+      <SectionHeader>Professional Experience</SectionHeader>
       {experience.map((entry, index) => (
         <div key={`${entry.role}-${entry.company}-${index}`} style={{ marginBottom: 14 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, marginBottom: 2 }}>
@@ -28,7 +28,7 @@ function ExperienceSection({ experience }) {
   );
 }
 
-export function ResumeTemplateCareerChange({ resumeData, item, hasLink, C, primaryBtnStyle }) {
+export function ResumeTemplateCareerChange({ resumeData, item, hasLink, atsReview, onEditResume, C, primaryBtnStyle }) {
   const resume = resumeData;
   return (
     <div>
@@ -42,15 +42,8 @@ export function ResumeTemplateCareerChange({ resumeData, item, hasLink, C, prima
 
         {resume.profile && (
           <>
-            <SectionHeader>Career Transition Profile</SectionHeader>
+            <SectionHeader>Career Transition Summary</SectionHeader>
             <p style={{ fontFamily: SERIF, fontSize: 13.5, lineHeight: 1.6, color: DOC.ink, margin: 0 }}>{resume.profile}</p>
-          </>
-        )}
-
-        {resume.skills?.length > 0 && (
-          <>
-            <SectionHeader>Transferable Strengths</SectionHeader>
-            <p style={{ fontFamily: SERIF, fontSize: 13, lineHeight: 1.6, color: DOC.ink, margin: 0 }}>{resume.skills.join("  ·  ")}</p>
           </>
         )}
 
@@ -79,6 +72,13 @@ export function ResumeTemplateCareerChange({ resumeData, item, hasLink, C, prima
           </>
         )}
 
+        {resume.skills?.length > 0 && (
+          <>
+            <SectionHeader>Relevant Capabilities</SectionHeader>
+            <p style={{ fontFamily: SERIF, fontSize: 13, lineHeight: 1.6, color: DOC.ink, margin: 0 }}>{resume.skills.join("  ·  ")}</p>
+          </>
+        )}
+
         <ExperienceSection experience={resume.experience} />
 
         {resume.education?.length > 0 && (
@@ -100,7 +100,7 @@ export function ResumeTemplateCareerChange({ resumeData, item, hasLink, C, prima
           </>
         )}
       </div>
-      <ResumeActions resumeData={resumeData} template="career-change" item={item} hasLink={hasLink} C={C} primaryBtnStyle={primaryBtnStyle} />
+      <ResumeActions resumeData={resumeData} template="career-change" item={item} hasLink={hasLink} atsReview={atsReview} onEditResume={onEditResume} C={C} primaryBtnStyle={primaryBtnStyle} />
     </div>
   );
 }

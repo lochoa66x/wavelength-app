@@ -1,7 +1,7 @@
 import { ResumeActions } from "./ResumeActions.jsx";
 import { DOC, SERIF, SANS, SectionHeader } from "./resumeShared.jsx";
 
-export function ResumeTemplateProfessional({ resumeData, item, hasLink, C, primaryBtnStyle }) {
+export function ResumeTemplateProfessional({ resumeData, item, hasLink, atsReview, onEditResume, C, primaryBtnStyle }) {
   const r = resumeData;
 
   return (
@@ -237,7 +237,7 @@ export function ResumeTemplateProfessional({ resumeData, item, hasLink, C, prima
         )}
       </div>
 
-      <ResumeActions resumeData={resumeData} template="professional" item={item} hasLink={hasLink} C={C} primaryBtnStyle={primaryBtnStyle} />
+      <ResumeActions resumeData={resumeData} template="professional" item={item} hasLink={hasLink} atsReview={atsReview} onEditResume={onEditResume} C={C} primaryBtnStyle={primaryBtnStyle} />
     </div>
   );
 }

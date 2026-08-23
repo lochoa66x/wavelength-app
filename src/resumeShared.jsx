@@ -48,14 +48,14 @@ export function resumeDataToPlainText(r, template = "professional") {
   lines.push("");
 
   if (r.profile) {
-    lines.push(template === "career-change" ? "CAREER TRANSITION PROFILE" : "PROFILE");
+    lines.push(template === "career-change" ? "CAREER TRANSITION SUMMARY" : "PROFILE");
     lines.push(r.profile);
     lines.push("");
   }
 
   const emitSkills = () => {
     if (r.skills?.length) {
-      lines.push(template === "trades" ? "SKILLS & EQUIPMENT" : "SKILLS");
+      lines.push(template === "trades" ? "SKILLS & EQUIPMENT" : template === "career-change" ? "RELEVANT CAPABILITIES" : "SKILLS");
       lines.push(r.skills.join(" · "));
       lines.push("");
     }
@@ -63,7 +63,7 @@ export function resumeDataToPlainText(r, template = "professional") {
 
   const emitExperience = () => {
     if (r.experience?.length) {
-      lines.push("EXPERIENCE");
+      lines.push(template === "career-change" ? "PROFESSIONAL EXPERIENCE" : "EXPERIENCE");
       for (const exp of r.experience) {
         const header = [exp.role, exp.company].filter(Boolean).join(" — ") + (exp.dates ? ` (${exp.dates})` : "");
         lines.push(header);
@@ -126,9 +126,9 @@ export function resumeDataToPlainText(r, template = "professional") {
     emitExperience();
     emitSkills();
   } else if (template === "career-change") {
-    emitSkills();
     emitProjects();
     emitTraining();
+    emitSkills();
     emitExperience();
   } else {
     emitSkills();

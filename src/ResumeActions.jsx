@@ -3,10 +3,12 @@ import { Copy, Download, ExternalLink, Loader2 } from "lucide-react";
 
 import { downloadResumeDocx } from "./resumeDocx.js";
 import { resumeDataToPlainText } from "./resumeShared.jsx";
+import { getResumeExportReadiness } from "./resumeReadiness.js";
 
-export function ResumeActions({ resumeData, template, item, hasLink, C, primaryBtnStyle }) {
+export function ResumeActions({ resumeData, template, item, hasLink, atsReview, onEditResume, C, primaryBtnStyle }) {
   const [downloadState, setDownloadState] = useState("idle");
   const [message, setMessage] = useState("");
+  const readiness = getResumeExportReadiness(resumeData, atsReview);
 
   const handleDownload = async () => {
     setDownloadState("loading");
@@ -23,19 +25,26 @@ export function ResumeActions({ resumeData, template, item, hasLink, C, primaryB
 
   return (
     <>
-      <p style={{ fontSize: 12, color: C.textFaint, margin: "0 0 12px" }}>
-        Review every detail before applying — nothing is submitted automatically.
+      <p role={readiness.missingIdentity ? "alert" : undefined} style={{ fontSize: 12, color: readiness.missingIdentity ? C.red : readiness.preliminary ? C.amber : C.textFaint, margin: "0 0 12px", lineHeight: 1.5 }}>
+        {readiness.missingIdentity
+          ? "Add your real name to the saved résumé before exporting. Gigscapes will never insert an identity placeholder."
+          : readiness.preliminary
+            ? "Preliminary draft — resolve the evidence or posting gaps above before treating it as application-ready."
+            : "Review every detail before applying — nothing is submitted automatically."}
+        {readiness.missingIdentity && onEditResume ? (
+          <> <button type="button" onClick={onEditResume} className="wl-btn" style={{ border: 0, padding: 0, background: "transparent", color: C.red, font: "inherit", fontWeight: 700, textDecoration: "underline", cursor: "pointer" }}>Edit saved résumé</button></>
+        ) : null}
       </p>
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
         <button
           type="button"
           onClick={handleDownload}
-          disabled={downloadState === "loading"}
+          disabled={downloadState === "loading" || !readiness.canExport}
           className="wl-btn"
-          style={{ ...primaryBtnStyle(downloadState === "loading"), fontSize: 13, padding: "9px 16px" }}
+          style={{ ...primaryBtnStyle(downloadState === "loading" || !readiness.canExport), fontSize: 13, padding: "9px 16px" }}
         >
           {downloadState === "loading" ? <Loader2 size={12} className="wl-spin" /> : <Download size={12} />}
-          Download ATS-safe DOCX
+          {readiness.buttonLabel}
         </button>
         <button
           type="button"

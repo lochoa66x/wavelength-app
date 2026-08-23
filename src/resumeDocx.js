@@ -12,7 +12,13 @@ function text(value, options = {}) {
   return { text: String(value || ""), ...options };
 }
 
+const PLACEHOLDER_IDENTITY = /^(?:<\s*)?(?:unknown|unnamed|name unavailable|candidate|n\/?a|null|undefined)(?:\s*>)?$/i;
+
 export async function createResumeDocxBlob(resumeData, template = "professional") {
+  const candidateName = String(resumeData?.name || "").trim();
+  if (!candidateName || PLACEHOLDER_IDENTITY.test(candidateName)) {
+    throw new Error("Candidate name is required before DOCX export.");
+  }
   const {
     AlignmentType,
     Document,
@@ -37,12 +43,12 @@ export async function createResumeDocxBlob(resumeData, template = "professional"
   };
   const addSkills = () => {
     if (!resumeData.skills?.length) return;
-    addHeading(template === "trades" ? "SKILLS & EQUIPMENT" : "SKILLS");
+    addHeading(template === "trades" ? "SKILLS & EQUIPMENT" : template === "career-change" ? "RELEVANT CAPABILITIES" : "SKILLS");
     addParagraph(resumeData.skills.join(" | "), { spacing: { after: 80 } });
   };
   const addExperience = () => {
     if (!resumeData.experience?.length) return;
-    addHeading("EXPERIENCE");
+    addHeading(template === "career-change" ? "PROFESSIONAL EXPERIENCE" : "EXPERIENCE");
     for (const entry of resumeData.experience) {
       const header = [entry.role, entry.company].filter(Boolean).join(" — ");
       addParagraph([
@@ -69,8 +75,8 @@ export async function createResumeDocxBlob(resumeData, template = "professional"
     for (const training of resumeData.training) addParagraph([training.name, training.provider, training.dates].filter(Boolean).join(" — "));
   };
 
-  if (resumeData.name) {
-    addParagraph(text(resumeData.name, { bold: true, size: 32 }), {
+  if (candidateName) {
+    addParagraph(text(candidateName, { bold: true, size: 32 }), {
       alignment: AlignmentType.CENTER,
       spacing: { after: 50 },
     });
@@ -78,7 +84,7 @@ export async function createResumeDocxBlob(resumeData, template = "professional"
   if (resumeData.title) addParagraph(text(resumeData.title, { bold: true, size: 22 }), { alignment: AlignmentType.CENTER });
   if (resumeData.contact) addParagraph(resumeData.contact, { alignment: AlignmentType.CENTER, spacing: { after: 140 } });
   if (resumeData.profile) {
-    addHeading(template === "career-change" ? "CAREER TRANSITION PROFILE" : "PROFESSIONAL SUMMARY");
+    addHeading(template === "career-change" ? "CAREER TRANSITION SUMMARY" : "PROFESSIONAL SUMMARY");
     addParagraph(resumeData.profile, { spacing: { after: 80 } });
   }
 
@@ -96,6 +102,11 @@ export async function createResumeDocxBlob(resumeData, template = "professional"
     }
     addExperience();
     addSkills();
+  } else if (template === "career-change") {
+    addProjects();
+    addTraining();
+    addSkills();
+    addExperience();
   } else {
     addSkills();
     addProjects();

@@ -237,7 +237,10 @@ export function findSemanticIntegrityIssues(resumeData, baseResume, analysis, ta
 
   const risky_claims = [];
   const rawOutput = exportedResumeText(resumeData);
-  for (const pattern of [/\btranslat(?:e|es|ed|ing) directly\b/gi, /\bdirectly analogous\b/gi]) {
+  for (const pattern of [
+    /\btranslat(?:e|es|ed|ing) directly\b/gi,
+    /\bdirectly analogous\b/gi,
+  ]) {
     for (const match of rawOutput.matchAll(pattern)) risky_claims.push({ claim: match[0] });
   }
   for (const claim of analysis?.prohibited_claims || []) {

@@ -1,7 +1,7 @@
 import { ResumeActions } from "./ResumeActions.jsx";
 import { DOC, SERIF, SANS, SectionHeader } from "./resumeShared.jsx";
 
-export function ResumeTemplateTrades({ resumeData, item, hasLink, C, primaryBtnStyle }) {
+export function ResumeTemplateTrades({ resumeData, item, hasLink, atsReview, onEditResume, C, primaryBtnStyle }) {
   const r = resumeData;
 
   return (
@@ -270,7 +270,7 @@ export function ResumeTemplateTrades({ resumeData, item, hasLink, C, primaryBtnS
         )}
       </div>
 
-      <ResumeActions resumeData={resumeData} template="trades" item={item} hasLink={hasLink} C={C} primaryBtnStyle={primaryBtnStyle} />
+      <ResumeActions resumeData={resumeData} template="trades" item={item} hasLink={hasLink} atsReview={atsReview} onEditResume={onEditResume} C={C} primaryBtnStyle={primaryBtnStyle} />
     </div>
   );
 }

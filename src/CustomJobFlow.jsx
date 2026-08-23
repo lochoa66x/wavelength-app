@@ -250,7 +250,7 @@ export function CustomJobFlow({ resume, C, primaryBtnStyle, glassBtnStyle, onBac
           </div>
           <PositioningSummary assessment={tailored.resume.fit_assessment} C={C} />
           <AtsReview review={tailored.atsReview} C={C} />
-          <Template resumeData={tailored.resume} item={customItem} hasLink={Boolean(brief.source_url)} C={C} primaryBtnStyle={primaryBtnStyle} />
+          <Template resumeData={tailored.resume} item={customItem} hasLink={Boolean(brief.source_url)} atsReview={tailored.atsReview} onEditResume={onEditResume} C={C} primaryBtnStyle={primaryBtnStyle} />
         </div>
       )}
     </div>
