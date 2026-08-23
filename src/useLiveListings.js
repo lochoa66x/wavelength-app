@@ -21,6 +21,10 @@ const SOURCE_DISPLAY_NAMES = {
   adzuna: "Jobs by Adzuna",
   jooble: "Jooble",
   jobicy: "Jobicy",
+  himalayas: "Himalayas",
+  greenhouse: "Greenhouse",
+  lever: "Lever",
+  ashby: "Ashby",
   craigslist: "Craigslist",
 };
 

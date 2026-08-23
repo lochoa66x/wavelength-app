@@ -19,10 +19,12 @@ const CATEGORY_OPTIONS = [
 ];
 
 const MODES = [
-  { id: "paste", label: "Paste posting", icon: Text, hint: "Most reliable" },
   { id: "url", label: "Job URL", icon: Link2, hint: "Public HTTPS page" },
   { id: "screenshots", label: "Screenshots", icon: FileImage, hint: "Up to 4 images" },
+  { id: "paste", label: "Paste posting", icon: Text, hint: "Most reliable" },
 ];
+
+const MODE_IDS = new Set(MODES.map(({ id }) => id));
 
 function imageToDataUrl(file) {
   return new Promise((resolve, reject) => {
@@ -63,8 +65,8 @@ function Field({ label, children }) {
   );
 }
 
-export function CustomJobFlow({ resume, C, primaryBtnStyle, glassBtnStyle, onBack, onEditResume }) {
-  const [mode, setMode] = useState("paste");
+export function CustomJobFlow({ resume, C, primaryBtnStyle, glassBtnStyle, onBack, onEditResume, initialMode = "url" }) {
+  const [mode, setMode] = useState(() => MODE_IDS.has(initialMode) ? initialMode : "url");
   const [postingText, setPostingText] = useState("");
   const [jobUrl, setJobUrl] = useState("");
   const [files, setFiles] = useState([]);

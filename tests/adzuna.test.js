@@ -261,6 +261,50 @@ test("cron returns a bounded operational summary after a successful import", asy
   assert.equal(res.body.ok, true);
   assert.equal(res.body.country, "CA");
   assert.equal(res.body.saved, 500);
+  assert.equal(res.body.sources.adzuna.ok, true);
+  assert.equal(res.body.sources.employerDirect.skipped, true);
+});
+
+test("cron isolates an employer-board outage from a successful Adzuna import", async () => {
+  const handler = createAdzunaCronHandler({
+    getConfig: () => ({
+      ...config,
+      atsBoards: [{ provider: "greenhouse", board: "acme", company: "Acme" }],
+    }),
+    createClientImpl: () => ({ from: () => ({}) }),
+    ingest: async () => ({ requests: 16, saved: 500 }),
+    atsIngest: async () => { throw new Error("Employer board unavailable"); },
+  });
+  const res = responseRecorder();
+
+  await handler({ method: "GET", headers: { authorization: "Bearer cron-secret" } }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.ok, true);
+  assert.equal(res.body.partial, true);
+  assert.equal(res.body.sources.adzuna.ok, true);
+  assert.equal(res.body.sources.employerDirect.ok, false);
+});
+
+test("configured employer boards can succeed while Adzuna is temporarily unavailable", async () => {
+  const handler = createAdzunaCronHandler({
+    getConfig: () => ({
+      ...config,
+      atsBoards: [{ provider: "lever", board: "maple", company: "Maple" }],
+    }),
+    createClientImpl: () => ({ from: () => ({}) }),
+    ingest: async () => { throw new Error("Adzuna unavailable"); },
+    atsIngest: async () => ({ boards: 1, saved: 25 }),
+  });
+  const res = responseRecorder();
+
+  await handler({ method: "GET", headers: { authorization: "Bearer cron-secret" } }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.ok, true);
+  assert.equal(res.body.partial, true);
+  assert.equal(res.body.sources.adzuna.ok, false);
+  assert.equal(res.body.sources.employerDirect.saved, 25);
 });
 
 test("server configuration never accepts browser-exposed ingestion secrets", () => {

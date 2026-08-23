@@ -1,5 +1,6 @@
 import { createClient } from "@supabase/supabase-js";
 
+import { runHimalayasIngestion } from "../_lib/himalayas.js";
 import { runJobicyIngestion } from "../_lib/jobicy.js";
 import { runJoobleIngestion } from "../_lib/jooble.js";
 
@@ -30,6 +31,7 @@ export function createJoobleCronHandler({
   createClientImpl = createClient,
   ingest = runJoobleIngestion,
   jobicyIngest = runJobicyIngestion,
+  himalayasIngest = runHimalayasIngestion,
 } = {}) {
   return async function handler(req, res) {
     if (req.method !== "GET") {
@@ -52,12 +54,13 @@ export function createJoobleCronHandler({
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    const [joobleResult, jobicyResult] = await Promise.allSettled([
+    const [joobleResult, jobicyResult, himalayasResult] = await Promise.allSettled([
       ingest({
         supabase,
         apiKey: config.joobleApiKey,
       }),
       jobicyIngest({ supabase }),
+      himalayasIngest({ supabase }),
     ]);
 
     const sources = {
@@ -67,6 +70,9 @@ export function createJoobleCronHandler({
       jobicy: jobicyResult.status === "fulfilled"
         ? { ok: true, ...jobicyResult.value }
         : { ok: false, error: "Jobicy import failed" },
+      himalayas: himalayasResult.status === "fulfilled"
+        ? { ok: true, ...himalayasResult.value }
+        : { ok: false, error: "Himalayas import failed" },
     };
     const successfulSources = Object.values(sources).filter(({ ok }) => ok).length;
 
@@ -75,6 +81,9 @@ export function createJoobleCronHandler({
     }
     if (jobicyResult.status === "rejected") {
       console.error(`Jobicy companion import failed: ${jobicyResult.reason?.message || "Unknown error"}`);
+    }
+    if (himalayasResult.status === "rejected") {
+      console.error(`Himalayas companion import failed: ${himalayasResult.reason?.message || "Unknown error"}`);
     }
     if (successfulSources === 0) {
       return res.status(502).json({ ok: false, error: "Scheduled imports failed", country: "CA", sources });

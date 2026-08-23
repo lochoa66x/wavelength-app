@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { MapPin, Clock, ExternalLink, Check, ArrowRight, ArrowLeft, Pencil, Sparkles, Loader2, CheckCircle2, Circle, Search, Bookmark, X, RotateCcw, LogOut, ChevronDown } from "lucide-react";
+import { MapPin, Clock, ExternalLink, Check, ArrowRight, ArrowLeft, Pencil, Sparkles, Loader2, CheckCircle2, Circle, Search, Bookmark, X, RotateCcw, LogOut, ChevronDown, Link2, FileImage, Text } from "lucide-react";
 import { BrandMark } from "./BrandMark.jsx";
 import { AtsReview } from "./AtsReview.jsx";
 import { CustomJobFlow } from "./CustomJobFlow.jsx";
@@ -351,6 +351,22 @@ function SourceAttribution({ source }) {
     return <a href="https://jobicy.com/" target="_blank" rel="noreferrer" style={SOURCE_LINK_STYLE}>Jobicy</a>;
   }
 
+  if (source === "Himalayas") {
+    return <a href="https://himalayas.app/jobs" target="_blank" rel="noreferrer" style={SOURCE_LINK_STYLE}>Himalayas</a>;
+  }
+
+  if (source === "Greenhouse") {
+    return <span>Employer-direct via Greenhouse</span>;
+  }
+
+  if (source === "Lever") {
+    return <span>Employer-direct via Lever</span>;
+  }
+
+  if (source === "Ashby") {
+    return <span>Employer-direct via Ashby</span>;
+  }
+
   if (source !== "Jobs by Adzuna") return <span>{source}</span>;
 
   return (
@@ -589,6 +605,7 @@ export default function Gigscapes() {
   const [cityEditorOpen, setCityEditorOpen] = useState(false);
   const [resumeDraft, setResumeDraft] = useState("");
   const [resumeReturnStep, setResumeReturnStep] = useState("digest");
+  const [customJobMode, setCustomJobMode] = useState("url");
   const [localResume, setLocalResume] = useState("");
   const [resumeStorageError, setResumeStorageError] = useState("");
   const [cloudResumeWarning, setCloudResumeWarning] = useState("");
@@ -1142,6 +1159,7 @@ export default function Gigscapes() {
     return shell(
       <CustomJobFlow
         resume={resume}
+        initialMode={customJobMode}
         C={C}
         primaryBtnStyle={primaryBtnStyle}
         glassBtnStyle={glassBtnStyle}
@@ -1566,16 +1584,34 @@ export default function Gigscapes() {
             </div>
             <h2 style={{ margin: "0 0 6px", color: C.text, fontSize: 16, lineHeight: 1.3 }}>Already found a job?</h2>
             <p style={{ margin: "0 0 14px", color: C.textSub, fontSize: 12.5, lineHeight: 1.5 }}>
-              Paste the description, share its link, or upload screenshots. We&apos;ll tailor your résumé to it.
+              Import the posting by link, screenshots, or text. You&apos;ll review it before we tailor your résumé.
             </p>
             <button
               type="button"
-              onClick={() => setStep("custom_job")}
+              onClick={() => { setCustomJobMode("url"); setStep("custom_job"); }}
               className="wl-btn"
               style={{ ...primaryBtnStyle(false), width: "100%", justifyContent: "center", padding: "10px 14px", fontSize: 12.5 }}
             >
-              <Sparkles size={14} /> Tailor a job I found
+              <Link2 size={14} /> Paste job link
             </button>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 7, marginTop: 8 }}>
+              <button
+                type="button"
+                onClick={() => { setCustomJobMode("screenshots"); setStep("custom_job"); }}
+                className="wl-btn"
+                style={{ ...glassBtnStyle(), justifyContent: "center", border: `1px solid ${C.border}`, padding: "8px 9px", fontSize: 11.5 }}
+              >
+                <FileImage size={13} /> Screenshots
+              </button>
+              <button
+                type="button"
+                onClick={() => { setCustomJobMode("paste"); setStep("custom_job"); }}
+                className="wl-btn"
+                style={{ ...glassBtnStyle(), justifyContent: "center", border: `1px solid ${C.border}`, padding: "8px 9px", fontSize: 11.5 }}
+              >
+                <Text size={13} /> Paste text
+              </button>
+            </div>
           </section>
 
           <section style={{ padding: 18, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 16 }}>
@@ -1625,7 +1661,7 @@ export default function Gigscapes() {
       <div style={{ marginTop: 28, paddingTop: 18, borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", gap: 16 }}>
         <div style={{ color: C.textFaint, display: "flex", flexDirection: "column", gap: 6 }}>
           <span style={{ fontSize: 12, fontWeight: 500, display: "flex", alignItems: "center", flexWrap: "wrap" }}>
-            Live feeds: We Work Remotely&nbsp;•&nbsp;<SourceAttribution source="Jobs by Adzuna" />&nbsp;•&nbsp;<SourceAttribution source="Jooble" />&nbsp;•&nbsp;<SourceAttribution source="Jobicy" />
+            Live feeds: We Work Remotely&nbsp;•&nbsp;<SourceAttribution source="Jobs by Adzuna" />&nbsp;•&nbsp;<SourceAttribution source="Jooble" />&nbsp;•&nbsp;<SourceAttribution source="Jobicy" />&nbsp;•&nbsp;<SourceAttribution source="Himalayas" />
           </span>
           <a href="https://www.craigslist.org/about/sites#CA" target="_blank" rel="noreferrer" style={MANUAL_SOURCE_LINK_STYLE}>
             Browse Craigslist Canada directly (not imported) <ExternalLink size={11} aria-hidden="true" />

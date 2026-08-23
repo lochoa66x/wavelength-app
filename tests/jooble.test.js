@@ -41,6 +41,10 @@ const config = {
   supabaseSecretKey: "sb_secret_test",
 };
 
+const publicFeedStubs = {
+  himalayasIngest: async () => ({ requests: 5, saved: 60, inserted: 55, updated: 5, pruned: 3 }),
+};
+
 test("Jooble search plan covers the jobs-and-gigs catalogue within a conservative budget", () => {
   const plan = buildJoobleSearchPlan();
 
@@ -244,6 +248,7 @@ test("Jooble cron returns an operational summary after a successful import", asy
       return { requests: 12, saved: 300, inserted: 250, updated: 50, pruned: 40 };
     },
     jobicyIngest: async () => ({ requests: 1, saved: 80, inserted: 70, updated: 10, pruned: 5 }),
+    ...publicFeedStubs,
   });
   const res = responseRecorder();
 
@@ -255,6 +260,7 @@ test("Jooble cron returns an operational summary after a successful import", asy
   assert.equal(res.body.partial, false);
   assert.equal(res.body.sources.jooble.saved, 300);
   assert.equal(res.body.sources.jobicy.saved, 80);
+  assert.equal(res.body.sources.himalayas.saved, 60);
 });
 
 test("Jooble cron isolates a Jobicy outage and reports a partial success", async () => {
@@ -263,6 +269,7 @@ test("Jooble cron isolates a Jobicy outage and reports a partial success", async
     createClientImpl: () => ({ from: () => ({}) }),
     ingest: async () => ({ requests: 12, saved: 300 }),
     jobicyIngest: async () => { throw new Error("Jobicy unavailable"); },
+    ...publicFeedStubs,
   });
   const res = responseRecorder();
 
@@ -275,12 +282,13 @@ test("Jooble cron isolates a Jobicy outage and reports a partial success", async
   assert.equal(res.body.sources.jobicy.ok, false);
 });
 
-test("Jooble cron fails only when both scheduled imports fail", async () => {
+test("Jooble cron fails only when all scheduled imports fail", async () => {
   const handler = createJoobleCronHandler({
     getConfig: () => config,
     createClientImpl: () => ({ from: () => ({}) }),
     ingest: async () => { throw new Error("Jooble unavailable"); },
     jobicyIngest: async () => { throw new Error("Jobicy unavailable"); },
+    himalayasIngest: async () => { throw new Error("Himalayas unavailable"); },
   });
   const res = responseRecorder();
 
@@ -290,6 +298,7 @@ test("Jooble cron fails only when both scheduled imports fail", async () => {
   assert.equal(res.body.ok, false);
   assert.equal(res.body.sources.jooble.ok, false);
   assert.equal(res.body.sources.jobicy.ok, false);
+  assert.equal(res.body.sources.himalayas.ok, false);
 });
 
 test("Jooble server configuration never accepts browser-exposed secrets", () => {
