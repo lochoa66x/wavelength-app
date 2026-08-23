@@ -60,6 +60,19 @@ export function assessPostingCompleteness(postingText, structuredBrief = null, p
       : "The saved posting looks like an aggregator summary rather than a complete job description.";
   }
 
+  const sourceReview = structuredBrief?.source_review;
+  const screenshotSetUnconfirmed = sourceReview?.mode === "screenshots"
+    && sourceReview.user_confirmed_complete !== true;
+  const unresolvedSourceConflicts = Boolean(sourceReview?.conflicts?.length)
+    && sourceReview.conflicts_resolved !== true;
+  if (screenshotSetUnconfirmed) {
+    status = "partial";
+    reason = "The screenshot set has not been confirmed to include the final responsibilities and qualifications page.";
+  } else if (unresolvedSourceConflicts) {
+    status = "partial";
+    reason = "The extracted screenshots contain conflicting job details that must be reviewed before final tailoring.";
+  }
+
   const fitAllowed = status === "complete" && hasResponsibilities && hasQualifications;
   const readinessStatus = fitAllowed
     ? "reviewed_complete"
@@ -79,6 +92,8 @@ export function assessPostingCompleteness(postingText, structuredBrief = null, p
     has_responsibilities: hasResponsibilities,
     has_qualifications: hasQualifications,
     appears_truncated: abruptEnding,
+    source_review_complete: !screenshotSetUnconfirmed,
+    unresolved_source_conflicts: unresolvedSourceConflicts,
     source: String(provenance.source || structuredBrief?.source || "saved_listing"),
     source_status: String(provenance.descriptionStatus || "unknown"),
     readiness_status: readinessStatus,

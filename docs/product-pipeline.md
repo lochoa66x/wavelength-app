@@ -57,6 +57,18 @@ This roadmap orders work by the value of the product's core promise: produce a t
 - Add production telemetry for URL-import status, analysis duration, generation duration, repair attempts, timeouts, and model/provider errors without logging resume text.
 - Add regression fixtures for direct, adjacent, and career-change candidates, including SAP functional versus SAP development roles.
 
+### P0.4 Make multi-page intake and exported files trustworthy
+
+**Status:** Implemented on 2026-08-23; production verification remains part of the release checklist.
+
+- Accept up to eight posting screenshots in one intake flow, show page count and filenames, and let the user remove or replace individual pages.
+- Compress images in the browser and extract them in bounded batches of four so a long posting does not exceed one serverless request's image or execution budget.
+- Merge repeated OCR content deterministically, preserve the page-set provenance, and surface conflicting title or company values instead of silently letting a later page overwrite an earlier page.
+- Require the user to confirm that the final responsibilities and qualifications page was included. Unconfirmed page sets and unresolved source conflicts remain preliminary and cannot produce a fit label or application-ready export.
+- Preserve later screenshot batches that legitimately omit the repeated title so they can be merged with the first page.
+- Serialize structured DOCX text runs as text, never as JavaScript object strings. Regression-test the generated document payload so `[object Object]` cannot appear in the identity header in Word or LibreOffice.
+- Next compatibility work: add first-class PDF export, render-and-inspect both DOCX and PDF fixtures, and test page breaks and fonts in Microsoft Word, LibreOffice, Google Docs, and common ATS parsers.
+
 ## Priority 1 — Let the user supply missing evidence precisely
 
 ### P1.1 Evidence follow-up and comments
@@ -68,6 +80,8 @@ Turn the existing “Questions that could strengthen this version” into an evi
 - The user chooses whether confirmed evidence applies only to this application or may update the master resume/profile.
 - Show a preview before saving; rerun truth, history, number, and tense validation after every change.
 - Never convert a vague user statement into a credential, employer, title, project, technology, or metric the user did not confirm.
+- Place a comments/answers panel beside the tailored draft so the user can respond to the exact missing-evidence questions, preview the resulting bullet, and decide whether the evidence is application-only or reusable.
+- Recalculate direct, adjacent, transferable, and missing coverage after every confirmed answer; do not upgrade a fit label merely because the user opened or skipped a question.
 
 ### P1.2 Improve ATS writing and editing feedback
 
@@ -88,6 +102,11 @@ Turn the existing “Questions that could strengthen this version” into an evi
 - Target roughly two pages for experienced candidates unless the user explicitly chooses an extended CV.
 - Preserve exact employers, titles, dates, credentials, and user-supplied metrics.
 - Add a final review step for identity/contact details, target positioning, evidence gaps, and export readiness.
+- Do not describe a long established career as a generic "full career" or present an unverified target module as an accomplished specialization. For a new SAP module, state the verified source modules and the transferable delivery lifecycle explicitly, while leaving MM/SD configuration as a gap until the candidate confirms it.
+- Prefer a role-specific headline over a vague one such as `Solution Architect | Career Transition`; for this fixture, honest positioning is closer to `Senior SAP Functional Consultant | S/4HANA Integration & Delivery` with a separate, plain-language transition note.
+- Separate verified domain expertise, delivery methods, tools, and target-role keywords. Do not mix unsupported MM/SD terms into the skills section merely to improve keyword density.
+- Keep recent, high-signal roles detailed and compress older experience. Preserve relevant leadership, requirements, functional specifications, configuration, integration, UAT, cutover, go-live, and support evidence; remove repetitive lifecycle bullets.
+- Require candidate review of contact details, education/certifications, current-role status, and any metrics before final export. Never infer missing education or an end date.
 
 ### P1.4 Guest-first browsing with account-required workspaces
 
@@ -113,6 +132,8 @@ Keep one canonical evidence model and vary section order, density, language emph
 8. Creative and design portfolio
 
 Every family needs a screen renderer, DOCX renderer, plain-text export, and automated parseability check. The user may override the recommendation. Creative styling must never be the only export; retain a conservative ATS-safe version.
+
+For the SAP functional family, use a restrained two-page ATS-safe layout: identity and role-specific headline, concise summary, grouped functional/delivery skills, then selected experience. Avoid visual skill bars, icons inside document text, sidebars, or decorative tables. Provide a compact one-page networking version separately rather than deleting material from the application version.
 
 ### P2.2 Landing page
 
@@ -150,13 +171,14 @@ Every family needs a screen renderer, DOCX renderer, plain-text export, and auto
 1. P0.1 posting enrichment and provenance
 2. P0.2 completeness/readiness gating and fit-label correction
 3. P0.3 caching, staged recovery, telemetry, and regression fixtures
-4. P1.1 evidence follow-up comments
-5. P1.2 ATS writing feedback and P1.3 resume focus
-6. P1.4 guest-first access and OTP experiment
-7. P2.1 resume families
-8. P2.2 landing page
-9. P2.3 ongoing source/feed work
-10. P3 native mobile and evaluation expansion
+4. P0.4 multi-page intake, provenance, and export-integrity verification
+5. P1.1 evidence follow-up comments
+6. P1.2 ATS writing feedback and P1.3 resume focus
+7. P1.4 guest-first access and OTP experiment
+8. P2.1 resume families plus DOCX/PDF compatibility
+9. P2.2 landing page
+10. P2.3 ongoing source/feed work
+11. P3 native mobile and evaluation expansion
 
 ## Source constraints behind P0.1
 

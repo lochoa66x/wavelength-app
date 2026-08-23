@@ -92,6 +92,68 @@ test("a reviewed complete posting permits evidence-backed fit and exact résumé
   }]);
 });
 
+test("a complete-looking screenshot posting stays preliminary until the user confirms the final page", () => {
+  const structuredBrief = {
+    responsibilities: ["Lead SAP S/4HANA functional delivery"],
+    required_qualifications: ["Extensive SAP functional consulting experience"],
+    source_review: {
+      mode: "screenshots",
+      page_count: 6,
+      appears_complete: true,
+      user_confirmed_complete: false,
+      conflicts: [],
+      conflicts_resolved: true,
+    },
+  };
+  const assessment = assessPostingCompleteness(completeSapPosting, structuredBrief, {
+    source: "user_screenshot",
+    descriptionStatus: "complete",
+  });
+
+  assert.equal(assessment.status, "partial");
+  assert.equal(assessment.source_review_complete, false);
+  assert.equal(assessment.fit_allowed, false);
+  assert.equal(assessment.application_ready_allowed, false);
+});
+
+test("a confirmed complete screenshot posting can support fit assessment", () => {
+  const assessment = assessPostingCompleteness(completeSapPosting, {
+    responsibilities: ["Lead SAP S/4HANA functional delivery"],
+    required_qualifications: ["Extensive SAP functional consulting experience"],
+    source_review: {
+      mode: "screenshots",
+      page_count: 6,
+      appears_complete: true,
+      user_confirmed_complete: true,
+      conflicts: [],
+      conflicts_resolved: true,
+    },
+  }, { source: "user_screenshot", descriptionStatus: "complete" });
+
+  assert.equal(assessment.status, "complete");
+  assert.equal(assessment.source_review_complete, true);
+  assert.equal(assessment.fit_allowed, true);
+});
+
+test("unresolved screenshot identity conflicts block application-ready tailoring", () => {
+  const assessment = assessPostingCompleteness(completeSapPosting, {
+    responsibilities: ["Lead SAP S/4HANA functional delivery"],
+    required_qualifications: ["Extensive SAP functional consulting experience"],
+    source_review: {
+      mode: "screenshots",
+      page_count: 6,
+      appears_complete: true,
+      user_confirmed_complete: true,
+      conflicts: [{ field: "company", values: ["FED IT", "Retail Client"] }],
+      conflicts_resolved: false,
+    },
+  });
+
+  assert.equal(assessment.status, "partial");
+  assert.equal(assessment.unresolved_source_conflicts, true);
+  assert.equal(assessment.fit_allowed, false);
+});
+
 test("a complete developer posting preserves a material gap for functional-only evidence", () => {
   const developerPosting = `${completeSapPosting} Responsibilities: Build production web applications in React, TypeScript, Node.js, and PostgreSQL. Qualifications: Must have professional JavaScript development, automated testing, Git, and CI/CD experience.`;
   const assessment = assessPostingCompleteness(developerPosting, null, {

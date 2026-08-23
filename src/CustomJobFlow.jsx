@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeft, Check, FileImage, Link2, Loader2, Pencil, Sparkles, Text, Upload } from "lucide-react";
+import { AlertTriangle, ArrowLeft, FileImage, Link2, Loader2, Pencil, Sparkles, Text, Upload, X } from "lucide-react";
 
 import { AtsReview } from "./AtsReview.jsx";
 import { PositioningSummary } from "./PositioningSummary.jsx";
@@ -8,6 +8,7 @@ import { ResumeTemplateProfessional } from "./ResumeTemplateProfessional.jsx";
 import { ResumeTemplateTrades } from "./ResumeTemplateTrades.jsx";
 import { resumeTemplateKind } from "./resumeStrategy.js";
 import { extractCustomJob, tailorResume } from "./tailorClient.js";
+import { appendScreenshotFiles, MAX_SCREENSHOTS, mergeExtractedJobBriefs, screenshotBatches } from "./customJobIntake.js";
 
 const CATEGORY_OPTIONS = [
   ["tech", "Technology & IT"], ["design", "Design"], ["writing", "Writing & content"],
@@ -20,7 +21,7 @@ const CATEGORY_OPTIONS = [
 
 const MODES = [
   { id: "url", label: "Job URL", icon: Link2, hint: "Public HTTPS page" },
-  { id: "screenshots", label: "Screenshots", icon: FileImage, hint: "Up to 4 images" },
+  { id: "screenshots", label: "Screenshots", icon: FileImage, hint: `Up to ${MAX_SCREENSHOTS} pages` },
   { id: "paste", label: "Paste posting", icon: Text, hint: "Most reliable" },
 ];
 
@@ -46,14 +47,14 @@ async function compressScreenshot(file) {
     element.onerror = () => reject(new Error(`Could not decode ${file.name}.`));
     element.src = originalUrl;
   });
-  const scale = Math.min(1, 1800 / Math.max(image.width, image.height));
+  const scale = Math.min(1, 1600 / Math.max(image.width, image.height));
   const canvas = document.createElement("canvas");
   canvas.width = Math.max(1, Math.round(image.width * scale));
   canvas.height = Math.max(1, Math.round(image.height * scale));
   const context = canvas.getContext("2d", { alpha: false });
   if (!context) throw new Error(`Could not prepare ${file.name}.`);
   context.drawImage(image, 0, 0, canvas.width, canvas.height);
-  return canvas.toDataURL("image/jpeg", 0.82);
+  return canvas.toDataURL("image/jpeg", 0.74);
 }
 
 function Field({ label, children }) {
@@ -74,22 +75,50 @@ export function CustomJobFlow({ resume, C, primaryBtnStyle, glassBtnStyle, onBac
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState("");
   const [tailored, setTailored] = useState(null);
+  const sourceReview = brief?.source_review;
+  const sourceConflicts = sourceReview?.conflicts || [];
+  const screenshotSetUnconfirmed = sourceReview?.mode === "screenshots" && !sourceReview.user_confirmed_complete;
+  const unresolvedSourceConflicts = sourceConflicts.length > 0 && !sourceReview?.conflicts_resolved;
+  const sourceReviewBlocked = screenshotSetUnconfirmed || unresolvedSourceConflicts;
 
   const fieldStyle = {
     width: "100%", border: `1px solid ${C.border}`, borderRadius: 11, padding: "10px 12px",
     background: C.bgCard, color: C.text, fontSize: 14, fontFamily: "inherit",
   };
 
+  const backButtonStyle = {
+    ...glassBtnStyle(),
+    display: "inline-flex",
+    justifyContent: "center",
+    gap: 7,
+    minHeight: 40,
+    padding: "9px 13px 9px 11px",
+    marginBottom: 20,
+    border: `1px solid ${C.border}`,
+    background: C.bgCard,
+    color: C.textSub,
+    fontSize: 13,
+    lineHeight: 1,
+    boxShadow: "0 1px 2px rgba(0, 0, 0, 0.04)",
+  };
+
   const handleExtract = async () => {
     setStatus("extracting");
     setError("");
     try {
-      const payload = mode === "paste"
-        ? { mode, text: postingText }
-        : mode === "url"
-          ? { mode, url: jobUrl }
-          : { mode, images: await Promise.all(files.map(compressScreenshot)) };
-      setBrief(await extractCustomJob(payload));
+      let extracted;
+      if (mode === "screenshots") {
+        const batches = screenshotBatches(files);
+        const batchBriefs = await Promise.all(batches.map(async (batch) => extractCustomJob({
+          mode,
+          images: await Promise.all(batch.map(compressScreenshot)),
+        })));
+        extracted = mergeExtractedJobBriefs(batchBriefs, { pageCount: files.length });
+      } else {
+        const payload = mode === "paste" ? { mode, text: postingText } : { mode, url: jobUrl };
+        extracted = await extractCustomJob(payload);
+      }
+      setBrief(extracted);
       setStatus("review");
     } catch (extractError) {
       setError(extractError.message);
@@ -98,6 +127,21 @@ export function CustomJobFlow({ resume, C, primaryBtnStyle, glassBtnStyle, onBac
   };
 
   const updateBrief = (patch) => setBrief((current) => ({ ...current, ...patch }));
+  const updateSourceReview = (patch) => setBrief((current) => ({
+    ...current,
+    source_review: { ...current.source_review, ...patch },
+  }));
+  const handleScreenshotSelection = (event) => {
+    const selected = Array.from(event.target.files || []);
+    const next = appendScreenshotFiles(files, selected);
+    if (next.length < files.length + selected.length) {
+      setError(`Gigscapes kept ${next.length} unique pages. The limit is ${MAX_SCREENSHOTS}; duplicate files are ignored.`);
+    } else {
+      setError("");
+    }
+    setFiles(next);
+    event.target.value = "";
+  };
   const listValue = (key) => (brief?.[key] || []).join("\n");
   const updateList = (key, value) => updateBrief({ [key]: value.split("\n").map((item) => item.trim()).filter(Boolean) });
 
@@ -134,8 +178,9 @@ export function CustomJobFlow({ resume, C, primaryBtnStyle, glassBtnStyle, onBac
   if (!resume) {
     return (
       <div style={{ maxWidth: 760, margin: "0 auto" }}>
-        <button type="button" onClick={onBack} className="wl-btn" style={{ ...glassBtnStyle(), padding: 0, marginBottom: 18, background: "transparent" }}>
-          <ArrowLeft size={15} /> Back to matches
+        <button type="button" onClick={onBack} aria-label="Back to job matches" className="wl-btn" style={backButtonStyle}>
+          <ArrowLeft size={16} aria-hidden="true" />
+          <span>Back to matches</span>
         </button>
         <div style={{ marginBottom: 20 }}>
           <div style={{ color: C.green, fontSize: 12, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", marginBottom: 5 }}>Bring your own job</div>
@@ -149,8 +194,9 @@ export function CustomJobFlow({ resume, C, primaryBtnStyle, glassBtnStyle, onBac
 
   return (
     <div style={{ maxWidth: 760, margin: "0 auto" }}>
-      <button type="button" onClick={onBack} className="wl-btn" style={{ ...glassBtnStyle(), padding: 0, marginBottom: 18, background: "transparent" }}>
-        <ArrowLeft size={15} /> Back to matches
+      <button type="button" onClick={onBack} aria-label="Back to job matches" className="wl-btn" style={backButtonStyle}>
+        <ArrowLeft size={16} aria-hidden="true" />
+        <span>Back to matches</span>
       </button>
 
       <div style={{ marginBottom: 20 }}>
@@ -193,11 +239,21 @@ export function CustomJobFlow({ resume, C, primaryBtnStyle, glassBtnStyle, onBac
             <div>
               <label style={{ display: "grid", justifyItems: "center", gap: 8, border: `1px dashed ${C.border}`, borderRadius: 14, padding: "28px 16px", color: C.textSub, cursor: "pointer" }}>
                 <Upload size={22} color={C.green} />
-                <strong style={{ color: C.text, fontSize: 14 }}>Choose up to 4 screenshots</strong>
-                <span style={{ fontSize: 12 }}>PNG, JPEG, WebP, or GIF · compressed before upload</span>
-                <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden onChange={(event) => setFiles(Array.from(event.target.files || []).slice(0, 4))} />
+                <strong style={{ color: C.text, fontSize: 14 }}>Add up to {MAX_SCREENSHOTS} posting pages</strong>
+                <span style={{ fontSize: 12 }}>Include the final responsibilities and qualifications page · images are compressed before upload</span>
+                <input type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple hidden onChange={handleScreenshotSelection} />
               </label>
-              {files.length > 0 && <p style={{ color: C.textSub, fontSize: 12, margin: "10px 0 0" }}>{files.map((file) => file.name).join(" · ")}</p>}
+              {files.length > 0 && (
+                <div style={{ display: "grid", gap: 7, marginTop: 10 }}>
+                  <div style={{ color: C.textSub, fontSize: 12 }}>{files.length} / {MAX_SCREENSHOTS} pages selected</div>
+                  {files.map((file, index) => (
+                    <div key={`${file.name}-${file.size}-${file.lastModified}`} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, border: `1px solid ${C.border}`, borderRadius: 10, padding: "7px 9px" }}>
+                      <span style={{ color: C.textSub, fontSize: 12, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{index + 1}. {file.name}</span>
+                      <button type="button" aria-label={`Remove ${file.name}`} onClick={() => setFiles((current) => current.filter((_, fileIndex) => fileIndex !== index))} className="wl-btn" style={{ border: 0, background: "transparent", color: C.textSub, padding: 3, minHeight: 28 }}><X size={14} /></button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
@@ -219,6 +275,34 @@ export function CustomJobFlow({ resume, C, primaryBtnStyle, glassBtnStyle, onBac
             </div>
             <button type="button" onClick={() => { setBrief(null); setTailored(null); setStatus("idle"); }} className="wl-btn" style={{ ...glassBtnStyle(), padding: "7px 10px", border: `1px solid ${C.border}` }}><Pencil size={12} /> Change source</button>
           </div>
+          {sourceReview?.mode === "screenshots" && (
+            <div style={{ border: `1px solid ${sourceReviewBlocked ? "#E5B567" : C.border}`, borderRadius: 13, background: sourceReviewBlocked ? "#FFF8EC" : C.bgCard, padding: 13, marginBottom: 14 }}>
+              <div style={{ display: "flex", gap: 9, alignItems: "flex-start" }}>
+                <AlertTriangle size={17} color={sourceReviewBlocked ? "#B86A00" : C.green} style={{ flex: "0 0 auto", marginTop: 1 }} />
+                <div style={{ minWidth: 0 }}>
+                  <strong style={{ color: C.text, fontSize: 13 }}>Verify screenshot coverage</strong>
+                  <p style={{ color: C.textSub, fontSize: 12, lineHeight: 1.45, margin: "4px 0 0" }}>
+                    {sourceReview.page_count || files.length} pages were reviewed. {sourceReview.completeness_notes || "Confirm that the final posting page was included before tailoring."}
+                  </p>
+                </div>
+              </div>
+              {sourceConflicts.length > 0 && (
+                <div style={{ color: C.textSub, fontSize: 12, lineHeight: 1.45, margin: "10px 0 0 26px" }}>
+                  {sourceConflicts.map((conflict) => <div key={conflict.field}><strong style={{ color: C.text }}>{conflict.field}:</strong> {conflict.values.join(" / ")}</div>)}
+                </div>
+              )}
+              <label style={{ display: "flex", gap: 8, alignItems: "flex-start", color: C.text, fontSize: 12.5, lineHeight: 1.45, margin: "11px 0 0 26px", cursor: "pointer" }}>
+                <input type="checkbox" checked={Boolean(sourceReview.user_confirmed_complete)} onChange={(event) => updateSourceReview({ user_confirmed_complete: event.target.checked })} style={{ marginTop: 2 }} />
+                I included the final page and reviewed the responsibilities and qualifications below.
+              </label>
+              {sourceConflicts.length > 0 && (
+                <label style={{ display: "flex", gap: 8, alignItems: "flex-start", color: C.text, fontSize: 12.5, lineHeight: 1.45, margin: "8px 0 0 26px", cursor: "pointer" }}>
+                  <input type="checkbox" checked={Boolean(sourceReview.conflicts_resolved)} onChange={(event) => updateSourceReview({ conflicts_resolved: event.target.checked })} style={{ marginTop: 2 }} />
+                  I corrected the conflicting values in the editable fields.
+                </label>
+              )}
+            </div>
+          )}
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 12 }}>
             <Field label="Job title"><input value={brief.title} onChange={(event) => updateBrief({ title: event.target.value })} style={fieldStyle} /></Field>
             <Field label="Company"><input value={brief.company} onChange={(event) => updateBrief({ company: event.target.value })} style={fieldStyle} /></Field>
@@ -237,7 +321,8 @@ export function CustomJobFlow({ resume, C, primaryBtnStyle, glassBtnStyle, onBac
           </div>
 
           {error && <p role="alert" style={{ color: C.red, fontSize: 13, margin: "12px 0 0" }}>{error}</p>}
-          <button type="button" onClick={handleTailor} disabled={status === "tailoring" || !brief.title.trim() || !brief.description.trim()} className="wl-btn" style={{ ...primaryBtnStyle(status === "tailoring"), marginTop: 16 }}>
+          {sourceReviewBlocked && <p style={{ color: "#9A5B00", fontSize: 12, lineHeight: 1.45, margin: "12px 0 0" }}>Complete the screenshot review above to unlock evidence-first tailoring.</p>}
+          <button type="button" onClick={handleTailor} disabled={status === "tailoring" || sourceReviewBlocked || !brief.title.trim() || !brief.description.trim()} className="wl-btn" style={{ ...primaryBtnStyle(status === "tailoring" || sourceReviewBlocked), marginTop: 16 }}>
             {status === "tailoring" ? <Loader2 size={15} className="wl-spin" /> : <Sparkles size={15} />}
             {status === "tailoring" ? "Tailoring and checking evidence…" : "Tailor my résumé"}
           </button>

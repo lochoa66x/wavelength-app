@@ -12,6 +12,16 @@ function text(value, options = {}) {
   return { text: String(value || ""), ...options };
 }
 
+export function normalizeDocxRuns(content) {
+  const values = Array.isArray(content) ? content : [content];
+  return values.map((value) => {
+    if (value && typeof value === "object" && !Array.isArray(value) && Object.prototype.hasOwnProperty.call(value, "text")) {
+      return { ...value, text: String(value.text ?? "") };
+    }
+    return text(value);
+  });
+}
+
 const PLACEHOLDER_IDENTITY = /^(?:<\s*)?(?:unknown|unnamed|name unavailable|candidate|n\/?a|null|undefined)(?:\s*>)?$/i;
 
 export async function createResumeDocxBlob(resumeData, template = "professional") {
@@ -30,7 +40,7 @@ export async function createResumeDocxBlob(resumeData, template = "professional"
 
   const children = [];
   const addParagraph = (content, options = {}) => {
-    const runs = Array.isArray(content) ? content : [text(content)];
+    const runs = normalizeDocxRuns(content);
     children.push(new Paragraph({ ...options, children: runs.map((run) => new TextRun(run)) }));
   };
   const addHeading = (heading) => {

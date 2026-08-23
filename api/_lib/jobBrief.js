@@ -31,14 +31,40 @@ function cleanList(value, { maxItems = 30, maxItemLength = 500 } = {}) {
   const seen = new Set();
   const result = [];
   for (const item of value) {
-    const cleaned = cleanString(item, maxItemLength);
-    const key = cleaned.toLowerCase();
+    const cleaned = cleanString(item, maxItemLength).replace(/^(?:[-*•◦▪▫]+|\d+[.)])\s*/, "");
+    const key = cleaned
+      .normalize("NFKD")
+      .replace(/\p{Diacritic}/gu, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9+#.%]+/g, " ")
+      .trim();
     if (!cleaned || seen.has(key)) continue;
     seen.add(key);
     result.push(cleaned);
     if (result.length >= maxItems) break;
   }
   return result;
+}
+
+function cleanSourceReview(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const mode = ["screenshots", "paste", "url"].includes(value.mode) ? value.mode : "";
+  const conflicts = Array.isArray(value.conflicts)
+    ? value.conflicts.slice(0, 10).map((conflict) => ({
+        field: cleanString(conflict?.field, 80),
+        values: cleanList(conflict?.values, { maxItems: 8, maxItemLength: 220 }),
+      })).filter((conflict) => conflict.field && conflict.values.length > 1)
+    : [];
+
+  return {
+    mode,
+    page_count: Math.min(8, Math.max(0, Number.parseInt(value.page_count, 10) || 0)),
+    appears_complete: Boolean(value.appears_complete),
+    completeness_notes: cleanParagraph(value.completeness_notes, 1200),
+    user_confirmed_complete: Boolean(value.user_confirmed_complete),
+    conflicts,
+    conflicts_resolved: conflicts.length === 0 || Boolean(value.conflicts_resolved),
+  };
 }
 
 function cleanSourceUrl(value) {
@@ -59,14 +85,16 @@ export function normalizeCustomJobBrief(value) {
 
   const title = cleanString(value.title, 180);
   const description = cleanParagraph(value.description, 16000);
-  if (!title || !description) return null;
+  const sourceReview = cleanSourceReview(value.source_review);
+  const partialScreenshotBatch = sourceReview?.mode === "screenshots" && Boolean(title || description);
+  if ((!title || !description) && !partialScreenshotBatch) return null;
 
   const proposedCategory = cleanString(value.category, 40).toLowerCase();
   const category = VALID_CATEGORIES.has(proposedCategory)
     ? proposedCategory
     : normalizeListingCategory(title, proposedCategory || "other");
 
-  return {
+  const normalized = {
     title,
     company: cleanString(value.company, 180),
     location: cleanString(value.location, 180),
@@ -79,6 +107,8 @@ export function normalizeCustomJobBrief(value) {
     keywords: cleanList(value.keywords, { maxItems: 40, maxItemLength: 100 }),
     source_url: cleanSourceUrl(value.source_url),
   };
+  if (sourceReview) normalized.source_review = sourceReview;
+  return normalized;
 }
 
 export function jobBriefToText(brief) {
