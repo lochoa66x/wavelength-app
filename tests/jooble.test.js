@@ -74,7 +74,7 @@ test("Jooble sends bounded Canada-only POST searches and deduplicates fresh resu
 
   assert.equal(feed.items.length, 1);
   assert.equal(feed.stats.requests, buildJoobleSearchPlan().length);
-  assert.equal(calls[0].url, "https://jooble.org/api/api%20key");
+  assert.equal(calls[0].url, "https://ca.jooble.org/api/api%20key");
   assert.equal(calls[0].init.method, "POST");
   assert.equal(calls[0].body.location, "Canada");
   assert.equal(calls[0].body.page, "1");

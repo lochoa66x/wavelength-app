@@ -13,7 +13,7 @@ export const JOOBLE_MAX_DAYS_OLD = 30;
 export const JOOBLE_REQUEST_BUDGET = 18;
 export const JOOBLE_STALE_AFTER_DAYS = 45;
 
-const JOOBLE_API_ROOT = "https://jooble.org/api";
+const JOOBLE_API_ROOT = "https://ca.jooble.org/api";
 
 const SEARCHES = [
   { category: "tech", keywords: "software developer IT support engineer" },
