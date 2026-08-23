@@ -7,9 +7,11 @@ import {
   classifyListingTitle,
   guessCategoryFromKeyword,
   inferHighConfidenceTitleCategory,
+  inferKeywordIntent,
   normalizeFieldLabel,
   normalizeListingCategory,
   normalizeListingReason,
+  normalizeSearchText,
   normalizeWorkArrangement,
   scoreListingRelevance,
 } from "./listingCategories.js";
@@ -40,6 +42,74 @@ test("recognizes expanded skilled-trade and local-service searches", () => {
   assert.equal(guessCategoryFromKeyword("HVAC technician"), "trades");
   assert.equal(guessCategoryFromKeyword("handyman"), "home_services");
   assert.equal(guessCategoryFromKeyword("landscaping"), "home_services");
+});
+
+test("normalizes common technology aliases without losing meaningful punctuation", () => {
+  assert.equal(normalizeSearchText("C plus plus / C sharp / dot net"), "c++ / c# / .net");
+  assert.equal(normalizeSearchText("S 4 HANA and FI/CO"), "s/4hana and fico");
+  assert.equal(normalizeSearchText("Node JS + React.js"), "node.js + react");
+});
+
+test("recognizes technologies and combined natural-language searches", () => {
+  for (const keyword of [
+    "IT SAP", "SAP FICO consultant", "S/4HANA", "Java", "Python data engineer",
+    "C++ embedded developer", "C# .NET developer", "React frontend", "Node.js",
+    "cloud DevOps", "cybersecurity",
+  ]) {
+    const intent = inferKeywordIntent(keyword);
+    assert.equal(intent.recognized, true, keyword);
+    assert.ok(intent.categories.includes("tech"), keyword);
+  }
+
+  const sap = inferKeywordIntent("IT SAP");
+  assert.deepEqual(sap.technologies, ["sap"]);
+  assert.equal(sap.subcategory, "enterprise_software");
+});
+
+test("matches requested technologies in titles or descriptions without leaking unrelated tech", () => {
+  const intent = inferKeywordIntent("SAP consultant");
+  const titleMatch = classifyListingTitle("Senior SAP S/4HANA Consultant", "tech");
+  const descriptionMatch = classifyListingTitle("Enterprise Applications Consultant", "tech");
+  const unrelated = classifyListingTitle("Senior Java Developer", "tech");
+
+  assert.ok(scoreListingRelevance(
+    { title: "Senior SAP S/4HANA Consultant", description: "", ...titleMatch },
+    "SAP consultant",
+    intent.categories,
+    intent,
+  ) > 0);
+  assert.ok(scoreListingRelevance(
+    { title: "Enterprise Applications Consultant", description: "Configure SAP FICO modules.", ...descriptionMatch },
+    "SAP consultant",
+    intent.categories,
+    intent,
+  ) > 0);
+  assert.equal(scoreListingRelevance(
+    { title: "Senior Java Developer", description: "Build Spring services.", ...unrelated },
+    "SAP consultant",
+    intent.categories,
+    intent,
+  ), 0);
+});
+
+test("treats SaaS as a cross-functional domain while respecting role context", () => {
+  const intent = inferKeywordIntent("SaaS sales");
+  const saasSales = classifyListingTitle("Account Executive", "sales");
+  const unrelatedSales = classifyListingTitle("Automotive Sales Representative", "sales");
+
+  assert.ok(intent.categories.includes("sales"));
+  assert.ok(scoreListingRelevance(
+    { title: "Account Executive", description: "Grow a B2B SaaS platform.", ...saasSales },
+    "SaaS sales",
+    intent.categories,
+    intent,
+  ) > 0);
+  assert.equal(scoreListingRelevance(
+    { title: "Automotive Sales Representative", description: "Sell vehicles at a dealership.", ...unrelatedSales },
+    "SaaS sales",
+    intent.categories,
+    intent,
+  ), 0);
 });
 
 test("corrects obvious source-category mistakes using strong title evidence", () => {

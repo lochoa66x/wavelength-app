@@ -34,7 +34,9 @@ import {
   isTradesLikeCategory,
   normalizeFieldLabel,
   scoreListingRelevance,
+  titleMatchesSearchQuery,
 } from "./listingCategories.js";
+import { diagnoseSearchResults } from "./searchDiagnostics.js";
 
 const SYS_FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, sans-serif";
 const ADZUNA_ATTRIBUTION_STYLE = {
@@ -752,23 +754,25 @@ export default function Gigscapes() {
   const stepIndex = { field: 1, location: 2, tuning: 3, review: 4, resume_onboarding: 5 }[step] || 0;
 
   const keywordInput = (criteria.keyword || "").trim();
-  const keywordIntent = keywordInput ? inferKeywordIntent(keywordInput) : { category: null, subcategory: null };
-  const selectedCategories = criteria.field
-    ? categoriesForField(criteria.field)
-    : keywordIntent.category
-      ? [keywordIntent.category]
+  const keywordIntent = inferKeywordIntent(keywordInput);
+  const selectedCategories = keywordInput
+    ? keywordIntent.categories
+    : criteria.field
+      ? categoriesForField(criteria.field)
       : [];
 
   const selectedWorkTypes = criteria.workTypes || [];
   const filterByWorkType = selectedWorkTypes.length > 0 && !selectedWorkTypes.includes("any");
 
-  const relevantListings = liveListings
+  const keywordRelevantListings = liveListings
     .map((item) => ({
       ...item,
-      relevance: scoreListingRelevance(item, keywordInput, selectedCategories),
+      relevance: scoreListingRelevance(item, keywordInput, selectedCategories, keywordIntent),
     }))
+    .filter((item) => item.relevance > 0);
+
+  const relevantListings = keywordRelevantListings
     .filter((item) => {
-      if (item.relevance <= 0) return false;
       if (criteria.strictness === "strict" && item.workArrangement === "unlabeled") return false;
       if (filterByWorkType && item.workArrangement !== "unlabeled" && !selectedWorkTypes.includes(item.workArrangement)) return false;
       return true;
@@ -778,14 +782,21 @@ export default function Gigscapes() {
     .filter((item) => locationMatches(item.locationData, criteria))
     .sort((a, b) => b.relevance - a.relevance);
 
-  const keywordExactFound = keywordInput && filtered.some((item) => item.title.toLowerCase().includes(keywordInput.toLowerCase()));
-  const hasKeywordMatches = Boolean(keywordInput && relevantListings.length);
+  const keywordExactFound = keywordInput && filtered.some((item) => titleMatchesSearchQuery(item, keywordInput));
   const hasLocationFilter = hasStructuredLocationFilter(criteria);
-  const locationFilteredOut = Boolean(
-    hasLocationFilter
-    && listingsStatus === "ready"
-    && liveListings.length === 0,
-  );
+  const searchDiagnostic = listingsStatus === "ready"
+    ? diagnoseSearchResults({
+      keyword: keywordInput,
+      intent: keywordIntent,
+      availableCount: liveListings.length,
+      keywordMatchCount: keywordRelevantListings.length,
+      workTypeMatchCount: relevantListings.length,
+      filteredCount: filtered.length,
+      hasLocationFilter,
+      filterByWorkType: filterByWorkType || criteria.strictness === "strict",
+      locationLabel: formatLocationPreference(criteria).toLowerCase(),
+    })
+    : null;
   const dismissedCount = filtered.filter((item) => dismissed.includes(itemKey(item))).length;
   const visibleFiltered = filtered.filter((item) => {
     const key = itemKey(item);
@@ -794,7 +805,7 @@ export default function Gigscapes() {
     return true;
   });
 
-  const isValidatedField = selectedCategories.length > 0;
+  const isValidatedField = keywordInput ? keywordIntent.recognized : selectedCategories.length > 0;
   const resumePrivacyWarning = cloudResumeWarning || resumeStorageError;
 
   const shell = (children, opts = {}) => (
@@ -1349,22 +1360,56 @@ export default function Gigscapes() {
         )}
       </div>
 
-      {!isValidatedField && (
-        <p style={{ fontSize: 13, color: C.amber, margin: "0 0 20px", padding: "12px 14px", background: C.amberTint, borderRadius: 12, border: `1px solid ${C.amberBorder}` }}>
-          We couldn't match {criteria.keyword ? `"${criteria.keyword}"` : `"Other"`} to a category. Try a more specific term — like "developer", "designer", "handyman", or "writer" — or use <button onClick={() => setStep("field")} className="wl-btn" style={{ background: "none", border: "none", padding: 0, color: C.amber, fontWeight: 700, cursor: "pointer", font: "inherit", textDecoration: "underline" }}>Edit preferences</button> to pick a category directly.
-        </p>
+      {searchDiagnostic && (
+        <div
+          role={searchDiagnostic.tone === "warning" ? "alert" : "status"}
+          style={{
+            fontSize: 13,
+            color: searchDiagnostic.tone === "warning" ? C.amber : C.blue,
+            margin: "0 0 20px",
+            padding: "12px 14px",
+            background: searchDiagnostic.tone === "warning" ? C.amberTint : C.blueTint,
+            borderRadius: 12,
+            border: `1px solid ${searchDiagnostic.tone === "warning" ? C.amberBorder : C.blueBorder}`,
+            lineHeight: 1.5,
+          }}
+        >
+          <span>{searchDiagnostic.message}</span>
+          {searchDiagnostic.suggestions.length > 0 && (
+            <span> Try {searchDiagnostic.suggestions.map((suggestion, index) => (
+              <span key={suggestion}>
+                {index > 0 ? ", " : ""}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setQuickSearch(suggestion);
+                    updateCriteria({ keyword: suggestion, field: null });
+                  }}
+                  className="wl-btn"
+                  style={{ background: "none", border: "none", padding: 0, color: "inherit", fontWeight: 700, cursor: "pointer", font: "inherit", textDecoration: "underline" }}
+                >
+                  {suggestion}
+                </button>
+              </span>
+            ))}.</span>
+          )}
+          {searchDiagnostic.canBroadenLocation && (
+            <span> You can also <button
+              type="button"
+              onClick={() => {
+                setQuickRegion("");
+                setQuickCity("");
+                setQuickLocationMode("either");
+                setCityEditorOpen(false);
+                updateCriteria({ location: "either", region: "", city: "" });
+              }}
+              className="wl-btn"
+              style={{ background: "none", border: "none", padding: 0, color: "inherit", fontWeight: 700, cursor: "pointer", font: "inherit", textDecoration: "underline" }}
+            >search the whole country</button>.</span>
+          )}
+        </div>
       )}
-      {isValidatedField && keywordInput && !hasKeywordMatches && (
-        <p style={{ fontSize: 13, color: C.amber, margin: "0 0 20px", padding: "12px 14px", background: C.amberTint, borderRadius: 12, border: `1px solid ${C.amberBorder}` }}>
-          No credible postings for "{criteria.keyword}" yet. Unrelated category results are hidden.
-        </p>
-      )}
-      {locationFilteredOut && (
-        <p style={{ fontSize: 13, color: C.blue, margin: "0 0 20px", padding: "12px 14px", background: C.blueTint, borderRadius: 12, border: `1px solid ${C.blueBorder}` }}>
-          No current listings match {formatLocationPreference(criteria).toLowerCase()}. Try a broader location, or <button onClick={() => { setQuickRegion(""); setQuickCity(""); setQuickLocationMode("either"); setCityEditorOpen(false); updateCriteria({ location: "either", region: "", city: "" }); }} className="wl-btn" style={{ background: "none", border: "none", padding: 0, color: C.blue, fontWeight: 700, cursor: "pointer", font: "inherit", textDecoration: "underline" }}>search the whole country</button>.
-        </p>
-      )}
-      {isValidatedField && hasKeywordMatches && filtered.length > 0 && !keywordExactFound && (
+      {isValidatedField && !searchDiagnostic && keywordRelevantListings.length > 0 && filtered.length > 0 && !keywordExactFound && (
         <p style={{ fontSize: 13, color: C.blue, margin: "0 0 20px", padding: "12px 14px", background: C.blueTint, borderRadius: 12, border: `1px solid ${C.blueBorder}` }}>
           No exact title for "{criteria.keyword}" yet — showing closely related, validated results only.
         </p>

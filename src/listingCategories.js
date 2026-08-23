@@ -34,6 +34,38 @@ const LEGACY_FIELD_LABELS = {
   "Local & trades": "Skilled trades",
 };
 
+const TECHNOLOGY_CONCEPTS = [
+  {
+    id: "sap",
+    label: "SAP",
+    subcategory: "enterprise_software",
+    patterns: [/\bsap\b/i, /\bs\/4hana\b/i, /\bs4hana\b/i, /\bhana\b/i, /\babap\b/i, /\bfiori\b/i, /\bfico\b/i, /\bfi\/co\b/i, /\bsuccessfactors\b/i, /\bariba\b/i],
+  },
+  { id: "java", label: "Java", subcategory: "software_development", patterns: [/\bjava\b/i] },
+  { id: "python", label: "Python", subcategory: "software_development", patterns: [/\bpython\b/i] },
+  { id: "cpp", label: "C++", subcategory: "software_development", patterns: [/\bc\+\+/i, /\bcpp\b/i] },
+  { id: "csharp", label: "C#", subcategory: "software_development", patterns: [/\bc#/i, /\bcsharp\b/i] },
+  { id: "dotnet", label: ".NET", subcategory: "software_development", patterns: [/(?:^|\s)\.net\b/i, /\bdotnet\b/i] },
+  { id: "javascript", label: "JavaScript", subcategory: "software_development", patterns: [/\bjavascript\b/i, /\bjs\b/i] },
+  { id: "typescript", label: "TypeScript", subcategory: "software_development", patterns: [/\btypescript\b/i] },
+  { id: "react", label: "React", subcategory: "software_development", patterns: [/\breact(?:\.js|js)?\b/i] },
+  { id: "nodejs", label: "Node.js", subcategory: "software_development", patterns: [/\bnode\.js\b/i, /\bnodejs\b/i] },
+  { id: "sql", label: "SQL", subcategory: "data", patterns: [/\bsql\b/i, /\bpostgres(?:ql)?\b/i, /\bmysql\b/i] },
+  { id: "data", label: "Data", subcategory: "data", patterns: [/\bdata engineer(?:ing)?\b/i, /\bdata scientist\b/i, /\bmachine learning\b/i, /\bml engineer\b/i] },
+  { id: "cloud", label: "Cloud", subcategory: "cloud_infrastructure", patterns: [/\bcloud\b/i, /\baws\b/i, /\bazure\b/i, /\bgcp\b/i] },
+  { id: "devops", label: "DevOps", subcategory: "cloud_infrastructure", patterns: [/\bdevops\b/i, /\bsite reliability\b/i, /\bsre\b/i] },
+  { id: "security", label: "Cybersecurity", subcategory: "security", patterns: [/\bcyber ?security\b/i, /\binformation security\b/i, /\binfosec\b/i] },
+];
+
+const DOMAIN_CONCEPTS = [
+  { id: "saas", label: "SaaS", patterns: [/\bsaas\b/i, /\bsoftware as a service\b/i] },
+];
+
+const GENERIC_SEARCH_TERMS = new Set([
+  "a", "an", "and", "are", "for", "gig", "gigs", "in", "it", "job", "jobs",
+  "looking", "of", "or", "role", "the", "to", "work",
+]);
+
 // Ordered from specific domains to generic management so titles such as
 // "IT Manager" and "Construction Manager" are never swallowed by Business.
 const SEARCH_CATEGORY_PATTERNS = [
@@ -41,6 +73,11 @@ const SEARCH_CATEGORY_PATTERNS = [
     /developer/i, /engineer/i, /software/i, /programmer/i, /coding/i,
     /full.?stack/i, /front.?end/i, /back.?end/i, /technolog/i, /sysadmin/i,
     /devops/i, /\bcloud\b/i, /\bsre\b/i, /cybersecurity/i, /database/i,
+    /\bsap\b/i, /\bs\/4hana\b/i, /\bs4hana\b/i, /\bhana\b/i, /\babap\b/i,
+    /\bfiori\b/i, /\bsuccessfactors\b/i, /\bariba\b/i, /\bjava\b/i,
+    /\bpython\b/i, /\bc\+\+/i, /\bcpp\b/i, /\bc#/i, /\bcsharp\b/i,
+    /(?:^|\s)\.net\b/i, /\bdotnet\b/i, /\bjavascript\b/i, /\btypescript\b/i,
+    /\breact(?:\.js|js)?\b/i, /\bnode(?:\.js|js)\b/i, /\bsql\b/i,
     /^it(?:\s+jobs?)?$/i,
     /\bit\s+(?:support|manager|specialist|technician|administrator|analyst|engineer|consultant|operations|infrastructure|systems?|help\s*desk)\b/i,
     /\bhelp\s*desk\b/i, /\btechnical support\b/i,
@@ -83,6 +120,8 @@ const HIGH_CONFIDENCE_TITLE_PATTERNS = {
     /\bsystems? administrator\b/i,
     /\bit (?:support|service|systems?|infrastructure|operations|help\s*desk|manager|technician|specialist|analyst|administrator)\b/i,
     /\bhelp\s*desk\b/i, /\btechnical support\b/i,
+    /\b(?:sap|s\/4hana|s4hana|hana|abap|fiori|successfactors|ariba)(?:\s+[\w/+.#-]+){0,4}\s+(?:consultant|analyst|architect|developer|engineer|specialist|administrator|manager)\b/i,
+    /\b(?:java|python|c\+\+|cpp|c#|csharp|\.net|dotnet|javascript|typescript|react(?:\.js|js)?|node(?:\.js|js)?)(?:\s+[\w/+.#-]+){0,3}\s+(?:developer|engineer|programmer|architect|consultant)\b/i,
   ],
   trades: [
     /\bplumb(?:er|ing)?\b/i, /\bcarpent(?:er|ry)\b/i, /\belectrician\b/i,
@@ -114,10 +153,12 @@ const HIGH_CONFIDENCE_TITLE_PATTERNS = {
 
 const SUBCATEGORY_PATTERNS = {
   tech: [
-    ["software_development", [/developer/i, /software/i, /programmer/i, /full.?stack/i, /front.?end/i, /back.?end/i]],
+    ["enterprise_software", [/\bsap\b/i, /\bs\/4hana\b/i, /\bs4hana\b/i, /\bhana\b/i, /\babap\b/i, /\bfiori\b/i, /\bsuccessfactors\b/i, /\bariba\b/i]],
+    ["software_development", [/developer/i, /software/i, /programmer/i, /full.?stack/i, /front.?end/i, /back.?end/i, /\bjava\b/i, /\bpython\b/i, /\bc\+\+/i, /\bc#/i, /(?:^|\s)\.net\b/i, /\bjavascript\b/i, /\btypescript\b/i, /\breact\b/i, /\bnode\.js\b/i]],
     ["it_support", [/it support/i, /help\s*desk/i, /technical support/i]],
     ["cloud_infrastructure", [/devops/i, /cloud/i, /sre/i, /infrastructure/i]],
     ["data", [/data engineer/i, /data scientist/i, /database/i]],
+    ["security", [/cybersecurity/i, /information security/i, /infosec/i]],
   ],
   trades: [
     ["plumbing", [/plumb/i]], ["electrical", [/electric/i]], ["hvac", [/hvac/i]],
@@ -165,15 +206,94 @@ export function categoriesForField(field) {
   return CATEGORY_FIELDS.find(({ label }) => label === normalized)?.categories || [];
 }
 
-export function guessCategoryFromKeyword(keyword = "") {
-  const value = keyword.trim();
-  if (!value) return null;
+export function normalizeSearchText(value = "") {
+  return String(value)
+    .toLowerCase()
+    .replace(/\bc\s*plus\s*plus\b|\bcpp\b/g, "c++")
+    .replace(/\bc\s*sharp\b|\bcsharp\b/g, "c#")
+    .replace(/\bdot\s*net\b|\bdotnet\b/g, ".net")
+    .replace(/\bnode\s*\.?\s*js\b/g, "node.js")
+    .replace(/\breact\s*\.?\s*js\b/g, "react")
+    .replace(/\bs\s*\/?\s*4\s*hana\b/g, "s/4hana")
+    .replace(/\bfi\s*\/?\s*co\b/g, "fico")
+    .replace(/[^a-z0-9+#./-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
-  for (const [category, patterns] of SEARCH_CATEGORY_PATTERNS) {
-    if (patterns.some((pattern) => pattern.test(value))) return category;
+function matchingConcepts(value, concepts) {
+  return concepts.filter(({ patterns }) => patterns.some((pattern) => pattern.test(value)));
+}
+
+function unique(values) {
+  return [...new Set(values.filter(Boolean))];
+}
+
+function searchTerms(value) {
+  return unique(value
+    .split(/\s+/)
+    .map((term) => term.replace(/^[-./]+|[-./]+$/g, ""))
+    .filter((term) => term.length > 1 && !GENERIC_SEARCH_TERMS.has(term)));
+}
+
+function buildKeywordIntent(keyword = "") {
+  const normalized = normalizeSearchText(keyword);
+  if (!normalized) {
+    return {
+      category: null,
+      subcategory: null,
+      recognized: false,
+      categories: [],
+      technologies: [],
+      domains: [],
+      terms: [],
+      label: "",
+      suggestions: [],
+    };
   }
 
-  return null;
+  const technologies = matchingConcepts(normalized, TECHNOLOGY_CONCEPTS);
+  const domains = matchingConcepts(normalized, DOMAIN_CONCEPTS);
+  const patternCategories = SEARCH_CATEGORY_PATTERNS
+    .filter(([, patterns]) => patterns.some((pattern) => pattern.test(normalized)))
+    .map(([category]) => category);
+
+  let categories = unique(patternCategories);
+  if (technologies.length > 0) categories = unique(["tech", ...categories]);
+  if (domains.some(({ id }) => id === "saas") && categories.length === 0) {
+    categories = ["tech", "business", "sales", "marketing", "customer_service"];
+  }
+
+  const category = categories[0] || null;
+  const technologySubcategories = unique(technologies.map(({ subcategory }) => subcategory));
+  const inferredSubcategory = category ? inferListingSubcategory(normalized, category) : null;
+  const subcategory = category === "tech"
+    ? technologySubcategories[0] || inferredSubcategory
+    : inferredSubcategory;
+  const labels = unique([
+    ...technologies.map(({ label }) => label),
+    ...domains.map(({ label }) => label),
+  ]);
+
+  return {
+    category,
+    subcategory,
+    recognized: categories.length > 0,
+    categories,
+    technologies: technologies.map(({ id }) => id),
+    domains: domains.map(({ id }) => id),
+    terms: searchTerms(normalized),
+    label: labels.join(" + ") || keyword.trim(),
+    suggestions: technologies.length > 0
+      ? unique(technologies.flatMap(({ label }) => [
+        `${label} consultant`, `${label} analyst`, `${label} developer`,
+      ])).slice(0, 4)
+      : [],
+  };
+}
+
+export function guessCategoryFromKeyword(keyword = "") {
+  return buildKeywordIntent(keyword).category;
 }
 
 export function inferHighConfidenceTitleCategory(title = "") {
@@ -215,29 +335,69 @@ export function normalizeListingReason(reason, storedCategory, normalizedCategor
 }
 
 export function inferKeywordIntent(keyword = "") {
-  const category = guessCategoryFromKeyword(keyword);
-  return {
-    category,
-    subcategory: category ? inferListingSubcategory(keyword, category) : null,
-  };
+  return buildKeywordIntent(keyword);
 }
 
-export function scoreListingRelevance(listing, keyword = "", selectedCategories = []) {
-  const normalizedKeyword = keyword.trim().toLowerCase();
+function conceptById(id, concepts) {
+  return concepts.find((concept) => concept.id === id);
+}
+
+function conceptMatches(value, conceptIds, concepts) {
+  return conceptIds.filter((id) => {
+    const concept = conceptById(id, concepts);
+    return concept?.patterns.some((pattern) => pattern.test(value));
+  });
+}
+
+export function titleMatchesSearchQuery(listing, keyword = "") {
+  const normalizedKeyword = normalizeSearchText(keyword);
+  return Boolean(normalizedKeyword && normalizeSearchText(listing?.title).includes(normalizedKeyword));
+}
+
+export function scoreListingRelevance(listing, keyword = "", selectedCategories = [], providedIntent) {
+  const normalizedKeyword = normalizeSearchText(keyword);
   if (!selectedCategories.includes(listing.category)) return 0;
   if (!normalizedKeyword) return 40;
 
-  const normalizedTitle = String(listing.title || "").toLowerCase();
-  if (normalizedTitle.includes(normalizedKeyword)) return 100;
+  const normalizedTitle = normalizeSearchText(listing.title);
+  const normalizedDescription = normalizeSearchText(listing.description);
+  if (normalizedTitle.includes(normalizedKeyword)) return 120;
 
-  const intent = inferKeywordIntent(normalizedKeyword);
-  if (!intent.category || listing.category !== intent.category) return 0;
-  if (intent.subcategory) return listing.subcategory === intent.subcategory ? 80 : 0;
+  const intent = providedIntent || inferKeywordIntent(normalizedKeyword);
+  if (!intent.recognized || !intent.categories.includes(listing.category)) return 0;
+
+  const titleTechnologies = conceptMatches(normalizedTitle, intent.technologies, TECHNOLOGY_CONCEPTS);
+  const descriptionTechnologies = conceptMatches(normalizedDescription, intent.technologies, TECHNOLOGY_CONCEPTS);
+  if (intent.technologies.length > 0 && titleTechnologies.length + descriptionTechnologies.length === 0) return 0;
+
+  const titleDomains = conceptMatches(normalizedTitle, intent.domains, DOMAIN_CONCEPTS);
+  const descriptionDomains = conceptMatches(normalizedDescription, intent.domains, DOMAIN_CONCEPTS);
+  if (intent.domains.length > 0 && titleDomains.length + descriptionDomains.length === 0) return 0;
+
+  if (intent.technologies.length === 0 && intent.domains.length === 0) {
+    if (intent.subcategory) return listing.subcategory === intent.subcategory ? 80 : 0;
+    return 50;
+  }
+
+  const titleTermHits = intent.terms.filter((term) => normalizedTitle.includes(term));
+  const descriptionTermHits = intent.terms.filter((term) => normalizedDescription.includes(term));
+  let score = 25;
+  score += titleTechnologies.length * 40;
+  score += descriptionTechnologies.length * 22;
+  score += titleDomains.length * 30;
+  score += descriptionDomains.length * 16;
+  score += titleTermHits.length * 12;
+  score += descriptionTermHits.length * 5;
+
+  if (intent.subcategory) {
+    if (listing.subcategory === intent.subcategory) score += 18;
+    else if (intent.technologies.length === 0 && intent.domains.length === 0) return 0;
+  }
 
   // Broad searches such as "administration" or "management" may show the
   // normalized category, but only after title classification has removed
   // conflicting roles.
-  return 50;
+  return score;
 }
 
 export function normalizeWorkArrangement(jobType = "", title = "") {

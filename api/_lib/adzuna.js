@@ -5,6 +5,7 @@ import {
   normalizeWorkArrangement,
 } from "../../src/listingCategories.js";
 import { toStructuredLocationPatch } from "../../src/listingLocations.js";
+import { selectDailyTechnologySearches } from "./technologySearches.js";
 
 export const ADZUNA_COUNTRY = "ca";
 export const ADZUNA_RESULTS_PER_REQUEST = 50;
@@ -102,20 +103,35 @@ export function selectRelevantAdzunaCategories(payload) {
   return selected;
 }
 
-export function buildAdzunaSearchPlan(categories = []) {
-  if (categories.length > 0) {
-    return categories.slice(0, CATEGORY_TARGETS.length).map(({ category, label, tag }) => ({
+export function buildAdzunaSearchPlan(categories = [], now = new Date()) {
+  const discovered = [];
+  const discoveredCategories = new Set();
+  for (const item of categories) {
+    if (discoveredCategories.has(item.category)) continue;
+    discoveredCategories.add(item.category);
+    discovered.push(item);
+    if (discovered.length >= 12) break;
+  }
+
+  const broadSearches = discovered.length > 0
+    ? discovered.map(({ category, label, tag }) => ({
       category,
       label,
       params: { category: tag },
+    }))
+    : FALLBACK_SEARCHES.map(({ category, whatOr }) => ({
+      category,
+      label: whatOr,
+      params: { what_or: whatOr },
     }));
-  }
 
-  return FALLBACK_SEARCHES.map(({ category, whatOr }) => ({
+  const technologySearches = selectDailyTechnologySearches(now).map(({ category, label, keywords }) => ({
     category,
-    label: whatOr,
-    params: { what_or: whatOr },
+    label,
+    params: { what_or: keywords },
   }));
+
+  return [...broadSearches, ...technologySearches];
 }
 
 function adzunaUrl(path, credentials, params = {}) {
@@ -198,7 +214,7 @@ export async function fetchAdzunaListings({
     if (error.message === "Adzuna request budget exhausted") throw error;
   }
 
-  const plan = buildAdzunaSearchPlan(categories);
+  const plan = buildAdzunaSearchPlan(categories, now);
   const received = [];
   const failures = [];
 

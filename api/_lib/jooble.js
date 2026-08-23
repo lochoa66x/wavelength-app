@@ -5,6 +5,7 @@ import {
   normalizeWorkArrangement,
 } from "../../src/listingCategories.js";
 import { toStructuredLocationPatch } from "../../src/listingLocations.js";
+import { selectDailyTechnologySearches } from "./technologySearches.js";
 
 export const JOOBLE_COUNTRY = "CA";
 export const JOOBLE_RESULTS_PER_REQUEST = 50;
@@ -73,8 +74,12 @@ export function deterministicJoobleListingId(externalId) {
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
-export function buildJoobleSearchPlan() {
-  return SEARCHES.map((search) => ({ ...search }));
+export function buildJoobleSearchPlan(now = new Date()) {
+  const technologySearches = selectDailyTechnologySearches(now).map(({ category, keywords }) => ({
+    category,
+    keywords,
+  }));
+  return [...SEARCHES.map((search) => ({ ...search })), ...technologySearches];
 }
 
 function createRequestBudget(limit = JOOBLE_REQUEST_BUDGET) {
@@ -137,7 +142,7 @@ export async function fetchJoobleListings({
 }) {
   const budget = createRequestBudget(requestLimit);
   const endpoint = `${JOOBLE_API_ROOT}/${encodeURIComponent(apiKey)}`;
-  const plan = buildJoobleSearchPlan();
+  const plan = buildJoobleSearchPlan(now);
   const received = [];
   const failures = [];
 

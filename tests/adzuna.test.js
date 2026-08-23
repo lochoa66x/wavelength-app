@@ -93,7 +93,9 @@ test("Adzuna fetches one fresh, date-sorted Canadian page per category and dedup
   });
 
   assert.equal(feed.items.length, 1);
-  assert.equal(feed.stats.requests, 2);
+  assert.equal(feed.stats.requests, 1 + buildAdzunaSearchPlan([
+    { category: "trades", label: "Trade & Construction Jobs", tag: "trade-construction-jobs" },
+  ], new Date("2026-08-20T12:00:00Z")).length);
   assert.equal(urls[1].pathname, "/v1/api/jobs/ca/search/1");
   assert.equal(urls[1].searchParams.get("results_per_page"), "50");
   assert.equal(urls[1].searchParams.get("max_days_old"), "30");
