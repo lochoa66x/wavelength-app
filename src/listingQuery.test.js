@@ -3,18 +3,21 @@ import assert from "node:assert/strict";
 
 import {
   applyStructuredLocationFilters,
+  applyKeywordSearchFilters,
   canUseLegacyLocationFallback,
   createListingsQuery,
   escapeLikePattern,
   hasNextListingPage,
+  listingServerSearchTerms,
   listingQueryFingerprint,
   mergeListingPages,
+  shouldAutoContinueListingSearch,
 } from "./listingQuery.js";
 
 function createQueryRecorder() {
   const calls = [];
   const query = {};
-  for (const method of ["select", "order", "neq", "eq", "ilike", "range"]) {
+  for (const method of ["select", "order", "neq", "eq", "ilike", "or", "range"]) {
     query[method] = (...args) => {
       calls.push([method, ...args]);
       return query;
@@ -63,6 +66,36 @@ test("city wildcard characters are escaped before ilike filtering", () => {
   assert.equal(escapeLikePattern("100%_Remote\\Desk"), "100\\%\\_Remote\\\\Desk");
 });
 
+test("recognized technology terms filter at the database before pagination", () => {
+  const { calls, client } = createQueryRecorder();
+
+  createListingsQuery(client, {
+    keyword: "SAP analyst",
+    location: "either",
+    countryCode: "CA",
+  }, { page: 0, pageSize: 100 });
+
+  const orIndex = calls.findIndex(([method]) => method === "or");
+  const rangeIndex = calls.findIndex(([method]) => method === "range");
+  assert.ok(orIndex > -1);
+  assert.ok(orIndex < rangeIndex);
+  assert.match(calls[orIndex][1], /title\.ilike\.%sap%/);
+  assert.match(calls[orIndex][1], /description\.ilike\.%abap%/);
+  assert.doesNotMatch(calls[orIndex][1], /%analyst%/);
+  assert.deepEqual(calls[rangeIndex], ["range", 0, 99]);
+});
+
+test("server search expands broad IT and sanitizes unsafe PostgREST punctuation", () => {
+  assert.ok(listingServerSearchTerms({ keyword: "IT" }).includes("software"));
+  assert.deepEqual(listingServerSearchTerms({ keyword: "unknown,(term)" }), []);
+
+  const { calls, query } = createQueryRecorder();
+  applyKeywordSearchFilters(query, { keyword: "C++ developer" });
+  const expression = calls.find(([method]) => method === "or")?.[1] || "";
+  assert.match(expression, /title\.ilike\.%c\+\+%/);
+  assert.doesNotMatch(expression, /[()'"]/);
+});
+
 test("pagination merges rows by stable identity and detects the next page", () => {
   assert.deepEqual(mergeListingPages(
     [{ id: "a", title: "Old" }, { id: "b", title: "Second" }],
@@ -94,4 +127,17 @@ test("query fingerprints reset pagination for search and geographic changes", ()
   const base = listingQueryFingerprint({ location: "remote", countryCode: "CA" }, "plumber");
   assert.notEqual(base, listingQueryFingerprint({ location: "remote", countryCode: "US" }, "plumber"));
   assert.notEqual(base, listingQueryFingerprint({ location: "remote", countryCode: "CA" }, "electrician"));
+});
+
+test("initial search can auto-continue but remains bounded", () => {
+  const base = {
+    replace: true,
+    startingPage: 0,
+    hasMore: true,
+    hasRelevantListings: false,
+  };
+  assert.equal(shouldAutoContinueListingSearch({ ...base, attempts: 1 }), true);
+  assert.equal(shouldAutoContinueListingSearch({ ...base, attempts: 3 }), false);
+  assert.equal(shouldAutoContinueListingSearch({ ...base, attempts: 1, hasRelevantListings: true }), false);
+  assert.equal(shouldAutoContinueListingSearch({ ...base, attempts: 1, replace: false }), false);
 });

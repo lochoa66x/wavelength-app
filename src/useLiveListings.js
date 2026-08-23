@@ -1,18 +1,23 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  categoriesForField,
   classifyListingTitle,
   formatWorkArrangement,
+  inferKeywordIntent,
   normalizeListingReason,
   normalizeWorkArrangement,
+  scoreListingRelevance,
 } from "./listingCategories.js";
-import { formatListingLocation, normalizeListingLocation } from "./listingLocations.js";
+import { formatListingLocation, locationMatches, normalizeListingLocation } from "./listingLocations.js";
 import {
+  INITIAL_LISTING_PAGE_LIMIT,
   LISTINGS_PAGE_SIZE,
   canUseLegacyLocationFallback,
   createListingsQuery,
   hasNextListingPage,
   listingQueryFingerprint,
   mergeListingPages,
+  shouldAutoContinueListingSearch,
 } from "./listingQuery.js";
 import { supabase } from "./supabase.js";
 
@@ -54,12 +59,44 @@ export function mapListingRow(row) {
   };
 }
 
+export function hasDisplayableListings(rows = [], criteria = {}) {
+  if (rows.length === 0) return false;
+
+  const keyword = String(criteria.keyword || "").trim();
+  const intent = inferKeywordIntent(keyword);
+  if (keyword && !intent.recognized) return true;
+
+  const selectedCategories = keyword
+    ? intent.categories
+    : categoriesForField(criteria.field);
+  if (selectedCategories.length === 0) return true;
+
+  const selectedWorkTypes = criteria.workTypes || [];
+  const filtersWorkType = selectedWorkTypes.length > 0 && !selectedWorkTypes.includes("any");
+
+  return rows.some((row) => {
+    if (!locationMatches(row.locationData, criteria)) return false;
+    if (criteria.strictness === "strict" && row.workArrangement === "unlabeled") return false;
+    if (
+      filtersWorkType
+      && row.workArrangement !== "unlabeled"
+      && !selectedWorkTypes.includes(row.workArrangement)
+    ) return false;
+
+    return scoreListingRelevance(row, keyword, selectedCategories, intent) > 0;
+  });
+}
+
 export function useLiveListings(criteria = {}, { resetKey = "", pageSize = LISTINGS_PAGE_SIZE } = {}) {
   const fingerprint = listingQueryFingerprint(criteria, resetKey);
   const location = criteria.location;
   const countryCode = criteria.countryCode;
   const region = criteria.region;
   const city = criteria.city;
+  const keyword = criteria.keyword;
+  const field = criteria.field;
+  const workTypes = criteria.workTypes;
+  const strictness = criteria.strictness;
   const [listings, setListings] = useState([]);
   const [status, setStatus] = useState("loading");
   const [error, setError] = useState(null);
@@ -75,37 +112,60 @@ export function useLiveListings(criteria = {}, { resetKey = "", pageSize = LISTI
     setStatus(replace ? "loading" : "loading_more");
     setError(null);
 
-    const filters = { location, countryCode, region, city };
+    const filters = { location, countryCode, region, city, keyword, field, workTypes, strictness };
     try {
-      let result = await createListingsQuery(supabase, filters, {
-        page: pageToFetch,
-        pageSize,
-        includeStructuredFilters: true,
-      });
+      let currentPage = pageToFetch;
+      let attempts = 0;
+      let combinedRows = [];
+      let result;
       let usedLegacyFallback = false;
+      let nextPageAvailable = false;
 
-      if (result.error && canUseLegacyLocationFallback(result.error, filters)) {
+      do {
         result = await createListingsQuery(supabase, filters, {
-          page: pageToFetch,
+          page: currentPage,
           pageSize,
-          includeStructuredFilters: false,
+          includeStructuredFilters: true,
         });
-        usedLegacyFallback = true;
-      }
 
-      if (result.error) throw result.error;
-      if (activeVersion !== requestVersion.current) return;
+        if (result.error && canUseLegacyLocationFallback(result.error, filters)) {
+          result = await createListingsQuery(supabase, filters, {
+            page: currentPage,
+            pageSize,
+            includeStructuredFilters: false,
+          });
+          usedLegacyFallback = true;
+        }
 
-      const mapped = (result.data || []).map(mapListingRow);
-      setListings((current) => replace ? mapped : mergeListingPages(current, mapped));
-      setPage(pageToFetch);
+        if (result.error) throw result.error;
+        if (activeVersion !== requestVersion.current) return;
+
+        const mapped = (result.data || []).map(mapListingRow);
+        combinedRows = mergeListingPages(combinedRows, mapped);
+        attempts += 1;
+        nextPageAvailable = hasNextListingPage({
+          count: result.count,
+          page: currentPage,
+          pageSize,
+          received: mapped.length,
+        });
+
+        if (!shouldAutoContinueListingSearch({
+          replace,
+          startingPage: pageToFetch,
+          attempts,
+          hasMore: nextPageAvailable,
+          hasRelevantListings: hasDisplayableListings(combinedRows, filters),
+          maxAttempts: INITIAL_LISTING_PAGE_LIMIT,
+        })) break;
+
+        currentPage += 1;
+      } while (true);
+
+      setListings((current) => replace ? combinedRows : mergeListingPages(current, combinedRows));
+      setPage(currentPage);
       setTotal(Number.isInteger(result.count) ? result.count : null);
-      setHasMore(hasNextListingPage({
-        count: result.count,
-        page: pageToFetch,
-        pageSize,
-        received: mapped.length,
-      }));
+      setHasMore(nextPageAvailable);
       setLegacyFallback(usedLegacyFallback);
       setLastFetched(new Date());
       setStatus("ready");
@@ -114,7 +174,7 @@ export function useLiveListings(criteria = {}, { resetKey = "", pageSize = LISTI
       setError(fetchError);
       setStatus("error");
     }
-  }, [city, countryCode, fingerprint, location, pageSize, region]);
+  }, [city, countryCode, field, fingerprint, keyword, location, pageSize, region, strictness, workTypes]);
 
   const refetch = useCallback(() => {
     const version = requestVersion.current + 1;
