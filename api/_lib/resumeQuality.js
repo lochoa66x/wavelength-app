@@ -65,6 +65,32 @@ function evidenceTokens(analysis) {
   return new Set(normalized(values.filter(Boolean).join(" ")).split(" ").filter((token) => token.length > 2 && !TOKEN_STOPWORDS.has(token)));
 }
 
+function weightedEvidenceTokens(analysis) {
+  const weights = new Map();
+  const add = (value, weight) => {
+    for (const token of normalized(value).split(" ")) {
+      if (token.length <= 2 || TOKEN_STOPWORDS.has(token)) continue;
+      weights.set(token, Math.max(weights.get(token) || 0, weight));
+    }
+  };
+  for (const requirement of analysis?.requirements || []) {
+    const weight = requirement?.evidence_match === "direct" ? 5
+      : requirement?.evidence_match === "adjacent" ? 3
+        : requirement?.evidence_match === "transferable" ? 2 : 0;
+    if (!weight) continue;
+    add(requirement.requirement, weight);
+    add(requirement.safe_language, weight);
+    add(requirement.resume_evidence, weight);
+    for (const keyword of requirement.keywords || []) add(keyword, weight + 1);
+  }
+  for (const item of analysis?.verified_transferable_skills || []) {
+    add(item.skill, 2);
+    add(item.resume_evidence, 1);
+  }
+  for (const keyword of analysis?.target_keywords || []) add(keyword, 2);
+  return weights;
+}
+
 function relevanceScore(value, tokens) {
   const valueTokens = new Set(normalized(value).split(" ").filter(Boolean));
   let score = 0;
@@ -81,6 +107,99 @@ function rankAndLimitBullets(values, tokens, limit) {
     .sort((a, b) => b.score - a.score || a.index - b.index)
     .slice(0, limit)
     .map(({ value }) => value);
+}
+
+function weightedRelevanceScore(value, weights) {
+  const valueTokens = new Set(normalized(value).split(" ").filter(Boolean));
+  return [...valueTokens].reduce((score, token) => score + (weights.get(token) || 0), 0);
+}
+
+function similarity(left, right) {
+  const a = new Set(normalized(left).split(" ").filter((token) => token.length > 3 && !TOKEN_STOPWORDS.has(token)));
+  const b = new Set(normalized(right).split(" ").filter((token) => token.length > 3 && !TOKEN_STOPWORDS.has(token)));
+  if (!a.size || !b.size) return 0;
+  const overlap = [...a].filter((token) => b.has(token)).length;
+  return overlap / Math.max(1, Math.min(a.size, b.size));
+}
+
+function entryId(entry, index) {
+  return normalized([entry?.role, entry?.company, entry?.dates].filter(Boolean).join("-")) || `experience-${index + 1}`;
+}
+
+function focusResume(resumeData, analysis) {
+  const weights = weightedEvidenceTokens(analysis);
+  const careerChange = analysis?.fit_assessment?.path === "career_change";
+  const duplicateGroups = [];
+  const condensed = [];
+  const omittedBullets = [];
+  const includedExperienceIds = [];
+  const seenBullets = [];
+  let totalBullets = 0;
+
+  const experience = (Array.isArray(resumeData?.experience) ? resumeData.experience : []).map((entry, entryIndex) => {
+    const id = entryId(entry, entryIndex);
+    includedExperienceIds.push(id);
+    const source = (Array.isArray(entry?.bullets) ? entry.bullets : [])
+      .map((value, bulletIndex) => ({
+        value: String(value || "").replace(/\s+/g, " ").trim(),
+        bulletIndex,
+        score: weightedRelevanceScore(value, weights) + Math.max(0, 4 - entryIndex),
+      }))
+      .filter(({ value }) => value)
+      .sort((a, b) => b.score - a.score || a.bulletIndex - b.bulletIndex);
+    const defaultLimit = careerChange ? (entryIndex < 2 ? 3 : 2) : entryIndex < 2 ? 4 : entryIndex < 5 ? 3 : 2;
+    const remaining = Math.max(1, 20 - totalBullets);
+    const limit = Math.min(defaultLimit, remaining);
+    const kept = [];
+
+    for (const candidate of source) {
+      const duplicate = seenBullets.find((existing) => similarity(candidate.value, existing.value) >= 0.78);
+      if (duplicate) {
+        duplicateGroups.push({ kept: duplicate.value, omitted: candidate.value, reason: "Near-duplicate accomplishment" });
+        omittedBullets.push({ experience_id: id, bullet: candidate.value, reason: "near_duplicate" });
+        continue;
+      }
+      if (kept.length >= limit) {
+        omittedBullets.push({ experience_id: id, bullet: candidate.value, reason: candidate.score ? "lower_target_relevance" : "length_control" });
+        continue;
+      }
+      kept.push(candidate.value);
+      seenBullets.push({ value: candidate.value, experienceId: id });
+    }
+
+    if (source.length > kept.length) condensed.push({
+      experience_id: id,
+      role: entry?.role || "",
+      original_bullets: source.length,
+      included_bullets: kept.length,
+    });
+    totalBullets += kept.length;
+    return { ...entry, bullets: kept };
+  });
+
+  const profileWords = String(resumeData?.profile || "").split(/\s+/).filter(Boolean).length;
+  const bulletWords = experience.flatMap((entry) => entry.bullets || []).join(" ").split(/\s+/).filter(Boolean).length;
+  const skillWords = (resumeData?.skills || []).join(" ").split(/\s+/).filter(Boolean).length;
+  const estimatedWords = profileWords + bulletWords + skillWords + experience.length * 8;
+  const estimatedPages = Math.max(1, Math.ceil(estimatedWords / 475));
+
+  return {
+    resume: { ...resumeData, experience },
+    focusReview: {
+      status: estimatedPages <= 2 ? "focused" : "review",
+      target_length: "one_to_two_pages",
+      estimated_pages: estimatedPages,
+      estimated_words: estimatedWords,
+      included_experience_ids: includedExperienceIds,
+      condensed_experience: condensed,
+      omitted_bullets: omittedBullets,
+      omitted_experience: [],
+      duplicate_groups: duplicateGroups,
+      rationale: careerChange
+        ? "Career-change output emphasizes verified direct, adjacent, and transferable evidence while compressing unrelated detail."
+        : "Output prioritizes recent, requirement-aligned evidence and removes repetitive or lower-signal bullets.",
+    },
+  };
 }
 
 export function isPlaceholderIdentity(value) {
@@ -127,7 +246,13 @@ function shapeCareerChangeResume(resumeData, analysis) {
 }
 
 export function shapeTailoredResume(resumeData, analysis) {
+  return shapeTailoredResumeWithReview(resumeData, analysis).resume;
+}
+
+export function shapeTailoredResumeWithReview(resumeData, analysis) {
   const sanitized = sanitizeIdentity(resumeData && typeof resumeData === "object" ? resumeData : {});
-  if (analysis?.fit_assessment?.path !== "career_change") return sanitized;
-  return shapeCareerChangeResume(sanitized, analysis);
+  const strategyShaped = analysis?.fit_assessment?.path === "career_change"
+    ? shapeCareerChangeResume(sanitized, analysis)
+    : sanitized;
+  return focusResume(strategyShaped, analysis);
 }

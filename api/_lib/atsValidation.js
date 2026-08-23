@@ -1,27 +1,6 @@
 import { findSemanticIntegrityIssues } from "./tailoringEvidence.js";
 import { isPlaceholderIdentity } from "./resumeQuality.js";
-
-const STRONG_VERBS = new Set([
-  "achieve", "achieved", "administer", "administered", "architect", "architected",
-  "build", "built", "coordinate", "coordinated", "create", "created", "deliver",
-  "delivered", "deploy", "deployed", "design", "designed", "develop", "developed",
-  "direct", "directed", "drive", "drove", "establish", "established", "execute",
-  "executed", "implement", "implemented", "improve", "improved", "increase", "increased",
-  "launch", "launched", "lead", "led", "manage", "managed", "mentor", "mentored",
-  "migrate", "migrated", "negotiate", "negotiated", "optimize", "optimized", "organize",
-  "organized", "reduce", "reduced", "resolve", "resolved", "scale", "scaled", "spearhead",
-  "spearheaded", "streamline", "streamlined", "supervise", "supervised", "transform",
-  "transformed", "troubleshoot", "troubleshot", "analyze", "analyzed", "author", "authored",
-  "collaborate", "collaborated", "contribute", "contributed", "document", "documented",
-  "facilitate", "facilitated", "integrate", "integrated", "oversee", "oversaw", "perform",
-  "performed", "prepare", "prepared", "produce", "produced", "review", "reviewed", "support",
-  "supported", "validate", "validated",
-]);
-
-const WEAK_OPENERS = [
-  "responsible for", "helped with", "worked on", "assisted in", "participated in",
-  "involved in", "duties included", "tasked with",
-];
+import { buildWritingReview } from "./resumeWriting.js";
 
 function normalized(value) {
   return String(value || "")
@@ -147,10 +126,6 @@ function isCurrent(value) {
   return /present|current|now|ongoing/i.test(String(value || ""));
 }
 
-function firstWord(value) {
-  return String(value || "").trim().toLowerCase().match(/^[a-z]+/)?.[0] || "";
-}
-
 function stableChronologicalSort(experience) {
   return experience
     .map((entry, index) => ({ entry, index, score: endYear(entry?.dates) }))
@@ -175,8 +150,6 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
   const allowedNumbers = new Set(numericClaims(base));
   const unsupported_metrics = [];
   const unsupported_history = [];
-  const verb_issues = [];
-  const tense_issues = [];
 
   const unsupportedClaims = [...new Set(exportedResumeValues(resumeData).flatMap(numericClaims).filter((claim) => !allowedNumbers.has(claim)))];
   unsupported_metrics.push(...unsupportedClaims.map((claim) => ({ claim })));
@@ -196,23 +169,15 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
       unsupported_history.push({ field: "dates", value: dates, experienceIndex });
     }
 
-    for (const [bulletIndex, bullet] of (experience?.bullets || []).entries()) {
-      const opening = firstWord(bullet);
-      const lowerBullet = String(bullet || "").trim().toLowerCase();
-      if (!STRONG_VERBS.has(opening) || WEAK_OPENERS.some((weak) => lowerBullet.startsWith(weak))) {
-        verb_issues.push({ experienceIndex, bulletIndex, opening: opening || "missing" });
-      }
-
-      if (dates) {
-        const current = isCurrent(dates);
-        const looksPast = /ed$/.test(opening) || ["built", "drove", "led", "ran", "saw", "won"].includes(opening);
-        if (current && looksPast) tense_issues.push({ experienceIndex, bulletIndex, expected: "present" });
-        if (!current && !looksPast && ["lead", "manage", "drive", "build", "coordinate", "design", "develop", "deliver", "implement", "optimize", "supervise"].includes(opening)) {
-          tense_issues.push({ experienceIndex, bulletIndex, expected: "past" });
-        }
-      }
-    }
   }
+
+  const writingReview = buildWritingReview(resumeData, baseResume, options);
+  const verb_issues = writingReview.issues
+    .filter((issue) => ["weak_opener", "imprecise_verb", "unrecognized_opener", "contribution_level"].includes(issue.issue_type))
+    .map((issue) => ({ experienceIndex: issue.experience_index, bulletIndex: issue.bullet_index, opening: issue.original.match(/^[A-Za-z]+/)?.[0]?.toLowerCase() || "missing" }));
+  const tense_issues = writingReview.issues
+    .filter((issue) => issue.issue_type === "tense")
+    .map((issue) => ({ experienceIndex: issue.experience_index, bulletIndex: issue.bullet_index, expected: /past tense/i.test(issue.explanation) ? "past" : "present" }));
 
   const years = (resumeData.experience || []).map((entry) => endYear(entry?.dates)).filter((year) => year !== null);
   const reverse_chronological = years.every((year, index) => index === 0 || years[index - 1] >= year);
@@ -265,7 +230,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
   const writingScore = Math.max(0, 100
     - Math.min(20, verb_issues.length * 4)
     - Math.min(16, tense_issues.length * 4));
-  const writingStatus = verb_issues.length || tense_issues.length ? "review" : "pass";
+  const writingStatus = writingReview.status;
   const identityMissing = isPlaceholderIdentity(resumeData?.name);
   const postingAssessment = options.postingAssessment || options.analysis?.posting_assessment || {
     status: "complete",
@@ -291,7 +256,8 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
     status: integrityBlocked ? "significant_gap" : "credible_stretch",
     reason: "Application readiness requires a complete requirement-to-evidence analysis.",
   };
-  const status = integrityBlocked
+  const writingBlocked = writingReview.blocking_issue_count > 0;
+  const status = integrityBlocked || writingBlocked
     ? "blocked"
     : writingStatus === "review" || postingReadiness.fit_allowed !== true
       ? "review"
@@ -301,7 +267,33 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
       && !integrityBlocked
       && !identityMissing
       && reverse_chronological
+      && !writingBlocked
   );
+
+  const focusReview = options.focusReview || {
+    status: "not_available",
+    target_length: "one_to_two_pages",
+    estimated_pages: null,
+    included_experience_ids: [],
+    condensed_experience: [],
+    omitted_bullets: [],
+    omitted_experience: [],
+    duplicate_groups: [],
+    rationale: "A deterministic focus review was not supplied.",
+  };
+
+  const exportReadiness = {
+    status: applicationReady ? "ready" : "preliminary",
+    application_ready: applicationReady,
+    blockers: [
+      ...(postingReadiness.application_ready_allowed === true ? [] : ["posting_readiness"]),
+      ...(integrityBlocked ? ["evidence_integrity"] : []),
+      ...(writingBlocked ? ["contribution_language"] : []),
+      ...(identityMissing ? ["candidate_identity"] : []),
+      ...(!reverse_chronological ? ["chronology"] : []),
+    ],
+    consistency: "Screen preview, copied text, and DOCX use the same validated tailored résumé data.",
+  };
 
   return {
     score,
@@ -355,8 +347,11 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
     writing: {
       status: writingStatus,
       score: writingScore,
-      issue_count: verb_issues.length + tense_issues.length,
+      issue_count: writingReview.issue_count,
     },
+    writing_review: writingReview,
+    focus_review: focusReview,
+    export_readiness: exportReadiness,
     identity: {
       status: identityMissing ? "missing" : "complete",
       reason: identityMissing

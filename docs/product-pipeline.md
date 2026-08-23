@@ -71,6 +71,8 @@ Turn the existing “Questions that could strengthen this version” into an evi
 
 ### P1.2 Improve ATS writing and editing feedback
 
+**Status: implemented.** The API now returns occupation-aware, bullet-level writing reviews with evidence-linked suggestions and contribution-level safety checks.
+
 - Replace the small generic verb whitelist with occupation-aware action-verb groups.
 - Validate tense by employment status: present tense for current duties, past tense for completed work and previous roles.
 - Prefer precise verbs such as `configured`, `implemented`, `facilitated`, `analyzed`, `tested`, `documented`, `coordinated`, and `supported` when the evidence supports them.
@@ -79,6 +81,8 @@ Turn the existing “Questions that could strengthen this version” into an evi
 - Keep keyword matching literal and truthful; ATS readability is not a promise of ranking or an interview.
 
 ### P1.3 Focus the resume before styling it
+
+**Status: implemented.** Tailored drafts now deterministically prioritize relevant recent evidence, remove near-duplicates, and report all condensation decisions while leaving the canonical résumé untouched.
 
 - Prioritize the most relevant recent experience and reduce repetitive legacy bullets.
 - Target roughly two pages for experienced candidates unless the user explicitly chooses an extended CV.

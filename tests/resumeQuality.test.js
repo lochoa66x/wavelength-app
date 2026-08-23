@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { shapeTailoredResume } from "../api/_lib/resumeQuality.js";
+import { shapeTailoredResume, shapeTailoredResumeWithReview } from "../api/_lib/resumeQuality.js";
 import { getResumeExportReadiness, hasUsableResumeIdentity } from "../src/resumeReadiness.js";
 
 const analysis = {
@@ -66,6 +66,59 @@ test("non-career-change shaping preserves content while still removing identity 
 
   assert.equal(resume.name, "");
   assert.deepEqual(resume.skills, ["React"]);
+});
+
+test("focus review prioritizes relevant evidence, removes repetition, and leaves canonical input unchanged", () => {
+  const canonical = {
+    name: "Luis Example",
+    title: "SAP Functional Consultant",
+    profile: "SAP functional consultant with enterprise delivery experience.",
+    skills: ["SAP S/4HANA", "SAP Finance", "Testing"],
+    experience: [
+      {
+        role: "Solution Architect",
+        company: "Current Corp",
+        dates: "2022–2024",
+        bullets: [
+          "Prepared weekly status reports.",
+          "Configured SAP S/4HANA Finance workflows.",
+          "Coordinated SAP Finance integration testing.",
+          "Documented stakeholder meeting notes.",
+          "Maintained an unrelated software inventory.",
+        ],
+      },
+      {
+        role: "Senior Consultant",
+        company: "Earlier Corp",
+        dates: "2018–2021",
+        bullets: [
+          "Configured SAP S/4HANA Finance workflows.",
+          "Validated SAP Finance requirements.",
+          "Prepared weekly status reports.",
+        ],
+      },
+    ],
+  };
+  const snapshot = structuredClone(canonical);
+  const result = shapeTailoredResumeWithReview(canonical, {
+    fit_assessment: { path: "direct" },
+    requirements: [{
+      requirement: "Configure SAP S/4HANA Finance workflows",
+      evidence_match: "direct",
+      keywords: ["SAP S/4HANA", "Finance", "configured"],
+    }],
+  });
+
+  assert.deepEqual(canonical, snapshot);
+  assert.equal(result.resume.experience[0].bullets[0], "Configured SAP S/4HANA Finance workflows.");
+  assert.equal(
+    result.resume.experience.flatMap((entry) => entry.bullets).filter((bullet) => bullet === "Configured SAP S/4HANA Finance workflows.").length,
+    1,
+  );
+  assert.equal(result.focusReview.target_length, "one_to_two_pages");
+  assert.equal(result.focusReview.estimated_pages <= 2, true);
+  assert.equal(result.focusReview.condensed_experience.length > 0, true);
+  assert.equal(result.focusReview.duplicate_groups.length > 0, true);
 });
 
 test("export readiness blocks placeholder identity and labels large-gap drafts as preliminary", () => {

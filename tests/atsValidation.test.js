@@ -154,6 +154,77 @@ test("ATS writing review recognizes common truthful action verbs", () => {
   assert.equal(review.writing.status, "pass");
 });
 
+test("occupation-aware writing review gives exact SAP functional tense and wording suggestions", () => {
+  const review = buildAtsReview({
+    name: "Luis Example",
+    title: "SAP Functional Consultant",
+    profile: "SAP functional delivery professional.",
+    experience: [{
+      role: "SAP Functional Consultant",
+      company: "Real Corp",
+      dates: "2020–2024",
+      bullets: [
+        "Build SAP interfaces for finance workflows.",
+        "Participated in S/4HANA integration testing.",
+      ],
+    }],
+  }, [
+    "SAP Functional Consultant — Real Corp — 2020–2024",
+    "Build SAP interfaces for finance workflows.",
+    "Participated in S/4HANA integration testing.",
+  ].join("\n"), { keywords: ["SAP", "S/4HANA"] }, {
+    targetTitle: "SAP Functional Lead",
+    category: "Technology & IT",
+  });
+
+  assert.equal(review.status, "review");
+  assert.equal(review.writing_review.occupation_profile, "sap_functional");
+  assert.ok(review.writing_review.preferred_verbs.includes("configured"));
+  assert.deepEqual(
+    review.writing_review.issues.map((issue) => issue.issue_type),
+    ["tense", "imprecise_verb"],
+  );
+  assert.equal(review.writing_review.issues[0].suggested_revision, "Built SAP interfaces for finance workflows.");
+  assert.equal(review.writing_review.issues[1].suggested_revision, "Contributed to S/4HANA integration testing.");
+  assert.equal(review.writing_review.blocking_issue_count, 0);
+});
+
+test("candidate-confirmed contribution level blocks an ownership escalation", () => {
+  const review = buildAtsReview({
+    name: "Luis Example",
+    title: "SAP Functional Consultant",
+    profile: "SAP functional delivery professional.",
+    experience: [{
+      role: "SAP Functional Consultant",
+      company: "Real Corp",
+      dates: "2020–2024",
+      bullets: ["Led SAP migration testing."],
+    }],
+  }, "SAP Functional Consultant — Real Corp — 2020–2024\nSupported SAP migration testing.", {
+    keywords: ["SAP migration"],
+  }, {
+    targetTitle: "SAP Functional Lead",
+    analysis: {
+      requirements: [{
+        requirement: "SAP migration testing",
+        evidence_match: "transferable",
+        evidence: [{
+          source: "candidate_note",
+          excerpt: "Supported SAP migration testing.",
+          contribution_level: "supported",
+        }],
+      }],
+    },
+  });
+
+  const escalation = review.writing_review.issues.find((issue) => issue.issue_type === "contribution_level");
+  assert.equal(review.status, "blocked");
+  assert.equal(review.export_readiness.blockers.includes("contribution_language"), true);
+  assert.equal(escalation?.severity, "blocked");
+  assert.equal(escalation?.suggested_revision, "Supported SAP migration testing.");
+  assert.equal(escalation?.evidence_citations[0]?.source, "candidate_note");
+});
+
 test("ATS review reports a missing placeholder identity separately from evidence integrity", () => {
   const review = buildAtsReview({
     name: "<UNKNOWN>",

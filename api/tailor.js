@@ -4,7 +4,7 @@ import { jobBriefToText, normalizeCustomJobBrief } from "./_lib/jobBrief.js";
 import { authenticateSupabaseRequest, bearerToken } from "./_lib/requestAuth.js";
 import { createSafeResumeFallback } from "./_lib/safeResumeFallback.js";
 import { formatCandidateEvidence, validateCandidateEvidence } from "./_lib/candidateEvidence.js";
-import { shapeTailoredResume } from "./_lib/resumeQuality.js";
+import { shapeTailoredResumeWithReview } from "./_lib/resumeQuality.js";
 import {
   assessPostingCompleteness,
   extractPostingKeywords,
@@ -320,6 +320,9 @@ function tailoringResponseMetadata(analysis, atsReview, candidateEvidence = []) 
     candidate_evidence: candidateEvidence,
     application_ready: atsReview.application_ready === true,
     output_mode: atsReview.output_mode || "preliminary",
+    writing_review: atsReview.writing_review,
+    focus_review: atsReview.focus_review,
+    export_readiness: atsReview.export_readiness,
   };
 }
 
@@ -602,7 +605,10 @@ INSTRUCTIONS
 - Populate projects and training only from explicit CANDIDATE EVIDENCE. Return empty arrays when there is no verified proof-of-transition.
 - Only include the education/languages fields if the base resume actually contains that information — omit them entirely rather than guessing.
 - ATS-READABLE WRITING:
-  * Every experience bullet must START with a strong action verb. Past tense for prior roles, present tense for the current role. Prefer verbs like: architected, led, delivered, launched, optimized, streamlined, reduced, increased, established, coordinated, mentored, migrated, deployed, negotiated, implemented, designed, built, scaled, drove, spearheaded, transformed. AVOID weak openers: "was responsible for", "helped with", "worked on", "assisted in", "participated in", "involved in", "duties included".
+  * Every experience bullet must START with a precise action verb. Use past tense for completed work in prior roles. In a current role, use present tense for ongoing responsibilities and past tense for completed achievements.
+  * Match verbs to the occupation and the evidence: SAP functional work may use configured, implemented, integrated, validated, documented, facilitated, supported, coordinated, led, or delivered; software work may use built, developed, deployed, debugged, automated, integrated, tested, or optimized; leadership may use led, directed, managed, delivered, coordinated, mentored, established, or negotiated; trades may use installed, repaired, maintained, inspected, operated, troubleshot, assembled, or measured; admin work may use coordinated, organized, scheduled, processed, maintained, prepared, or documented; marketing and creative work may use launched, analyzed, optimized, produced, designed, created, developed, edited, or refined.
+  * A stronger verb is not automatically a truer verb. Preserve the candidate's actual contribution: use supported/assisted/advised for support, contributed/coordinated/collaborated for shared contribution, owned/delivered only for verified ownership, and led/directed only for verified leadership.
+  * Avoid passive or vague openers such as "was responsible for", "helped with", "worked on", "involved in", "duties included", and "tasked with". Treat "served", "participated", "acted", and "assisted" as potentially accurate contribution language; make them more specific only when the evidence supports a more precise verb.
   * Include quantifiable outcomes whenever the base resume honestly supports them—budgets, team sizes, percentages, volumes, timeframes, or geographic scope—but copy the underlying value from the base résumé. NEVER estimate or calculate numbers. If the source says only "led a team", keep it unquantified. If no metric is present for a bullet, write a strong verb + specific-scope bullet without a number.
   * Mirror target keywords only when the analysis maps them to direct, adjacent, or transferable evidence and its safe_language supports the wording.
   * Prefer specific, source-supported context over generic wording. Name the real systems, environments, stakeholders, deliverables, or constraints from the base résumé. Specificity makes a bullet high-signal even when no number is available.
@@ -642,11 +648,12 @@ INSTRUCTIONS
         minimumCallMs: resolvedTiming.minimumCallMs,
         stage: attempt === 0 ? "resume_draft" : "evidence_repair",
       });
-      const resumeData = shapeTailoredResume(enforceReverseChronology({
+      const shaped = shapeTailoredResumeWithReview(enforceReverseChronology({
         ...rawResumeData,
         fit_assessment: analysis.fit_assessment,
         content_strategy: analysis.content_strategy,
       }), analysis);
+      const resumeData = shaped.resume;
       if (!resumeData.profile || !Array.isArray(resumeData.experience) || resumeData.experience.length === 0) {
         console.error(`Incomplete structured resume for gig "${item.title}": ${JSON.stringify(resumeData)}`);
         return res.status(502).json({ error: "Model returned incomplete resume data" });
@@ -661,6 +668,8 @@ INSTRUCTIONS
           postingAssessment: analysis.posting_assessment,
           targetTitle: item.title,
           isTrades: isTradesGig,
+          category: item.category,
+          focusReview: shaped.focusReview,
         },
       );
       if (atsReview.status !== "blocked") {
@@ -700,7 +709,8 @@ INSTRUCTIONS
       }
 
       const { resume: fallbackResume, report: safetyReport } = createSafeResumeFallback(resumeData, atsReview, analysis);
-      const safeResume = shapeTailoredResume(fallbackResume, analysis);
+      const safeShaped = shapeTailoredResumeWithReview(fallbackResume, analysis);
+      const safeResume = safeShaped.resume;
       const safeReview = buildAtsReview(
         safeResume,
         candidateEvidence,
@@ -710,6 +720,8 @@ INSTRUCTIONS
           postingAssessment: analysis.posting_assessment,
           targetTitle: item.title,
           isTrades: isTradesGig,
+          category: item.category,
+          focusReview: safeShaped.focusReview,
         },
       );
       if (safeReview.status !== "blocked" && safeResume.profile && safeResume.experience.length) {

@@ -16,6 +16,72 @@ const FIT_LABELS = {
   not_available: "Not available",
 };
 
+const OCCUPATION_LABELS = {
+  sap_functional: "SAP functional",
+  software: "Software",
+  leadership: "Leadership",
+  trades: "Skilled trades",
+  admin: "Administrative",
+  marketing: "Marketing",
+  creative: "Creative",
+  general: "General professional",
+};
+
+function WritingReview({ writingReview, C }) {
+  if (!writingReview?.issues?.length) return null;
+  return (
+    <details style={{ marginTop: 10, borderTop: `1px solid ${C.border}`, paddingTop: 9 }}>
+      <summary style={{ color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>
+        Exact writing feedback ({writingReview.issue_count}) · {OCCUPATION_LABELS[writingReview.occupation_profile] || "General"} profile
+      </summary>
+      <p style={{ color: C.textFaint, fontSize: 11.5, lineHeight: 1.45, margin: "6px 0 0" }}>
+        Preferred verbs for this occupation include {writingReview.preferred_verbs?.slice(0, 6).join(", ")}. Suggestions preserve the candidate’s confirmed contribution level.
+      </p>
+      <div style={{ display: "grid", gap: 8, marginTop: 9 }}>
+        {writingReview.issues.map((issue) => (
+          <article key={issue.id} style={{ background: C.bgCard, border: `1px solid ${issue.severity === "blocked" ? (C.redBorder || C.amberBorder) : C.border}`, borderRadius: 10, padding: "10px 11px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "flex-start" }}>
+              <strong style={{ color: C.text, fontSize: 12 }}>{issue.role || "Experience"} · bullet {Number(issue.bullet_index || 0) + 1}</strong>
+              <span style={{ color: issue.severity === "blocked" ? C.red : C.amber, fontSize: 10.5, fontWeight: 750, textTransform: "capitalize" }}>{String(issue.issue_type || "review").replaceAll("_", " ")}</span>
+            </div>
+            <p style={{ color: C.textSub, fontSize: 11.75, lineHeight: 1.45, margin: "6px 0 0" }}>“{issue.original}”</p>
+            <p style={{ color: C.textSub, fontSize: 11.5, lineHeight: 1.45, margin: "5px 0 0" }}>{issue.explanation}</p>
+            {issue.suggested_revision ? (
+              <div style={{ color: C.text, background: C.greenTint, border: `1px solid ${C.greenBorder}`, borderRadius: 8, fontSize: 11.75, lineHeight: 1.45, marginTop: 7, padding: "7px 8px" }}>
+                <strong>Suggested:</strong> {issue.suggested_revision}
+              </div>
+            ) : null}
+            {issue.evidence_citations?.[0] ? (
+              <div style={{ color: C.textFaint, fontSize: 10.75, marginTop: 6 }}>
+                Evidence: {issue.evidence_citations[0].source === "candidate_note" ? "candidate-confirmed note" : "base résumé"}{issue.evidence_citations[0].line_index ? ` · line ${issue.evidence_citations[0].line_index}` : ""}
+              </div>
+            ) : null}
+          </article>
+        ))}
+      </div>
+      <p style={{ color: C.textFaint, fontSize: 11.25, margin: "8px 0 0" }}>{writingReview.note}</p>
+    </details>
+  );
+}
+
+function FocusReview({ focusReview, C }) {
+  if (!focusReview || focusReview.status === "not_available") return null;
+  const condensedCount = focusReview.condensed_experience?.length || 0;
+  const omittedCount = focusReview.omitted_bullets?.length || 0;
+  const duplicateCount = focusReview.duplicate_groups?.length || 0;
+  return (
+    <details style={{ marginTop: 10, borderTop: `1px solid ${C.border}`, paddingTop: 9 }}>
+      <summary style={{ color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>
+        Résumé focus · about {focusReview.estimated_pages || 1} page{focusReview.estimated_pages === 1 ? "" : "s"}
+      </summary>
+      <p style={{ color: C.textSub, fontSize: 11.75, lineHeight: 1.45, margin: "7px 0 0" }}>{focusReview.rationale}</p>
+      <p style={{ color: C.textFaint, fontSize: 11.25, lineHeight: 1.45, margin: "5px 0 0" }}>
+        {condensedCount} role{condensedCount === 1 ? "" : "s"} condensed · {omittedCount} lower-signal bullet{omittedCount === 1 ? "" : "s"} omitted · {duplicateCount} repetition{duplicateCount === 1 ? "" : "s"} removed. Canonical résumé history is unchanged.
+      </p>
+    </details>
+  );
+}
+
 function RequirementEvidence({ requirements, C }) {
   if (!requirements?.length) return null;
   const counts = requirements.reduce((result, requirement) => {
@@ -91,6 +157,9 @@ export function AtsReview({ review, C }) {
   const coverage = review.coverage || { direct: 0, adjacent: 0, transferable: 0, missing: 0, total: 0 };
   const parseability = review.parseability || { status: review.reverse_chronological ? "pass" : "review" };
   const writing = review.writing || { status: "review", issue_count: (review.verb_issues?.length || 0) + (review.tense_issues?.length || 0) };
+  const writingReview = review.writing_review;
+  const focusReview = review.focus_review;
+  const exportReadiness = review.export_readiness;
   const identity = review.identity || { status: "complete", reason: "Candidate name is present." };
   const readiness = review.readiness || { status: "credible_stretch", reason: "Review the tailored draft against the complete posting." };
   const postingComplete = postingReadiness.fit_allowed === true;
@@ -128,10 +197,13 @@ export function AtsReview({ review, C }) {
       <StatusRow label="Candidate fit" value={FIT_LABELS[candidateFit.status] || "Review required"} detail={postingComplete ? `${candidateFit.confidence || "low"} confidence · ${candidateFit.reason || "Evidence comparison completed."}` : "Unavailable until responsibilities and qualifications are present"} ok={postingComplete && !["gap", "not_assessed", "not_available"].includes(candidateFit.status)} C={C} />
       <StatusRow label="Requirement coverage" value={coverage.total ? `${coverage.total} requirements analyzed` : "Limited by posting data"} detail={`${coverage.direct || 0} direct · ${coverage.adjacent || 0} adjacent · ${coverage.transferable || 0} transferable · ${coverage.missing || 0} missing`} ok={Boolean(coverage.total) && (coverage.missing || 0) === 0} C={C} />
       <StatusRow label="ATS-readable structure" value={parseability.status === "pass" ? "Pass" : "Review"} detail="Single column, standard headings, chronological history" ok={parseability.status === "pass"} C={C} />
-      <StatusRow label="Writing quality" value={writing.status === "pass" ? "Pass" : "Review"} detail={writing.issue_count ? `${writing.issue_count} verb or tense item${writing.issue_count === 1 ? "" : "s"}` : "Action-led bullets and consistent tense"} ok={writing.status === "pass"} C={C} />
-      <StatusRow label="Application-ready export" value={review.application_ready ? "Enabled" : "Preliminary only"} detail={review.application_ready ? "Posting and truth checks passed" : "Final export stays locked until posting readiness, identity, and truth checks pass"} ok={review.application_ready === true} C={C} />
+      <StatusRow label="Writing quality" value={writing.status === "pass" ? "Pass" : writing.status === "blocked" ? "Blocked" : "Review"} detail={writing.issue_count ? `${writing.issue_count} exact writing item${writing.issue_count === 1 ? "" : "s"}` : "Occupation-aware action verbs and consistent tense"} ok={writing.status === "pass"} C={C} />
+      <StatusRow label="Résumé focus" value={focusReview?.status === "focused" ? "Focused" : "Review"} detail={focusReview?.estimated_pages ? `Estimated ${focusReview.estimated_pages} page${focusReview.estimated_pages === 1 ? "" : "s"}; recent and requirement-aligned evidence prioritized` : "Focus estimate unavailable"} ok={focusReview?.status === "focused"} C={C} />
+      <StatusRow label="Application-ready export" value={exportReadiness?.status === "ready" || review.application_ready ? "Enabled" : "Preliminary only"} detail={exportReadiness?.blockers?.length ? `Waiting on: ${exportReadiness.blockers.join(", ").replaceAll("_", " ")}` : "Posting, identity, writing, and truth checks passed"} ok={review.application_ready === true} C={C} />
 
       <RequirementEvidence requirements={review.requirements} C={C} />
+      <WritingReview writingReview={writingReview} C={C} />
+      <FocusReview focusReview={focusReview} C={C} />
 
       {!postingComplete && (
         <div style={{ display: "flex", gap: 7, alignItems: "flex-start", color: C.amber, background: C.amberTint, border: `1px solid ${C.amberBorder}`, borderRadius: 10, padding: "9px 10px", marginTop: 9, fontSize: 12, lineHeight: 1.45 }}>
