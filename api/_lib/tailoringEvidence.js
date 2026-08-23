@@ -116,7 +116,29 @@ function inferEvidenceSection(lines, lineIndex) {
   return "base resume";
 }
 
-function evidenceCitation(excerpt, baseResume) {
+function supportingCandidateNote(excerpt, candidateNotes = []) {
+  const evidence = normalizeEvidenceText(excerpt);
+  if (!evidence || evidence.length < 12) return null;
+  return candidateNotes.find((note) => {
+    if (!note?.user_confirmed || note.declined) return false;
+    const noteText = normalizeEvidenceText([note.answer, note.context, note.employer_or_project, note.approximate_date].filter(Boolean).join(" "));
+    return noteText.includes(evidence) || evidence.includes(normalizeEvidenceText(note.answer));
+  }) || null;
+}
+
+function evidenceCitation(excerpt, baseResume, candidateNotes = []) {
+  const candidateNote = supportingCandidateNote(excerpt, candidateNotes);
+  if (candidateNote) {
+    return {
+      source: "candidate_note",
+      evidence_id: candidateNote.id,
+      requirement_id: candidateNote.requirement_id,
+      section: candidateNote.employer_or_project || candidateNote.context || "candidate answer",
+      line_index: null,
+      excerpt: String(excerpt || "").replace(/\s+/g, " ").trim(),
+      contribution_level: candidateNote.contribution_level || "supported",
+    };
+  }
   if (!excerptSupported(excerpt, baseResume)) return null;
   const lines = String(baseResume || "").split(/\r?\n/);
   const evidence = normalizeEvidenceText(excerpt);
@@ -139,16 +161,18 @@ function evidenceCitation(excerpt, baseResume) {
   };
 }
 
-function cleanRequirement(value, index, baseResume) {
+function cleanRequirement(value, index, baseResume, candidateNotes = []) {
   const requirement = String(value?.requirement || "").replace(/\s+/g, " ").trim().slice(0, 500);
   if (!requirement) return null;
   const requestedMatch = ["direct", "adjacent", "transferable", "missing"].includes(value?.evidence_match)
     ? value.evidence_match
     : "missing";
   const resumeEvidence = String(value?.resume_evidence || "").replace(/\s+/g, " ").trim().slice(0, 700);
-  const supported = requestedMatch === "missing" || excerptSupported(resumeEvidence, baseResume);
+  const supported = requestedMatch === "missing"
+    || excerptSupported(resumeEvidence, baseResume)
+    || Boolean(supportingCandidateNote(resumeEvidence, candidateNotes));
   const citation = supported && requestedMatch !== "missing"
-    ? evidenceCitation(resumeEvidence, baseResume)
+    ? evidenceCitation(resumeEvidence, baseResume, candidateNotes)
     : null;
   return {
     id: String(value?.id || `R${index + 1}`).slice(0, 20),
@@ -172,11 +196,11 @@ function coverageCounts(requirements) {
   return counts;
 }
 
-export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministicPostingAssessment, fallbackKeywords = []) {
+export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministicPostingAssessment, fallbackKeywords = [], candidateNotes = []) {
   const raw = rawAnalysis && typeof rawAnalysis === "object" ? rawAnalysis : {};
   const requirements = (Array.isArray(raw.requirements) ? raw.requirements : [])
     .slice(0, 24)
-    .map((value, index) => cleanRequirement(value, index, baseResume))
+    .map((value, index) => cleanRequirement(value, index, baseResume, candidateNotes))
     .filter(Boolean);
   const coverage = coverageCounts(requirements);
 
@@ -186,7 +210,10 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
       skill: String(value?.skill || "").replace(/\s+/g, " ").trim().slice(0, 120),
       resume_evidence: String(value?.resume_evidence || "").replace(/\s+/g, " ").trim().slice(0, 700),
     }))
-    .filter((value) => value.skill && excerptSupported(value.resume_evidence, baseResume));
+    .filter((value) => value.skill && (
+      excerptSupported(value.resume_evidence, baseResume)
+      || Boolean(supportingCandidateNote(value.resume_evidence, candidateNotes))
+    ));
 
   let path = ["direct", "adjacent", "career_change"].includes(raw.fit_assessment?.path)
     ? raw.fit_assessment.path
@@ -232,6 +259,22 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
     ...fallbackKeywords,
   ], 40);
 
+  const candidateQuestions = uniqueStrings(raw.candidate_questions, 5);
+  const missingRequirements = requirements.filter((requirement) => requirement.evidence_match === "missing");
+  const evidenceQuestions = candidateQuestions.map((question, index) => {
+    const prefixedId = question.match(/^\s*\[([^\]]+)\]\s*/)?.[1];
+    const requirement = requirements.find((item) => item.id === prefixedId)
+      || missingRequirements[index]
+      || requirements[index]
+      || null;
+    return {
+      id: `evidence-question-${prefixedId || requirement?.id || index + 1}`,
+      requirement_id: prefixedId || requirement?.id || `Q${index + 1}`,
+      requirement: requirement?.requirement || "Additional relevant evidence",
+      question: question.replace(/^\s*\[[^\]]+\]\s*/, "").trim(),
+    };
+  });
+
   return {
     posting_assessment: postingAssessment,
     posting_readiness: {
@@ -260,7 +303,8 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
     target_keywords: verifiedKeywords,
     missing_evidence: uniqueStrings(raw.missing_evidence, 12),
     prohibited_claims: uniqueStrings(raw.prohibited_claims, 12),
-    candidate_questions: uniqueStrings(raw.candidate_questions, 5),
+    candidate_questions: candidateQuestions,
+    evidence_questions: evidenceQuestions,
   };
 }
 

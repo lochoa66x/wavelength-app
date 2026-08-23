@@ -368,6 +368,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
     readiness,
     missing_evidence: options.analysis?.missing_evidence || [],
     candidate_questions: options.analysis?.candidate_questions || [],
+    evidence_questions: options.analysis?.evidence_questions || [],
     disclaimer: "This evaluates evidence integrity, requirement coverage, writing, and parseability separately. No résumé can guarantee an ATS result or interview.",
   };
 }

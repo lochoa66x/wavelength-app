@@ -45,7 +45,7 @@ function RequirementEvidence({ requirements, C }) {
                 <blockquote style={{ margin: "7px 0 0", paddingLeft: 9, borderLeft: `2px solid ${C.blueBorder}`, color: C.textSub, fontSize: 11.5, lineHeight: 1.45 }}>
                   “{citation.excerpt}”
                   <div style={{ color: C.textFaint, marginTop: 3 }}>
-                    Base résumé · {citation.section}{citation.line_index ? ` · line ${citation.line_index}` : ""}
+                    {citation.source === "candidate_note" ? "Candidate-confirmed note" : "Base résumé"} · {citation.section}{citation.line_index ? ` · line ${citation.line_index}` : ""}
                   </div>
                 </blockquote>
               ) : (
@@ -145,7 +145,7 @@ export function AtsReview({ review, C }) {
           <strong style={{ color: C.text }}>Important evidence still missing:</strong> {review.missing_evidence.slice(0, 6).join(" · ")}
         </div>
       )}
-      {review.candidate_questions?.length > 0 && (
+      {review.candidate_questions?.length > 0 && !review.evidence_questions?.length && (
         <details style={{ marginTop: 8, color: C.textSub, fontSize: 12 }}>
           <summary style={{ color: C.text, fontWeight: 650, cursor: "pointer" }}>Questions that could strengthen this version</summary>
           <ul style={{ margin: "7px 0 0", paddingLeft: 18, lineHeight: 1.5 }}>

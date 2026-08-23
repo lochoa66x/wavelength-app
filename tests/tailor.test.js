@@ -86,6 +86,30 @@ test("tailoring rejects an invalid token before calling Anthropic", async () => 
   assert.equal(fetched, false);
 });
 
+test("tailoring rejects unconfirmed candidate evidence before calling Anthropic", async () => {
+  let fetched = false;
+  const handler = createTailorHandler({
+    authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
+    fetchImpl: async () => { fetched = true; throw new Error("should not fetch"); },
+    getApiKey: () => "test-key",
+  });
+  const res = responseRecorder();
+
+  await handler({
+    method: "POST",
+    headers: { authorization: "Bearer valid-token" },
+    body: {
+      resume: "Resume",
+      listingId: 1,
+      candidateEvidence: [{ requirement_id: "R1", answer: "Led workshops." }],
+    },
+  }, res);
+
+  assert.equal(res.statusCode, 400);
+  assert.match(res.body.error, /could not be verified/i);
+  assert.equal(fetched, false);
+});
+
 test("tailoring loads the trusted listing by id and ignores a caller URL", async () => {
   let loadedId = null;
   let anthropicRequest = null;

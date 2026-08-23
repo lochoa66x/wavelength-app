@@ -194,6 +194,40 @@ test("supported transferable career-change positioning passes semantic checks", 
   });
 });
 
+test("candidate-confirmed notes can support a requirement without being relabeled as base résumé evidence", () => {
+  const assessment = assessPostingCompleteness(completeSapPosting, null, {
+    source: "employer_page",
+    descriptionStatus: "full_description",
+  });
+  const notes = [{
+    id: "note-R1",
+    requirement_id: "R1",
+    source: "candidate_note",
+    answer: "Facilitated SAP finance requirements workshops with business stakeholders.",
+    contribution_level: "led",
+    user_confirmed: true,
+  }];
+  const analysis = sanitizeTailoringAnalysis({
+    fit_assessment: { path: "adjacent", recommended_level: "Senior", note: "Verified note adds relevant evidence." },
+    requirements: [{
+      id: "R1",
+      requirement: "Finance requirements workshops",
+      priority: "required",
+      evidence_match: "direct",
+      resume_evidence: "Facilitated SAP finance requirements workshops with business stakeholders.",
+      safe_language: "Facilitated SAP finance requirements workshops",
+      keywords: ["requirements workshops"],
+    }],
+    candidate_questions: ["[R2] Have you led release readiness activities?"],
+  }, "SAP functional consultant", assessment, [], notes);
+
+  assert.equal(analysis.requirements[0].evidence_match, "direct");
+  assert.equal(analysis.requirements[0].evidence[0].source, "candidate_note");
+  assert.equal(analysis.requirements[0].evidence[0].contribution_level, "led");
+  assert.equal(analysis.evidence_questions[0].requirement_id, "R2");
+  assert.doesNotMatch(analysis.evidence_questions[0].question, /^\[R2\]/);
+});
+
 test("invented projects and training are blocked even without unsupported numbers", () => {
   const issues = findSemanticIntegrityIssues({
     title: "Enterprise Integration Professional",

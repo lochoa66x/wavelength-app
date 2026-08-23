@@ -3,6 +3,7 @@ import { buildAtsReview, enforceReverseChronology } from "./_lib/atsValidation.j
 import { jobBriefToText, normalizeCustomJobBrief } from "./_lib/jobBrief.js";
 import { authenticateSupabaseRequest, bearerToken } from "./_lib/requestAuth.js";
 import { createSafeResumeFallback } from "./_lib/safeResumeFallback.js";
+import { formatCandidateEvidence, validateCandidateEvidence } from "./_lib/candidateEvidence.js";
 import { shapeTailoredResume } from "./_lib/resumeQuality.js";
 import {
   assessPostingCompleteness,
@@ -63,7 +64,7 @@ const ANALYSIS_TOOL = {
             requirement: { type: "string" },
             priority: { type: "string", enum: ["required", "preferred", "responsibility", "context"] },
             evidence_match: { type: "string", enum: ["direct", "adjacent", "transferable", "missing"] },
-            resume_evidence: { type: "string", description: "A short exact excerpt copied from the base resume, or an empty string when missing." },
+            resume_evidence: { type: "string", description: "A short exact excerpt copied from the base resume or a verified candidate note, or an empty string when missing." },
             safe_language: { type: "string", description: "Truthful resume wording that does not imply stronger experience than the evidence." },
             keywords: { type: "array", items: { type: "string" } },
           },
@@ -305,7 +306,7 @@ async function loadTrustedListing(supabase, listingId) {
   };
 }
 
-function tailoringResponseMetadata(analysis, atsReview) {
+function tailoringResponseMetadata(analysis, atsReview, candidateEvidence = []) {
   return {
     posting_readiness: analysis.posting_readiness,
     listing_relevance: {
@@ -315,6 +316,8 @@ function tailoringResponseMetadata(analysis, atsReview) {
     },
     candidate_fit: analysis.candidate_fit,
     requirements: analysis.requirements,
+    evidence_questions: analysis.evidence_questions || [],
+    candidate_evidence: candidateEvidence,
     application_ready: atsReview.application_ready === true,
     output_mode: atsReview.output_mode || "preliminary",
   };
@@ -459,12 +462,21 @@ export function createTailorHandler({
     return res.status(500).json({ error: "Server not configured with an Anthropic API key" });
   }
 
-  const { resume, listingId, customJob, extraContext } = req.body || {};
+  const { resume, listingId, customJob, extraContext, candidateEvidence: rawCandidateEvidence } = req.body || {};
   const validListingId = typeof listingId === "string" || typeof listingId === "number";
   const normalizedCustomJob = normalizeCustomJobBrief(customJob);
   if (typeof resume !== "string" || !resume.trim() || Number(validListingId) + Number(Boolean(normalizedCustomJob)) !== 1) {
     return res.status(400).json({ error: "Provide a resume and exactly one trusted listing or reviewed custom job." });
   }
+
+  const candidateEvidenceValidation = validateCandidateEvidence(rawCandidateEvidence);
+  if (candidateEvidenceValidation.errors.length) {
+    return res.status(400).json({
+      error: "Candidate evidence could not be verified.",
+      details: candidateEvidenceValidation.errors,
+    });
+  }
+  const verifiedCandidateEvidence = candidateEvidenceValidation.evidence;
 
   const item = validListingId
     ? await loadListing(auth.supabase, listingId)
@@ -490,7 +502,8 @@ export function createTailorHandler({
   const extraContextBlock = cappedExtraContext.trim()
     ? `\n\nADDITIONAL CONTEXT FROM THE CANDIDATE\n${cappedExtraContext.trim()}`
     : "";
-  const candidateEvidence = `${cappedResume}${extraContextBlock}`;
+  const verifiedCandidateEvidenceBlock = formatCandidateEvidence(verifiedCandidateEvidence);
+  const candidateEvidence = `${cappedResume}${extraContextBlock}\n\nVERIFIED CANDIDATE NOTES\n${verifiedCandidateEvidenceBlock}`;
   const postingAssessment = assessPostingCompleteness(storedPosting, normalizedCustomJob, {
     source: normalizedCustomJob ? normalizedCustomJob.source || "candidate_reviewed" : item.description_source,
     descriptionStatus: normalizedCustomJob ? "candidate_reviewed" : item.description_status,
@@ -532,34 +545,43 @@ ${jobContext}`;
 
 ${targetContext}
 
-CANDIDATE EVIDENCE
-${candidateEvidence}
+BASE RÉSUMÉ EVIDENCE
+${cappedResume}
+
+VERIFIED CANDIDATE NOTES
+${verifiedCandidateEvidenceBlock}
 
 ANALYSIS RULES
 - Extract only requirements explicitly stated or unambiguously described in the supplied posting. A job title is context, not proof of an unstated technology stack.
 - Respect the deterministic posting assessment. If it says partial or insufficient, explain that the result is preliminary and do not invent missing requirements.
 - The deterministic posting assessment is the fit gate. When fit_allowed is false, do not produce a definitive candidate-fit judgment: use fit_assessment only as a provisional content strategy, set readiness to needs_full_posting, and treat confidence as unavailable.
 - For each requirement, classify the candidate evidence as direct, adjacent, transferable, or missing.
-- Every direct, adjacent, or transferable match MUST include a short exact excerpt copied from CANDIDATE EVIDENCE. If no exact excerpt supports it, classify it as missing.
+- Every direct, adjacent, or transferable match MUST include a short exact excerpt copied from BASE RÉSUMÉ EVIDENCE or VERIFIED CANDIDATE NOTES. If no exact excerpt supports it, classify it as missing.
 - Direct means the candidate has performed the target capability in the target context. Adjacent means substantially similar work in a neighboring context. Transferable means a broader capability is useful but not equivalent. Do not promote transferable evidence to adjacent or direct merely to improve fit.
 - When the candidate has no verified hands-on evidence for the target occupation, classify the path as career_change and recommend an honest entry or transitional level. Do not use the target title as their existing professional identity.
 - Verified transferable skills must each include an exact supporting excerpt. Do not assume generic traits such as reliability, learning agility, communication, leadership, safety, or problem solving.
 - Target keywords come from the posting. Missing target technologies remain missing; list misleading target-role or target-technology claims in prohibited_claims.
-- Ask at most five candidate questions that could uncover real projects, courses, portfolios, licenses, credentials, or hands-on experience. Questions are not evidence.
+- Ask at most five candidate questions that could uncover real projects, courses, portfolios, licenses, credentials, or hands-on experience. Prefix each question with its most relevant requirement id in square brackets, such as "[R3] What project demonstrates this?" Questions are not evidence.
+- Candidate notes may be treated as factual evidence only after server validation and explicit user confirmation. Do not infer facts beyond the exact answer and context.
+- Respect each note's contribution level. "supported" permits supported/assisted/advised; "contributed" permits contributed/coordinated/collaborated; "owned" permits owned/delivered; "led" permits led/directed. Never upgrade responsibility beyond that level.
 - Readiness is strong_fit only when the posting is complete and required capabilities are directly supported; credible_stretch for an adjacent fit; significant_gap for a major career change or missing hard requirements; needs_full_posting when the posting cannot be assessed completely.`;
 
   const prompt = `You're a resume editor helping a candidate apply to ONE specific gig. Produce a tailored version via the ${toolName} tool. The evidence analysis below is authoritative. Produce a single-column, reverse-chronological resume with roughly 450-900 words of substantive content while preserving truthful history. For a major career change, prefer a focused 350-650 word preliminary resume over padding it with unrelated history.
 
 ${targetContext}
 
-CANDIDATE EVIDENCE
-${candidateEvidence}
+BASE RÉSUMÉ EVIDENCE
+${cappedResume}
+
+VERIFIED CANDIDATE NOTES
+${verifiedCandidateEvidenceBlock}
 
 AUTHORITATIVE REQUIREMENT-TO-EVIDENCE ANALYSIS
 __TAILORING_ANALYSIS__
 
 INSTRUCTIONS
 - Copy \`fit_assessment\` from the authoritative analysis. Do not upgrade the fit, readiness, or recommended level while drafting.
+- Verified candidate notes may add factual evidence, but never overwrite immutable base-résumé history. Use note-specific context only for the requirement it answers and preserve the note's contribution level in the action verb.
 - Copy the candidate's name and contact details exactly when present. If either is unavailable, return an empty string. Never emit placeholders such as UNKNOWN, <UNKNOWN>, Candidate, N/A, or invented contact details.
 - Use the analysis content strategy: direct for a conventional targeted resume, adjacent for a verified neighboring-role pivot, and career_change for a hybrid transition resume.
 - For a non-trades career change, the top title must identify the proven professional foundation plus an honest transition, such as "Enterprise Integration Professional | Web Development Transition". Never use the exact target title alone or imply the candidate already holds it. For trades, use Entry-Level or Helper Candidate unless registration or credentials are proven.
@@ -600,9 +622,10 @@ INSTRUCTIONS
     });
     const analysis = sanitizeTailoringAnalysis(
       rawAnalysis,
-      candidateEvidence,
+      cappedResume,
       postingAssessment,
       fallbackKeywords,
+      verifiedCandidateEvidence,
     );
     const baseDraftPrompt = prompt.replace("__TAILORING_ANALYSIS__", JSON.stringify(analysis, null, 2));
     let requestPrompt = baseDraftPrompt;
@@ -645,7 +668,7 @@ INSTRUCTIONS
           resume: resumeData,
           ats_review: atsReview,
           tailoring_analysis: analysis,
-          ...tailoringResponseMetadata(analysis, atsReview),
+          ...tailoringResponseMetadata(analysis, atsReview, verifiedCandidateEvidence),
           repair_applied: attempt > 0,
         });
       }
@@ -696,7 +719,7 @@ INSTRUCTIONS
           resume: safeResume,
           ats_review: safeReview,
           tailoring_analysis: analysis,
-          ...tailoringResponseMetadata(analysis, safeReview),
+          ...tailoringResponseMetadata(analysis, safeReview, verifiedCandidateEvidence),
           repair_applied: true,
           safety_fallback_applied: true,
         });

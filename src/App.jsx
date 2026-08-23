@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { MapPin, Clock, ExternalLink, Check, ArrowRight, ArrowLeft, Pencil, Sparkles, Loader2, CheckCircle2, Circle, Search, Bookmark, X, RotateCcw, LogOut, ChevronDown, Link2, FileImage, Text } from "lucide-react";
 import { BrandMark } from "./BrandMark.jsx";
 import { AtsReview } from "./AtsReview.jsx";
+import { EvidenceRefinementPanel } from "./EvidenceRefinementPanel.jsx";
 import { CustomJobFlow } from "./CustomJobFlow.jsx";
 import { PositioningSummary } from "./PositioningSummary.jsx";
 import { ResumeTemplateCareerChange } from "./ResumeTemplateCareerChange.jsx";
@@ -9,6 +10,7 @@ import { ResumeTemplateProfessional } from "./ResumeTemplateProfessional.jsx";
 import { ResumeTemplateTrades } from "./ResumeTemplateTrades.jsx";
 import { resumeTemplateKind } from "./resumeStrategy.js";
 import { loadLocalResume, saveLocalResume } from "./resumeStorage.js";
+import { loadCandidateEvidence, saveCandidateEvidence } from "./candidateEvidenceStorage.js";
 import { listingStateKey } from "./listingIdentity.js";
 import { getMatchPresentation } from "./matchPresentation.js";
 import { migrateCloudResume } from "./resumeMigration.js";
@@ -603,6 +605,7 @@ export default function Gigscapes() {
   const [step, setStep] = useState("loading");
   const [expandedApply, setExpandedApply] = useState(null);
   const [tailored, setTailored] = useState({});
+  const [candidateEvidenceByTarget, setCandidateEvidenceByTarget] = useState({});
   const [viewFilter, setViewFilter] = useState("all");
   const [showDismissed, setShowDismissed] = useState(false);
   const [quickSearch, setQuickSearch] = useState("");
@@ -682,8 +685,12 @@ export default function Gigscapes() {
     setCustomJobInitialUrl(url);
     setStep("custom_job");
   };
-  const handleTailor = async (item, stateKey, { skipEnrichment = false } = {}) => {
-    setTailored((t) => ({ ...t, [stateKey]: { status: "loading", phase: skipEnrichment ? "tailoring" : "enriching" } }));
+  const handleTailor = async (item, stateKey, { skipEnrichment = false, candidateEvidenceOverride } = {}) => {
+    const previous = tailored[stateKey];
+    const candidateEvidence = candidateEvidenceOverride
+      ?? candidateEvidenceByTarget[stateKey]
+      ?? loadCandidateEvidence(session?.user?.id, stateKey);
+    setTailored((t) => ({ ...t, [stateKey]: { ...t[stateKey], status: "loading", phase: skipEnrichment ? "tailoring" : "enriching" } }));
     try {
       let enrichment = null;
       if (!skipEnrichment) {
@@ -698,7 +705,7 @@ export default function Gigscapes() {
         }
         setTailored((t) => ({ ...t, [stateKey]: { status: "loading", phase: "tailoring", enrichment: enrichment.listing } }));
       }
-      const result = await tailorResume(resume, { listingId: item.id });
+      const result = await tailorResume(resume, { listingId: item.id, candidateEvidence });
       setTailored((t) => ({ ...t, [stateKey]: {
         status: "done",
         resumeData: result.resume,
@@ -707,11 +714,27 @@ export default function Gigscapes() {
         candidateFit: result.candidateFit,
         applicationReady: result.applicationReady,
         outputMode: result.outputMode,
+        evidenceQuestions: result.evidenceQuestions,
+        candidateEvidence: result.candidateEvidence,
+        baselineCoverage: previous?.baselineCoverage || previous?.atsReview?.coverage || result.atsReview?.coverage,
+        previousCoverage: previous?.atsReview?.coverage || null,
         enrichment: enrichment?.listing || null,
       } }));
     } catch (err) {
       setTailored((t) => ({ ...t, [stateKey]: { status: "error", message: err.message } }));
     }
+  };
+
+  const handleEvidenceRetailor = (item, stateKey, evidence) => {
+    if (!saveCandidateEvidence(session?.user?.id, stateKey, evidence)) {
+      setTailored((current) => ({
+        ...current,
+        [stateKey]: { ...current[stateKey], evidenceStorageError: "Your browser blocked local storage, so these answers were not saved." },
+      }));
+      return;
+    }
+    setCandidateEvidenceByTarget((current) => ({ ...current, [stateKey]: evidence }));
+    handleTailor(item, stateKey, { skipEnrichment: true, candidateEvidenceOverride: evidence });
   };
 
   const handleSignOut = async () => {
@@ -1614,6 +1637,18 @@ export default function Gigscapes() {
                         <PositioningSummary assessment={t.resumeData.fit_assessment} C={C} />
                       )}
                       <AtsReview review={t.atsReview} C={C} />
+                      {t.evidenceStorageError ? (
+                        <p role="alert" style={{ color: C.red, fontSize: 12, margin: "0 0 10px" }}>{t.evidenceStorageError}</p>
+                      ) : null}
+                      <EvidenceRefinementPanel
+                        questions={t.evidenceQuestions || t.atsReview?.evidence_questions || []}
+                        initialEvidence={candidateEvidenceByTarget[stateKey] || t.candidateEvidence || loadCandidateEvidence(session?.user?.id, stateKey)}
+                        beforeCoverage={t.baselineCoverage}
+                        afterCoverage={t.atsReview?.coverage}
+                        loading={false}
+                        onSaveAndRetailor={(evidence) => handleEvidenceRetailor(item, stateKey, evidence)}
+                        C={C}
+                      />
                       <TemplateComponent
                         resumeData={t.resumeData}
                         item={item}

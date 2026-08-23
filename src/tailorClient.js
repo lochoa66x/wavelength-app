@@ -27,6 +27,8 @@ export async function tailorResume(resume, target) {
     listingRelevance: data.listing_relevance || null,
     candidateFit: data.candidate_fit || data.ats_review?.candidate_fit || null,
     requirements: data.requirements || data.ats_review?.requirements || [],
+    evidenceQuestions: data.evidence_questions || data.ats_review?.evidence_questions || [],
+    candidateEvidence: data.candidate_evidence || [],
     applicationReady: data.application_ready === true,
     outputMode: data.output_mode || "preliminary",
   };
