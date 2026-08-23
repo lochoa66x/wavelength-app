@@ -86,5 +86,34 @@ test("export readiness blocks placeholder identity and labels large-gap drafts a
   });
   assert.equal(ready.canExport, true);
   assert.equal(ready.preliminary, false);
-  assert.equal(ready.buttonLabel, "Download DOCX");
+  assert.equal(ready.buttonLabel, "Download tailored résumé");
+});
+
+test("canonical application readiness controls preliminary and final export labels", () => {
+  const preliminary = getResumeExportReadiness({ name: "Luis Example" }, {
+    application_ready: false,
+    posting_readiness: {
+      status: "needs_full_posting",
+      fit_allowed: false,
+    },
+    readiness: { status: "needs_full_posting" },
+  });
+
+  assert.equal(preliminary.canExport, true);
+  assert.equal(preliminary.applicationReady, false);
+  assert.equal(preliminary.preliminary, true);
+  assert.equal(preliminary.buttonLabel, "Download preliminary DOCX");
+
+  const final = getResumeExportReadiness({ name: "Luis Example" }, {
+    application_ready: true,
+    posting_readiness: {
+      status: "reviewed_complete",
+      fit_allowed: true,
+    },
+    readiness: { status: "credible_stretch" },
+  });
+
+  assert.equal(final.applicationReady, true);
+  assert.equal(final.preliminary, false);
+  assert.equal(final.buttonLabel, "Download tailored résumé");
 });

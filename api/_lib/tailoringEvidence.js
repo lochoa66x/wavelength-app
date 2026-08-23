@@ -36,14 +36,14 @@ function uniqueStrings(values, limit = 40) {
   return result;
 }
 
-export function assessPostingCompleteness(postingText, structuredBrief = null) {
+export function assessPostingCompleteness(postingText, structuredBrief = null, provenance = {}) {
   const text = String(postingText || "").trim();
   const words = text.match(/[\p{L}\p{N}+#.%/-]+/gu) || [];
   const wordCount = words.length;
   const abruptEnding = /(?:\.{3}|…|\b[a-z]{1,5}…?)$/i.test(text)
     || (text.length > 0 && !/[.!?)\]"']$/.test(text));
   const hasResponsibilities = Boolean(structuredBrief?.responsibilities?.length)
-    || /\b(responsibilit|what you(?:'|’)ll do|duties|day.to.day|you will)\b/i.test(text);
+    || /\b(responsibilit(?:y|ies)|what you(?:'|’)ll do|duties|day.to.day|you will)\b/i.test(text);
   const hasQualifications = Boolean(structuredBrief?.required_qualifications?.length)
     || Boolean(structuredBrief?.preferred_qualifications?.length)
     || /\b(requirement|qualification|experience required|what you bring|must have|preferred)\b/i.test(text);
@@ -60,6 +60,18 @@ export function assessPostingCompleteness(postingText, structuredBrief = null) {
       : "The saved posting looks like an aggregator summary rather than a complete job description.";
   }
 
+  const fitAllowed = status === "complete" && hasResponsibilities && hasQualifications;
+  const readinessStatus = fitAllowed
+    ? "reviewed_complete"
+    : status === "complete"
+      ? "preliminary"
+      : "needs_full_posting";
+  const readinessReason = fitAllowed
+    ? "The saved posting includes meaningful responsibilities and qualifications, so candidate fit can be assessed."
+    : status === "complete"
+      ? "The posting has substantial text, but it does not clearly include both responsibilities and qualifications."
+      : reason;
+
   return {
     status,
     reason,
@@ -67,6 +79,14 @@ export function assessPostingCompleteness(postingText, structuredBrief = null) {
     has_responsibilities: hasResponsibilities,
     has_qualifications: hasQualifications,
     appears_truncated: abruptEnding,
+    source: String(provenance.source || structuredBrief?.source || "saved_listing"),
+    source_status: String(provenance.descriptionStatus || "unknown"),
+    readiness_status: readinessStatus,
+    readiness_reason: readinessReason,
+    fit_allowed: fitAllowed,
+    application_ready_allowed: fitAllowed,
+    confidence: fitAllowed ? "available" : "unavailable",
+    output_mode: fitAllowed ? "final_candidate" : "preliminary",
   };
 }
 
@@ -87,6 +107,38 @@ function excerptSupported(excerpt, baseResume) {
   return normalizeEvidenceText(baseResume).includes(evidence);
 }
 
+function inferEvidenceSection(lines, lineIndex) {
+  const headings = /^(?:profile|summary|skills|experience|professional experience|employment|projects|education|training|certifications|languages)$/i;
+  for (let index = lineIndex; index >= 0; index -= 1) {
+    const candidate = String(lines[index] || "").replace(/[:|]+$/g, "").trim();
+    if (headings.test(candidate)) return candidate.toLowerCase();
+  }
+  return "base resume";
+}
+
+function evidenceCitation(excerpt, baseResume) {
+  if (!excerptSupported(excerpt, baseResume)) return null;
+  const lines = String(baseResume || "").split(/\r?\n/);
+  const evidence = normalizeEvidenceText(excerpt);
+  let lineIndex = lines.findIndex((line) => {
+    const normalizedLine = normalizeEvidenceText(line);
+    return normalizedLine.length >= 8 && (normalizedLine.includes(evidence) || evidence.includes(normalizedLine));
+  });
+  if (lineIndex < 0) {
+    const anchor = evidence.split(" ").filter((term) => term.length > 3).slice(0, 4);
+    lineIndex = lines.findIndex((line) => {
+      const normalizedLine = normalizeEvidenceText(line);
+      return anchor.length >= 2 && anchor.every((term) => normalizedLine.includes(term));
+    });
+  }
+  return {
+    source: "base_resume",
+    section: lineIndex >= 0 ? inferEvidenceSection(lines, lineIndex) : "base resume",
+    line_index: lineIndex >= 0 ? lineIndex + 1 : null,
+    excerpt: String(excerpt || "").replace(/\s+/g, " ").trim(),
+  };
+}
+
 function cleanRequirement(value, index, baseResume) {
   const requirement = String(value?.requirement || "").replace(/\s+/g, " ").trim().slice(0, 500);
   if (!requirement) return null;
@@ -95,6 +147,9 @@ function cleanRequirement(value, index, baseResume) {
     : "missing";
   const resumeEvidence = String(value?.resume_evidence || "").replace(/\s+/g, " ").trim().slice(0, 700);
   const supported = requestedMatch === "missing" || excerptSupported(resumeEvidence, baseResume);
+  const citation = supported && requestedMatch !== "missing"
+    ? evidenceCitation(resumeEvidence, baseResume)
+    : null;
   return {
     id: String(value?.id || `R${index + 1}`).slice(0, 20),
     requirement,
@@ -103,6 +158,7 @@ function cleanRequirement(value, index, baseResume) {
       : "context",
     evidence_match: supported ? requestedMatch : "missing",
     resume_evidence: supported && requestedMatch !== "missing" ? resumeEvidence : "",
+    evidence: citation ? [citation] : [],
     safe_language: supported && requestedMatch !== "missing"
       ? String(value?.safe_language || "").replace(/\s+/g, " ").trim().slice(0, 500)
       : "",
@@ -148,11 +204,27 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
     model_note: String(raw.posting_assessment?.reason || "").replace(/\s+/g, " ").trim().slice(0, 500),
   };
 
-  let readinessStatus = path === "direct" ? "strong_fit" : path === "adjacent" ? "credible_stretch" : "significant_gap";
-  if (postingAssessment.status !== "complete") readinessStatus = "needs_full_posting";
-  if (requirements.some((requirement) => requirement.priority === "required" && requirement.evidence_match === "missing")) {
-    readinessStatus = path === "direct" ? "credible_stretch" : "significant_gap";
+  const fitAllowed = postingAssessment.fit_allowed === true;
+  const missingRequired = requirements.some((requirement) => requirement.priority === "required" && requirement.evidence_match === "missing");
+  let readinessStatus = "needs_full_posting";
+  if (fitAllowed) {
+    readinessStatus = path === "direct" ? "strong_fit" : path === "adjacent" ? "credible_stretch" : "significant_gap";
+    if (missingRequired) readinessStatus = path === "direct" ? "credible_stretch" : "significant_gap";
   }
+
+  const candidateFit = fitAllowed
+    ? {
+      status: readinessStatus === "strong_fit" ? "strong" : readinessStatus === "credible_stretch" ? "adjacent" : "gap",
+      path,
+      confidence: requirements.length >= 5 ? "high" : "medium",
+      reason: String(raw.readiness?.reason || raw.fit_assessment?.note || postingAssessment.reason).replace(/\s+/g, " ").trim().slice(0, 700),
+    }
+    : {
+      status: "not_assessed",
+      path: null,
+      confidence: "unavailable",
+      reason: postingAssessment.readiness_reason || postingAssessment.reason,
+    };
 
   const verifiedKeywords = uniqueStrings([
     ...(Array.isArray(raw.target_keywords) ? raw.target_keywords : []),
@@ -162,6 +234,16 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
 
   return {
     posting_assessment: postingAssessment,
+    posting_readiness: {
+      status: postingAssessment.readiness_status || (fitAllowed ? "reviewed_complete" : "needs_full_posting"),
+      reason: postingAssessment.readiness_reason || postingAssessment.reason,
+      description_status: postingAssessment.status,
+      fit_allowed: fitAllowed,
+      application_ready_allowed: postingAssessment.application_ready_allowed === true,
+      confidence: fitAllowed ? "available" : "unavailable",
+      output_mode: fitAllowed ? "final_candidate" : "preliminary",
+    },
+    candidate_fit: candidateFit,
     fit_assessment: {
       path,
       recommended_level: String(raw.fit_assessment?.recommended_level || (path === "career_change" ? "Entry-level or transitional" : "Role-aligned")).replace(/\s+/g, " ").trim().slice(0, 160),
@@ -170,7 +252,7 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
     content_strategy: path,
     readiness: {
       status: readinessStatus,
-      reason: String(raw.readiness?.reason || raw.fit_assessment?.note || postingAssessment.reason).replace(/\s+/g, " ").trim().slice(0, 700),
+      reason: candidateFit.reason,
     },
     requirements,
     coverage,

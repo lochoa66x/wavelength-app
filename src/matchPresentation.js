@@ -6,7 +6,11 @@ const FIT_PRESENTATIONS = {
   career_change: { kind: "fit", tone: "career-change", label: "Career-change path" },
 };
 
-export function getMatchPresentation({ listing, keyword = "", fitAssessment = null }) {
+export function getMatchPresentation({ listing, keyword = "", fitAssessment = null, postingReadiness = null }) {
+  if (postingReadiness && postingReadiness.fit_allowed !== true) {
+    return { kind: "readiness", tone: "needs-posting", label: "Needs full posting" };
+  }
+
   const fit = FIT_PRESENTATIONS[fitAssessment?.path];
   if (fit) return fit;
 

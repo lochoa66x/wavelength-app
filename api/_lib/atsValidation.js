@@ -271,6 +271,15 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
     status: "complete",
     reason: "The posting was not independently assessed.",
   };
+  const postingReadiness = options.analysis?.posting_readiness || {
+    status: postingAssessment.status === "complete" ? "reviewed_complete" : "needs_full_posting",
+    reason: postingAssessment.reason,
+    description_status: postingAssessment.status,
+    fit_allowed: postingAssessment.status === "complete",
+    application_ready_allowed: postingAssessment.status === "complete",
+    confidence: postingAssessment.status === "complete" ? "available" : "unavailable",
+    output_mode: postingAssessment.status === "complete" ? "final_candidate" : "preliminary",
+  };
   const coverage = options.analysis?.coverage || {
     direct: 0,
     adjacent: 0,
@@ -284,9 +293,15 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
   };
   const status = integrityBlocked
     ? "blocked"
-    : writingStatus === "review" || postingAssessment.status !== "complete"
+    : writingStatus === "review" || postingReadiness.fit_allowed !== true
       ? "review"
       : "ready";
+  const applicationReady = Boolean(
+    postingReadiness.application_ready_allowed === true
+      && !integrityBlocked
+      && !identityMissing
+      && reverse_chronological
+  );
 
   return {
     score,
@@ -316,6 +331,13 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
         + semantic.risky_claims.length,
     },
     posting: postingAssessment,
+    posting_readiness: postingReadiness,
+    candidate_fit: options.analysis?.candidate_fit || {
+      status: postingReadiness.fit_allowed ? "not_available" : "not_assessed",
+      confidence: postingReadiness.fit_allowed ? "low" : "unavailable",
+      reason: postingReadiness.reason,
+    },
+    requirements: options.analysis?.requirements || [],
     coverage: {
       ...coverage,
       total: coverageTotal,
@@ -341,6 +363,8 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
         ? "A real candidate name is required before export; placeholders are never inserted."
         : "Candidate name is present.",
     },
+    application_ready: applicationReady,
+    output_mode: applicationReady ? "final" : "preliminary",
     readiness,
     missing_evidence: options.analysis?.missing_evidence || [],
     candidate_questions: options.analysis?.candidate_questions || [],

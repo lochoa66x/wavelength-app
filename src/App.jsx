@@ -331,16 +331,16 @@ function NavRow({ onBack, onNext, nextLabel = "Next", nextDisabled }) {
   );
 }
 
-function MatchBadge({ listing, keyword, fitAssessment }) {
-  const presentation = getMatchPresentation({ listing, keyword, fitAssessment });
+function MatchBadge({ listing, keyword, fitAssessment, postingReadiness }) {
+  const presentation = getMatchPresentation({ listing, keyword, fitAssessment, postingReadiness });
   const isDirect = presentation.tone === "direct";
-  const isCareerChange = presentation.tone === "career-change";
+  const isCareerChange = ["career-change", "needs-posting"].includes(presentation.tone);
   const background = isDirect ? C.greenTint : isCareerChange ? C.amberTint : C.blueTint;
   const border = isDirect ? C.greenBorder : isCareerChange ? C.amberBorder : C.blueBorder;
   const color = isDirect ? C.green : isCareerChange ? C.amber : C.blue;
   return (
     <div
-      title={presentation.kind === "fit" ? "Based on evidence in your résumé and this posting" : "Based on your search, not your résumé"}
+      title={presentation.kind === "fit" ? "Based on evidence in your résumé and this posting" : presentation.kind === "readiness" ? "Candidate fit is unavailable until the full posting is loaded" : "Based on your search, not your résumé"}
       style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 10px", borderRadius: 980, background, border: `1px solid ${border}` }}
     >
       {isDirect ? <CheckCircle2 size={13} color={color} /> : <Circle size={11} color={color} />}
@@ -699,7 +699,16 @@ export default function Gigscapes() {
         setTailored((t) => ({ ...t, [stateKey]: { status: "loading", phase: "tailoring", enrichment: enrichment.listing } }));
       }
       const result = await tailorResume(resume, { listingId: item.id });
-      setTailored((t) => ({ ...t, [stateKey]: { status: "done", resumeData: result.resume, atsReview: result.atsReview, enrichment: enrichment?.listing || null } }));
+      setTailored((t) => ({ ...t, [stateKey]: {
+        status: "done",
+        resumeData: result.resume,
+        atsReview: result.atsReview,
+        postingReadiness: result.postingReadiness,
+        candidateFit: result.candidateFit,
+        applicationReady: result.applicationReady,
+        outputMode: result.outputMode,
+        enrichment: enrichment?.listing || null,
+      } }));
     } catch (err) {
       setTailored((t) => ({ ...t, [stateKey]: { status: "error", message: err.message } }));
     }
@@ -1507,6 +1516,7 @@ export default function Gigscapes() {
                     listing={item}
                     keyword={keywordInput}
                     fitAssessment={t?.status === "done" ? t.resumeData?.fit_assessment : null}
+                    postingReadiness={t?.status === "done" ? t.postingReadiness || t.atsReview?.posting_readiness : null}
                   />
                   <div style={{ display: "flex", gap: 4 }}>
                     <button onClick={() => toggleSave(key)} className="wl-btn" title={isSaved ? "Unsave" : "Save"} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: isSaved ? C.green : C.textFaint }}>
@@ -1600,7 +1610,9 @@ export default function Gigscapes() {
                           Full posting loaded from {t.enrichment.source === "employer_jsonld" ? "employer structured data" : "the employer page"}.
                         </p>
                       )}
-                      <PositioningSummary assessment={t.resumeData.fit_assessment} C={C} />
+                      {(t.postingReadiness || t.atsReview?.posting_readiness)?.fit_allowed === true && (
+                        <PositioningSummary assessment={t.resumeData.fit_assessment} C={C} />
+                      )}
                       <AtsReview review={t.atsReview} C={C} />
                       <TemplateComponent
                         resumeData={t.resumeData}

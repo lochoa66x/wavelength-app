@@ -20,7 +20,16 @@ async function authenticatedPost(path, body) {
 export async function tailorResume(resume, target) {
   const data = await authenticatedPost("/api/tailor", { resume, ...target });
   if (!data.resume?.profile) throw new Error("The tailor returned an incomplete draft.");
-  return { resume: data.resume, atsReview: data.ats_review || null };
+  return {
+    resume: data.resume,
+    atsReview: data.ats_review || null,
+    postingReadiness: data.posting_readiness || data.ats_review?.posting_readiness || null,
+    listingRelevance: data.listing_relevance || null,
+    candidateFit: data.candidate_fit || data.ats_review?.candidate_fit || null,
+    requirements: data.requirements || data.ats_review?.requirements || [],
+    applicationReady: data.application_ready === true,
+    outputMode: data.output_mode || "preliminary",
+  };
 }
 
 export async function enrichListing(listingId) {

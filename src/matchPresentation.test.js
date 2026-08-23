@@ -34,6 +34,19 @@ test("evidence-based fit replaces search relevance after tailoring", () => {
   }).label, "Adjacent résumé fit");
 });
 
+test("an incomplete posting suppresses fit labels until the full posting is available", () => {
+  assert.deepEqual(getMatchPresentation({
+    listing: { title: "SAP Functional Lead" },
+    keyword: "SAP",
+    fitAssessment: { path: "direct" },
+    postingReadiness: { status: "needs_full_posting", fit_allowed: false },
+  }), {
+    kind: "readiness",
+    tone: "needs-posting",
+    label: "Needs full posting",
+  });
+});
+
 test("category browsing and non-title keyword matches use neutral labels", () => {
   assert.equal(getMatchPresentation({ listing: { title: "Plumber" } }).label, "Category result");
   assert.equal(getMatchPresentation({

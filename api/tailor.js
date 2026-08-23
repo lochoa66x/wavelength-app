@@ -305,6 +305,21 @@ async function loadTrustedListing(supabase, listingId) {
   };
 }
 
+function tailoringResponseMetadata(analysis, atsReview) {
+  return {
+    posting_readiness: analysis.posting_readiness,
+    listing_relevance: {
+      status: "selected_listing",
+      basis: "trusted_server_record",
+      note: "Search relevance is independent from candidate résumé fit.",
+    },
+    candidate_fit: analysis.candidate_fit,
+    requirements: analysis.requirements,
+    application_ready: atsReview.application_ready === true,
+    output_mode: atsReview.output_mode || "preliminary",
+  };
+}
+
 async function callAnthropicTool({ fetchImpl, apiKey, tool, prompt, maxTokens, timeoutMs = 55000, stage = tool.name }) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
@@ -476,7 +491,10 @@ export function createTailorHandler({
     ? `\n\nADDITIONAL CONTEXT FROM THE CANDIDATE\n${cappedExtraContext.trim()}`
     : "";
   const candidateEvidence = `${cappedResume}${extraContextBlock}`;
-  const postingAssessment = assessPostingCompleteness(storedPosting, normalizedCustomJob);
+  const postingAssessment = assessPostingCompleteness(storedPosting, normalizedCustomJob, {
+    source: normalizedCustomJob ? normalizedCustomJob.source || "candidate_reviewed" : item.description_source,
+    descriptionStatus: normalizedCustomJob ? "candidate_reviewed" : item.description_status,
+  });
   const fallbackKeywords = extractPostingKeywords(storedPosting, item.title);
 
   // Pick the right tool + prompt appendix based on listing category.
@@ -520,6 +538,7 @@ ${candidateEvidence}
 ANALYSIS RULES
 - Extract only requirements explicitly stated or unambiguously described in the supplied posting. A job title is context, not proof of an unstated technology stack.
 - Respect the deterministic posting assessment. If it says partial or insufficient, explain that the result is preliminary and do not invent missing requirements.
+- The deterministic posting assessment is the fit gate. When fit_allowed is false, do not produce a definitive candidate-fit judgment: use fit_assessment only as a provisional content strategy, set readiness to needs_full_posting, and treat confidence as unavailable.
 - For each requirement, classify the candidate evidence as direct, adjacent, transferable, or missing.
 - Every direct, adjacent, or transferable match MUST include a short exact excerpt copied from CANDIDATE EVIDENCE. If no exact excerpt supports it, classify it as missing.
 - Direct means the candidate has performed the target capability in the target context. Adjacent means substantially similar work in a neighboring context. Transferable means a broader capability is useful but not equivalent. Do not promote transferable evidence to adjacent or direct merely to improve fit.
@@ -626,6 +645,7 @@ INSTRUCTIONS
           resume: resumeData,
           ats_review: atsReview,
           tailoring_analysis: analysis,
+          ...tailoringResponseMetadata(analysis, atsReview),
           repair_applied: attempt > 0,
         });
       }
@@ -676,6 +696,7 @@ INSTRUCTIONS
           resume: safeResume,
           ats_review: safeReview,
           tailoring_analysis: analysis,
+          ...tailoringResponseMetadata(analysis, safeReview),
           repair_applied: true,
           safety_fallback_applied: true,
         });

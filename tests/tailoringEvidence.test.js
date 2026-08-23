@@ -8,10 +8,125 @@ import {
   sanitizeTailoringAnalysis,
 } from "../api/_lib/tailoringEvidence.js";
 
+const completeSapPosting = [
+  "Responsibilities: Lead SAP S/4HANA functional delivery for finance workstreams and facilitate requirements workshops with business stakeholders.",
+  "Translate business requirements into functional specifications, coordinate configuration and integration testing, manage defects, and support release readiness.",
+  "Partner with technical developers, solution architects, data teams, and business process owners throughout design, testing, cutover, go-live, and stabilization.",
+  "Maintain traceability between business requirements, configuration decisions, test scenarios, defects, and delivered outcomes.",
+  "Guide junior consultants, communicate risks to program leadership, and ensure that finance processes align with the approved solution design.",
+  "Qualifications: Must have extensive SAP functional consulting experience, including SAP S/4HANA, finance processes, requirements analysis, functional specifications, testing, and stakeholder leadership.",
+  "Preferred qualifications include SAP FI-CA, PSCD, MDG, data migration, integration delivery, cutover planning, and experience leading multidisciplinary implementation teams in regulated environments.",
+  "Candidates should demonstrate clear written communication, structured problem solving, evidence-based decision making, and the ability to work with both business and technical teams.",
+].join(" ");
+
 test("short and abruptly truncated aggregator descriptions are not treated as complete postings", () => {
   const assessment = assessPostingCompleteness("Build a full-stack security dashboard with frontend and backend components aiming to prov…");
   assert.equal(assessment.status, "insufficient");
   assert.equal(assessment.appears_truncated, true);
+  assert.equal(assessment.fit_allowed, false);
+  assert.equal(assessment.readiness_status, "needs_full_posting");
+});
+
+test("a short provider snippet cannot produce a definitive fit or application-ready output", () => {
+  const assessment = assessPostingCompleteness(
+    "SAP Functional Lead at IFG. Lead finance transformation and support stakeholders…",
+    null,
+    { source: "jooble", descriptionStatus: "provider_snippet" },
+  );
+  const analysis = sanitizeTailoringAnalysis({
+    fit_assessment: { path: "direct", recommended_level: "Senior", note: "Strong fit." },
+    requirements: [{
+      id: "R1",
+      requirement: "Lead SAP functional delivery",
+      priority: "required",
+      evidence_match: "direct",
+      resume_evidence: "Led SAP functional delivery.",
+      safe_language: "SAP functional delivery leadership",
+      keywords: ["SAP"],
+    }],
+  }, "EXPERIENCE\nLed SAP functional delivery.", assessment);
+
+  assert.equal(analysis.posting_readiness.fit_allowed, false);
+  assert.equal(analysis.posting_readiness.output_mode, "preliminary");
+  assert.equal(analysis.candidate_fit.status, "not_assessed");
+  assert.equal(analysis.candidate_fit.confidence, "unavailable");
+  assert.equal(analysis.readiness.status, "needs_full_posting");
+});
+
+test("a reviewed complete posting permits evidence-backed fit and exact résumé citations", () => {
+  const assessment = assessPostingCompleteness(
+    completeSapPosting,
+    null,
+    { source: "employer_page", descriptionStatus: "full_description" },
+  );
+  const baseResume = [
+    "PROFILE",
+    "Senior SAP functional consultant.",
+    "EXPERIENCE",
+    "Led SAP S/4HANA functional delivery and requirements workshops.",
+    "Coordinated configuration, integration testing, cutover, and go-live.",
+  ].join("\n");
+  const analysis = sanitizeTailoringAnalysis({
+    fit_assessment: { path: "direct", recommended_level: "Senior", note: "Evidence supports direct functional alignment." },
+    requirements: [{
+      id: "R1",
+      requirement: "Lead SAP S/4HANA functional delivery",
+      priority: "required",
+      evidence_match: "direct",
+      resume_evidence: "Led SAP S/4HANA functional delivery and requirements workshops.",
+      safe_language: "Led SAP S/4HANA functional delivery",
+      keywords: ["SAP S/4HANA", "functional delivery"],
+    }],
+    target_keywords: ["SAP S/4HANA"],
+  }, baseResume, assessment);
+
+  assert.equal(assessment.status, "complete");
+  assert.equal(assessment.fit_allowed, true);
+  assert.equal(analysis.posting_readiness.status, "reviewed_complete");
+  assert.equal(analysis.candidate_fit.status, "strong");
+  assert.deepEqual(analysis.requirements[0].evidence, [{
+    source: "base_resume",
+    section: "experience",
+    line_index: 4,
+    excerpt: "Led SAP S/4HANA functional delivery and requirements workshops.",
+  }]);
+});
+
+test("a complete developer posting preserves a material gap for functional-only evidence", () => {
+  const developerPosting = `${completeSapPosting} Responsibilities: Build production web applications in React, TypeScript, Node.js, and PostgreSQL. Qualifications: Must have professional JavaScript development, automated testing, Git, and CI/CD experience.`;
+  const assessment = assessPostingCompleteness(developerPosting, null, {
+    source: "employer_page",
+    descriptionStatus: "full_description",
+  });
+  const analysis = sanitizeTailoringAnalysis({
+    fit_assessment: { path: "career_change", recommended_level: "Transitional", note: "Functional SAP experience does not establish web development experience." },
+    requirements: [
+      {
+        id: "R1",
+        requirement: "SAP stakeholder collaboration",
+        priority: "responsibility",
+        evidence_match: "transferable",
+        resume_evidence: "Led SAP stakeholder workshops.",
+        safe_language: "SAP stakeholder collaboration",
+        keywords: ["SAP"],
+      },
+      {
+        id: "R2",
+        requirement: "Professional React and TypeScript development",
+        priority: "required",
+        evidence_match: "missing",
+        resume_evidence: "",
+        safe_language: "",
+        keywords: ["React", "TypeScript"],
+      },
+    ],
+  }, "EXPERIENCE\nLed SAP stakeholder workshops.", assessment);
+
+  assert.equal(analysis.posting_readiness.fit_allowed, true);
+  assert.equal(analysis.candidate_fit.status, "gap");
+  assert.equal(analysis.readiness.status, "significant_gap");
+  assert.equal(analysis.coverage.transferable, 1);
+  assert.equal(analysis.coverage.missing, 1);
 });
 
 test("database posting text produces non-empty fallback keywords", () => {
