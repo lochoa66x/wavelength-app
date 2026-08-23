@@ -265,6 +265,39 @@ test("cron returns a bounded operational summary after a successful import", asy
   assert.equal(res.body.sources.employerDirect.skipped, true);
 });
 
+test("cron skips optional paid feeds cleanly when none are configured", async () => {
+  let adzunaCalled = false;
+  let atsCalled = false;
+  const handler = createAdzunaCronHandler({
+    getConfig: () => ({
+      ...config,
+      adzunaAppId: undefined,
+      adzunaAppKey: undefined,
+      atsBoards: [],
+    }),
+    createClientImpl: () => ({ from: () => ({}) }),
+    ingest: async () => {
+      adzunaCalled = true;
+      return {};
+    },
+    atsIngest: async () => {
+      atsCalled = true;
+      return {};
+    },
+  });
+  const res = responseRecorder();
+
+  await handler({ method: "GET", headers: { authorization: "Bearer cron-secret" } }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.ok, true);
+  assert.equal(res.body.skipped, true);
+  assert.equal(res.body.sources.adzuna.skipped, true);
+  assert.equal(res.body.sources.employerDirect.skipped, true);
+  assert.equal(adzunaCalled, false);
+  assert.equal(atsCalled, false);
+});
+
 test("cron isolates an employer-board outage from a successful Adzuna import", async () => {
   const handler = createAdzunaCronHandler({
     getConfig: () => ({
@@ -315,4 +348,16 @@ test("server configuration never accepts browser-exposed ingestion secrets", () 
     VITE_ADZUNA_APP_KEY: "should-not-be-used",
     CRON_SECRET: "secret",
   }), /Missing server configuration/);
+});
+
+test("Adzuna credentials are optional when secure shared cron configuration exists", () => {
+  const parsed = getAdzunaCronConfig({
+    VITE_SUPABASE_URL: "https://example.supabase.co",
+    SUPABASE_SECRET_KEY: "sb_secret_test",
+    CRON_SECRET: "secret",
+  });
+
+  assert.equal(parsed.adzunaAppId, undefined);
+  assert.equal(parsed.adzunaAppKey, undefined);
+  assert.deepEqual(parsed.atsBoards, []);
 });

@@ -12,7 +12,12 @@ export function getAdzunaCronConfig(env = process.env) {
     supabaseSecretKey: env.SUPABASE_SECRET_KEY?.trim(),
     atsBoards: parseAtsBoardConfig(env.ATS_JOB_BOARDS),
   };
-  const missing = Object.entries(config)
+  const required = {
+    cronSecret: config.cronSecret,
+    supabaseUrl: config.supabaseUrl,
+    supabaseSecretKey: config.supabaseSecretKey,
+  };
+  const missing = Object.entries(required)
     .filter(([, value]) => !value)
     .map(([name]) => name);
   if (missing.length > 0) {
@@ -42,8 +47,8 @@ export function createAdzunaCronHandler({
     try {
       config = getConfig();
     } catch (error) {
-      console.error("Adzuna cron configuration is incomplete");
-      return res.status(500).json({ error: "Adzuna importer is not configured" });
+      console.error(`Scheduled feed configuration is incomplete: ${error?.message || "Unknown error"}`);
+      return res.status(500).json({ error: "Scheduled importer is not configured" });
     }
 
     if (!config.cronSecret || bearerToken(req) !== config.cronSecret) {
@@ -54,15 +59,24 @@ export function createAdzunaCronHandler({
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
+    const adzunaConfigured = Boolean(config.adzunaAppId && config.adzunaAppKey);
     const atsConfigured = Boolean(config.atsBoards?.length);
     const [adzunaResult, atsResult] = await Promise.allSettled([
-      ingest({
-        supabase,
-        credentials: {
-          appId: config.adzunaAppId,
-          appKey: config.adzunaAppKey,
-        },
-      }),
+      adzunaConfigured
+        ? ingest({
+          supabase,
+          credentials: {
+            appId: config.adzunaAppId,
+            appKey: config.adzunaAppKey,
+          },
+        })
+        : Promise.resolve({
+          skipped: true,
+          reason: "ADZUNA_APP_ID and ADZUNA_APP_KEY are not configured",
+          requests: 0,
+          received: 0,
+          saved: 0,
+        }),
       atsConfigured
         ? atsIngest({ supabase, boards: config.atsBoards })
         : Promise.resolve({ skipped: true, boards: 0, received: 0, saved: 0 }),
@@ -83,17 +97,29 @@ export function createAdzunaCronHandler({
       console.error(`Employer-direct ATS import failed: ${atsResult.reason?.message || "Unknown error"}`);
     }
 
-    const successfulSources = Object.values(sources).filter(({ ok }) => ok).length;
-    const adzunaSummary = adzunaResult.status === "fulfilled" ? adzunaResult.value : {};
-    if (successfulSources === 0 || (!atsConfigured && adzunaResult.status === "rejected")) {
+    const attemptedSources = Object.values(sources).filter(({ skipped }) => !skipped).length;
+    const successfulSources = Object.values(sources).filter(({ ok, skipped }) => ok && !skipped).length;
+    const failedSources = Object.values(sources).filter(({ ok }) => !ok).length;
+    const adzunaSummary = adzunaResult.status === "fulfilled" && !adzunaResult.value?.skipped
+      ? adzunaResult.value
+      : {};
+    if (attemptedSources === 0) {
+      return res.status(200).json({
+        ok: true,
+        skipped: true,
+        country: "CA",
+        sources,
+      });
+    }
+    if (successfulSources === 0) {
       return res.status(502).json({ ok: false, error: "Scheduled imports failed", country: "CA", sources });
     }
 
     return res.status(200).json({
       ok: true,
-      source: "adzuna",
+      source: adzunaConfigured ? "adzuna" : "employer-direct",
       country: "CA",
-      partial: atsConfigured && successfulSources < Object.keys(sources).length,
+      partial: failedSources > 0,
       ...adzunaSummary,
       ats: sources.employerDirect,
       sources,

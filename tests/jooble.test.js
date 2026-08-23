@@ -263,6 +263,31 @@ test("Jooble cron returns an operational summary after a successful import", asy
   assert.equal(res.body.sources.himalayas.saved, 60);
 });
 
+test("free public feeds still run when Jooble credentials are absent", async () => {
+  let joobleCalled = false;
+  const handler = createJoobleCronHandler({
+    getConfig: () => ({ ...config, joobleApiKey: undefined }),
+    createClientImpl: () => ({ from: () => ({}) }),
+    ingest: async () => {
+      joobleCalled = true;
+      return {};
+    },
+    jobicyIngest: async () => ({ requests: 1, saved: 40 }),
+    ...publicFeedStubs,
+  });
+  const res = responseRecorder();
+
+  await handler({ method: "GET", headers: { authorization: "Bearer cron-secret" } }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.ok, true);
+  assert.equal(res.body.partial, false);
+  assert.equal(res.body.sources.jooble.skipped, true);
+  assert.equal(res.body.sources.jobicy.saved, 40);
+  assert.equal(res.body.sources.himalayas.saved, 60);
+  assert.equal(joobleCalled, false);
+});
+
 test("Jooble cron isolates a Jobicy outage and reports a partial success", async () => {
   const handler = createJoobleCronHandler({
     getConfig: () => config,
@@ -308,4 +333,15 @@ test("Jooble server configuration never accepts browser-exposed secrets", () => 
     VITE_JOOBLE_API_KEY: "should-not-be-used",
     CRON_SECRET: "secret",
   }), /Missing server configuration/);
+});
+
+test("Jooble API credentials are optional when secure shared cron configuration exists", () => {
+  const parsed = getJoobleCronConfig({
+    VITE_SUPABASE_URL: "https://example.supabase.co",
+    SUPABASE_SECRET_KEY: "sb_secret_test",
+    CRON_SECRET: "secret",
+  });
+
+  assert.equal(parsed.joobleApiKey, undefined);
+  assert.equal(parsed.supabaseSecretKey, "sb_secret_test");
 });

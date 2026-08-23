@@ -11,7 +11,12 @@ export function getJoobleCronConfig(env = process.env) {
     supabaseUrl: (env.SUPABASE_URL || env.VITE_SUPABASE_URL)?.trim(),
     supabaseSecretKey: env.SUPABASE_SECRET_KEY?.trim(),
   };
-  const missing = Object.entries(config)
+  const required = {
+    cronSecret: config.cronSecret,
+    supabaseUrl: config.supabaseUrl,
+    supabaseSecretKey: config.supabaseSecretKey,
+  };
+  const missing = Object.entries(required)
     .filter(([, value]) => !value)
     .map(([name]) => name);
   if (missing.length > 0) {
@@ -42,8 +47,8 @@ export function createJoobleCronHandler({
     try {
       config = getConfig();
     } catch (error) {
-      console.error("Jooble cron configuration is incomplete");
-      return res.status(500).json({ error: "Jooble importer is not configured" });
+      console.error(`Scheduled feed configuration is incomplete: ${error?.message || "Unknown error"}`);
+      return res.status(500).json({ error: "Scheduled importer is not configured" });
     }
 
     if (!config.cronSecret || bearerToken(req) !== config.cronSecret) {
@@ -54,11 +59,20 @@ export function createJoobleCronHandler({
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
+    const joobleConfigured = Boolean(config.joobleApiKey);
     const [joobleResult, jobicyResult, himalayasResult] = await Promise.allSettled([
-      ingest({
-        supabase,
-        apiKey: config.joobleApiKey,
-      }),
+      joobleConfigured
+        ? ingest({
+          supabase,
+          apiKey: config.joobleApiKey,
+        })
+        : Promise.resolve({
+          skipped: true,
+          reason: "JOOBLE_API_KEY is not configured",
+          requests: 0,
+          received: 0,
+          saved: 0,
+        }),
       jobicyIngest({ supabase }),
       himalayasIngest({ supabase }),
     ]);
@@ -74,7 +88,8 @@ export function createJoobleCronHandler({
         ? { ok: true, ...himalayasResult.value }
         : { ok: false, error: "Himalayas import failed" },
     };
-    const successfulSources = Object.values(sources).filter(({ ok }) => ok).length;
+    const successfulSources = Object.values(sources).filter(({ ok, skipped }) => ok && !skipped).length;
+    const failedSources = Object.values(sources).filter(({ ok }) => !ok).length;
 
     if (joobleResult.status === "rejected") {
       console.error(`Jooble cron failed: ${joobleResult.reason?.message || "Unknown error"}`);
@@ -91,7 +106,7 @@ export function createJoobleCronHandler({
 
     return res.status(200).json({
       ok: true,
-      partial: successfulSources < Object.keys(sources).length,
+      partial: failedSources > 0,
       country: "CA",
       sources,
     });
