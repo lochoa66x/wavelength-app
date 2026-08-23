@@ -14,7 +14,7 @@ import { getMatchPresentation } from "./matchPresentation.js";
 import { migrateCloudResume } from "./resumeMigration.js";
 import { supabase } from "./supabase.js";
 import { isFutureJwtError, runWithFutureJwtRecovery } from "./supabaseRecovery.js";
-import { tailorResume } from "./tailorClient.js";
+import { enrichListing, tailorResume } from "./tailorClient.js";
 import { useAuth } from "./auth.jsx";
 import {
   COUNTRY_OPTIONS,
@@ -615,6 +615,7 @@ export default function Gigscapes() {
   const [resumeDraft, setResumeDraft] = useState("");
   const [resumeReturnStep, setResumeReturnStep] = useState("digest");
   const [customJobMode, setCustomJobMode] = useState("url");
+  const [customJobInitialUrl, setCustomJobInitialUrl] = useState("");
   const [localResume, setLocalResume] = useState("");
   const [resumeStorageError, setResumeStorageError] = useState("");
   const [cloudResumeWarning, setCloudResumeWarning] = useState("");
@@ -676,11 +677,29 @@ export default function Gigscapes() {
     updateProfile({ saved_listings: next }).catch(() => {});
   };
 
-  const handleTailor = async (item, stateKey) => {
-    setTailored((t) => ({ ...t, [stateKey]: { status: "loading" } }));
+  const openCustomJob = (mode, url = "") => {
+    setCustomJobMode(mode);
+    setCustomJobInitialUrl(url);
+    setStep("custom_job");
+  };
+  const handleTailor = async (item, stateKey, { skipEnrichment = false } = {}) => {
+    setTailored((t) => ({ ...t, [stateKey]: { status: "loading", phase: skipEnrichment ? "tailoring" : "enriching" } }));
     try {
+      let enrichment = null;
+      if (!skipEnrichment) {
+        enrichment = await enrichListing(item.id);
+        if (enrichment.fallbackRequired) {
+          setTailored((t) => ({ ...t, [stateKey]: {
+            status: "needs_posting",
+            message: enrichment.message,
+            errorCode: enrichment.errorCode,
+          } }));
+          return;
+        }
+        setTailored((t) => ({ ...t, [stateKey]: { status: "loading", phase: "tailoring", enrichment: enrichment.listing } }));
+      }
       const result = await tailorResume(resume, { listingId: item.id });
-      setTailored((t) => ({ ...t, [stateKey]: { status: "done", resumeData: result.resume, atsReview: result.atsReview } }));
+      setTailored((t) => ({ ...t, [stateKey]: { status: "done", resumeData: result.resume, atsReview: result.atsReview, enrichment: enrichment?.listing || null } }));
     } catch (err) {
       setTailored((t) => ({ ...t, [stateKey]: { status: "error", message: err.message } }));
     }
@@ -1169,6 +1188,7 @@ export default function Gigscapes() {
       <CustomJobFlow
         resume={resume}
         initialMode={customJobMode}
+        initialUrl={customJobInitialUrl}
         C={C}
         primaryBtnStyle={primaryBtnStyle}
         glassBtnStyle={glassBtnStyle}
@@ -1542,8 +1562,26 @@ export default function Gigscapes() {
                   )}
                   {t?.status === "loading" && (
                     <span style={{ fontSize: 13, color: C.textSub, display: "flex", alignItems: "center", gap: 6 }}>
-                      <Loader2 size={14} className="wl-spin" /> Analyzing evidence and tailoring safely… (usually 1–2 minutes)
+                      <Loader2 size={14} className="wl-spin" /> {t.phase === "enriching" ? "Loading and validating the full posting…" : "Analyzing evidence and tailoring safely… (usually 1–2 minutes)"}
                     </span>
+                  )}
+                  {t?.status === "needs_posting" && (
+                    <div>
+                      <p style={{ fontSize: 13, color: C.textSub, marginBottom: 10 }}>
+                        {t.message || "We need more of the original posting for a reliable tailored résumé."}
+                      </p>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                        <button onClick={() => openCustomJob("paste")} className="wl-btn" style={{ ...primaryBtnStyle(false), fontSize: 12.5, padding: "9px 14px" }}>
+                          <Text size={13} /> Paste full posting
+                        </button>
+                        <button onClick={() => openCustomJob("screenshots")} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, fontSize: 12.5, padding: "9px 14px" }}>
+                          <FileImage size={13} /> Upload screenshots
+                        </button>
+                        <button onClick={() => handleTailor(item, stateKey, { skipEnrichment: true })} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, fontSize: 12.5, padding: "9px 14px" }}>
+                          Continue preliminary
+                        </button>
+                      </div>
+                    </div>
                   )}
                   {t?.status === "error" && (
                     <div>
@@ -1557,6 +1595,11 @@ export default function Gigscapes() {
                   )}
                   {t?.status === "done" && (
                     <>
+                      {t.enrichment?.source && (
+                        <p style={{ fontSize: 12.5, color: C.textFaint, margin: "0 0 10px" }}>
+                          Full posting loaded from {t.enrichment.source === "employer_jsonld" ? "employer structured data" : "the employer page"}.
+                        </p>
+                      )}
                       <PositioningSummary assessment={t.resumeData.fit_assessment} C={C} />
                       <AtsReview review={t.atsReview} C={C} />
                       <TemplateComponent
@@ -1601,7 +1644,7 @@ export default function Gigscapes() {
             </p>
             <button
               type="button"
-              onClick={() => { setCustomJobMode("url"); setStep("custom_job"); }}
+              onClick={() => openCustomJob("url")}
               className="wl-btn"
               style={{ ...primaryBtnStyle(false), width: "100%", justifyContent: "center", padding: "10px 14px", fontSize: 12.5 }}
             >
@@ -1610,7 +1653,7 @@ export default function Gigscapes() {
             <div style={{ display: "grid", gridTemplateColumns: "repeat(2, minmax(0, 1fr))", gap: 7, marginTop: 8 }}>
               <button
                 type="button"
-                onClick={() => { setCustomJobMode("screenshots"); setStep("custom_job"); }}
+                onClick={() => openCustomJob("screenshots")}
                 className="wl-btn"
                 style={{ ...glassBtnStyle(), justifyContent: "center", border: `1px solid ${C.border}`, padding: "8px 9px", fontSize: 11.5 }}
               >
@@ -1618,7 +1661,7 @@ export default function Gigscapes() {
               </button>
               <button
                 type="button"
-                onClick={() => { setCustomJobMode("paste"); setStep("custom_job"); }}
+                onClick={() => openCustomJob("paste")}
                 className="wl-btn"
                 style={{ ...glassBtnStyle(), justifyContent: "center", border: `1px solid ${C.border}`, padding: "8px 9px", fontSize: 11.5 }}
               >

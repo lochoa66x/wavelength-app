@@ -65,10 +65,10 @@ function Field({ label, children }) {
   );
 }
 
-export function CustomJobFlow({ resume, C, primaryBtnStyle, glassBtnStyle, onBack, onEditResume, initialMode = "url" }) {
+export function CustomJobFlow({ resume, C, primaryBtnStyle, glassBtnStyle, onBack, onEditResume, initialMode = "url", initialUrl = "" }) {
   const [mode, setMode] = useState(() => MODE_IDS.has(initialMode) ? initialMode : "url");
   const [postingText, setPostingText] = useState("");
-  const [jobUrl, setJobUrl] = useState("");
+  const [jobUrl, setJobUrl] = useState(initialUrl);
   const [files, setFiles] = useState([]);
   const [brief, setBrief] = useState(null);
   const [status, setStatus] = useState("idle");

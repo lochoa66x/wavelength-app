@@ -55,6 +55,12 @@ export function mapListingRow(row) {
     city: row.city,
     reason: normalizeListingReason(row.reason, row.category, classification.category),
     description: row.description || null,
+    descriptionSnippet: row.description_snippet || row.description || null,
+    descriptionSource: row.description_source || "provider_snippet",
+    descriptionStatus: row.description_status || null,
+    descriptionSourceUrl: row.description_source_url || row.url || "",
+    descriptionFetchedAt: row.description_fetched_at || null,
+    descriptionEnrichmentErrorCode: row.description_enrichment_error_code || null,
     url: row.url,
   };
 }

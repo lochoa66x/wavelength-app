@@ -5,6 +5,7 @@ import {
   normalizeWorkArrangement,
 } from "../../src/listingCategories.js";
 import { toStructuredLocationPatch } from "../../src/listingLocations.js";
+import { assessDescriptionStatus, descriptionHash, shouldPreserveExistingDescription } from "./listingDescription.js";
 import { selectDailyTechnologySearches } from "./technologySearches.js";
 
 export const JOOBLE_COUNTRY = "CA";
@@ -209,6 +210,7 @@ export function mapJoobleResult(result, sourceCategory, { now = new Date() } = {
     country_code: JOOBLE_COUNTRY,
   });
   const explicitType = jobType !== "unlabeled";
+  const description = cleanSnippet(result?.snippet).slice(0, 12_000) || null;
 
   return {
     source: "jooble",
@@ -223,7 +225,14 @@ export function mapJoobleResult(result, sourceCategory, { now = new Date() } = {
       ? `Explicitly ${jobType}, matched ${classification.category} from Jooble`
       : `Matched ${classification.category} from Jooble`,
     url,
-    description: cleanSnippet(result?.snippet).slice(0, 12_000) || null,
+    description,
+    description_snippet: description,
+    description_source: "provider_snippet",
+    description_status: assessDescriptionStatus(description),
+    description_source_url: url,
+    description_fetched_at: now.toISOString(),
+    description_content_hash: descriptionHash(description),
+    description_enrichment_error_code: null,
     posted_at: postedAt,
     fetched_at: now.toISOString(),
     ...structuredLocation,
@@ -235,11 +244,11 @@ async function loadExistingJoobleIds(supabase, externalIds) {
   for (const ids of chunk(externalIds, 200)) {
     const { data, error } = await supabase
       .from("listings")
-      .select("id,external_id")
+      .select("id,external_id,description,description_snippet,description_source,description_status,description_source_url,description_fetched_at,description_content_hash,description_enrichment_error_code")
       .eq("source", "jooble")
       .in("external_id", ids);
     if (error) throw new Error(`Could not load existing Jooble listings: ${error.message}`);
-    for (const row of data || []) existing.set(String(row.external_id), row.id);
+    for (const row of data || []) existing.set(String(row.external_id), row);
   }
   return existing;
 }
@@ -290,10 +299,24 @@ export async function runJoobleIngestion({
     supabase,
     mapped.map((row) => row.external_id),
   );
-  const rows = mapped.map((row) => ({
-    ...row,
-    id: existing.get(row.external_id) || deterministicJoobleListingId(row.external_id),
-  }));
+  const rows = mapped.map((row) => {
+    const prior = existing.get(row.external_id);
+    const preserve = shouldPreserveExistingDescription(prior, row.description);
+    return {
+      ...row,
+      id: prior?.id || deterministicJoobleListingId(row.external_id),
+      ...(preserve ? {
+        description: prior.description,
+        description_snippet: prior.description_snippet || row.description_snippet,
+        description_source: prior.description_source,
+        description_status: prior.description_status,
+        description_source_url: prior.description_source_url,
+        description_fetched_at: prior.description_fetched_at,
+        description_content_hash: prior.description_content_hash,
+        description_enrichment_error_code: prior.description_enrichment_error_code,
+      } : {}),
+    };
+  });
 
   await upsertJoobleRows(supabase, rows);
   const pruned = await pruneStaleJoobleRows(

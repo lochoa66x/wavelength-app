@@ -23,6 +23,10 @@ export async function tailorResume(resume, target) {
   return { resume: data.resume, atsReview: data.ats_review || null };
 }
 
+export async function enrichListing(listingId) {
+  return authenticatedPost("/api/listing-enrichment", { listingId });
+}
+
 export async function extractCustomJob(payload) {
   const data = await authenticatedPost("/api/job-intake", payload);
   if (!data.brief?.title || !data.brief?.description) throw new Error("The posting could not be extracted completely.");

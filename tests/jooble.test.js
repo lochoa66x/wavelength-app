@@ -101,7 +101,64 @@ test("Jooble mapping produces a structured Canadian trades listing", () => {
   assert.equal(row.region, "ontario");
   assert.equal(row.country_code, "CA");
   assert.equal(row.description, "Install & repair plumbing systems.");
+  assert.equal(row.description_snippet, row.description);
+  assert.equal(row.description_source, "provider_snippet");
+  assert.equal(row.description_status, "insufficient");
+  assert.match(row.description_content_hash, /^[0-9a-f]{64}$/);
   assert.equal(row.tier, "HIGH");
+});
+
+test("Jooble refreshes do not replace a complete employer description with a provider snippet", async () => {
+  const upserted = [];
+  const completeDescription = Array.from({ length: 150 }, (_, index) => `verified-${index}`).join(" ");
+  const supabase = {
+    from() {
+      return {
+        select() {
+          return {
+            eq() {
+              return {
+                in: async () => ({ data: [{
+                  id: "existing-uuid",
+                  external_id: "existing",
+                  description: completeDescription,
+                  description_snippet: "Original snippet",
+                  description_source: "employer_jsonld",
+                  description_status: "complete",
+                  description_source_url: "https://employer.example/job",
+                  description_fetched_at: "2026-08-20T10:00:00Z",
+                  description_content_hash: "verified-hash",
+                  description_enrichment_error_code: null,
+                }], error: null }),
+              };
+            },
+          };
+        },
+        upsert: async (rows) => { upserted.push(...rows); return { error: null }; },
+        delete() {
+          return { eq: () => ({
+            lt: async () => ({ count: 0, error: null }),
+            is: () => ({ lt: async () => ({ count: 0, error: null }) }),
+          }) };
+        },
+      };
+    },
+  };
+  const fetchImpl = async () => jsonResponse({ jobs: [{
+    id: "existing",
+    title: "SAP Functional Lead",
+    company: "Example Canada",
+    location: "Toronto, Ontario",
+    updated: "2026-08-22T10:00:00Z",
+    link: "https://ca.jooble.org/desc/existing",
+    snippet: "A newly refreshed short snippet.",
+  }] });
+
+  await runJoobleIngestion({ supabase, apiKey: "key", fetchImpl, now: new Date("2026-08-23T12:00:00Z") });
+
+  assert.equal(upserted[0].description, completeDescription);
+  assert.equal(upserted[0].description_source, "employer_jsonld");
+  assert.equal(upserted[0].description_content_hash, "verified-hash");
 });
 
 test("Jooble listing IDs are stable UUIDs", () => {
