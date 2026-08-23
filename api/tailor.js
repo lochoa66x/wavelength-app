@@ -10,6 +10,14 @@ import {
   sanitizeTailoringAnalysis,
 } from "./_lib/tailoringEvidence.js";
 
+const DEFAULT_TAILOR_TIMING = Object.freeze({
+  requestBudgetMs: 285_000,
+  minimumCallMs: 15_000,
+  analysisAttemptsMs: [80_000, 45_000],
+  draftAttemptsMs: [105_000, 55_000],
+  repairAttemptsMs: [70_000],
+});
+
 // ----------------------------------------------------------------------------
 // Tool schemas
 // ----------------------------------------------------------------------------
@@ -297,12 +305,13 @@ async function loadTrustedListing(supabase, listingId) {
   };
 }
 
-async function callAnthropicTool({ fetchImpl, apiKey, tool, prompt, maxTokens, timeoutMs = 55000 }) {
+async function callAnthropicTool({ fetchImpl, apiKey, tool, prompt, maxTokens, timeoutMs = 55000, stage = tool.name }) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
-  let response;
+  const startedAt = Date.now();
   try {
-    response = await fetchImpl("https://api.anthropic.com/v1/messages", {
+    console.info(`[tailor:${stage}] Anthropic request started`, JSON.stringify({ tool: tool.name, timeoutMs, maxTokens }));
+    const response = await fetchImpl("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -319,25 +328,89 @@ async function callAnthropicTool({ fetchImpl, apiKey, tool, prompt, maxTokens, t
       }),
       signal: controller.signal,
     });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      const error = new Error(`Anthropic API error ${response.status}: ${errText}`);
+      error.upstream = true;
+      error.status = response.status;
+      throw error;
+    }
+
+    const data = await response.json();
+    const toolUse = (data.content || []).find((block) => block.type === "tool_use" && block.name === tool.name);
+    if (!toolUse?.input) {
+      const error = new Error(`Model did not return structured data for ${tool.name}`);
+      error.upstream = true;
+      throw error;
+    }
+    console.info(`[tailor:${stage}] Anthropic request completed`, JSON.stringify({
+      tool: tool.name,
+      durationMs: Date.now() - startedAt,
+    }));
+    return toolUse.input;
+  } catch (error) {
+    error.stage = stage;
+    error.timeoutMs = timeoutMs;
+    console.warn(`[tailor:${stage}] Anthropic request failed`, JSON.stringify({
+      tool: tool.name,
+      durationMs: Date.now() - startedAt,
+      timeoutMs,
+      name: error.name,
+      status: error.status || null,
+      message: error.message,
+    }));
+    throw error;
   } finally {
     clearTimeout(timeout);
   }
+}
 
-  if (!response.ok) {
-    const errText = await response.text();
-    const error = new Error(`Anthropic API error ${response.status}: ${errText}`);
-    error.upstream = true;
-    throw error;
-  }
+function isRetryableAnthropicError(error) {
+  return error?.name === "AbortError"
+    || error?.status === 408
+    || error?.status === 409
+    || error?.status === 429
+    || Number(error?.status) >= 500;
+}
 
-  const data = await response.json();
-  const toolUse = (data.content || []).find((block) => block.type === "tool_use" && block.name === tool.name);
-  if (!toolUse?.input) {
-    const error = new Error(`Model did not return structured data for ${tool.name}`);
-    error.upstream = true;
-    throw error;
+async function callAnthropicToolWithRetry({
+  deadlineAt,
+  attemptTimeoutsMs,
+  minimumCallMs,
+  stage,
+  ...request
+}) {
+  let lastError;
+  for (let attempt = 0; attempt < attemptTimeoutsMs.length; attempt += 1) {
+    const remainingMs = deadlineAt - Date.now();
+    const timeoutMs = Math.min(attemptTimeoutsMs[attempt], Math.max(0, remainingMs - 5_000));
+    if (timeoutMs < minimumCallMs) {
+      if (lastError) throw lastError;
+      const error = new Error("Tailoring request reached its processing deadline");
+      error.name = "TailoringDeadlineError";
+      error.stage = stage;
+      throw error;
+    }
+
+    try {
+      return await callAnthropicTool({
+        ...request,
+        timeoutMs,
+        stage: attempt === 0 ? stage : `${stage}_retry`,
+      });
+    } catch (error) {
+      lastError = error;
+      if (!isRetryableAnthropicError(error) || attempt === attemptTimeoutsMs.length - 1) throw error;
+      console.warn(`[tailor:${stage}] Retrying transient Anthropic failure`, JSON.stringify({
+        attempt: attempt + 1,
+        name: error.name,
+        status: error.status || null,
+        remainingMs: deadlineAt - Date.now(),
+      }));
+    }
   }
-  return toolUse.input;
+  throw lastError;
 }
 
 export function createTailorHandler({
@@ -345,8 +418,12 @@ export function createTailorHandler({
   loadListing = loadTrustedListing,
   fetchImpl = globalThis.fetch,
   getApiKey = () => process.env.ANTHROPIC_API_KEY,
+  timing = DEFAULT_TAILOR_TIMING,
 } = {}) {
+  const resolvedTiming = { ...DEFAULT_TAILOR_TIMING, ...timing };
   return async function handler(req, res) {
+  const requestStartedAt = Date.now();
+  const requestDeadlineAt = requestStartedAt + resolvedTiming.requestBudgetMs;
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
@@ -491,13 +568,16 @@ INSTRUCTIONS
   * Structure bullets as: [action verb] + [what you did] + [scope/scale] + [outcome, when supported by the base resume]. Not every bullet needs all four — but every bullet must have at least verb + what + one of scope-or-outcome.${categoryAppendix}`;
 
   try {
-    const rawAnalysis = await callAnthropicTool({
+    const rawAnalysis = await callAnthropicToolWithRetry({
       fetchImpl,
       apiKey,
       tool: ANALYSIS_TOOL,
       prompt: analysisPrompt,
       maxTokens: 4200,
-      timeoutMs: 50000,
+      deadlineAt: requestDeadlineAt,
+      attemptTimeoutsMs: resolvedTiming.analysisAttemptsMs,
+      minimumCallMs: resolvedTiming.minimumCallMs,
+      stage: "evidence_analysis",
     });
     const analysis = sanitizeTailoringAnalysis(
       rawAnalysis,
@@ -509,13 +589,16 @@ INSTRUCTIONS
     let requestPrompt = baseDraftPrompt;
 
     for (let attempt = 0; attempt < 2; attempt += 1) {
-      const rawResumeData = await callAnthropicTool({
+      const rawResumeData = await callAnthropicToolWithRetry({
         fetchImpl,
         apiKey,
         tool,
         prompt: requestPrompt,
         maxTokens: 5200,
-        timeoutMs: attempt === 0 ? 65000 : 50000,
+        deadlineAt: requestDeadlineAt,
+        attemptTimeoutsMs: attempt === 0 ? resolvedTiming.draftAttemptsMs : resolvedTiming.repairAttemptsMs,
+        minimumCallMs: resolvedTiming.minimumCallMs,
+        stage: attempt === 0 ? "resume_draft" : "evidence_repair",
       });
       const resumeData = shapeTailoredResume(enforceReverseChronology({
         ...rawResumeData,
@@ -605,9 +688,16 @@ INSTRUCTIONS
       });
     }
   } catch (err) {
-    console.error("Tailor proxy failed:", err.message);
-    if (err.name === "AbortError") {
-      return res.status(504).json({ error: "Evidence analysis or tailoring took too long. Try again — often faster the second time." });
+    console.error("Tailor proxy failed:", JSON.stringify({
+      stage: err.stage || "unknown",
+      name: err.name,
+      status: err.status || null,
+      timeoutMs: err.timeoutMs || null,
+      durationMs: Date.now() - requestStartedAt,
+      message: err.message,
+    }));
+    if (err.name === "AbortError" || err.name === "TailoringDeadlineError") {
+      return res.status(504).json({ error: "This résumé needed more processing time than usual. We retried it automatically, but could not finish safely. Your original résumé is unchanged." });
     }
     if (err.upstream) {
       return res.status(502).json({ error: "Tailoring request failed upstream" });

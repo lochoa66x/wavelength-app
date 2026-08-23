@@ -337,3 +337,69 @@ test("tailoring falls back to verified content when the model repair still has o
   assert.equal(res.body.resume.experience[0].role, "Operations Manager");
   assert.equal(res.body.resume.title, "Operations Manager | Career Transition");
 });
+
+test("tailoring automatically retries a timed-out evidence analysis", async () => {
+  let analysisCalls = 0;
+  const handler = createTailorHandler({
+    authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
+    loadListing: async () => ({
+      id: 9,
+      title: "Operations Manager",
+      company: "Target Co",
+      type: "Full-time",
+      category: "business",
+      description: "Lead operational programs and stakeholder management.",
+      reason: "Business role",
+    }),
+    fetchImpl: async (_url, options) => {
+      const body = JSON.parse(options.body);
+      if (body.tool_choice.name === "return_tailoring_analysis") {
+        analysisCalls += 1;
+        if (analysisCalls === 1) {
+          return new Promise((_resolve, reject) => {
+            const rejectAsAborted = () => {
+              const error = new Error("This operation was aborted");
+              error.name = "AbortError";
+              reject(error);
+            };
+            if (options.signal.aborted) rejectAsAborted();
+            else options.signal.addEventListener("abort", rejectAsAborted, { once: true });
+          });
+        }
+        return toolResponse("return_tailoring_analysis", analysisInput({
+          requirements: [{ id: "R1", requirement: "Stakeholder management", priority: "required", evidence_match: "direct", resume_evidence: "Led stakeholder programs.", safe_language: "Stakeholder management", keywords: ["stakeholder management"] }],
+          verified_transferable_skills: [{ skill: "Stakeholder management", resume_evidence: "Led stakeholder programs." }],
+          target_keywords: ["stakeholder management"],
+        }));
+      }
+      return toolResponse("return_tailored_resume", {
+        profile: "Operations manager with stakeholder management experience.",
+        experience: [{ role: "Operations Manager", company: "Real Corp", dates: "2020–2023", bullets: ["Led stakeholder programs."] }],
+        skills: ["Stakeholder management"],
+        fit_assessment: { path: "direct", recommended_level: "Manager", note: "Direct experience." },
+      });
+    },
+    getApiKey: () => "test-key",
+    timing: {
+      requestBudgetMs: 6_000,
+      minimumCallMs: 1,
+      analysisAttemptsMs: [5, 100],
+      draftAttemptsMs: [100],
+      repairAttemptsMs: [100],
+    },
+  });
+  const res = responseRecorder();
+
+  await handler({
+    method: "POST",
+    headers: { authorization: "Bearer valid" },
+    body: {
+      resume: "Operations Manager — Real Corp — 2020–2023\nLed stakeholder programs.",
+      listingId: 9,
+    },
+  }, res);
+
+  assert.equal(analysisCalls, 2);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.resume.experience[0].role, "Operations Manager");
+});

@@ -1,7 +1,7 @@
 {
   "functions": {
     "api/tailor.js": {
-      "maxDuration": 120
+      "maxDuration": 300
     },
     "api/job-intake.js": {
       "maxDuration": 90

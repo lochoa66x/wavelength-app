@@ -10,6 +10,7 @@ import { ResumeTemplateTrades } from "./ResumeTemplateTrades.jsx";
 import { resumeTemplateKind } from "./resumeStrategy.js";
 import { loadLocalResume, saveLocalResume } from "./resumeStorage.js";
 import { listingStateKey } from "./listingIdentity.js";
+import { getMatchPresentation } from "./matchPresentation.js";
 import { migrateCloudResume } from "./resumeMigration.js";
 import { supabase } from "./supabase.js";
 import { isFutureJwtError, runWithFutureJwtRecovery } from "./supabaseRecovery.js";
@@ -231,8 +232,8 @@ const C = {
   // filled buttons and small semantic accents. Chip/filter active states use
   // dark neutrals inline (not this) so orange stays powerful when it appears.
   green: "#FE5E03",
-  // Warm peach — semantic "success/positive" tint. Used for the "Check your
-  // email" confirmation card and the "Strong match" tier badge.
+  // Warm peach — semantic positive tint. Used for confirmation cards and
+  // evidence-backed direct résumé fit after tailoring.
   greenTint: "#FEE1CE",
   greenBorder: "#FBC4A0",
   blue: "#0071E3",
@@ -330,13 +331,21 @@ function NavRow({ onBack, onNext, nextLabel = "Next", nextDisabled }) {
   );
 }
 
-function TierBadge({ tier }) {
-  const isHigh = tier === "HIGH";
+function MatchBadge({ listing, keyword, fitAssessment }) {
+  const presentation = getMatchPresentation({ listing, keyword, fitAssessment });
+  const isDirect = presentation.tone === "direct";
+  const isCareerChange = presentation.tone === "career-change";
+  const background = isDirect ? C.greenTint : isCareerChange ? C.amberTint : C.blueTint;
+  const border = isDirect ? C.greenBorder : isCareerChange ? C.amberBorder : C.blueBorder;
+  const color = isDirect ? C.green : isCareerChange ? C.amber : C.blue;
   return (
-    <div style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 10px", borderRadius: 980, background: isHigh ? C.greenTint : C.blueTint, border: `1px solid ${isHigh ? C.greenBorder : C.blueBorder}` }}>
-      {isHigh ? <CheckCircle2 size={13} color={C.green} /> : <Circle size={11} color={C.blue} />}
-      <span style={{ fontFamily: SYS_FONT, fontSize: 11.5, fontWeight: 600, color: isHigh ? C.green : C.blue }}>
-        {isHigh ? "Strong match" : "Possible match"}
+    <div
+      title={presentation.kind === "fit" ? "Based on evidence in your résumé and this posting" : "Based on your search, not your résumé"}
+      style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 10px", borderRadius: 980, background, border: `1px solid ${border}` }}
+    >
+      {isDirect ? <CheckCircle2 size={13} color={color} /> : <Circle size={11} color={color} />}
+      <span style={{ fontFamily: SYS_FONT, fontSize: 11.5, fontWeight: 600, color }}>
+        {presentation.label}
       </span>
     </div>
   );
@@ -1474,7 +1483,11 @@ export default function Gigscapes() {
                   </div>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8, flexShrink: 0 }}>
-                  <TierBadge tier={item.tier} />
+                  <MatchBadge
+                    listing={item}
+                    keyword={keywordInput}
+                    fitAssessment={t?.status === "done" ? t.resumeData?.fit_assessment : null}
+                  />
                   <div style={{ display: "flex", gap: 4 }}>
                     <button onClick={() => toggleSave(key)} className="wl-btn" title={isSaved ? "Unsave" : "Save"} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: isSaved ? C.green : C.textFaint }}>
                       <Bookmark size={15} fill={isSaved ? C.green : "none"} />
@@ -1520,7 +1533,7 @@ export default function Gigscapes() {
                   {resume && !t && (
                     <div>
                       <p style={{ fontSize: 13, color: C.textSub, marginBottom: 10 }}>
-                        We'll pull the posting details from the listing URL and tailor your saved résumé to match. Takes up to a minute.
+                        We'll analyze the posting evidence and tailor your saved résumé safely. This usually takes 1–2 minutes.
                       </p>
                       <button onClick={() => handleTailor(item, stateKey)} className="wl-btn" style={{ ...primaryBtnStyle(false), fontSize: 13, padding: "10px 18px" }}>
                         <Sparkles size={13} /> Generate tailored version
@@ -1529,7 +1542,7 @@ export default function Gigscapes() {
                   )}
                   {t?.status === "loading" && (
                     <span style={{ fontSize: 13, color: C.textSub, display: "flex", alignItems: "center", gap: 6 }}>
-                      <Loader2 size={14} className="wl-spin" /> Tailoring against this gig… (up to a minute)
+                      <Loader2 size={14} className="wl-spin" /> Analyzing evidence and tailoring safely… (usually 1–2 minutes)
                     </span>
                   )}
                   {t?.status === "error" && (
