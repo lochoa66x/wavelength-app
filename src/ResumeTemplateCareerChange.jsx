@@ -45,7 +45,7 @@ export function ResumeTemplateCareerChange({ resumeData, item, hasLink, atsRevie
 
         {resume.profile && (
           <>
-            <SectionHeader>Career Transition Summary</SectionHeader>
+            <SectionHeader>Professional Summary</SectionHeader>
             <p style={{ fontFamily: SERIF, fontSize: 13.5, lineHeight: 1.6, color: DOC.ink, margin: 0 }}>{resume.profile}</p>
           </>
         )}
@@ -77,7 +77,7 @@ export function ResumeTemplateCareerChange({ resumeData, item, hasLink, atsRevie
 
         {resume.skills?.length > 0 && (
           <>
-            <SectionHeader>Relevant Capabilities</SectionHeader>
+            <SectionHeader>Skills</SectionHeader>
             <p style={{ fontFamily: SERIF, fontSize: 13, lineHeight: 1.6, color: DOC.ink, margin: 0 }}>{resume.skills.join("  ·  ")}</p>
           </>
         )}

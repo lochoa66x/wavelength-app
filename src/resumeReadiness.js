@@ -1,7 +1,9 @@
+import { normalizeResumeForExport } from "./resumeExport.js";
+
 const PLACEHOLDER_IDENTITY = /^(?:<\s*)?(?:unknown|unnamed|name unavailable|candidate|n\/?a|null|undefined)(?:\s*>)?$/i;
 
 export function hasUsableResumeIdentity(value) {
-  const text = String(value || "").trim();
+  const text = normalizeResumeForExport({ name: value }).name;
   return Boolean(text) && !PLACEHOLDER_IDENTITY.test(text);
 }
 
@@ -37,6 +39,6 @@ export function getResumeExportReadiness(resumeData, atsReview) {
     preliminary,
     buttonLabel: preliminary ? "Download preliminary DOCX" : "Download tailored résumé",
     docxButtonLabel: preliminary ? "Download preliminary DOCX" : "Download tailored DOCX",
-    pdfButtonLabel: preliminary ? "Save preliminary PDF" : "Save ATS-safe PDF",
+    pdfButtonLabel: preliminary ? "Download preliminary PDF" : "Download tailored PDF",
   };
 }

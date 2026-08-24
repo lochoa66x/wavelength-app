@@ -124,6 +124,9 @@ test("focus review prioritizes relevant evidence, removes repetition, and leaves
 test("export readiness blocks placeholder identity and labels large-gap drafts as preliminary", () => {
   assert.equal(hasUsableResumeIdentity("<UNKNOWN>"), false);
   assert.equal(hasUsableResumeIdentity("Luis Example"), true);
+  assert.equal(hasUsableResumeIdentity({ text: "<UNKNOWN>" }), false);
+  assert.equal(hasUsableResumeIdentity({ firstName: "Luis", lastName: "Example" }), true);
+  assert.equal(hasUsableResumeIdentity({ metadata: "not an identity" }), false);
 
   const blocked = getResumeExportReadiness({ name: "<UNKNOWN>" }, {
     posting: { status: "partial" },
@@ -146,7 +149,7 @@ test("export readiness blocks placeholder identity and labels large-gap drafts a
   assert.equal(ready.verifiedPosting, true);
   assert.equal(ready.preliminary, false);
   assert.equal(ready.buttonLabel, "Download tailored résumé");
-  assert.equal(ready.pdfButtonLabel, "Save ATS-safe PDF");
+  assert.equal(ready.pdfButtonLabel, "Download tailored PDF");
 });
 
 test("canonical application readiness controls preliminary and final export labels", () => {
@@ -164,7 +167,7 @@ test("canonical application readiness controls preliminary and final export labe
   assert.equal(preliminary.applicationReady, false);
   assert.equal(preliminary.preliminary, true);
   assert.equal(preliminary.buttonLabel, "Download preliminary DOCX");
-  assert.equal(preliminary.pdfButtonLabel, "Save preliminary PDF");
+  assert.equal(preliminary.pdfButtonLabel, "Download preliminary PDF");
 
   const final = getResumeExportReadiness({ name: "Luis Example" }, {
     application_ready: true,

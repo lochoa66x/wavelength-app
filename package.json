@@ -8,11 +8,13 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "node --test",
-    "audit:locations": "node scripts/auditListingLocations.mjs"
+    "audit:locations": "node scripts/auditListingLocations.mjs",
+    "verify:exports": "node scripts/verifyResumeExports.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.112.3",
     "docx": "9.7.1",
+    "jspdf": "^4.2.1",
     "lucide-react": "^0.383.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
@@ -20,6 +22,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.1",
+    "pdfjs-dist": "^6.2.108",
     "vite": "^5.4.0"
   }
 }

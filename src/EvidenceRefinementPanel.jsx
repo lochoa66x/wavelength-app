@@ -156,7 +156,7 @@ export function EvidenceRefinementPanel({
             <MessageSquareText size={16} color={C.blue} /> Add evidence only you can confirm
           </div>
           <p style={{ margin: "4px 0 0", color: C.textSub, fontSize: 12, lineHeight: 1.5 }}>
-            Answer plainly. “Not sure” stays local and is never used as evidence. Your saved résumé is never changed by this step.
+            Answer plainly. “Not sure” stays only on this browser/device and is never used as evidence. Your saved résumé is never changed by this step.
           </p>
         </div>
         <span style={{ color: C.textFaint, fontSize: 11.5, whiteSpace: "nowrap" }}>{answered}/{visibleQuestions.length} answered</span>
@@ -195,7 +195,7 @@ export function EvidenceRefinementPanel({
 
               {answerStatus === "unsure" ? (
                 <div style={{ marginTop: 9, padding: "9px 10px", borderRadius: 9, background: C.bgApp, color: C.textSub, fontSize: 12 }}>
-                  Saved only as a reminder on this device. It will not be sent to the tailoring model.
+                  Saved only as a reminder on this browser/device. It is not synced and will not be sent to the tailoring model.
                 </div>
               ) : null}
 
@@ -228,7 +228,7 @@ export function EvidenceRefinementPanel({
                   </div>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 9, color: C.textSub, fontSize: 11.5 }}>
                     <label><input type="radio" name={`scope-${question.requirement_id}`} checked={record.scope !== "profile"} onChange={() => update(question, { scope: "application" })} /> This application only</label>
-                    <label><input type="radio" name={`scope-${question.requirement_id}`} checked={record.scope === "profile"} onChange={() => update(question, { scope: "profile" })} /> Reuse for future applications</label>
+                    <label><input type="radio" name={`scope-${question.requirement_id}`} checked={record.scope === "profile"} onChange={() => update(question, { scope: "profile" })} /> Reuse on this browser/device</label>
                   </div>
                   <label style={{ display: "flex", alignItems: "flex-start", gap: 7, marginTop: 9, color: C.text, fontSize: 11.5, lineHeight: 1.4 }}>
                     <input type="checkbox" checked={record.user_confirmed === true} onChange={(event) => update(question, { user_confirmed: event.target.checked })} />

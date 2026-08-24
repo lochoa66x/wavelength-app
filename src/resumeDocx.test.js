@@ -1,50 +1,98 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
+import { PRELIMINARY_EXPORT_NOTICE, normalizeResumeForExport } from "./resumeExport.js";
 import { createResumeDocxBlob, normalizeDocxRuns, serializeDocxText } from "./resumeDocx.js";
 
-test("DOCX text runs preserve structured text instead of serializing objects", () => {
-  const runs = normalizeDocxRuns({ text: "Luis Ochoa Morales", bold: true, size: 32 });
-  assert.deepEqual(runs, [{ text: "Luis Ochoa Morales", bold: true, size: 32 }]);
+async function inspectDocx(blob) {
+  const { default: JSZip } = await import("jszip");
+  const zip = await JSZip.loadAsync(await blob.arrayBuffer());
+  const documentXml = await zip.file("word/document.xml").async("string");
+  const visibleText = Array.from(documentXml.matchAll(/<w:t(?: [^>]*)?>([\s\S]*?)<\/w:t>/g), (match) => match[1])
+    .join(" ")
+    .replaceAll("&amp;", "&")
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">");
+  return { zip, documentXml, visibleText };
+}
+
+function structuredFixture() {
+  const cycle = { text: "" };
+  cycle.text = cycle;
+  return {
+    name: { firstName: "Luis", lastName: "Example", metadata: "PRIVATE_NAME_METADATA" },
+    title: { text: "SAP Functional Consultant", source: "PRIVATE_TITLE_METADATA" },
+    contact: {
+      email: { text: "luis@example.com" },
+      phone: "555-0100",
+      location: { city: "Toronto", region: "Ontario", debug: "PRIVATE_LOCATION_METADATA" },
+      arbitrary: "PRIVATE_CONTACT_METADATA",
+    },
+    profile: { text: "Evidence-backed SAP delivery profile.", internal_note: "PRIVATE_PROFILE_METADATA" },
+    skills: [{ name: "SAP S/4HANA", id: "PRIVATE_SKILL_METADATA" }, { text: "Requirements analysis" }, null, cycle],
+    projects: [{
+      title: { text: "Finance Transformation" },
+      description: { content: "Supported a controlled finance-system rollout." },
+      bullets: [{ description: "Documented verified requirements." }],
+      metadata: "PRIVATE_PROJECT_METADATA",
+    }],
+    training: [{ name: "SAP Learning", provider: { name: "SAP" }, dates: { year: 2024 }, private: "PRIVATE_TRAINING_METADATA" }],
+    experience: [{
+      role: { text: "Solution Architect" },
+      company: { name: "Example Canada", metadata: "PRIVATE_COMPANY_METADATA" },
+      dates: { start: "2022", end: "2024" },
+      bullets: [{ text: "Led integration testing." }, { content: "Coordinated user acceptance testing." }, cycle],
+      raw_model_response: "PRIVATE_EXPERIENCE_METADATA",
+    }],
+    education: [{ degree: { name: "BCom" }, institution: { text: "Example University" }, dates: 2015 }],
+    languages: [{ language: "English", proficiency: "Fluent", metadata: "PRIVATE_LANGUAGE_METADATA" }],
+    metadata: "PRIVATE_ROOT_METADATA",
+  };
+}
+
+test("DOCX text runs serialize approved structured text without object coercion", () => {
+  const runs = normalizeDocxRuns({ text: "Luis Example", bold: true, size: 32 });
+  assert.deepEqual(runs, [{ text: "Luis Example", bold: true, size: 32 }]);
+  assert.equal(serializeDocxText({ email: "luis@example.com", phone: "555-0100", metadata: "PRIVATE" }), "luis@example.com · 555-0100");
+  assert.equal(serializeDocxText({ arbitrary: { text: "PRIVATE" } }), "");
   assert.doesNotMatch(runs[0].text, /\[object Object\]/);
-  assert.equal(serializeDocxText({ email: "luis@example.com", phone: "555-0100" }), "luis@example.com · 555-0100");
-  assert.equal(serializeDocxText({ nested: { text: "Structured profile" } }), "Structured profile");
 });
 
-test("DOCX export accepts structured header runs and creates a non-empty document", async () => {
-  const blob = await createResumeDocxBlob({
-    name: "Luis Ochoa Morales",
-    title: "SAP Functional Consultant",
-    contact: "luis@example.com · Montréal, Québec",
-    profile: "SAP functional consultant focused on requirements, configuration, testing, and delivery.",
-    skills: ["SAP S/4HANA", "SAP FI-CA"],
-    experience: [{ role: "Solution Architect", company: "Deloitte Canada", dates: "2022 – 2024", bullets: ["Led SAP integration testing."] }],
-  }, "professional");
+test("field-aware resume normalization is deterministic, cycle-safe, and metadata-safe", () => {
+  const normalized = normalizeResumeForExport(structuredFixture());
+  assert.equal(normalized.name, "Luis Example");
+  assert.equal(normalized.contact, "luis@example.com | 555-0100 | Toronto | Ontario");
+  assert.deepEqual(normalized.skills, ["SAP S/4HANA", "Requirements analysis"]);
+  assert.equal(normalized.experience[0].dates, "2022 - 2024");
+  assert.deepEqual(normalized.languages, ["English · Fluent"]);
+  assert.doesNotMatch(JSON.stringify(normalized), /PRIVATE_|\[object Object\]|undefined|null/);
+});
+
+test("generated DOCX is a valid package with complete ordered visible text", async () => {
+  const blob = await createResumeDocxBlob(structuredFixture(), "professional");
+  const { zip, visibleText } = await inspectDocx(blob);
 
   assert.ok(blob.size > 500);
   assert.equal(blob.type, "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+  assert.ok(zip.file("[Content_Types].xml"));
+  assert.ok(zip.file("word/document.xml"));
+  for (const expected of [
+    "Luis Example", "SAP Functional Consultant", "luis@example.com", "Professional Summary", "Skills",
+    "Projects", "Training & Certifications", "Professional Experience", "Solution Architect", "Led integration testing.",
+    "Education", "BCom", "Languages", "English",
+  ]) assert.match(visibleText, new RegExp(expected.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"));
+  assert.ok(visibleText.indexOf("Professional Summary") < visibleText.indexOf("Professional Experience"));
+  assert.doesNotMatch(visibleText, /PRIVATE_|\[object Object\]|undefined|null/i);
 });
 
-test("generated DOCX XML contains structured values and never object coercion artifacts", async () => {
-  const { default: JSZip } = await import("jszip");
-  const blob = await createResumeDocxBlob({
-    name: { text: "Luis Ochoa Morales" },
-    title: { text: "SAP Functional Consultant" },
-    contact: { email: "luis@example.com", phone: "555-0100", location: "Montréal, Québec" },
-    profile: { text: "Evidence-backed SAP delivery profile." },
-    skills: [{ text: "SAP S/4HANA" }, { text: "Requirements analysis" }],
-    experience: [{
-      role: { text: "Solution Architect" },
-      company: { text: "Example Canada" },
-      dates: { text: "2022 – 2024" },
-      bullets: [{ text: "Led integration testing." }],
-    }],
-  });
-  const zip = await JSZip.loadAsync(await blob.arrayBuffer());
-  const documentXml = await zip.file("word/document.xml").async("string");
+test("preliminary DOCX is visibly labeled while final DOCX is not", async () => {
+  const preliminary = await inspectDocx(await createResumeDocxBlob(structuredFixture(), "professional", { preliminary: true }));
+  const final = await inspectDocx(await createResumeDocxBlob(structuredFixture(), "professional", { preliminary: false }));
+  assert.match(preliminary.visibleText, new RegExp(PRELIMINARY_EXPORT_NOTICE.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  assert.doesNotMatch(final.visibleText, /PRELIMINARY DRAFT/);
+});
 
-  assert.doesNotMatch(documentXml, /\[object Object\]/);
-  assert.match(documentXml, /Luis Ochoa Morales/);
-  assert.match(documentXml, /luis@example\.com/);
-  assert.match(documentXml, /Led integration testing\./);
+test("DOCX export rejects missing or placeholder identity", async () => {
+  await assert.rejects(createResumeDocxBlob({ name: { text: "<UNKNOWN>" } }), /Candidate name is required/i);
+  await assert.rejects(createResumeDocxBlob({ profile: "No identity" }), /Candidate name is required/i);
 });

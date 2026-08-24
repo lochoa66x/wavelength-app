@@ -1,8 +1,6 @@
 import { useState } from "react";
 import { Copy, Download, ExternalLink, FileText, Loader2 } from "lucide-react";
 
-import { downloadResumeDocx } from "./resumeDocx.js";
-import { printResumePdf } from "./resumePdf.js";
 import { resumeDataToPlainText } from "./resumeShared.jsx";
 import { getResumeExportReadiness } from "./resumeReadiness.js";
 
@@ -17,7 +15,8 @@ export function ResumeActions({ resumeData, template, previewRef, item, hasLink,
     setDocxState("loading");
     setMessage(null);
     try {
-      await downloadResumeDocx(resumeData, template);
+      const { downloadResumeDocx } = await import("./resumeDocx.js");
+      await downloadResumeDocx(resumeData, template, { preliminary: readiness.preliminary });
       setDocxState("done");
     } catch (error) {
       console.error("DOCX export failed:", error);
@@ -29,15 +28,25 @@ export function ResumeActions({ resumeData, template, previewRef, item, hasLink,
   const handlePdfDownload = async () => {
     setPdfState("loading");
     setMessage(null);
+    let pdfExports;
     try {
-      const title = [resumeData?.name, resumeData?.title].filter((value) => typeof value === "string" && value.trim()).join(" — ");
-      await printResumePdf(previewRef?.current, title || "Tailored resume");
+      pdfExports = await import("./resumePdf.js");
+      await pdfExports.downloadResumePdf(resumeData, template, { preliminary: readiness.preliminary });
       setPdfState("done");
-      setMessage({ type: "info", text: "In the browser print dialog, choose “Save as PDF”. The exported text remains selectable and ATS-readable." });
+      setMessage({ type: "info", text: "The ATS-readable PDF was downloaded. Its text remains selectable and searchable." });
     } catch (error) {
-      console.error("PDF export failed:", error);
-      setPdfState("error");
-      setMessage({ type: "error", text: "The PDF print view could not be created. Download the DOCX or copy the tailored text instead." });
+      console.warn("Direct PDF export failed; opening the browser print fallback:", error);
+      try {
+        const title = [resumeData?.name, resumeData?.title].filter((value) => typeof value === "string" && value.trim()).join(" - ");
+        pdfExports ||= await import("./resumePdf.js");
+        await pdfExports.printResumePdf(previewRef?.current, title || "Tailored resume");
+        setPdfState("done");
+        setMessage({ type: "info", text: "The direct download was unavailable. In the browser print dialog, choose “Save as PDF”." });
+      } catch (fallbackError) {
+        console.error("PDF export failed:", fallbackError);
+        setPdfState("error");
+        setMessage({ type: "error", text: "The PDF could not be created. Download the DOCX or copy the tailored text instead." });
+      }
     }
   };
 

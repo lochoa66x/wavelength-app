@@ -19,7 +19,7 @@ Turn the exact missing-evidence questions produced by the evidence-first review 
 4. Show a literal evidence preview before saving. The preview may join entered facts, but must not infer or embellish them and must not promise that the final wording will be identical.
 5. Let the user choose scope:
    - **This application only**: isolate the answer by account and posting;
-   - **Reuse on this device**: retain it in a separate, local candidate-evidence sidecar for future tailoring.
+   - **Reuse on this browser/device**: retain it in a separate, local candidate-evidence sidecar for future tailoring. It is not synced to other browsers or devices.
 6. Never silently rewrite the canonical saved resume. Reusable evidence supplements later tailoring requests; the user must still explicitly edit the base resume to make a permanent resume-text change.
 7. Include current-application evidence before reusable evidence and preserve the server's five-answer request limit.
 8. Send only candidate-confirmed Yes answers and explicit No answers to the API. Not sure is a locally saved decision, not supporting evidence.
@@ -31,6 +31,7 @@ Turn the exact missing-evidence questions produced by the evidence-first review 
 - Support both matched-listing tailoring and **Bring your own posting**.
 - Keep application evidence isolated by user and stable target key.
 - Keep reusable evidence isolated by user and local browser profile.
+- Treat reusable evidence as eligible only when it is a non-declined, candidate-confirmed Yes answer with non-empty literal evidence. Filter old local records through the same rule before request selection.
 - Preserve scope through server normalization and return it in response metadata.
 - Handle blocked local storage with an actionable inline message while leaving the generated resume usable.
 - Keep the existing safe preliminary fallback and posting-readiness gates unchanged.

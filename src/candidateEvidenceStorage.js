@@ -2,6 +2,14 @@ const CANDIDATE_EVIDENCE_PREFIX = "gigscapes:candidate-evidence:v1:";
 const REUSABLE_EVIDENCE_PREFIX = "gigscapes:reusable-candidate-evidence:v1:";
 const MAX_REQUEST_EVIDENCE = 5;
 
+export function isVerifiedReusableEvidence(record) {
+  return record?.scope === "profile"
+    && record.answer_status === "yes"
+    && record.user_confirmed === true
+    && record.declined !== true
+    && Boolean(String(record.answer || "").trim());
+}
+
 export function candidateEvidenceStorageKey(userId, targetKey) {
   if (!userId || !targetKey) return null;
   return `${CANDIDATE_EVIDENCE_PREFIX}${encodeURIComponent(userId)}:${encodeURIComponent(targetKey)}`;
@@ -51,7 +59,7 @@ export function loadReusableCandidateEvidence(userId, storage = globalThis.local
   if (!key || !storage) return [];
   try {
     const parsed = JSON.parse(storage.getItem(key) || "[]");
-    return Array.isArray(parsed) ? parsed.slice(0, MAX_REQUEST_EVIDENCE) : [];
+    return Array.isArray(parsed) ? parsed.filter(isVerifiedReusableEvidence).slice(-MAX_REQUEST_EVIDENCE) : [];
   } catch (error) {
     console.error("Couldn't read reusable candidate evidence:", error);
     return [];
@@ -63,7 +71,7 @@ export function saveReusableCandidateEvidence(userId, evidence, storage = global
   if (!key || !storage) return false;
   try {
     const reusable = (Array.isArray(evidence) ? evidence : [])
-      .filter((record) => record?.scope === "profile" && record?.answer_status !== "unsure")
+      .filter(isVerifiedReusableEvidence)
       .slice(-MAX_REQUEST_EVIDENCE);
     if (reusable.length) storage.setItem(key, JSON.stringify(reusable));
     else storage.removeItem(key);
@@ -77,7 +85,7 @@ export function saveReusableCandidateEvidence(userId, evidence, storage = global
 export function mergeReusableCandidateEvidence(existing = [], additions = []) {
   const merged = new Map();
   for (const record of [...existing, ...additions]) {
-    if (!record?.id || record?.scope !== "profile" || record?.answer_status === "unsure") continue;
+    if (!record?.id || !isVerifiedReusableEvidence(record)) continue;
     merged.set(record.id, record);
   }
   return Array.from(merged.values()).slice(-MAX_REQUEST_EVIDENCE);
@@ -86,12 +94,19 @@ export function mergeReusableCandidateEvidence(existing = [], additions = []) {
 export function candidateEvidenceForRequest(applicationEvidence = [], reusableEvidence = []) {
   const selected = [];
   const seen = new Set();
-  for (const record of [...applicationEvidence, ...reusableEvidence]) {
+  const append = (record) => {
     const identity = record?.id || `${record?.requirement_id || ""}:${record?.answer || ""}`;
-    if (!identity || seen.has(identity) || record?.answer_status === "unsure") continue;
+    if (!identity || seen.has(identity) || record?.answer_status === "unsure") return;
     selected.push(record);
     seen.add(identity);
+  };
+  for (const record of applicationEvidence) {
+    append(record);
     if (selected.length === MAX_REQUEST_EVIDENCE) break;
+  }
+  for (const record of reusableEvidence) {
+    if (selected.length === MAX_REQUEST_EVIDENCE) break;
+    if (isVerifiedReusableEvidence(record)) append(record);
   }
   return selected;
 }

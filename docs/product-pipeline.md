@@ -59,15 +59,17 @@ This roadmap orders work by the value of the product's core promise: produce a t
 
 ### P0.4 Make multi-page intake and exported files trustworthy
 
-**Status:** Implemented on 2026-08-23; production verification remains part of the release checklist.
+**Status:** Implemented and locally regression-tested on 2026-08-23; production deployment and production verification remain release steps.
 
 - Accept up to eight posting screenshots in one intake flow, show page count and filenames, and let the user remove or replace individual pages.
 - Compress images in the browser and extract them in bounded batches of four so a long posting does not exceed one serverless request's image or execution budget.
 - Merge repeated OCR content deterministically, preserve the page-set provenance, and surface conflicting title or company values instead of silently letting a later page overwrite an earlier page.
 - Require the user to confirm that the final responsibilities and qualifications page was included. Unconfirmed page sets and unresolved source conflicts remain preliminary and cannot produce a fit label or application-ready export.
 - Preserve later screenshot batches that legitimately omit the repeated title so they can be merged with the first page.
-- Serialize structured DOCX text runs as text, never as JavaScript object strings. Regression-test the generated document payload so `[object Object]` cannot appear in the identity header in Word or LibreOffice.
-- Provide first-class ATS-safe PDF export by printing the same searchable DOM used for the browser preview. Remaining compatibility work is hands-on page-break and font inspection in Microsoft Word, LibreOffice, Google Docs, browser PDF viewers, and common ATS parsers.
+- Normalize only approved résumé fields before DOCX/PDF rendering. Structured values and cycles are handled without JavaScript object coercion, and unrelated metadata is never exposed as visible document text. Regression tests inspect the generated DOCX XML for `[object Object]`, placeholder, and metadata artifacts.
+- Generate the primary ATS-safe PDF directly as a Letter-sized, single-column text document whose content and section order match the selected browser template. Text stays selectable/searchable; browser printing of the preview remains the fallback if direct generation fails.
+- Carry the canonical posting-readiness decision into both formats. A missing identity blocks export, while an incomplete/unverified posting permits only a visibly labeled preliminary DOCX/PDF; stale ready flags cannot override the canonical gate.
+- Run `npm run verify:exports` before release and follow `docs/release-verification.md` for LibreOffice, visual, extraction, build, Git, origin, and production checks.
 
 ## Priority 1 — Let the user supply missing evidence precisely
 
@@ -80,6 +82,7 @@ Turn the existing “Questions that could strengthen this version” into an evi
 - Each question supports **Yes**, **No**, and **Not sure**.
 - A Yes answer asks for context: skill or action, project/employer, approximate date, and result. Numbers remain optional and must be user supplied.
 - The user chooses whether confirmed evidence applies only to this application or may update the master resume/profile.
+- Reusable evidence stays in this browser/device, is not synced, and is eligible for later requests only when it is an explicit, non-declined, candidate-confirmed Yes answer with non-empty evidence. Legacy local records are filtered by the same rule when loaded.
 - Show a preview before saving; rerun truth, history, number, and tense validation after every change.
 - Never convert a vague user statement into a credential, employer, title, project, technology, or metric the user did not confirm.
 - Place a comments/answers panel beside the tailored draft so the user can respond to the exact missing-evidence questions, preview the resulting bullet, and decide whether the evidence is application-only or reusable.

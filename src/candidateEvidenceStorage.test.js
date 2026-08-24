@@ -5,9 +5,11 @@ import {
   candidateEvidenceForRequest,
   candidateEvidenceStorageKey,
   customEvidenceTargetKey,
+  isVerifiedReusableEvidence,
   loadCandidateEvidence,
   loadReusableCandidateEvidence,
   mergeReusableCandidateEvidence,
+  reusableCandidateEvidenceStorageKey,
   saveCandidateEvidence,
   saveReusableCandidateEvidence,
 } from "./candidateEvidenceStorage.js";
@@ -46,9 +48,30 @@ test("reusable evidence is account-isolated and excludes application-only remind
 });
 
 test("new reusable answers replace records for the same requirement note", () => {
-  const existing = [{ id: "note-1", scope: "profile", answer_status: "yes", answer: "Old answer" }];
-  const additions = [{ id: "note-1", scope: "profile", answer_status: "yes", answer: "Updated answer" }];
+  const existing = [{ id: "note-1", scope: "profile", answer_status: "yes", answer: "Old answer", user_confirmed: true }];
+  const additions = [{ id: "note-1", scope: "profile", answer_status: "yes", answer: "Updated answer", user_confirmed: true }];
   assert.deepEqual(mergeReusableCandidateEvidence(existing, additions), additions);
+});
+
+test("only confirmed, non-declined Yes evidence can become reusable", () => {
+  const valid = { id: "valid", scope: "profile", answer_status: "yes", answer: "Led UAT.", user_confirmed: true };
+  assert.equal(isVerifiedReusableEvidence(valid), true);
+  for (const invalid of [
+    { ...valid, user_confirmed: false },
+    { ...valid, answer_status: "no" },
+    { ...valid, answer_status: "unsure" },
+    { ...valid, answer: "" },
+    { ...valid, declined: true },
+    { ...valid, scope: "application" },
+  ]) assert.equal(isVerifiedReusableEvidence(invalid), false);
+});
+
+test("legacy reusable storage is filtered before it can reach tailoring", () => {
+  const storage = memoryStorage();
+  const valid = { id: "valid", scope: "profile", answer_status: "yes", answer: "Led UAT.", user_confirmed: true };
+  const unsafe = { id: "unsafe", scope: "profile", answer_status: "yes", answer: "Unconfirmed claim", user_confirmed: false };
+  storage.setItem(reusableCandidateEvidenceStorageKey("user-a"), JSON.stringify([unsafe, valid]));
+  assert.deepEqual(loadReusableCandidateEvidence("user-a", storage), [valid]);
 });
 
 test("request evidence prioritizes the current application and caps the payload", () => {
@@ -58,14 +81,23 @@ test("request evidence prioritizes the current application and caps the payload"
     { id: "unsure", answer_status: "unsure" },
   ];
   const reusable = [
-    { id: "same", answer_status: "yes", answer: "Older reusable answer" },
-    ...Array.from({ length: 6 }, (_, index) => ({ id: `profile-${index}`, answer_status: "yes" })),
+    { id: "same", scope: "profile", answer_status: "yes", answer: "Older reusable answer", user_confirmed: true },
+    ...Array.from({ length: 6 }, (_, index) => ({ id: `profile-${index}`, scope: "profile", answer_status: "yes", answer: `Verified answer ${index}`, user_confirmed: true })),
   ];
   const selected = candidateEvidenceForRequest(application, reusable);
 
   assert.equal(selected.length, 5);
   assert.equal(selected[0].answer, "Current application");
   assert.equal(selected.some((record) => record.id === "unsure"), false);
+});
+
+test("unverified reusable evidence is excluded from request payloads", () => {
+  const selected = candidateEvidenceForRequest([], [
+    { id: "unconfirmed", scope: "profile", answer_status: "yes", answer: "Claim", user_confirmed: false },
+    { id: "unsure", scope: "profile", answer_status: "unsure", answer: "Maybe", user_confirmed: true },
+    { id: "verified", scope: "profile", answer_status: "yes", answer: "Verified claim", user_confirmed: true },
+  ]);
+  assert.deepEqual(selected.map((record) => record.id), ["verified"]);
 });
 
 test("custom posting evidence uses a stable source identity with a field fallback", () => {

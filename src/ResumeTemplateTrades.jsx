@@ -62,7 +62,7 @@ export function ResumeTemplateTrades({ resumeData, item, hasLink, atsReview, onE
 
         {r.profile && (
           <>
-            <SectionHeader>Profile</SectionHeader>
+            <SectionHeader>Professional Summary</SectionHeader>
             <p style={{
               fontFamily: SERIF,
               fontSize: 13.5,
@@ -150,7 +150,7 @@ export function ResumeTemplateTrades({ resumeData, item, hasLink, atsReview, onE
 
         {r.experience?.length > 0 && (
           <>
-            <SectionHeader>Experience</SectionHeader>
+            <SectionHeader>Professional Experience</SectionHeader>
             {r.experience.map((exp, ei) => (
               <div key={ei} style={{ marginBottom: 14 }}>
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 12, marginBottom: 2 }}>
