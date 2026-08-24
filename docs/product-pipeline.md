@@ -115,7 +115,7 @@ Turn the existing “Questions that could strengthen this version” into an evi
 
 ### P1.4 Guest-first browsing with account-required workspaces
 
-**Implementation status:** Complete locally on 2026-08-24. Production release remains pending until the checked-in Supabase migration is applied and the production smoke checklist passes; no production Auth, database, or Vercel settings were changed in this implementation pass.
+**Status:** Released and production-verified on 2026-08-24. The checked-in Supabase migration was applied, anonymous `public_listings` returned valid rows, all four privilege checks passed, and the guest/authenticated smoke gate was reported complete.
 
 - `/app` now renders the same discovery shell for guests and signed-in users without waiting for session initialization. Search, country/province/city filters, workplace filters, pagination, summaries, attribution, and original provider links remain public.
 - Anonymous preferences use a versioned, allowlisted `localStorage` record. Résumé text, posting content, evidence, email, tokens, and account records are excluded.
@@ -126,11 +126,26 @@ Turn the existing “Questions that could strengthen this version” into an evi
 - Protected server endpoints still validate the caller JWT before reading private input or creating a privileged server-only database client. Browser code has no service-role/secret-key path.
 - Trusted DOCX/PDF readiness, identity, deterministic serialization, evidence scoping, direct selectable Letter PDF, and lazy export chunks remain mandatory regressions.
 
-**Release condition:** Do not mark the production release complete until the migration has been reviewed/applied, Auth redirect URLs have been confirmed, and `docs/guest-auth-smoke-test.md` passes in production. P2.1 is the next implementation item; do not begin it as part of P1.4 release work.
+**Release record:** The migration and production smoke conditions are complete. Preserve the P1.4 production configuration while implementing P2.1; do not reapply the migration or mix unrelated Auth/database changes into résumé-template work.
 
 ## Priority 2 — Resume families and product presentation
 
 ### P2.1 Canonical resume model plus job-family renderers
+
+**Phase A status:** Implemented locally on 2026-08-24; release verification and the local commit are tracked by `docs/release-checklist.md` and `docs/release-verification.md`. Nothing is pushed or deployed by the Phase A implementation task.
+
+Phase A now uses a versioned `ResumePackage` that separates visible facts, private evidence, derived occupation/career strategy, presentation choice, and fresh export authorization. A deterministic `ResumeContentPlan` selects factual items once; browser, DOCX, direct PDF, plain text, and export verification consume one frozen `ResumeRenderPlan` and compare against a normalized content manifest.
+
+The initial registry provides:
+
+1. ATS Core (`ats-core-v1`)
+2. SAP Functional (`sap-functional-v1`)
+3. Project Leadership (`project-leadership-v1`)
+4. Career Transition (`career-transition-v1`)
+
+Template selection is account/target scoped, rerenders without AI, and cannot alter factual item IDs, evidence classification, immutable career strategy, or readiness. Recommendation precedence is major transition, verified project leadership, verified SAP functional fit, then ATS Core. Programming-heavy SAP roles remain technical and use ATS Core until a dedicated technical template exists.
+
+Final/preliminary exporters validate a short-lived authorization bound to the document, identity, posting state, schema, and mode. Stored readiness booleans cannot authorize a mismatched export. See `docs/resume-architecture.md` for the contract and extension procedure.
 
 Keep one canonical evidence model and vary section order, density, language emphasis, and visual treatment. Start with:
 

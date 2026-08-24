@@ -5,10 +5,7 @@ import { AtsReview } from "./AtsReview.jsx";
 import { EvidenceRefinementPanel } from "./EvidenceRefinementPanel.jsx";
 import { CustomJobFlow } from "./CustomJobFlow.jsx";
 import { PositioningSummary } from "./PositioningSummary.jsx";
-import { ResumeTemplateCareerChange } from "./ResumeTemplateCareerChange.jsx";
-import { ResumeTemplateProfessional } from "./ResumeTemplateProfessional.jsx";
-import { ResumeTemplateTrades } from "./ResumeTemplateTrades.jsx";
-import { resumeTemplateKind } from "./resumeStrategy.js";
+import { ResumeExperience } from "./ResumeExperience.jsx";
 import { loadLocalResume, saveLocalResume } from "./resumeStorage.js";
 import {
   candidateEvidenceForRequest,
@@ -1710,12 +1707,6 @@ export default function Gigscapes() {
           const key = itemKey(item);
           const isDismissed = dismissed.includes(key);
           const isSaved = saved.includes(key);
-          const templateKind = resumeTemplateKind(item.category, t?.resumeData);
-          const TemplateComponent = templateKind === "trades"
-            ? ResumeTemplateTrades
-            : templateKind === "career-change"
-              ? ResumeTemplateCareerChange
-              : ResumeTemplateProfessional;
           return (
             <div key={stateKey} className="wl-card" style={{ background: C.bgCard, borderRadius: 18, padding: "18px 20px", boxShadow: "0 1px 2px rgba(0,0,0,0.03), 0 6px 16px rgba(0,0,0,0.04)", opacity: isDismissed ? 0.5 : 1 }}>
               <div className="wl-cardhead" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 14 }}>
@@ -1849,7 +1840,7 @@ export default function Gigscapes() {
                         onSaveAndRetailor={(evidence) => handleEvidenceRetailor(item, stateKey, evidence)}
                         C={C}
                       />
-                      <TemplateComponent
+                      <ResumeExperience
                         resumeData={t.resumeData}
                         item={item}
                         hasLink={hasLink}

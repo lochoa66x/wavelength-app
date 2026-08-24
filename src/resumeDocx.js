@@ -1,10 +1,11 @@
 import {
-  PRELIMINARY_EXPORT_NOTICE,
-  assertResumeExportIdentity,
-  normalizeResumeForExport,
-  safeResumeFilename,
-  serializeExportText,
-} from "./resumeExport.js";
+  assertResumePackageIdentity,
+  buildResumeRenderPlan,
+  createResumePackage,
+  safeResumeFilenameFromPackage,
+  serializeApprovedValue,
+} from "./resumeModel.js";
+import { validateResumeExportContext } from "./resumeReadiness.js";
 
 const DOCX_TEXT_KEYS = [
   "value", "name", "title", "headline", "role", "position", "email", "phone", "location",
@@ -14,11 +15,7 @@ const DOCX_TEXT_KEYS = [
 ];
 
 export function serializeDocxText(value, seen = new Set()) {
-  return serializeExportText(value, { keys: ["text", ...DOCX_TEXT_KEYS], seen });
-}
-
-function joinText(values, separator = " - ") {
-  return values.map((value) => serializeDocxText(value).trim()).filter(Boolean).join(separator);
+  return serializeApprovedValue(value, { keys: ["text", ...DOCX_TEXT_KEYS], seen });
 }
 
 function text(value, options = {}) {
@@ -35,9 +32,20 @@ export function normalizeDocxRuns(content) {
   });
 }
 
-export async function createResumeDocxBlob(resumeData, template = "professional", options = {}) {
-  assertResumeExportIdentity(resumeData);
-  const resume = normalizeResumeForExport(resumeData);
+function resolveRenderPlan(input, template, options) {
+  if (input?.kind === "resume-export-context") return validateResumeExportContext(input).renderPlan;
+  if (input?.kind === "resume-render-plan") return input;
+  const resumePackage = createResumePackage(input);
+  return buildResumeRenderPlan(resumePackage, template, options);
+}
+
+function entryHeader(...values) {
+  return values.map((value) => serializeDocxText(value).trim()).filter(Boolean).join(" | ");
+}
+
+export async function createResumeDocxBlob(input, template = "professional", options = {}) {
+  const renderPlan = resolveRenderPlan(input, template, options);
+  assertResumePackageIdentity(createResumePackage({ name: renderPlan.header.fullName }));
   const {
     AlignmentType,
     Document,
@@ -55,121 +63,92 @@ export async function createResumeDocxBlob(resumeData, template = "professional"
   };
   const addHeading = (heading) => {
     children.push(new Paragraph({
-      text: heading,
+      text: serializeDocxText(heading),
       heading: HeadingLevel.HEADING_2,
       spacing: { before: 220, after: 80 },
       keepNext: true,
       border: { bottom: { color: "B8B8B8", size: 4, space: 4, style: "single" } },
     }));
   };
-  const addSkills = () => {
-    if (!resume.skills.length) return;
-    addHeading("Skills");
-    addParagraph(joinText(resume.skills, " | "), { spacing: { after: 80 }, keepLines: true });
-  };
-  const addExperience = () => {
-    if (!resume.experience.length) return;
-    addHeading("Professional Experience");
-    for (const entry of resume.experience) {
-      const header = joinText([entry.role, entry.company]);
-      addParagraph([
-        text(header, { bold: true }),
-        ...(entry.dates ? [text(` - ${entry.dates}`, { italics: true })] : []),
-      ], { keepNext: entry.bullets.length > 0, spacing: { before: 80, after: 40 } });
-      for (const bullet of entry.bullets) {
-        addParagraph(bullet, { bullet: { level: 0 }, spacing: { after: 40 }, keepLines: true });
-      }
-    }
-  };
-  const addProjects = () => {
-    if (!resume.projects.length) return;
-    addHeading("Projects");
-    for (const project of resume.projects) {
-      if (project.name) addParagraph(text(project.name, { bold: true }), { keepNext: Boolean(project.description || project.bullets.length), spacing: { before: 80, after: 30 } });
-      if (project.description) addParagraph(project.description, { spacing: { after: 35 }, keepLines: true });
-      for (const bullet of project.bullets) addParagraph(bullet, { bullet: { level: 0 }, spacing: { after: 40 }, keepLines: true });
-    }
-  };
-  const addTraining = () => {
-    if (!resume.training.length) return;
-    addHeading("Training & Certifications");
-    for (const training of resume.training) addParagraph(joinText([training.name, training.provider, training.dates]));
-  };
-  const addCertifications = () => {
-    if (!resume.certifications.length) return;
-    addHeading("Certifications & Licenses");
-    for (const credential of resume.certifications) addParagraph(joinText([credential.name, credential.provider, credential.dates]));
-  };
-  const addSafety = () => {
-    if (!resume.safety_record && !resume.safety_certifications.length) return;
-    addHeading("Safety Training");
-    if (resume.safety_record) addParagraph(resume.safety_record);
-    if (resume.safety_certifications.length) addParagraph(joinText(resume.safety_certifications, " | "));
-  };
+  const addBullet = (value) => addParagraph(value, { bullet: { level: 0 }, spacing: { after: 40 }, keepLines: true });
 
-  addParagraph(text(resume.name, { bold: true, size: 32 }), {
-    alignment: AlignmentType.CENTER,
-    spacing: { after: 50 },
-    keepNext: true,
-  });
-  if (resume.title) addParagraph(text(resume.title, { bold: true, size: 22 }), { alignment: AlignmentType.CENTER, keepNext: true });
-  if (resume.contact) addParagraph(resume.contact, { alignment: AlignmentType.CENTER, spacing: { after: 100 }, keepNext: true });
-  if (options.preliminary) {
-    addParagraph(text(PRELIMINARY_EXPORT_NOTICE, { bold: true, color: "8A4B08", size: 18 }), {
+  addParagraph(text(renderPlan.header.fullName, { bold: true, size: 32 }), { alignment: AlignmentType.CENTER, spacing: { after: 50 }, keepNext: true });
+  if (renderPlan.header.headline) addParagraph(text(renderPlan.header.headline, { bold: true, size: 22 }), { alignment: AlignmentType.CENTER, keepNext: true });
+  if (renderPlan.header.contactLine) addParagraph(renderPlan.header.contactLine, { alignment: AlignmentType.CENTER, spacing: { after: 100 }, keepNext: true });
+  if (renderPlan.preliminaryNotice) {
+    addParagraph(text(renderPlan.preliminaryNotice, { bold: true, color: "8A4B08", size: 18 }), {
       alignment: AlignmentType.CENTER,
       spacing: { before: 70, after: 120 },
       shading: { type: ShadingType.CLEAR, color: "auto", fill: "FFF2CC" },
       keepNext: true,
     });
   }
-  if (resume.profile) {
-    addHeading("Professional Summary");
-    addParagraph(resume.profile, { spacing: { after: 80 }, keepLines: true });
+
+  for (const section of renderPlan.sections) {
+    addHeading(section.heading);
+    if (section.type === "paragraph") {
+      for (const item of section.items) addParagraph(item.text, { spacing: { after: 80 }, keepLines: true });
+    } else if (section.type === "inline-list") {
+      addParagraph(section.items.map((item) => item.text).join(" | "), { spacing: { after: 80 }, keepLines: true });
+    } else if (section.type === "experience") {
+      for (const entry of section.items) {
+        const title = [entry.title, entry.employer].filter(Boolean).join(" - ");
+        addParagraph(text(entryHeader(title, entry.location, entry.dateDisplay), { bold: true }), {
+          keepNext: entry.bullets.length > 0,
+          spacing: { before: 80, after: 40 },
+        });
+        for (const bullet of entry.bullets) addBullet(bullet.text);
+      }
+    } else if (section.type === "projects") {
+      for (const project of section.items) {
+        const heading = [project.name, project.organization].filter(Boolean).join(" - ");
+        if (heading) addParagraph(text(heading, { bold: true }), { keepNext: Boolean(project.description || project.bullets.length), spacing: { before: 80, after: 30 } });
+        const dates = [project.startDate, project.endDate].filter(Boolean).join(" - ");
+        if (dates) addParagraph(text(dates, { italics: true }), { spacing: { after: 30 }, keepNext: Boolean(project.description || project.bullets.length) });
+        if (project.description) addParagraph(project.description, { spacing: { after: 35 }, keepLines: true });
+        for (const bullet of project.bullets) addBullet(bullet.text);
+      }
+    } else if (section.type === "credentials") {
+      for (const credential of section.items) addParagraph(entryHeader(credential.name, credential.issuer, credential.dateDisplay), { spacing: { after: 40 }, keepLines: true });
+    } else if (section.type === "education") {
+      for (const education of section.items) {
+        addParagraph(entryHeader([education.credential, education.field].filter(Boolean).join(" - "), education.institution, education.location, education.dateDisplay), { spacing: { after: education.details.length ? 20 : 40 }, keepNext: education.details.length > 0 });
+        for (const detail of education.details) addBullet(detail.text);
+      }
+    } else if (section.type === "languages") {
+      addParagraph(section.items.map((language) => [language.name, language.proficiency].filter(Boolean).join(" - ")).join(", "), { spacing: { after: 40 }, keepLines: true });
+    } else {
+      for (const item of section.items) addParagraph(item.text, { spacing: { after: 40 }, keepLines: true });
+    }
   }
 
-  if (template === "trades") {
-    addCertifications();
-    addSafety();
-    addExperience();
-    addSkills();
-  } else if (template === "career-change") {
-    addProjects();
-    addTraining();
-    addSkills();
-    addExperience();
-  } else {
-    addSkills();
-    addProjects();
-    addTraining();
-    addExperience();
-  }
-
-  if (resume.education.length) {
-    addHeading("Education");
-    for (const education of resume.education) addParagraph(joinText([education.degree, education.institution, education.dates]));
-  }
-  if (resume.languages.length) {
-    addHeading("Languages");
-    addParagraph(joinText(resume.languages, ", "));
-  }
-
+  const tokens = renderPlan.visualTokens;
   const document = new Document({
+    creator: "Gigscapes",
+    lastModifiedBy: "Gigscapes",
+    title: [renderPlan.header.fullName, renderPlan.header.headline].filter(Boolean).join(" - "),
+    description: "ATS-readable résumé generated from verified candidate content.",
     styles: {
-      default: { document: { run: { font: "Arial", size: 21, color: "111111" }, paragraph: { spacing: { line: 260 } } } },
+      default: { document: { run: { font: "Arial", size: 20, color: "111111" }, paragraph: { spacing: { line: 260 } } } },
       paragraphStyles: [{
         id: "Heading2",
         name: "Heading 2",
         basedOn: "Normal",
         next: "Normal",
         quickFormat: true,
-        run: { font: "Arial", size: 22, bold: true, color: "111111" },
+        run: { font: "Arial", size: 21, bold: true, color: tokens.accent.replace("#", "").toUpperCase() },
       }],
     },
     sections: [{
       properties: {
         page: {
           size: { width: 12240, height: 15840 },
-          margin: { top: 720, right: 720, bottom: 720, left: 720 },
+          margin: {
+            top: Math.round(tokens.marginTopIn * 1440),
+            right: Math.round(tokens.marginRightIn * 1440),
+            bottom: Math.round(tokens.marginBottomIn * 1440),
+            left: Math.round(tokens.marginLeftIn * 1440),
+          },
         },
       },
       children,
@@ -178,12 +157,16 @@ export async function createResumeDocxBlob(resumeData, template = "professional"
   return Packer.toBlob(document);
 }
 
-export async function downloadResumeDocx(resumeData, template = "professional", options = {}) {
-  const blob = await createResumeDocxBlob(resumeData, template, options);
+export async function downloadResumeDocx(input, template = "professional", options = {}) {
+  const context = validateResumeExportContext(input);
+  const resumePackage = context.resumePackage;
+  assertResumePackageIdentity(resumePackage);
+  const blob = await createResumeDocxBlob(context, template, options);
+  const preliminary = context.readiness.preliminary;
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = safeResumeFilename(resumeData, "docx", options);
+  anchor.download = safeResumeFilenameFromPackage(resumePackage, "docx", { preliminary });
   anchor.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

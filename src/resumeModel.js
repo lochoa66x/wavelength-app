@@ -1,0 +1,907 @@
+export const RESUME_SCHEMA_VERSION = 2;
+
+export const PRELIMINARY_EXPORT_NOTICE = "PRELIMINARY DRAFT - Verify the complete posting and every resume detail before applying.";
+
+export const TEMPLATE_IDS = Object.freeze({
+  ATS_CORE: "ats-core-v1",
+  SAP_FUNCTIONAL: "sap-functional-v1",
+  PROJECT_LEADERSHIP: "project-leadership-v1",
+  CAREER_TRANSITION: "career-transition-v1",
+  LEGACY_TRADES: "trades-legacy-v1",
+});
+
+const INVALID_EXACT_TEXT = /^(?:\[object Object\]|undefined|null|<\s*unknown\s*>)$/i;
+const PLACEHOLDER_IDENTITY = /^(?:<\s*)?(?:unknown|unnamed|name unavailable|candidate|n\/?a|null|undefined)(?:\s*>)?$/i;
+const ALLOWED_RELEVANCE = new Set(["direct", "adjacent", "transferable", "background"]);
+const ALLOWED_STRATEGIES = new Set(["direct", "adjacent", "transferable", "major-transition"]);
+const SAFE_URL_PROTOCOLS = new Set(["https:", "http:"]);
+
+const TEMPLATE_ALIASES = Object.freeze({
+  professional: TEMPLATE_IDS.ATS_CORE,
+  "ats-core": TEMPLATE_IDS.ATS_CORE,
+  "sap-functional": TEMPLATE_IDS.SAP_FUNCTIONAL,
+  "project-leadership": TEMPLATE_IDS.PROJECT_LEADERSHIP,
+  "career-change": TEMPLATE_IDS.CAREER_TRANSITION,
+  "career-transition": TEMPLATE_IDS.CAREER_TRANSITION,
+  trades: TEMPLATE_IDS.LEGACY_TRADES,
+});
+
+const BASE_SECTIONS = Object.freeze([
+  "summary",
+  "skills",
+  "experience",
+  "projects",
+  "training",
+  "certifications",
+  "safety",
+  "education",
+  "languages",
+]);
+
+const BASE_VISUAL_TOKENS = Object.freeze({
+  pageWidthIn: 8.5,
+  pageHeightIn: 11,
+  marginTopIn: 0.65,
+  marginRightIn: 0.68,
+  marginBottomIn: 0.65,
+  marginLeftIn: 0.68,
+  fontFamily: "Arial, Helvetica, sans-serif",
+  bodyFontSizePt: 10,
+  bodyLineHeight: 1.35,
+  nameFontSizePt: 18,
+  headlineFontSizePt: 11,
+  sectionFontSizePt: 10.5,
+  ink: "#17191c",
+  muted: "#515861",
+  rule: "#c9cdd1",
+  paper: "#ffffff",
+});
+
+function templateDefinition({ id, displayName, description, intendedUse, accent, sectionOrder, visible = true }) {
+  return Object.freeze({
+    id,
+    version: 1,
+    displayName,
+    description,
+    intendedUse,
+    atsSafetyLevel: "high",
+    supportedSections: BASE_SECTIONS,
+    pageTarget: 2,
+    visible,
+    visualTokens: Object.freeze({ ...BASE_VISUAL_TOKENS, accent }),
+    sectionOrder: Object.freeze(sectionOrder),
+    previewMetadata: Object.freeze({ columnCount: 1, hasSidebar: false, usesGraphics: false }),
+    compatibilityNotes: "Single-column semantic text; no skill bars, icons, graphics, or layout tables.",
+  });
+}
+
+export const RESUME_TEMPLATE_REGISTRY = Object.freeze({
+  [TEMPLATE_IDS.ATS_CORE]: templateDefinition({
+    id: TEMPLATE_IDS.ATS_CORE,
+    displayName: "ATS Core",
+    description: "Conservative general-professional layout with maximum parser compatibility.",
+    intendedUse: "General office, professional, and technical roles",
+    accent: "#1d5f7a",
+    sectionOrder: ["summary", "skills", "experience", "projects", "education", "certifications", "training", "languages", "safety"],
+  }),
+  [TEMPLATE_IDS.SAP_FUNCTIONAL]: templateDefinition({
+    id: TEMPLATE_IDS.SAP_FUNCTIONAL,
+    displayName: "SAP Functional",
+    description: "Enterprise-consulting structure for verified functional SAP delivery evidence.",
+    intendedUse: "SAP functional, ERP implementation, integration, testing, and transformation",
+    accent: "#15586c",
+    sectionOrder: ["summary", "skills", "experience", "projects", "certifications", "training", "education", "languages", "safety"],
+  }),
+  [TEMPLATE_IDS.PROJECT_LEADERSHIP]: templateDefinition({
+    id: TEMPLATE_IDS.PROJECT_LEADERSHIP,
+    displayName: "Project Leadership",
+    description: "Leadership-forward structure that preserves the candidate's verified ownership level.",
+    intendedUse: "Project, program, transformation, operations, and delivery leadership",
+    accent: "#3f5268",
+    sectionOrder: ["summary", "skills", "experience", "projects", "certifications", "education", "training", "languages", "safety"],
+  }),
+  [TEMPLATE_IDS.CAREER_TRANSITION]: templateDefinition({
+    id: TEMPLATE_IDS.CAREER_TRANSITION,
+    displayName: "Career Transition",
+    description: "Evidence-first presentation for adjacent pivots and material career changes.",
+    intendedUse: "Candidates relying on verified transferable evidence",
+    accent: "#6b513d",
+    sectionOrder: ["summary", "skills", "projects", "training", "experience", "certifications", "education", "languages", "safety"],
+  }),
+  [TEMPLATE_IDS.LEGACY_TRADES]: templateDefinition({
+    id: TEMPLATE_IDS.LEGACY_TRADES,
+    displayName: "Skilled Trades (existing)",
+    description: "Compatibility presentation for the already-shipped trades experience.",
+    intendedUse: "Existing skilled-trades flows pending the dedicated later-family pass",
+    accent: "#37634d",
+    sectionOrder: ["summary", "certifications", "safety", "experience", "skills", "education", "projects", "training", "languages"],
+    visible: false,
+  }),
+});
+
+export function availableResumeTemplates() {
+  return Object.values(RESUME_TEMPLATE_REGISTRY).filter((template) => template.visible);
+}
+
+export function resolveTemplateId(value, fallback = TEMPLATE_IDS.ATS_CORE) {
+  const requested = cleanScalar(value).toLowerCase();
+  const resolved = TEMPLATE_ALIASES[requested] || requested;
+  return RESUME_TEMPLATE_REGISTRY[resolved] ? resolved : fallback;
+}
+
+export function cleanScalar(value, maxLength = 12_000) {
+  if (value == null || typeof value === "boolean") return "";
+  if (!["string", "number", "bigint"].includes(typeof value)) return "";
+  const result = String(value)
+    .normalize("NFC")
+    .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maxLength);
+  return INVALID_EXACT_TEXT.test(result) ? "" : result;
+}
+
+export function serializeApprovedValue(value, {
+  keys = ["text", "value", "name"],
+  separator = " · ",
+  seen = new Set(),
+} = {}) {
+  const direct = cleanScalar(value);
+  if (direct || value == null || typeof value !== "object") return direct;
+  if (seen.has(value)) return "";
+  seen.add(value);
+
+  let result = "";
+  if (Array.isArray(value)) {
+    result = value
+      .map((item) => serializeApprovedValue(item, { keys, separator, seen }))
+      .filter(Boolean)
+      .join(separator);
+  } else {
+    result = keys
+      .filter((key) => Object.prototype.hasOwnProperty.call(value, key))
+      .map((key) => serializeApprovedValue(value[key], { keys, separator, seen }))
+      .filter(Boolean)
+      .join(separator);
+  }
+
+  seen.delete(value);
+  return result;
+}
+
+function warning(warnings, path, code, message) {
+  warnings.push({ path, code, message });
+}
+
+function fieldText(value, keys, path, warnings, separator = " · ", maxLength = 12_000) {
+  const direct = cleanScalar(value, maxLength);
+  if (direct || value == null || typeof value !== "object") return direct;
+  const serialized = serializeApprovedValue(value, { keys: [...new Set(["text", ...keys])], separator });
+  if (!serialized) warning(warnings, path, "unsupported_structured_value", "Unsupported structured value was omitted instead of being string-coerced.");
+  return cleanScalar(serialized, maxLength);
+}
+
+function valueList(value) {
+  return Array.isArray(value) ? value : value == null ? [] : [value];
+}
+
+function hashText(value) {
+  const text = typeof value === "string" ? value : stableStringify(value);
+  let hash = 0x811c9dc5;
+  for (let index = 0; index < text.length; index += 1) {
+    hash ^= text.charCodeAt(index);
+    hash = Math.imul(hash, 0x01000193);
+  }
+  return (hash >>> 0).toString(36);
+}
+
+export function stableHash(value, prefix = "hash") {
+  return `${prefix}-${hashText(value)}`;
+}
+
+export function stableStringify(value) {
+  const seen = new Set();
+  const visit = (entry) => {
+    if (entry == null || typeof entry !== "object") return entry;
+    if (seen.has(entry)) return "[Circular]";
+    seen.add(entry);
+    const result = Array.isArray(entry)
+      ? entry.map(visit)
+      : Object.fromEntries(Object.keys(entry).sort().map((key) => [key, visit(entry[key])]));
+    seen.delete(entry);
+    return result;
+  };
+  return JSON.stringify(visit(value));
+}
+
+function stableId(prefix, supplied, path, seed) {
+  const approved = cleanScalar(supplied, 180).replace(/[^a-z0-9_-]+/gi, "-").replace(/^-+|-+$/g, "");
+  return approved || `${prefix}-${hashText(`${path}|${seed}`)}`;
+}
+
+function safeUrl(value, path, warnings) {
+  const url = cleanScalar(value, 2_000);
+  if (!url) return "";
+  try {
+    const parsed = new URL(url);
+    if (!SAFE_URL_PROTOCOLS.has(parsed.protocol)) throw new Error("unsupported protocol");
+    return parsed.toString();
+  } catch {
+    warning(warnings, path, "invalid_url", "An invalid or unsafe professional link was omitted.");
+    return "";
+  }
+}
+
+function identityText(source, warnings) {
+  const direct = fieldText(source.name ?? source.full_name ?? source.fullName, ["full_name", "fullName", "name"], "candidate.fullName", warnings, " ", 240);
+  if (direct) return direct;
+  const structuredName = source.name && typeof source.name === "object" && !Array.isArray(source.name) ? source.name : {};
+  return [
+    structuredName.first_name ?? structuredName.firstName ?? source.first_name ?? source.firstName,
+    structuredName.middle_name ?? structuredName.middleName ?? source.middle_name ?? source.middleName,
+    structuredName.last_name ?? structuredName.lastName ?? source.last_name ?? source.lastName,
+  ]
+    .map((value, index) => fieldText(value, ["name", "value"], `candidate.namePart.${index}`, warnings, " ", 100))
+    .filter(Boolean)
+    .join(" ");
+}
+
+function normalizeContact(source, warnings) {
+  const contactSource = source.candidate && typeof source.candidate === "object" ? source.candidate : {};
+  const contactLine = fieldText(source.contact ?? contactSource.contactLine, [
+    "email", "phone", "location", "address", "city", "region", "province", "state", "country", "website", "linkedin", "url",
+  ], "candidate.contactLine", warnings, " | ", 1_000);
+  const parts = contactLine.split(/\s*(?:\||·)\s*/).filter(Boolean);
+  const email = fieldText(contactSource.email ?? source.email, ["email", "value"], "candidate.email", warnings, " ", 320)
+    || parts.find((part) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(part)) || "";
+  const phone = fieldText(contactSource.phone ?? source.phone, ["phone", "value"], "candidate.phone", warnings, " ", 100)
+    || parts.find((part) => /\d/.test(part) && part.replace(/\D/g, "").length >= 7) || "";
+  const location = parts.find((part) => part !== email && part !== phone && !/^https?:\/\//i.test(part)) || "";
+  const locationParts = location.split(",").map((part) => part.trim()).filter(Boolean);
+  const linksSource = contactSource.professionalLinks ?? source.professional_links ?? source.professionalLinks ?? [];
+  const professionalLinks = valueList(linksSource).map((entry, index) => {
+    const object = entry && typeof entry === "object" && !Array.isArray(entry) ? entry : { url: entry };
+    const url = safeUrl(object.url ?? object.href ?? object.value, `candidate.professionalLinks.${index}.url`, warnings);
+    if (!url) return null;
+    const label = fieldText(object.label ?? object.name, ["label", "name", "value"], `candidate.professionalLinks.${index}.label`, warnings, " ", 120) || new URL(url).hostname;
+    return { id: stableId("link", object.id, `candidate.professionalLinks.${index}`, `${label}|${url}`), label, url };
+  }).filter(Boolean);
+  return {
+    email,
+    phone,
+    city: fieldText(contactSource.city ?? source.city, ["city", "value"], "candidate.city", warnings, " ", 160) || locationParts[0] || "",
+    region: fieldText(contactSource.region ?? contactSource.province ?? contactSource.state ?? source.region, ["region", "province", "state", "value"], "candidate.region", warnings, " ", 160) || locationParts[1] || "",
+    country: fieldText(contactSource.country ?? source.country, ["country", "value"], "candidate.country", warnings, " ", 160) || locationParts[2] || "",
+    professionalLinks,
+    contactLine,
+  };
+}
+
+function normalizeEvidenceReferences(value, path, warnings) {
+  const entries = valueList(value).map((entry, index) => {
+    if (typeof entry === "string") {
+      const sourcePath = cleanScalar(entry, 500);
+      return sourcePath ? { id: stableId("source", "", `${path}.${index}`, sourcePath), sourceType: "resume", sourceId: "", sourcePath, verified: false } : null;
+    }
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) return null;
+    const sourceType = fieldText(entry.sourceType ?? entry.source_type, ["sourceType", "source_type", "type", "value"], `${path}.${index}.sourceType`, warnings, " ", 80) || "resume";
+    const sourceId = fieldText(entry.sourceId ?? entry.source_id, ["sourceId", "source_id", "id", "value"], `${path}.${index}.sourceId`, warnings, " ", 180);
+    const sourcePath = fieldText(entry.sourcePath ?? entry.source_path, ["sourcePath", "source_path", "path", "value"], `${path}.${index}.sourcePath`, warnings, " ", 500);
+    if (!sourceId && !sourcePath) return null;
+    return {
+      id: stableId("source", entry.id, `${path}.${index}`, `${sourceType}|${sourceId}|${sourcePath}`),
+      sourceType,
+      sourceId,
+      sourcePath,
+      verified: entry.verified === true,
+    };
+  }).filter(Boolean);
+  return entries.length ? entries : [{ id: stableId("source", "", path, path), sourceType: "legacy-tailored-result", sourceId: "", sourcePath: path, verified: false }];
+}
+
+function normalizeMetricReferences(value, path, warnings) {
+  return valueList(value).map((entry, index) => {
+    const object = entry && typeof entry === "object" && !Array.isArray(entry) ? entry : { value: entry };
+    const metric = fieldText(object.metric ?? object.value ?? object.text, ["metric", "value", "text"], `${path}.${index}.metric`, warnings, " ", 180);
+    if (!metric) return null;
+    return { id: stableId("metric", object.id, `${path}.${index}`, metric), metric, sourceReferenceId: cleanScalar(object.sourceReferenceId ?? object.source_reference_id, 180) };
+  }).filter(Boolean);
+}
+
+function normalizeBullet(value, path, index, warnings, evidenceItems) {
+  const object = value && typeof value === "object" && !Array.isArray(value) ? value : {};
+  const text = fieldText(value, ["value", "bullet", "description", "content", "statement", "text"], `${path}.${index}.text`, warnings, " ", 2_000);
+  if (!text) return null;
+  const id = stableId("bullet", object.id, `${path}.${index}`, text);
+  const relevance = ALLOWED_RELEVANCE.has(object.relevance) ? object.relevance : "background";
+  const classification = ALLOWED_RELEVANCE.has(object.classification)
+    ? object.classification
+    : ALLOWED_RELEVANCE.has(object.evidence_match)
+      ? object.evidence_match
+      : relevance;
+  evidenceItems[id] = {
+    sourceReferences: normalizeEvidenceReferences(object.sourceEvidenceReferences ?? object.source_evidence_references ?? object.sourceRefs, `${path}.${index}.sourceReferences`, warnings),
+    relevance,
+    classification,
+    verifiedMetricReferences: normalizeMetricReferences(object.verifiedMetricReferences ?? object.verified_metric_references, `${path}.${index}.metrics`, warnings),
+    orderingWeight: Number.isFinite(object.orderingWeight ?? object.ordering_weight) ? Number(object.orderingWeight ?? object.ordering_weight) : 1_000 - index,
+    responsibilityLevel: cleanScalar(object.responsibilityLevel ?? object.responsibility_level, 60),
+  };
+  return { id, text };
+}
+
+function normalizeTextItems(value, path, warnings, evidenceItems, keys = ["value", "name", "skill", "label", "text"]) {
+  return valueList(value).map((entry, index) => {
+    const object = entry && typeof entry === "object" && !Array.isArray(entry) ? entry : {};
+    const text = fieldText(entry, keys, `${path}.${index}.text`, warnings, " ", 500);
+    if (!text) return null;
+    const id = stableId("item", object.id, `${path}.${index}`, text);
+    evidenceItems[id] = {
+      sourceReferences: normalizeEvidenceReferences(object.sourceEvidenceReferences ?? object.source_evidence_references ?? object.sourceRefs, `${path}.${index}.sourceReferences`, warnings),
+      relevance: ALLOWED_RELEVANCE.has(object.relevance) ? object.relevance : "background",
+      classification: ALLOWED_RELEVANCE.has(object.classification) ? object.classification : "background",
+      verifiedMetricReferences: [],
+      orderingWeight: Number.isFinite(object.orderingWeight ?? object.ordering_weight) ? Number(object.orderingWeight ?? object.ordering_weight) : 1_000 - index,
+      responsibilityLevel: "",
+    };
+    return { id, text };
+  }).filter(Boolean);
+}
+
+function normalizeExperience(value, warnings, evidenceItems) {
+  return valueList(value).map((entry, index) => {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+      if (entry != null) warning(warnings, `experience.${index}`, "invalid_experience", "A malformed experience entry was omitted.");
+      return null;
+    }
+    const title = fieldText(entry.title ?? entry.role ?? entry.position ?? entry.job_title ?? entry.jobTitle, ["title", "role", "position", "job_title", "jobTitle", "value"], `experience.${index}.title`, warnings, " ", 300);
+    const employer = fieldText(entry.employer ?? entry.company ?? entry.organization, ["employer", "company", "organization", "name", "value"], `experience.${index}.employer`, warnings, " ", 300);
+    const dateDisplay = fieldText(entry.dateDisplay ?? entry.dates ?? entry.period ?? entry.date, ["dateDisplay", "dates", "period", "date", "start", "end"], `experience.${index}.dateDisplay`, warnings, " - ", 200);
+    const bullets = valueList(entry.bullets ?? entry.achievements ?? entry.highlights ?? entry.responsibilities)
+      .map((bullet, bulletIndex) => normalizeBullet(bullet, `experience.${index}.bullets`, bulletIndex, warnings, evidenceItems))
+      .filter(Boolean);
+    if (!title && !employer && !dateDisplay && !bullets.length) return null;
+    return {
+      id: stableId("experience", entry.id, `experience.${index}`, `${title}|${employer}|${dateDisplay}`),
+      title,
+      employer,
+      location: fieldText(entry.location, ["location", "city", "region", "country", "value"], `experience.${index}.location`, warnings, ", ", 300),
+      startDate: fieldText(entry.startDate ?? entry.start_date, ["startDate", "start_date", "value"], `experience.${index}.startDate`, warnings, " ", 30),
+      endDate: fieldText(entry.endDate ?? entry.end_date, ["endDate", "end_date", "value"], `experience.${index}.endDate`, warnings, " ", 30),
+      current: entry.current === true || /\b(?:present|current|now)\b/i.test(dateDisplay),
+      dateDisplay,
+      bullets,
+    };
+  }).filter(Boolean);
+}
+
+function normalizeProjects(value, warnings, evidenceItems) {
+  return valueList(value).map((entry, index) => {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) return null;
+    const name = fieldText(entry.name ?? entry.title, ["name", "title", "value"], `projects.${index}.name`, warnings, " ", 300);
+    const description = fieldText(entry.description ?? entry.summary, ["description", "summary", "content", "value"], `projects.${index}.description`, warnings, " ", 2_000);
+    const bullets = valueList(entry.bullets ?? entry.highlights ?? entry.achievements)
+      .map((bullet, bulletIndex) => normalizeBullet(bullet, `projects.${index}.bullets`, bulletIndex, warnings, evidenceItems))
+      .filter(Boolean);
+    if (!name && !description && !bullets.length) return null;
+    return {
+      id: stableId("project", entry.id, `projects.${index}`, `${name}|${description}`),
+      name,
+      organization: fieldText(entry.organization, ["organization", "company", "name", "value"], `projects.${index}.organization`, warnings, " ", 300),
+      startDate: fieldText(entry.startDate ?? entry.start_date, ["startDate", "start_date", "value"], `projects.${index}.startDate`, warnings, " ", 30),
+      endDate: fieldText(entry.endDate ?? entry.end_date, ["endDate", "end_date", "value"], `projects.${index}.endDate`, warnings, " ", 30),
+      description,
+      bullets,
+    };
+  }).filter(Boolean);
+}
+
+function normalizeEducation(value, warnings, evidenceItems) {
+  return valueList(value).map((entry, index) => {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) return null;
+    const credential = fieldText(entry.credential ?? entry.degree ?? entry.program ?? entry.qualification, ["credential", "degree", "program", "qualification", "name", "value"], `education.${index}.credential`, warnings, " ", 300);
+    const institution = fieldText(entry.institution ?? entry.school ?? entry.provider, ["institution", "school", "provider", "organization", "name"], `education.${index}.institution`, warnings, " ", 300);
+    const dateDisplay = fieldText(entry.dateDisplay ?? entry.dates ?? entry.date ?? entry.year, ["dateDisplay", "dates", "date", "year", "start", "end"], `education.${index}.dateDisplay`, warnings, " - ", 200);
+    const details = normalizeTextItems(entry.details, `education.${index}.details`, warnings, evidenceItems, ["text", "value", "description"]);
+    if (!credential && !institution && !dateDisplay && !details.length) return null;
+    return {
+      id: stableId("education", entry.id, `education.${index}`, `${credential}|${institution}|${dateDisplay}`),
+      credential,
+      field: fieldText(entry.field, ["field", "value"], `education.${index}.field`, warnings, " ", 240),
+      institution,
+      location: fieldText(entry.location, ["location", "city", "region", "country", "value"], `education.${index}.location`, warnings, ", ", 300),
+      startDate: fieldText(entry.startDate ?? entry.start_date, ["startDate", "start_date", "value"], `education.${index}.startDate`, warnings, " ", 30),
+      endDate: fieldText(entry.endDate ?? entry.end_date, ["endDate", "end_date", "value"], `education.${index}.endDate`, warnings, " ", 30),
+      dateDisplay,
+      details,
+    };
+  }).filter(Boolean);
+}
+
+function normalizeCredentials(value, path, warnings, evidenceItems) {
+  return valueList(value).map((entry, index) => {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) return null;
+    const name = fieldText(entry.name ?? entry.title ?? entry.credential, ["name", "title", "credential", "value"], `${path}.${index}.name`, warnings, " ", 300);
+    const issuer = fieldText(entry.issuer ?? entry.provider ?? entry.institution, ["issuer", "provider", "institution", "organization", "name"], `${path}.${index}.issuer`, warnings, " ", 300);
+    const dateDisplay = fieldText(entry.dateDisplay ?? entry.dates ?? entry.date ?? entry.year, ["dateDisplay", "dates", "date", "year", "start", "end"], `${path}.${index}.dateDisplay`, warnings, " - ", 200);
+    if (!name && !issuer && !dateDisplay) return null;
+    const id = stableId(path === "training" ? "training" : "certification", entry.id, `${path}.${index}`, `${name}|${issuer}|${dateDisplay}`);
+    evidenceItems[id] = {
+      sourceReferences: normalizeEvidenceReferences(entry.sourceEvidenceReferences ?? entry.source_evidence_references ?? entry.sourceRefs, `${path}.${index}.sourceReferences`, warnings),
+      relevance: ALLOWED_RELEVANCE.has(entry.relevance) ? entry.relevance : "background",
+      classification: ALLOWED_RELEVANCE.has(entry.classification) ? entry.classification : "background",
+      verifiedMetricReferences: [],
+      orderingWeight: 1_000 - index,
+      responsibilityLevel: "",
+    };
+    return {
+      id,
+      name,
+      issuer,
+      issueDate: fieldText(entry.issueDate ?? entry.issue_date, ["issueDate", "issue_date", "value"], `${path}.${index}.issueDate`, warnings, " ", 30),
+      expirationDate: fieldText(entry.expirationDate ?? entry.expiration_date, ["expirationDate", "expiration_date", "value"], `${path}.${index}.expirationDate`, warnings, " ", 30),
+      credentialId: fieldText(entry.credentialId ?? entry.credential_id, ["credentialId", "credential_id", "value"], `${path}.${index}.credentialId`, warnings, " ", 180),
+      credentialUrl: safeUrl(entry.credentialUrl ?? entry.credential_url, `${path}.${index}.credentialUrl`, warnings),
+      dateDisplay,
+    };
+  }).filter(Boolean);
+}
+
+function normalizeLanguages(value, warnings, evidenceItems) {
+  return valueList(value).map((entry, index) => {
+    const object = entry && typeof entry === "object" && !Array.isArray(entry) ? entry : {};
+    const name = fieldText(entry, ["name", "language", "value", "text"], `languages.${index}.name`, warnings, " ", 180);
+    if (!name) return null;
+    const proficiency = fieldText(object.proficiency, ["proficiency", "value", "text"], `languages.${index}.proficiency`, warnings, " ", 120);
+    const id = stableId("language", object.id, `languages.${index}`, `${name}|${proficiency}`);
+    evidenceItems[id] = {
+      sourceReferences: normalizeEvidenceReferences(object.sourceEvidenceReferences ?? object.source_evidence_references ?? object.sourceRefs, `languages.${index}.sourceReferences`, warnings),
+      relevance: "background",
+      classification: "background",
+      verifiedMetricReferences: [],
+      orderingWeight: 1_000 - index,
+      responsibilityLevel: "",
+    };
+    return { id, name, proficiency };
+  }).filter(Boolean);
+}
+
+function normalizeAdditionalSections(value, warnings, evidenceItems) {
+  return valueList(value).map((entry, index) => {
+    if (!entry || typeof entry !== "object" || Array.isArray(entry)) return null;
+    const title = fieldText(entry.title, ["title", "name", "value"], `additionalSections.${index}.title`, warnings, " ", 180);
+    const items = normalizeTextItems(entry.items, `additionalSections.${index}.items`, warnings, evidenceItems, ["text", "value", "description", "name"]);
+    if (!title || !items.length) return null;
+    return { id: stableId("additional", entry.id, `additionalSections.${index}`, title), title, items };
+  }).filter(Boolean);
+}
+
+function normalizeSkills(source, warnings, evidenceItems) {
+  const structured = source.skills && typeof source.skills === "object" && !Array.isArray(source.skills) ? source.skills : null;
+  if (!structured) {
+    return {
+      verifiedCore: normalizeTextItems(source.skills, "skills.verifiedCore", warnings, evidenceItems),
+      verifiedDomain: [],
+      verifiedTools: [],
+      transferable: [],
+    };
+  }
+  return {
+    verifiedCore: normalizeTextItems(structured.verifiedCore ?? structured.verified_core ?? structured.core, "skills.verifiedCore", warnings, evidenceItems),
+    verifiedDomain: normalizeTextItems(structured.verifiedDomain ?? structured.verified_domain ?? structured.domain, "skills.verifiedDomain", warnings, evidenceItems),
+    verifiedTools: normalizeTextItems(structured.verifiedTools ?? structured.verified_tools ?? structured.tools, "skills.verifiedTools", warnings, evidenceItems),
+    transferable: normalizeTextItems(structured.transferable, "skills.transferable", warnings, evidenceItems),
+  };
+}
+
+function normalizeCareerStrategy(source) {
+  const raw = cleanScalar(source.content_strategy ?? source.fit_assessment?.path ?? source.careerStrategy).toLowerCase().replaceAll("_", "-");
+  if (raw === "career-change" || raw === "career-transition") return "major-transition";
+  return ALLOWED_STRATEGIES.has(raw) ? raw : "direct";
+}
+
+function reviewRequirements(atsReview) {
+  return valueList(atsReview?.requirements ?? atsReview?.coverage?.requirements).filter((entry) => entry && typeof entry === "object");
+}
+
+function hasVerifiedRequirement(atsReview, pattern) {
+  return reviewRequirements(atsReview).some((entry) => {
+    const match = cleanScalar(entry.evidence_match ?? entry.classification).toLowerCase();
+    const evidence = cleanScalar(entry.resume_evidence ?? entry.evidence);
+    return ["direct", "adjacent"].includes(match) && evidence && pattern.test(`${cleanScalar(entry.requirement)} ${evidence}`);
+  });
+}
+
+const SAP_PATTERN = /\b(?:sap|s\/4hana|s4hana|hana)\b/i;
+const SAP_FUNCTIONAL_PATTERN = /\b(?:functional|fi[- /]?ca|pscd|fico|fi\/co|mdg|mm|sd|configuration|requirements?|uat|functional specifications?|cutover|go-live|process analysis|integration design)\b/i;
+const TECHNICAL_PATTERN = /\b(?:abap|java(?:script)?|typescript|react|node(?:\.js)?|front[- ]?end|back[- ]?end|full[- ]?stack|software (?:developer|engineer)|programmer|coding|developer)\b/i;
+const LEADERSHIP_TARGET_PATTERN = /\b(?:project|program|portfolio|delivery|transformation|operations)\s+(?:manager|management|lead|leader|director)|\b(?:project manager|program manager|delivery manager|transformation lead|operations leader)\b/i;
+const LEADERSHIP_EVIDENCE_PATTERN = /\b(?:led|directed|managed|oversaw|governance|program leadership|project leadership|team leadership)\b/i;
+
+export function classifyResumePackageInput(document, source = {}, atsReview = {}, item = {}) {
+  const targetTitle = cleanScalar(item?.title ?? source.target?.jobTitle ?? source.target?.job_title ?? document.target.jobTitle, 300);
+  const targetCorpus = `${targetTitle} ${cleanScalar(item?.description, 5_000)}`;
+  const evidenceCorpus = stableStringify({
+    headline: document.headline,
+    summary: document.summary,
+    skills: document.skills,
+    experience: document.experience,
+  });
+  const careerStrategy = normalizeCareerStrategy(source);
+  const trades = ["trades", "home_services"].includes(cleanScalar(item?.category ?? source.target?.category).toLowerCase());
+  const sapTarget = SAP_PATTERN.test(targetCorpus);
+  const technicalTarget = TECHNICAL_PATTERN.test(targetCorpus);
+  const sapFunctionalTarget = sapTarget && SAP_FUNCTIONAL_PATTERN.test(targetCorpus) && !technicalTarget;
+  const verifiedSapFunctionalEvidence = (SAP_PATTERN.test(evidenceCorpus) && SAP_FUNCTIONAL_PATTERN.test(evidenceCorpus))
+    || hasVerifiedRequirement(atsReview, SAP_FUNCTIONAL_PATTERN);
+  const leadershipTarget = LEADERSHIP_TARGET_PATTERN.test(targetCorpus);
+  const reviewIntegritySafe = !["blocked", "failed"].includes(cleanScalar(atsReview?.integrity?.status).toLowerCase());
+  const verifiedLeadershipEvidence = reviewIntegritySafe && (
+    hasVerifiedRequirement(atsReview, LEADERSHIP_EVIDENCE_PATTERN)
+    || document.experience.some((entry) => entry.bullets.some((bullet) => /^(?:led|directed|managed|oversaw)\b/i.test(bullet.text)))
+  );
+
+  let occupationFamily = "general-professional";
+  if (trades) occupationFamily = "skilled-trades";
+  else if (sapTarget && technicalTarget) occupationFamily = "technical";
+  else if (sapFunctionalTarget) occupationFamily = "sap-functional";
+  else if (leadershipTarget) occupationFamily = "project-leadership";
+  else if (technicalTarget) occupationFamily = "technical";
+
+  let recommendedTemplateId = TEMPLATE_IDS.ATS_CORE;
+  let recommendationReason = "ATS Core is the safest general-purpose match for this verified content.";
+  if (occupationFamily === "skilled-trades") {
+    recommendedTemplateId = TEMPLATE_IDS.LEGACY_TRADES;
+    recommendationReason = "The existing skilled-trades presentation is preserved until that later template family is rebuilt on the canonical registry.";
+  } else if (careerStrategy === "major-transition") {
+    recommendedTemplateId = TEMPLATE_IDS.CAREER_TRANSITION;
+    recommendationReason = "The evidence indicates a material transition, so transferable strengths need explicit, honest positioning.";
+  } else if (occupationFamily === "project-leadership" && verifiedLeadershipEvidence) {
+    recommendedTemplateId = TEMPLATE_IDS.PROJECT_LEADERSHIP;
+    recommendationReason = "The target is delivery/leadership oriented and the résumé contains verified ownership evidence.";
+  } else if (occupationFamily === "sap-functional" && verifiedSapFunctionalEvidence) {
+    recommendedTemplateId = TEMPLATE_IDS.SAP_FUNCTIONAL;
+    recommendationReason = careerStrategy === "adjacent"
+      ? "Verified SAP functional lifecycle evidence supports an adjacent functional-module presentation without claiming the missing module."
+      : "The target and verified background align with functional SAP delivery rather than software development.";
+  } else if (occupationFamily === "technical" && sapTarget) {
+    recommendationReason = "The SAP target is programming-heavy, so the general ATS template avoids misrepresenting it as functional consulting.";
+  } else if (occupationFamily === "project-leadership") {
+    recommendationReason = "The target mentions leadership, but ATS Core avoids upgrading coordination into unverified ownership.";
+  }
+
+  return {
+    occupationFamily,
+    careerStrategy,
+    fitLevel: cleanScalar(atsReview?.readiness?.status ?? atsReview?.candidate_fit?.status ?? source.fit_assessment?.recommended_level, 120),
+    postingReadiness: cleanScalar(atsReview?.posting_readiness?.status, 120),
+    verifiedLeadershipEvidence,
+    functionalVersusTechnical: occupationFamily === "sap-functional" ? "functional" : occupationFamily === "technical" ? "technical" : "not-applicable",
+    materialRequirementGaps: valueList(atsReview?.missing_evidence ?? atsReview?.coverage?.missing).map((entry) => cleanScalar(entry, 500)).filter(Boolean),
+    recommendedTemplateId,
+    recommendationReason,
+    recommendationTrace: [
+      `careerStrategy:${careerStrategy}`,
+      `occupationFamily:${occupationFamily}`,
+      `sapTarget:${sapTarget}`,
+      `sapFunctionalEvidence:${verifiedSapFunctionalEvidence}`,
+      `leadershipTarget:${leadershipTarget}`,
+      `leadershipEvidence:${verifiedLeadershipEvidence}`,
+    ],
+  };
+}
+
+export function createResumePackage(resumeData = {}, { item = {}, atsReview = {}, selectedTemplateId } = {}) {
+  if (resumeData?.kind === "resume-package" && resumeData.schemaVersion !== RESUME_SCHEMA_VERSION) {
+    throw new Error(`Unsupported ResumePackage schema version: ${cleanScalar(resumeData.schemaVersion) || "missing"}.`);
+  }
+  if (resumeData?.kind === "resume-package") {
+    if (!selectedTemplateId) return resumeData;
+    const resolved = resolveTemplateId(selectedTemplateId, resumeData.presentation.recommendedTemplateId);
+    return { ...resumeData, presentation: { ...resumeData.presentation, selectedTemplateId: resolved, pageTarget: RESUME_TEMPLATE_REGISTRY[resolved].pageTarget } };
+  }
+  const source = resumeData && typeof resumeData === "object" && !Array.isArray(resumeData) ? resumeData : {};
+  const warnings = [];
+  const evidenceItems = {};
+  const contact = normalizeContact(source, warnings);
+  const document = {
+    candidate: {
+      fullName: identityText(source, warnings),
+      ...contact,
+    },
+    target: {
+      jobTitle: fieldText(item?.title ?? source.target?.jobTitle ?? source.target?.job_title, ["jobTitle", "job_title", "title", "value"], "target.jobTitle", warnings, " ", 300),
+      company: fieldText(item?.company ?? source.target?.company, ["company", "employer", "name", "value"], "target.company", warnings, " ", 300),
+    },
+    headline: fieldText(source.headline ?? source.title, ["headline", "title", "role", "position", "value", "name"], "headline", warnings, " ", 500),
+    summary: fieldText(source.summary ?? source.profile, ["summary", "profile", "description", "content", "value"], "summary", warnings, " ", 4_000),
+    skills: normalizeSkills(source, warnings, evidenceItems),
+    experience: normalizeExperience(source.experience, warnings, evidenceItems),
+    projects: normalizeProjects(source.projects, warnings, evidenceItems),
+    education: normalizeEducation(source.education, warnings, evidenceItems),
+    certifications: normalizeCredentials(source.certifications, "certifications", warnings, evidenceItems),
+    training: normalizeCredentials(source.training, "training", warnings, evidenceItems),
+    languages: normalizeLanguages(source.languages, warnings, evidenceItems),
+    safety: {
+      record: fieldText(source.safety_record ?? source.safety?.record, ["safety_record", "record", "description", "content", "value"], "safety.record", warnings, " ", 1_500),
+      certifications: normalizeTextItems(source.safety_certifications ?? source.safety?.certifications, "safety.certifications", warnings, evidenceItems, ["value", "name", "title", "credential", "text"]),
+    },
+    additionalSections: normalizeAdditionalSections(source.additionalSections ?? source.additional_sections, warnings, evidenceItems),
+  };
+  const classification = classifyResumePackageInput(document, source, atsReview, item);
+  const recommendedTemplateId = classification.recommendedTemplateId;
+  const requestedTemplateId = selectedTemplateId ?? source.presentation?.selectedTemplateId ?? source.presentation?.selected_template;
+  const selected = resolveTemplateId(requestedTemplateId, recommendedTemplateId);
+  const errors = [];
+  if (!document.candidate.fullName || PLACEHOLDER_IDENTITY.test(document.candidate.fullName)) {
+    errors.push({ path: "candidate.fullName", code: "missing_identity", message: "Candidate name is required before final export." });
+  }
+  const contentHash = `resume-${hashText(document)}`;
+  const resumePackage = {
+    kind: "resume-package",
+    schemaVersion: RESUME_SCHEMA_VERSION,
+    document,
+    evidence: {
+      items: evidenceItems,
+      unsupportedContentRemoved: valueList(atsReview?.unsupported_content_removed ?? atsReview?.unsupported_claims).map((entry) => cleanScalar(entry, 500)).filter(Boolean),
+      verifiedFacts: valueList(atsReview?.verified_facts).map((entry) => cleanScalar(entry, 500)).filter(Boolean),
+      postingCompleteness: atsReview?.posting_readiness || null,
+      warnings,
+    },
+    classification,
+    presentation: {
+      recommendedTemplateId,
+      selectedTemplateId: selected,
+      recommendationReason: classification.recommendationReason,
+      pageTarget: RESUME_TEMPLATE_REGISTRY[selected].pageTarget,
+      locale: cleanScalar(source.presentation?.locale ?? globalThis.navigator?.language, 40) || "en-CA",
+      version: 1,
+    },
+    validation: { valid: errors.length === 0, errors, warnings },
+    contentHash,
+  };
+  resumePackage.evidence.wordingWarnings = analyzeResumeWording(resumePackage);
+  return resumePackage;
+}
+
+function skillItems(document) {
+  return [
+    ...document.skills.verifiedCore,
+    ...document.skills.verifiedDomain,
+    ...document.skills.verifiedTools,
+    ...document.skills.transferable,
+  ];
+}
+
+export function buildResumeContentPlan(resumePackage) {
+  const pkg = createResumePackage(resumePackage);
+  const { document } = pkg;
+  const sections = [];
+  if (document.summary) sections.push({ id: "summary", type: "paragraph", items: [{ id: "summary", text: document.summary }] });
+  const skills = skillItems(document);
+  if (skills.length) sections.push({ id: "skills", type: "inline-list", items: skills });
+  if (document.experience.length) sections.push({ id: "experience", type: "experience", items: document.experience });
+  if (document.projects.length) sections.push({ id: "projects", type: "projects", items: document.projects });
+  if (document.training.length) sections.push({ id: "training", type: "credentials", items: document.training });
+  if (document.certifications.length) sections.push({ id: "certifications", type: "credentials", items: document.certifications });
+  if (document.safety.record || document.safety.certifications.length) sections.push({
+    id: "safety",
+    type: "safety",
+    items: [
+      ...(document.safety.record ? [{ id: "safety-record", text: document.safety.record }] : []),
+      ...document.safety.certifications,
+    ],
+  });
+  if (document.education.length) sections.push({ id: "education", type: "education", items: document.education });
+  if (document.languages.length) sections.push({ id: "languages", type: "languages", items: document.languages });
+  for (const section of document.additionalSections) sections.push({ id: `additional:${section.id}`, type: "inline-list", title: section.title, items: section.items });
+  return Object.freeze({ kind: "resume-content-plan", schemaVersion: pkg.schemaVersion, contentHash: pkg.contentHash, sections: deepFreeze(sections) });
+}
+
+function safeSectionHeading(section, templateId, classification) {
+  if (section.title) return section.title;
+  const isSap = classification.occupationFamily === "sap-functional";
+  const isLeadership = classification.occupationFamily === "project-leadership" && classification.verifiedLeadershipEvidence;
+  const isTransition = classification.careerStrategy === "major-transition";
+  const headings = {
+    summary: templateId === TEMPLATE_IDS.SAP_FUNCTIONAL && isSap
+      ? "SAP Functional Profile"
+      : templateId === TEMPLATE_IDS.PROJECT_LEADERSHIP && isLeadership
+        ? "Project Delivery Profile"
+        : templateId === TEMPLATE_IDS.CAREER_TRANSITION && isTransition
+          ? "Career Transition Summary"
+          : "Professional Summary",
+    skills: templateId === TEMPLATE_IDS.SAP_FUNCTIONAL && isSap
+      ? "SAP Modules & Functional Capabilities"
+      : templateId === TEMPLATE_IDS.PROJECT_LEADERSHIP && isLeadership
+        ? "Leadership Competencies"
+        : templateId === TEMPLATE_IDS.CAREER_TRANSITION && isTransition
+          ? "Transferable Strengths"
+          : templateId === TEMPLATE_IDS.LEGACY_TRADES
+            ? "Skills & Equipment"
+            : "Core Skills",
+    experience: "Professional Experience",
+    projects: "Verified Projects",
+    training: "Training & Certifications",
+    certifications: templateId === TEMPLATE_IDS.LEGACY_TRADES ? "Certifications & Licenses" : "Certifications",
+    safety: "Safety Training",
+    education: "Education",
+    languages: "Languages",
+  };
+  return headings[section.id] || "Additional Information";
+}
+
+function contactLine(candidate) {
+  if (candidate.contactLine) return candidate.contactLine;
+  const location = [candidate.city, candidate.region, candidate.country].filter(Boolean).join(", ");
+  return [candidate.email, candidate.phone, location, ...candidate.professionalLinks.map((link) => link.url)].filter(Boolean).join(" | ");
+}
+
+export function buildResumeRenderPlan(resumePackage, templateId, { preliminary = false } = {}) {
+  const pkg = createResumePackage(resumePackage);
+  const resolvedTemplateId = resolveTemplateId(templateId ?? pkg.presentation.selectedTemplateId, pkg.presentation.recommendedTemplateId);
+  const template = RESUME_TEMPLATE_REGISTRY[resolvedTemplateId];
+  const contentPlan = buildResumeContentPlan(pkg);
+  const order = new Map(template.sectionOrder.map((id, index) => [id, index]));
+  const sections = [...contentPlan.sections]
+    .sort((left, right) => (order.get(left.id) ?? 10_000) - (order.get(right.id) ?? 10_000))
+    .map((section) => ({ ...section, heading: safeSectionHeading(section, resolvedTemplateId, pkg.classification) }));
+  const plan = {
+    kind: "resume-render-plan",
+    schemaVersion: pkg.schemaVersion,
+    templateId: resolvedTemplateId,
+    templateName: template.displayName,
+    contentHash: pkg.contentHash,
+    preliminary,
+    preliminaryNotice: preliminary ? PRELIMINARY_EXPORT_NOTICE : "",
+    header: {
+      fullName: pkg.document.candidate.fullName,
+      headline: pkg.document.headline,
+      contactLine: contactLine(pkg.document.candidate),
+    },
+    sections,
+    visualTokens: template.visualTokens,
+    pageTarget: template.pageTarget,
+  };
+  plan.manifest = createResumeContentManifest(plan);
+  plan.renderPlanHash = `render-${hashText({ templateId: resolvedTemplateId, preliminary, manifest: plan.manifest })}`;
+  return deepFreeze(plan);
+}
+
+function manifestItem(sectionType, item) {
+  if (["experience"].includes(sectionType)) {
+    return {
+      id: item.id,
+      values: [item.title, item.employer, item.location, item.dateDisplay].filter(Boolean),
+      bullets: item.bullets.map((bullet) => ({ id: bullet.id, text: bullet.text })),
+    };
+  }
+  if (sectionType === "projects") {
+    return {
+      id: item.id,
+      values: [item.name, item.organization, item.startDate, item.endDate, item.description].filter(Boolean),
+      bullets: item.bullets.map((bullet) => ({ id: bullet.id, text: bullet.text })),
+    };
+  }
+  if (sectionType === "credentials") return { id: item.id, values: [item.name, item.issuer, item.dateDisplay].filter(Boolean) };
+  if (sectionType === "education") return { id: item.id, values: [item.credential, item.field, item.institution, item.location, item.dateDisplay].filter(Boolean), details: item.details.map((detail) => ({ id: detail.id, text: detail.text })) };
+  if (sectionType === "languages") return { id: item.id, values: [item.name, item.proficiency].filter(Boolean) };
+  return { id: item.id, text: item.text };
+}
+
+export function createResumeContentManifest(renderPlan) {
+  return {
+    schemaVersion: renderPlan.schemaVersion,
+    templateId: renderPlan.templateId,
+    preliminary: renderPlan.preliminary,
+    header: { ...renderPlan.header },
+    sections: renderPlan.sections.map((section) => ({
+      id: section.id,
+      heading: section.heading,
+      items: section.items.map((item) => manifestItem(section.type, item)),
+    })),
+  };
+}
+
+function flattenManifestItem(item) {
+  return [
+    ...(item.values || []),
+    ...(item.text ? [item.text] : []),
+    ...(item.bullets || []).map((bullet) => bullet.text),
+    ...(item.details || []).map((detail) => detail.text),
+  ];
+}
+
+export function manifestVisibleText(manifest) {
+  const lines = [manifest.header.fullName, manifest.header.headline, manifest.header.contactLine];
+  if (manifest.preliminary) lines.push(PRELIMINARY_EXPORT_NOTICE);
+  for (const section of manifest.sections) {
+    lines.push(section.heading);
+    for (const item of section.items) lines.push(...flattenManifestItem(item));
+  }
+  return lines.map((line) => cleanScalar(line)).filter(Boolean);
+}
+
+export function normalizeResumeForLegacyView(resumeData, context = {}) {
+  const pkg = createResumePackage(resumeData, context);
+  const { document } = pkg;
+  return {
+    name: document.candidate.fullName,
+    title: document.headline,
+    contact: contactLine(document.candidate),
+    profile: document.summary,
+    skills: skillItems(document).map((item) => item.text),
+    experience: document.experience.map((entry) => ({ role: entry.title, company: entry.employer, location: entry.location, dates: entry.dateDisplay, bullets: entry.bullets.map((bullet) => bullet.text) })),
+    projects: document.projects.map((entry) => ({ name: entry.name, description: entry.description, bullets: entry.bullets.map((bullet) => bullet.text) })),
+    training: document.training.map((entry) => ({ name: entry.name, provider: entry.issuer, dates: entry.dateDisplay })),
+    certifications: document.certifications.map((entry) => ({ name: entry.name, issuer: entry.issuer, provider: entry.issuer, year: entry.dateDisplay, dates: entry.dateDisplay })),
+    safety_record: document.safety.record,
+    safety_certifications: document.safety.certifications.map((item) => item.text),
+    education: document.education.map((entry) => ({ degree: entry.credential, institution: entry.institution, dates: entry.dateDisplay })),
+    languages: document.languages.map((entry) => [entry.name, entry.proficiency].filter(Boolean).join(" · ")),
+  };
+}
+
+export function hasUsableCandidateIdentity(resumePackage) {
+  const pkg = createResumePackage(resumePackage);
+  const name = pkg.document.candidate.fullName;
+  return Boolean(name) && !PLACEHOLDER_IDENTITY.test(name);
+}
+
+export function assertResumePackageIdentity(resumePackage) {
+  const pkg = createResumePackage(resumePackage);
+  if (!hasUsableCandidateIdentity(pkg)) throw new Error("Candidate name is required before export.");
+  return pkg.document.candidate.fullName;
+}
+
+export function safeResumeFilenameFromPackage(resumePackage, extension, { preliminary = false } = {}) {
+  const pkg = createResumePackage(resumePackage);
+  const base = [pkg.document.candidate.fullName || "candidate", pkg.document.headline || "tailored-resume", preliminary ? "preliminary" : ""]
+    .filter(Boolean)
+    .join("-")
+    .normalize("NFKD")
+    .replace(/[^a-z0-9 -]/gi, "")
+    .trim()
+    .replace(/\s+/g, "-")
+    .slice(0, 100) || "tailored-resume";
+  return `${base}.${cleanScalar(extension).replace(/^\./, "")}`;
+}
+
+const VAGUE_OPENING = /^(?:worked on|responsible for|helped with|involved in|duties included|tasked with)\b/i;
+const LEADERSHIP_OPENING = /^(?:led|directed|managed|oversaw)\b/i;
+
+export function analyzeResumeWording(resumePackage) {
+  const pkg = resumePackage?.kind === "resume-package" ? resumePackage : createResumePackage(resumePackage);
+  const issues = [];
+  const openings = new Map();
+  const exact = new Map();
+  for (const experience of pkg.document.experience) {
+    for (const bullet of experience.bullets) {
+      const opening = bullet.text.match(/^([A-Za-z][A-Za-z'-]*)/)?.[1]?.toLowerCase() || "";
+      if (opening) openings.set(opening, [...(openings.get(opening) || []), bullet.id]);
+      const normalized = bullet.text.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+      if (normalized) exact.set(normalized, [...(exact.get(normalized) || []), bullet.id]);
+      if (VAGUE_OPENING.test(bullet.text)) issues.push({ code: "vague_opening", itemId: bullet.id, message: "Bullet begins with vague wording." });
+      if (bullet.text.length > 240) issues.push({ code: "long_bullet", itemId: bullet.id, message: "Bullet is longer than 240 characters." });
+      if (bullet.text.split(/\s+/).length < 4) issues.push({ code: "fragment", itemId: bullet.id, message: "Bullet may be a sentence fragment." });
+      const evidence = pkg.evidence.items[bullet.id];
+      if (LEADERSHIP_OPENING.test(bullet.text) && evidence?.responsibilityLevel && !["led", "owned"].includes(evidence.responsibilityLevel)) {
+        issues.push({ code: "unsupported_ownership", itemId: bullet.id, message: "Leadership verb is stronger than the recorded responsibility level." });
+      }
+    }
+  }
+  for (const [opening, itemIds] of openings) {
+    if (itemIds.length >= 3) issues.push({ code: "repeated_opening", itemIds, message: `Opening verb “${opening}” is repeated ${itemIds.length} times.` });
+  }
+  for (const itemIds of exact.values()) {
+    if (itemIds.length > 1) issues.push({ code: "duplicate_bullet", itemIds, message: "Identical bullet appears in multiple positions." });
+  }
+  return issues;
+}
+
+function deepFreeze(value, seen = new Set()) {
+  if (!value || typeof value !== "object" || seen.has(value)) return value;
+  seen.add(value);
+  for (const entry of Object.values(value)) deepFreeze(entry, seen);
+  return Object.freeze(value);
+}

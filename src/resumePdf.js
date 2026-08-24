@@ -1,33 +1,26 @@
 import {
-  PRELIMINARY_EXPORT_NOTICE,
-  assertResumeExportIdentity,
-  normalizeResumeForExport,
-  safeResumeFilename,
-} from "./resumeExport.js";
+  assertResumePackageIdentity,
+  buildResumeRenderPlan,
+  cleanScalar,
+  createResumePackage,
+  safeResumeFilenameFromPackage,
+} from "./resumeModel.js";
+import { validateResumeExportContext } from "./resumeReadiness.js";
 
 const PRINT_STYLES = `
   *, *::before, *::after { box-sizing: border-box; }
   html, body { width: 8.5in; min-height: 11in; margin: 0; padding: 0; background: #fff; }
-  body { color: #111; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { color: #17191c; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   main { width: 8.5in; min-height: 11in; margin: 0 auto; }
-  [data-resume-preview] {
-    width: 100% !important;
-    min-height: 11in;
-    margin: 0 !important;
-    border-radius: 0 !important;
-    box-shadow: none !important;
-  }
-  [data-resume-preview] p,
-  [data-resume-preview] li { orphans: 2; widows: 2; }
+  [data-resume-preview] { width: 8.5in !important; min-height: 11in; margin: 0 !important; border-radius: 0 !important; box-shadow: none !important; }
+  [data-resume-section], [data-resume-entry] { break-inside: avoid-page; page-break-inside: avoid; }
+  [data-resume-preview] p, [data-resume-preview] li { orphans: 2; widows: 2; }
   [data-resume-preview] li { break-inside: avoid; page-break-inside: avoid; }
   @page { size: Letter; margin: 0; }
-  @media print {
-    html, body, main { width: 8.5in; }
-  }
 `;
 
 function escapeHtml(value) {
-  return String(value || "Tailored resume")
+  return cleanScalar(value || "Tailored resume")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
@@ -36,27 +29,40 @@ function escapeHtml(value) {
 }
 
 function pdfSafeText(value) {
-  return String(value || "")
+  return cleanScalar(value)
     .replace(/[–—]/g, "-")
     .replace(/[•·]/g, "-")
     .replace(/[“”]/g, '"')
     .replace(/[‘’]/g, "'")
-    .replace(/\u00a0/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+    .replace(/\u00a0/g, " ");
 }
 
-function joined(values, separator = " - ") {
+function joined(values, separator = " | ") {
   return values.map(pdfSafeText).filter(Boolean).join(separator);
 }
 
-export async function createResumePdfBytes(resumeData, template = "professional", options = {}) {
-  assertResumeExportIdentity(resumeData);
-  const resume = normalizeResumeForExport(resumeData);
+function resolveRenderPlan(input, template, options) {
+  if (input?.kind === "resume-export-context") return validateResumeExportContext(input).renderPlan;
+  if (input?.kind === "resume-render-plan") return input;
+  return buildResumeRenderPlan(createResumePackage(input), template, options);
+}
+
+export async function createResumePdfBytes(input, template = "professional", options = {}) {
+  const renderPlan = resolveRenderPlan(input, template, options);
+  assertResumePackageIdentity(createResumePackage({ name: renderPlan.header.fullName }));
   const { jsPDF } = await import("jspdf");
   const doc = new jsPDF({ unit: "pt", format: "letter", orientation: "portrait", compress: true, putOnlyUsedFonts: true });
-  const page = { width: 612, height: 792, left: 46, right: 46, top: 44, bottom: 44 };
+  const tokens = renderPlan.visualTokens;
+  const page = {
+    width: tokens.pageWidthIn * 72,
+    height: tokens.pageHeightIn * 72,
+    left: tokens.marginLeftIn * 72,
+    right: tokens.marginRightIn * 72,
+    top: tokens.marginTopIn * 72,
+    bottom: tokens.marginBottomIn * 72,
+  };
   const contentWidth = page.width - page.left - page.right;
+  const accent = tokens.accent.match(/[a-f\d]{2}/gi)?.map((value) => Number.parseInt(value, 16)) || [29, 95, 122];
   let y = page.top;
 
   const newPage = () => {
@@ -66,18 +72,18 @@ export async function createResumePdfBytes(resumeData, template = "professional"
   const ensureSpace = (height) => {
     if (y + height > page.height - page.bottom) newPage();
   };
-  const wrappedLines = (value, width, size = 10) => {
+  const wrappedLines = (value, width, size = tokens.bodyFontSizePt) => {
     doc.setFontSize(size);
-    const text = pdfSafeText(value);
-    return text ? doc.splitTextToSize(text, width) : [];
+    const safe = pdfSafeText(value);
+    return safe ? doc.splitTextToSize(safe, width) : [];
   };
   const writeLines = (value, {
     x = page.left,
     width = contentWidth,
-    size = 10,
+    size = tokens.bodyFontSizePt,
     style = "normal",
-    color = [25, 25, 28],
-    leading = size * 1.28,
+    color = [23, 25, 28],
+    leading = size * tokens.bodyLineHeight,
     after = 4,
     align = "left",
     ensure = true,
@@ -97,132 +103,104 @@ export async function createResumePdfBytes(resumeData, template = "professional"
   const heading = (value) => {
     ensureSpace(34);
     y += 10;
-    writeLines(value, { size: 10.5, style: "bold", color: [29, 95, 122], leading: 13, after: 4, ensure: false });
-    doc.setDrawColor(205, 205, 198);
+    writeLines(value, { size: tokens.sectionFontSizePt, style: "bold", color: accent, leading: 13, after: 4, ensure: false });
+    doc.setDrawColor(201, 205, 209);
     doc.setLineWidth(0.6);
     doc.line(page.left, y, page.width - page.right, y);
     y += 7;
   };
-  const paragraph = (value, optionsOverride = {}) => writeLines(value, { size: 10, leading: 13.2, after: 4, ...optionsOverride });
+  const paragraph = (value, overrides = {}) => writeLines(value, { size: tokens.bodyFontSizePt, leading: 13.2, after: 4, ...overrides });
   const bullet = (value) => {
     const bulletX = page.left + 2;
     const textX = page.left + 14;
     const width = page.width - page.right - textX;
-    const lines = wrappedLines(value, width, 10);
+    const lines = wrappedLines(value, width, tokens.bodyFontSizePt);
     if (!lines.length) return;
     const height = lines.length * 13.2;
     ensureSpace(height + 4);
     doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-    doc.setTextColor(25, 25, 28);
+    doc.setFontSize(tokens.bodyFontSizePt);
+    doc.setTextColor(23, 25, 28);
     doc.text("-", bulletX, y, { baseline: "top" });
     doc.text(lines, textX, y, { baseline: "top", lineHeightFactor: 1.32 });
     y += height + 4;
   };
-  const emitSkills = () => {
-    if (!resume.skills.length) return;
-    heading("Skills");
-    paragraph(joined(resume.skills, " | "));
-  };
-  const emitExperience = () => {
-    if (!resume.experience.length) return;
-    heading("Professional Experience");
-    for (const entry of resume.experience) {
-      const header = joined([entry.role, entry.company]);
-      const firstBullet = entry.bullets[0] || "";
-      const firstBulletHeight = wrappedLines(firstBullet, contentWidth - 14, 10).length * 13.2;
-      ensureSpace(19 + firstBulletHeight);
-      writeLines(joined([header, entry.dates]), { size: 10.2, style: "bold", leading: 13.2, after: 3, ensure: false });
-      for (const value of entry.bullets) bullet(value);
-      y += 2;
-    }
-  };
-  const emitProjects = () => {
-    if (!resume.projects.length) return;
-    heading("Projects");
-    for (const project of resume.projects) {
-      const firstContent = project.description || project.bullets[0] || "";
-      ensureSpace(18 + wrappedLines(firstContent, contentWidth, 10).length * 13.2);
-      if (project.name) writeLines(project.name, { size: 10.2, style: "bold", leading: 13.2, after: 3, ensure: false });
-      if (project.description) paragraph(project.description);
-      for (const value of project.bullets) bullet(value);
-    }
-  };
-  const emitTraining = () => {
-    if (!resume.training.length) return;
-    heading("Training & Certifications");
-    for (const entry of resume.training) paragraph(joined([entry.name, entry.provider, entry.dates]));
-  };
-  const emitCertifications = () => {
-    if (!resume.certifications.length) return;
-    heading("Certifications & Licenses");
-    for (const entry of resume.certifications) paragraph(joined([entry.name, entry.provider, entry.dates]));
-  };
-  const emitSafety = () => {
-    if (!resume.safety_record && !resume.safety_certifications.length) return;
-    heading("Safety Training");
-    if (resume.safety_record) paragraph(resume.safety_record);
-    if (resume.safety_certifications.length) paragraph(joined(resume.safety_certifications, " | "));
-  };
 
-  writeLines(resume.name, { size: 17, style: "bold", leading: 20, after: 4, align: "center" });
-  if (resume.title) writeLines(resume.title, { size: 11.5, style: "bold", color: [55, 55, 60], leading: 14, after: 3, align: "center" });
-  if (resume.contact) writeLines(resume.contact, { size: 9.2, color: [65, 65, 70], leading: 11.5, after: 8, align: "center" });
-  if (options.preliminary) {
-    const noticeLines = wrappedLines(PRELIMINARY_EXPORT_NOTICE, contentWidth - 20, 9);
+  writeLines(renderPlan.header.fullName, { size: tokens.nameFontSizePt, style: "bold", leading: 20, after: 4, align: "center" });
+  if (renderPlan.header.headline) writeLines(renderPlan.header.headline, { size: tokens.headlineFontSizePt, style: "bold", color: [55, 55, 60], leading: 14, after: 3, align: "center" });
+  if (renderPlan.header.contactLine) writeLines(renderPlan.header.contactLine, { size: 9.2, color: [65, 65, 70], leading: 11.5, after: 8, align: "center" });
+  if (renderPlan.preliminaryNotice) {
+    const noticeLines = wrappedLines(renderPlan.preliminaryNotice, contentWidth - 20, 9);
     const noticeHeight = noticeLines.length * 11.5 + 12;
     ensureSpace(noticeHeight + 5);
     doc.setFillColor(255, 242, 204);
     doc.roundedRect(page.left, y, contentWidth, noticeHeight, 2, 2, "F");
     y += 6;
-    writeLines(PRELIMINARY_EXPORT_NOTICE, { x: page.left + 10, width: contentWidth - 20, size: 9, style: "bold", color: [120, 65, 8], leading: 11.5, after: 6, align: "center", ensure: false });
-  }
-  if (resume.profile) {
-    heading("Professional Summary");
-    paragraph(resume.profile);
+    writeLines(renderPlan.preliminaryNotice, { x: page.left + 10, width: contentWidth - 20, size: 9, style: "bold", color: [120, 65, 8], leading: 11.5, after: 6, align: "center", ensure: false });
   }
 
-  if (template === "trades") {
-    emitCertifications();
-    emitSafety();
-    emitExperience();
-    emitSkills();
-  } else if (template === "career-change") {
-    emitProjects();
-    emitTraining();
-    emitSkills();
-    emitExperience();
-  } else {
-    emitSkills();
-    emitProjects();
-    emitTraining();
-    emitExperience();
+  for (const section of renderPlan.sections) {
+    heading(section.heading);
+    if (section.type === "paragraph") {
+      for (const item of section.items) paragraph(item.text);
+    } else if (section.type === "inline-list") {
+      paragraph(section.items.map((item) => item.text).join(" | "));
+    } else if (section.type === "experience") {
+      for (const entry of section.items) {
+        const firstBullet = entry.bullets[0]?.text || "";
+        ensureSpace(19 + wrappedLines(firstBullet, contentWidth - 14).length * 13.2);
+        writeLines(joined([[entry.title, entry.employer].filter(Boolean).join(" - "), entry.location, entry.dateDisplay]), { size: 10.2, style: "bold", leading: 13.2, after: 3, ensure: false });
+        for (const value of entry.bullets) bullet(value.text);
+        y += 2;
+      }
+    } else if (section.type === "projects") {
+      for (const project of section.items) {
+        const firstContent = project.description || project.bullets[0]?.text || "";
+        ensureSpace(18 + wrappedLines(firstContent, contentWidth).length * 13.2);
+        const projectHeading = [project.name, project.organization].filter(Boolean).join(" - ");
+        if (projectHeading) writeLines(projectHeading, { size: 10.2, style: "bold", leading: 13.2, after: 3, ensure: false });
+        const dates = [project.startDate, project.endDate].filter(Boolean).join(" - ");
+        if (dates) paragraph(dates, { style: "italic" });
+        if (project.description) paragraph(project.description);
+        for (const value of project.bullets) bullet(value.text);
+      }
+    } else if (section.type === "credentials") {
+      for (const item of section.items) paragraph(joined([item.name, item.issuer, item.dateDisplay]));
+    } else if (section.type === "education") {
+      for (const item of section.items) {
+        paragraph(joined([[item.credential, item.field].filter(Boolean).join(" - "), item.institution, item.location, item.dateDisplay]));
+        for (const detail of item.details) bullet(detail.text);
+      }
+    } else if (section.type === "languages") {
+      paragraph(section.items.map((item) => [item.name, item.proficiency].filter(Boolean).join(" - ")).join(", "));
+    } else {
+      for (const item of section.items) paragraph(item.text);
+    }
   }
 
-  if (resume.education.length) {
-    heading("Education");
-    for (const entry of resume.education) paragraph(joined([entry.degree, entry.institution, entry.dates]));
-  }
-  if (resume.languages.length) {
-    heading("Languages");
-    paragraph(joined(resume.languages, ", "));
-  }
-
-  doc.setProperties({ title: joined([resume.name, resume.title]), subject: "ATS-readable tailored resume", creator: "Gigscapes" });
+  doc.setProperties({
+    title: joined([renderPlan.header.fullName, renderPlan.header.headline], " - "),
+    subject: "ATS-readable résumé generated from verified candidate content",
+    creator: "Gigscapes",
+  });
   return new Uint8Array(doc.output("arraybuffer"));
 }
 
-export async function createResumePdfBlob(resumeData, template = "professional", options = {}) {
-  const bytes = await createResumePdfBytes(resumeData, template, options);
+export async function createResumePdfBlob(input, template = "professional", options = {}) {
+  const bytes = await createResumePdfBytes(input, template, options);
   return new Blob([bytes], { type: "application/pdf" });
 }
 
-export async function downloadResumePdf(resumeData, template = "professional", options = {}) {
-  const blob = await createResumePdfBlob(resumeData, template, options);
+export async function downloadResumePdf(input, template = "professional", options = {}) {
+  const context = validateResumeExportContext(input);
+  const resumePackage = context.resumePackage;
+  assertResumePackageIdentity(resumePackage);
+  const blob = await createResumePdfBlob(context, template, options);
+  const preliminary = context.readiness.preliminary;
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
-  anchor.download = safeResumeFilename(resumeData, "pdf", options);
+  anchor.download = safeResumeFilenameFromPackage(resumePackage, "pdf", { preliminary });
   anchor.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
@@ -230,7 +208,6 @@ export async function downloadResumePdf(resumeData, template = "professional", o
 export function createResumePrintDocument(previewMarkup, title = "Tailored resume") {
   const markup = String(previewMarkup || "").trim();
   if (!markup) throw new Error("The résumé preview is unavailable for PDF export.");
-
   return `<!doctype html>
 <html lang="en">
   <head>
@@ -252,17 +229,7 @@ export async function printResumePdf(previewElement, title = "Tailored resume", 
   const frame = documentRef.createElement("iframe");
   frame.title = "Résumé PDF export";
   frame.setAttribute("aria-hidden", "true");
-  Object.assign(frame.style, {
-    position: "fixed",
-    right: "0",
-    bottom: "0",
-    width: "1px",
-    height: "1px",
-    border: "0",
-    opacity: "0",
-    pointerEvents: "none",
-  });
-
+  Object.assign(frame.style, { position: "fixed", right: "0", bottom: "0", width: "1px", height: "1px", border: "0", opacity: "0", pointerEvents: "none" });
   const loaded = new Promise((resolve, reject) => {
     frame.addEventListener("load", resolve, { once: true });
     frame.addEventListener("error", () => reject(new Error("The PDF print preview could not be prepared.")), { once: true });
@@ -270,19 +237,16 @@ export async function printResumePdf(previewElement, title = "Tailored resume", 
   frame.srcdoc = createResumePrintDocument(previewElement.outerHTML, title);
   documentRef.body.appendChild(frame);
   await loaded;
-
   const printWindow = frame.contentWindow;
   if (!printWindow) {
     frame.remove();
     throw new Error("The PDF print preview could not be opened.");
   }
-
   try {
     await frame.contentDocument?.fonts?.ready;
   } catch {
-    // System font fallbacks are intentionally safe for ATS-readable output.
+    // The export uses ATS-safe system font fallbacks.
   }
-
   let removed = false;
   const cleanup = () => {
     if (removed) return;

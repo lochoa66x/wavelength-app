@@ -3,32 +3,38 @@ import { mkdir, rm, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
 import { createResumeDocxBlob } from "../src/resumeDocx.js";
+import { manifestVisibleText, TEMPLATE_IDS } from "../src/resumeModel.js";
 import { createResumePdfBytes } from "../src/resumePdf.js";
-import { getResumeExportReadiness } from "../src/resumeReadiness.js";
+import { createResumeExportContext, getResumeExportReadiness, validateResumeExportContext } from "../src/resumeReadiness.js";
+import { resumeDataToPlainText } from "../src/resumeText.js";
 
 const keepArtifacts = process.argv.includes("--keep");
 const root = fileURLToPath(new URL("..", import.meta.url));
 const outputDir = fileURLToPath(new URL("../tmp/export-verification/", import.meta.url));
 const standardFontDataUrl = `${fileURLToPath(new URL("../node_modules/pdfjs-dist/standard_fonts/", import.meta.url))}/`;
+const templateIds = [TEMPLATE_IDS.ATS_CORE, TEMPLATE_IDS.SAP_FUNCTIONAL, TEMPLATE_IDS.PROJECT_LEADERSHIP, TEMPLATE_IDS.CAREER_TRANSITION];
 
 const resume = {
   name: { firstName: "Luis", lastName: "Example", metadata: "PRIVATE_NAME_METADATA" },
   title: { text: "SAP Functional Consultant" },
   contact: { email: "luis@example.com", phone: "555-0100", location: { city: "Toronto", region: "Ontario" }, private: "PRIVATE_CONTACT_METADATA" },
-  profile: { text: "Evidence-backed SAP delivery profile." },
-  skills: [{ name: "SAP S/4HANA" }, { text: "Requirements analysis" }],
+  profile: { text: "Evidence-backed SAP functional delivery profile with verified requirements, integration, UAT, and project coordination." },
+  skills: [{ name: "SAP S/4HANA" }, { text: "Requirements analysis" }, { text: "UAT" }],
   projects: [{ name: "Finance Transformation", description: "Supported a controlled finance-system rollout.", bullets: [{ text: "Documented verified requirements." }] }],
   training: [{ name: "SAP Learning", provider: "SAP", dates: "2024" }],
+  certifications: [{ name: "Project Management Certificate", issuer: "Example Institute", year: "2022" }],
   experience: [{
     role: { text: "Solution Architect" },
     company: { name: "Example Canada", source: "PRIVATE_COMPANY_METADATA" },
     dates: { start: "2022", end: "2024" },
-    bullets: [{ text: "Led integration testing." }, { content: "Coordinated user acceptance testing." }],
+    bullets: [{ text: "Led integration testing.", responsibilityLevel: "led" }, { content: "Coordinated user acceptance testing." }],
   }],
   education: [{ degree: "BCom", institution: "Example University", dates: "2015" }],
   languages: [{ language: "English", proficiency: "Fluent" }],
   metadata: "PRIVATE_ROOT_METADATA",
 };
+
+const item = { id: "verification-listing", title: "SAP FICO Functional Consultant", company: "Example Bank", category: "tech" };
 
 const verifiedReview = {
   application_ready: true,
@@ -46,13 +52,24 @@ const partialReviewWithStaleFlags = {
   export_readiness: { status: "ready", application_ready: true },
 };
 
+function normalized(value) {
+  return String(value)
+    .replaceAll("&amp;", "&")
+    .replaceAll("&lt;", "<")
+    .replaceAll("&gt;", ">")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 async function inspectDocx(blob) {
   const { default: JSZip } = await import("jszip");
   const zip = await JSZip.loadAsync(await blob.arrayBuffer());
   assert.ok(zip.file("[Content_Types].xml"), "DOCX package is missing [Content_Types].xml");
   const documentXml = await zip.file("word/document.xml")?.async("string");
   assert.ok(documentXml, "DOCX package is missing word/document.xml");
-  return Array.from(documentXml.matchAll(/<w:t(?: [^>]*)?>([\s\S]*?)<\/w:t>/g), (match) => match[1]).join(" ");
+  const coreXml = await zip.file("docProps/core.xml")?.async("string");
+  assert.doesNotMatch(coreXml || "", /PRIVATE_|sourceReferences|recommendationTrace/i, "DOCX core metadata leaked internal values");
+  return normalized(Array.from(documentXml.matchAll(/<w:t(?: [^>]*)?>([\s\S]*?)<\/w:t>/g), (match) => match[1]).join(" "));
 }
 
 async function inspectPdf(bytes) {
@@ -63,20 +80,26 @@ async function inspectPdf(bytes) {
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
     const page = await pdf.getPage(pageNumber);
     const content = await page.getTextContent();
-    items.push(...content.items.filter((item) => typeof item.str === "string" && item.str.trim()).map((item) => item.str.trim()));
+    items.push(...content.items.filter((entry) => typeof entry.str === "string" && entry.str.trim()).map((entry) => entry.str.trim()));
   }
-  const result = { pages: pdf.numPages, items, text: items.join(" ") };
+  const result = { pages: pdf.numPages, items, text: normalized(items.join(" ")) };
   await task.destroy();
   return result;
 }
 
-function verifyVisibleText(text, format) {
-  for (const expected of [
-    "Luis Example", "SAP Functional Consultant", "luis@example.com", "Professional Summary", "Skills",
-    "Professional Experience", "Solution Architect", "Led integration testing.", "Education", "Languages",
-  ]) assert.match(text, new RegExp(expected.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"), `${format} is missing ${expected}`);
-  assert.doesNotMatch(text, /PRIVATE_|\[object Object\]|undefined|null/i, `${format} exposed an object or metadata artifact`);
-  assert.ok(text.indexOf("Professional Summary") < text.indexOf("Professional Experience"), `${format} reading order is incorrect`);
+function verifyAgainstManifest(text, context, format) {
+  const output = normalized(text);
+  for (const expected of manifestVisibleText(context.renderPlan.manifest)) {
+    const visible = normalized(expected);
+    assert.ok(output.toLowerCase().includes(visible.toLowerCase()), `${format} is missing ${visible}`);
+  }
+  let previous = -1;
+  for (const section of context.renderPlan.sections) {
+    const current = output.toLowerCase().indexOf(section.heading.toLowerCase(), previous + 1);
+    assert.ok(current > previous, `${format} reading order is incorrect at ${section.heading}`);
+    previous = current;
+  }
+  assert.doesNotMatch(output, /PRIVATE_|\[object Object\]|undefined|null|sourceReferences|recommendationTrace|storage key/i, `${format} exposed an object or metadata artifact`);
 }
 
 await rm(outputDir, { recursive: true, force: true });
@@ -95,40 +118,64 @@ try {
   );
   assert.equal(getResumeExportReadiness({ name: "<UNKNOWN>" }, verifiedReview).canExport, false);
 
-  const finalDocx = await createResumeDocxBlob(resume, "professional", { preliminary: false });
-  const preliminaryDocx = await createResumeDocxBlob(resume, "professional", { preliminary: true });
-  const finalPdf = await createResumePdfBytes(resume, "professional", { preliminary: false });
-  const preliminaryPdf = await createResumePdfBytes(resume, "professional", { preliminary: true });
+  const finalContexts = templateIds.map((templateId) => createResumeExportContext(resume, verifiedReview, { item, templateId }));
+  const preliminaryContext = createResumeExportContext(resume, partialReviewWithStaleFlags, { item, templateId: TEMPLATE_IDS.ATS_CORE });
+  for (const context of [...finalContexts, preliminaryContext]) validateResumeExportContext(context);
+  assert.equal(preliminaryContext.authorization.mode, "preliminary");
+  assert.equal(preliminaryContext.renderPlan.preliminary, true);
 
-  await Promise.all([
-    writeFile(`${outputDir}/final-resume.docx`, new Uint8Array(await finalDocx.arrayBuffer())),
-    writeFile(`${outputDir}/preliminary-resume.docx`, new Uint8Array(await preliminaryDocx.arrayBuffer())),
-    writeFile(`${outputDir}/final-resume.pdf`, finalPdf),
-    writeFile(`${outputDir}/preliminary-resume.pdf`, preliminaryPdf),
-  ]);
+  const outputs = [];
+  for (const context of finalContexts) {
+    const [docx, pdf] = await Promise.all([createResumeDocxBlob(context), createResumePdfBytes(context)]);
+    outputs.push({ prefix: context.renderPlan.templateId, context, docx, pdf });
+  }
+  const [preliminaryDocx, preliminaryPdf] = await Promise.all([createResumeDocxBlob(preliminaryContext), createResumePdfBytes(preliminaryContext)]);
+  outputs.push({ prefix: "preliminary-ats-core-v1", context: preliminaryContext, docx: preliminaryDocx, pdf: preliminaryPdf });
 
-  const [finalDocxText, preliminaryDocxText, finalPdfInspection, preliminaryPdfInspection] = await Promise.all([
-    inspectDocx(finalDocx),
-    inspectDocx(preliminaryDocx),
-    inspectPdf(finalPdf),
-    inspectPdf(preliminaryPdf),
-  ]);
+  await Promise.all(outputs.map(async ({ prefix, docx, pdf }) => {
+    await Promise.all([
+      writeFile(`${outputDir}/${prefix}.docx`, new Uint8Array(await docx.arrayBuffer())),
+      writeFile(`${outputDir}/${prefix}.pdf`, pdf),
+    ]);
+  }));
 
-  verifyVisibleText(finalDocxText, "DOCX");
-  verifyVisibleText(finalPdfInspection.text, "PDF");
-  assert.doesNotMatch(finalDocxText, /PRELIMINARY DRAFT/);
-  assert.doesNotMatch(finalPdfInspection.text, /PRELIMINARY DRAFT/);
-  assert.match(preliminaryDocxText, /PRELIMINARY DRAFT/);
-  assert.match(preliminaryPdfInspection.text, /PRELIMINARY DRAFT/);
-  assert.ok(finalPdfInspection.items.length > 15, "PDF did not expose enough selectable text items");
+  let pdfPages = 0;
+  let pdfTextItems = 0;
+  for (const output of outputs) {
+    const [docxText, pdfInspection] = await Promise.all([inspectDocx(output.docx), inspectPdf(output.pdf)]);
+    const plainText = resumeDataToPlainText(output.context.renderPlan);
+    verifyAgainstManifest(docxText, output.context, `${output.prefix} DOCX`);
+    verifyAgainstManifest(pdfInspection.text, output.context, `${output.prefix} PDF`);
+    verifyAgainstManifest(plainText, output.context, `${output.prefix} plain text`);
+    if (output.context.renderPlan.preliminary) {
+      assert.match(docxText, /PRELIMINARY DRAFT/);
+      assert.match(pdfInspection.text, /PRELIMINARY DRAFT/);
+    } else {
+      assert.doesNotMatch(docxText, /PRELIMINARY DRAFT/);
+      assert.doesNotMatch(pdfInspection.text, /PRELIMINARY DRAFT/);
+    }
+    assert.ok(pdfInspection.items.length > 15, `${output.prefix} PDF did not expose enough selectable text items`);
+    pdfPages += pdfInspection.pages;
+    pdfTextItems += pdfInspection.items.length;
+  }
+
+  const staleAuthorization = {
+    ...finalContexts[0],
+    assessment: { ...finalContexts[0].assessment, posting_readiness: partialReviewWithStaleFlags.posting_readiness },
+  };
+  assert.throws(() => validateResumeExportContext(staleAuthorization), /stale|does not match/i);
+  const missingIdentity = createResumeExportContext({ ...resume, name: "candidate" }, verifiedReview, { item });
+  assert.throws(() => validateResumeExportContext(missingIdentity), /Candidate name/i);
 
   console.log(JSON.stringify({
     status: "passed",
     root,
     outputDir: keepArtifacts ? outputDir : null,
-    files: 4,
-    pdfPages: finalPdfInspection.pages,
-    pdfTextItems: finalPdfInspection.items.length,
+    files: outputs.length * 2,
+    templates: templateIds.length,
+    pdfPages,
+    pdfTextItems,
+    manifestParity: true,
     verifiedFinalGate: true,
     staleReadyFlagBlocked: true,
   }, null, 2));

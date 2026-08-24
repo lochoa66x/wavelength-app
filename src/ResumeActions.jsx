@@ -1,24 +1,26 @@
 import { useState } from "react";
 import { Copy, Download, ExternalLink, FileText, Loader2 } from "lucide-react";
 
-import { resumeDataToPlainText } from "./resumeShared.jsx";
-import { getResumeExportReadiness } from "./resumeReadiness.js";
+import { resumeDataToPlainText } from "./resumeText.js";
+import { createResumeExportContext, getResumeExportReadiness, validateResumeExportContext } from "./resumeReadiness.js";
 import { useAuth } from "./auth.jsx";
 
-export function ResumeActions({ resumeData, template, previewRef, item, hasLink, atsReview, onEditResume, C, primaryBtnStyle }) {
+export function ResumeActions({ resumeData, resumePackage, renderPlan, template, previewRef, item, hasLink, atsReview, onEditResume, C, primaryBtnStyle }) {
   const { requestAccountAction } = useAuth();
   const [docxState, setDocxState] = useState("idle");
   const [pdfState, setPdfState] = useState("idle");
   const [message, setMessage] = useState(null);
-  const readiness = getResumeExportReadiness(resumeData, atsReview);
+  const canonicalInput = resumePackage || resumeData;
+  const readiness = getResumeExportReadiness(canonicalInput, atsReview);
   const exportBusy = docxState === "loading" || pdfState === "loading";
+  const freshExportContext = () => validateResumeExportContext(createResumeExportContext(canonicalInput, atsReview, { item, templateId: template }));
 
   const downloadDocx = async () => {
     setDocxState("loading");
     setMessage(null);
     try {
       const { downloadResumeDocx } = await import("./resumeDocx.js");
-      await downloadResumeDocx(resumeData, template, { preliminary: readiness.preliminary });
+      await downloadResumeDocx(freshExportContext());
       setDocxState("done");
     } catch (error) {
       console.error("DOCX export failed:", error);
@@ -37,13 +39,14 @@ export function ResumeActions({ resumeData, template, previewRef, item, hasLink,
     let pdfExports;
     try {
       pdfExports = await import("./resumePdf.js");
-      await pdfExports.downloadResumePdf(resumeData, template, { preliminary: readiness.preliminary });
+      await pdfExports.downloadResumePdf(freshExportContext());
       setPdfState("done");
       setMessage({ type: "info", text: "The ATS-readable PDF was downloaded. Its text remains selectable and searchable." });
     } catch (error) {
       console.warn("Direct PDF export failed; opening the browser print fallback:", error);
       try {
-        const title = [resumeData?.name, resumeData?.title].filter((value) => typeof value === "string" && value.trim()).join(" - ");
+        const context = freshExportContext();
+        const title = [context.renderPlan.header.fullName, context.renderPlan.header.headline].filter(Boolean).join(" - ");
         pdfExports ||= await import("./resumePdf.js");
         await pdfExports.printResumePdf(previewRef?.current, title || "Tailored resume");
         setPdfState("done");
@@ -63,7 +66,8 @@ export function ResumeActions({ resumeData, template, previewRef, item, hasLink,
   const handleCopy = () => requestAccountAction("copy_tailored_text", {
     continuation: async () => {
       try {
-        await navigator.clipboard?.writeText(resumeDataToPlainText(resumeData, template));
+        const context = freshExportContext();
+        await navigator.clipboard?.writeText(resumeDataToPlainText(context));
         setMessage({ type: "info", text: "The tailored résumé text was copied." });
       } catch {
         setMessage({ type: "error", text: "The text could not be copied. Try the DOCX download instead." });
