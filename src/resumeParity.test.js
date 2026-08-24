@@ -85,6 +85,8 @@ for (const templateId of [
   TEMPLATE_IDS.TECHNICAL_SOFTWARE,
   TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS,
   TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
+  TEMPLATE_IDS.MARKETING_COMMUNICATIONS,
+  TEMPLATE_IDS.CREATIVE_DESIGN,
 ]) {
   test(`${templateId} keeps DOCX, PDF, and text aligned with the canonical manifest`, async () => {
     const context = createResumeExportContext(fixture, finalReview, {

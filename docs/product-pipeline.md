@@ -145,12 +145,16 @@ The initial registry provides:
 5. Technical / Software (`technical-software-v1`)
 6. Admin / Customer Operations (`admin-customer-operations-v1`)
 7. Skilled Trades / Field Services (`skilled-trades-field-services-v1`)
+8. Marketing & Communications (`marketing-communications-v1`)
+9. Creative & Design (`creative-design-v1`)
 
 **Phase B1 status:** Implemented and verified on 2026-08-24. Commit `4e278ff1ebd2cb42561c8eb4b7ad74ba9aa47ac2` is present on `origin/main`. The two families use the same selector in feed and bring-your-own-job flows, preserve account/target-scoped overrides, and rerender without AI or a network request. Technical and admin recommendations require a matching target plus verified direct/adjacent family evidence. Programming-heavy SAP roles require real development evidence, and service coordination is never promoted into management ownership.
 
-**Phase B2 status:** Implemented and locally verified on 2026-08-24; release state remains local-only. Skilled Trades / Field Services replaces the hidden legacy trades registry entry through an on-read alias. Recommendation requires a matching target and verified physical hands-on evidence. Regulated credentials must be explicit candidate evidence; a posting requirement cannot satisfy itself, and a required credential gap blocks strong positioning. SAP Plant Maintenance, software maintenance, IT support, and maintenance-planning language are excluded from direct trade matching.
+**Phase B2 status:** Implemented and committed as `4431e27e3803a908da912d6f6fa51af39f9d2fc5`, which is present on `origin/main`. Skilled Trades / Field Services replaces the hidden legacy trades registry entry through an on-read alias. Recommendation requires a matching target and verified physical hands-on evidence. Regulated credentials must be explicit candidate evidence; a posting requirement cannot satisfy itself, and a required credential gap blocks strong positioning. SAP Plant Maintenance, software maintenance, IT support, and maintenance-planning language are excluded from direct trade matching. Production deployment was not re-verified during the local B3 pass.
 
-Template selection cannot alter factual item IDs, evidence classification, immutable career strategy, readiness, or the canonical content hash. Recommendation precedence protects trade evidence gaps and major transitions before verified skilled-trades, project-leadership, SAP-functional, technical, and admin/customer-operations matches, then ATS Core.
+**Phase B3 status:** Implemented in the local B3 release candidate. Marketing & Communications and Creative & Design are canonical families with direct, adjacent, transition, evidence-gap, and explicit incomplete-posting outcomes. Job-posting metrics, platforms, tools, portfolio claims, and leadership language cannot satisfy candidate evidence. False-positive precedence protects product management, business growth, telecommunications, digital transformation, technical-design occupations, process design, and category-only matches. Final local verification and the local feature commit are recorded in `docs/release-checklist.md`; push and deployment remain a separate authorized release step.
+
+Template selection cannot alter factual item IDs, evidence classification, immutable career strategy, readiness, or the canonical content hash. Recommendation precedence protects trade/B3 evidence gaps and major transitions before verified skilled-trades, marketing, creative, project-leadership, SAP-functional, technical, and admin/customer-operations matches, then ATS Core.
 
 Final/preliminary exporters validate a short-lived authorization bound to the document, identity, posting state, schema, and mode. Stored readiness booleans cannot authorize a mismatched export. See `docs/resume-architecture.md` for the contract and extension procedure.
 
@@ -165,7 +169,7 @@ Keep one canonical evidence model and vary section order, density, language emph
 7. Marketing and communications
 8. Creative and design portfolio
 
-Technical / Software and Administration / Customer Operations are complete in Phase B1. Skilled Trades / Field Services is complete in Phase B2. The next family pass is Phase B3: Marketing / Communications and Creative / Design.
+Technical / Software and Administration / Customer Operations are complete in Phase B1. Skilled Trades / Field Services is complete in Phase B2. Marketing & Communications and Creative & Design are complete in the Phase B3 local release candidate. The next pipeline step is release verification/promotion of the B3 commit, followed by P2.2 landing-page work unless product priorities change.
 
 Every family needs a screen renderer, DOCX renderer, plain-text export, and automated parseability check. The user may override the recommendation. Creative styling must never be the only export; retain a conservative ATS-safe version.
 

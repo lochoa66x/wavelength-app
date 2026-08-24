@@ -70,7 +70,12 @@ export async function createResumeDocxBlob(input, template = "professional", opt
       border: { bottom: { color: "B8B8B8", size: 4, space: 4, style: "single" } },
     }));
   };
-  const addBullet = (value) => addParagraph(value, { bullet: { level: 0 }, spacing: { after: 40 }, keepLines: true });
+  const addBullet = (value, options = {}) => addParagraph(value, {
+    bullet: { level: 0 },
+    spacing: { after: 40 },
+    keepLines: true,
+    ...options,
+  });
 
   addParagraph(text(renderPlan.header.fullName, { bold: true, size: 32 }), { alignment: AlignmentType.CENTER, spacing: { after: 50 }, keepNext: true });
   if (renderPlan.header.headline) addParagraph(text(renderPlan.header.headline, { bold: true, size: 22 }), { alignment: AlignmentType.CENTER, keepNext: true });
@@ -105,8 +110,14 @@ export async function createResumeDocxBlob(input, template = "professional", opt
         if (heading) addParagraph(text(heading, { bold: true }), { keepNext: Boolean(project.description || project.bullets.length), spacing: { before: 80, after: 30 } });
         const dates = [project.startDate, project.endDate].filter(Boolean).join(" - ");
         if (dates) addParagraph(text(dates, { italics: true }), { spacing: { after: 30 }, keepNext: Boolean(project.description || project.bullets.length) });
-        if (project.description) addParagraph(project.description, { spacing: { after: 35 }, keepLines: true });
-        for (const bullet of project.bullets) addBullet(bullet.text);
+        if (project.description) addParagraph(project.description, {
+          spacing: { after: 35 },
+          keepLines: true,
+          keepNext: project.bullets.length > 0,
+        });
+        project.bullets.forEach((bullet, index) => addBullet(bullet.text, {
+          keepNext: index < project.bullets.length - 1,
+        }));
       }
     } else if (section.type === "credentials") {
       for (const credential of section.items) addParagraph(entryHeader(credential.name, credential.issuer, credential.dateDisplay), { spacing: { after: 40 }, keepLines: true });

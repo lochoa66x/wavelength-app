@@ -407,3 +407,238 @@ export const noisyFieldServicePostingReview = Object.freeze({
   ],
   missing_evidence: ["Valid driver's licence", "WHMIS", "Valid driver's licence"],
 });
+
+export const marketingCommunicationsResumeFixture = Object.freeze({
+  name: "Taylor Chen",
+  title: "Marketing Communications Specialist",
+  candidate: {
+    email: "taylor.chen@example.com",
+    phone: "416-555-0168",
+    city: "Toronto",
+    region: "Ontario",
+    professionalLinks: [{ label: "LinkedIn", url: "https://www.linkedin.com/in/taylor-chen-example" }],
+  },
+  profile: "Marketing communications specialist with verified campaign planning, content development, audience segmentation, channel coordination, reporting, and stakeholder communications experience.",
+  skills: {
+    verifiedCore: ["Campaign planning", "Content development", "Audience segmentation", "Stakeholder communications"],
+    verifiedDomain: ["Email marketing", "Editorial planning", "Brand consistency", "Campaign reporting"],
+    verifiedTools: ["Google Analytics", "HubSpot", "Mailchimp", "WordPress"],
+    transferable: ["Cross-functional coordination", "Presentation"],
+  },
+  experience: [{
+    role: "Marketing Communications Specialist",
+    company: "Example Learning Group",
+    dates: "2022 - Present",
+    bullets: [
+      "Planned and launched integrated email and content campaigns for established professional-learning programs.",
+      "Developed audience segments in HubSpot and coordinated approved content across email, web, and social channels.",
+      "Reported a verified 18% increase in newsletter click-through rate after testing documented subject-line and content changes.",
+      "Partnered with program, sales, and customer-service teams to align campaign timing and approved messaging.",
+    ],
+  }, {
+    role: "Communications Coordinator",
+    company: "Example Community Foundation",
+    dates: "2019 - 2022",
+    bullets: [
+      "Created and published approved website, newsletter, event, and donor-communications content.",
+      "Maintained the editorial calendar and coordinated reviews with program leads and external partners.",
+      "Monitored Google Analytics and Mailchimp reports and prepared recurring channel summaries for communications planning.",
+    ],
+  }, {
+    role: "Content Assistant",
+    company: "Example Business Association",
+    dates: "2016 - 2019",
+    bullets: [
+      "Produced member-newsletter copy and WordPress updates from reviewed source material.",
+      "Supported event communications, speaker coordination, registration updates, and post-event content preparation.",
+      "Applied established brand and editorial guidance across approved digital materials.",
+    ],
+  }, {
+    role: "Customer Programs Assistant",
+    company: "Example Services Network",
+    dates: "2014 - 2016",
+    bullets: [
+      "Prepared customer-facing program information and coordinated scheduled communications with service teams.",
+      "Documented recurring questions and supported approved updates to customer information resources.",
+    ],
+  }],
+  projects: [{
+    name: "Member Newsletter Refresh",
+    organization: "Example Community Foundation",
+    startDate: "2021",
+    endDate: "2021",
+    description: "Coordinated a verified refresh of newsletter structure, content planning, and reporting.",
+    bullets: [
+      "Evaluated prior channel reports and documented approved audience and content changes.",
+      "Implemented the revised Mailchimp template and editorial calendar after stakeholder review.",
+    ],
+  }, {
+    name: "Program Launch Content",
+    organization: "Example Learning Group",
+    startDate: "2023",
+    endDate: "2024",
+    description: "Developed verified launch content for an established professional-learning program.",
+    bullets: [
+      "Created approved email, landing-page, and social copy for the scheduled launch sequence.",
+      "Reported channel activity using documented HubSpot and Google Analytics records.",
+    ],
+  }],
+  certifications: [{ name: "Digital Marketing Certificate", issuer: "Example College", year: "2021" }],
+  education: [{ degree: "Bachelor of Communications", institution: "Example University", dates: "2014" }],
+  languages: [{ language: "English", proficiency: "Fluent" }, { language: "Mandarin", proficiency: "Conversational" }],
+  content_strategy: "direct",
+});
+
+export const marketingCareerChangerResumeFixture = Object.freeze({
+  name: "Amara Johnson",
+  title: "Customer Programs Coordinator",
+  contact: "amara.johnson@example.com | 647-555-0184 | Toronto, Ontario",
+  profile: "Customer programs coordinator with verified stakeholder communication, research, presentation, documentation, event coordination, and project-coordination experience.",
+  skills: {
+    verifiedCore: ["Stakeholder communication", "Research", "Presentation", "Documentation"],
+    transferable: ["Project coordination", "Event coordination", "Customer communication"],
+  },
+  experience: [{
+    role: "Customer Programs Coordinator",
+    company: "Example Community Services",
+    dates: "2020 - Present",
+    bullets: [
+      "Coordinated program schedules, stakeholder communications, presentation materials, and approved customer information.",
+      "Researched recurring customer questions and documented findings for program-owner review.",
+      "Supported community events through speaker coordination, attendee communications, and prepared reference materials.",
+    ],
+  }, {
+    role: "Administrative Assistant",
+    company: "Example Education Network",
+    dates: "2017 - 2020",
+    bullets: [
+      "Prepared meeting documents and presentations from approved source material.",
+      "Maintained project records and coordinated follow-up with internal and external stakeholders.",
+    ],
+  }],
+  education: [{ degree: "Business Administration Diploma", institution: "Example College", dates: "2017" }],
+  content_strategy: "career_transition",
+});
+
+export const creativeDesignResumeFixture = Object.freeze({
+  name: "Riley Morgan",
+  title: "Senior Visual Designer",
+  candidate: {
+    email: "riley.morgan@example.com",
+    phone: "905-555-0191",
+    city: "Hamilton",
+    region: "Ontario",
+    professionalLinks: [
+      { label: "Portfolio", url: "https://portfolio.example.com/riley-morgan" },
+      { label: "LinkedIn", url: "https://www.linkedin.com/in/riley-morgan-example" },
+    ],
+  },
+  profile: "Visual designer with verified brand, digital, presentation, production-design, design-system, and cross-functional creative experience.",
+  skills: {
+    verifiedCore: ["Visual design", "Brand design", "Presentation design", "Production design"],
+    verifiedDomain: ["Typography", "Page layout", "Design systems", "Print production"],
+    verifiedTools: ["Adobe Photoshop", "Adobe Illustrator", "Adobe InDesign", "Figma", "After Effects"],
+    transferable: ["Creative collaboration", "Stakeholder presentation"],
+  },
+  experience: [{
+    role: "Senior Visual Designer",
+    company: "Example Studio Group",
+    dates: "2021 - Present",
+    bullets: [
+      "Designed approved brand, campaign, presentation, and digital materials across established client programs.",
+      "Extended documented Figma component patterns and maintained visual consistency across production deliverables.",
+      "Presented design directions to stakeholders and incorporated reviewed feedback into final production files.",
+      "Prepared accessible source files and production specifications for approved digital and print outputs.",
+    ],
+  }, {
+    role: "Production Designer",
+    company: "Example Creative Services",
+    dates: "2018 - 2021",
+    bullets: [
+      "Produced and adapted approved layouts in Adobe InDesign, Illustrator, and Photoshop for digital and print delivery.",
+      "Maintained typography, spacing, image, and brand standards across recurring production work.",
+      "Collaborated with writers, designers, and production partners to prepare reviewed final artwork.",
+    ],
+  }, {
+    role: "Presentation Designer",
+    company: "Example Advisory Group",
+    dates: "2015 - 2018",
+    bullets: [
+      "Designed executive presentations and reusable visual layouts from verified source content.",
+      "Created diagrams and information graphics that preserved approved facts and reading order.",
+      "Prepared final presentation files and documented handoff guidance for internal teams.",
+    ],
+  }, {
+    role: "Junior Graphic Designer",
+    company: "Example Communications",
+    dates: "2013 - 2015",
+    bullets: [
+      "Created and adapted approved digital graphics, event materials, and document layouts.",
+      "Organized source assets and prepared final files for senior-designer review.",
+    ],
+  }],
+  projects: [{
+    name: "Brand System Extension",
+    organization: "Example Studio Group",
+    startDate: "2023",
+    endDate: "2024",
+    description: "Extended a verified brand system for established digital and presentation deliverables.",
+    bullets: [
+      "Documented approved typography, color, spacing, and component applications in Figma.",
+      "Prepared reusable templates and production guidance for reviewed internal use.",
+    ],
+  }, {
+    name: "Annual Report Design",
+    organization: "Example Community Foundation",
+    startDate: "2022",
+    endDate: "2022",
+    description: "Designed a verified annual-report layout using approved narrative and financial source content.",
+    bullets: [
+      "Developed page hierarchy, typography, and information-graphic treatments in Adobe InDesign and Illustrator.",
+      "Prepared reviewed digital and print production files with documented accessibility checks.",
+    ],
+  }],
+  certifications: [{ name: "Accessible Document Design", issuer: "Example Design Institute", year: "2022" }],
+  education: [{ degree: "Bachelor of Design", institution: "Example University", dates: "2013" }],
+  languages: [{ language: "English", proficiency: "Fluent" }, { language: "French", proficiency: "Intermediate" }],
+  content_strategy: "direct",
+});
+
+export const creativeAdjacentResumeFixture = Object.freeze({
+  name: "Diego Alvarez",
+  title: "Proposal Coordinator",
+  contact: "diego.alvarez@example.com | 289-555-0142 | Oakville, Ontario",
+  profile: "Proposal coordinator with verified document production, presentation production, layout formatting, brand-consistency support, and visual-content preparation experience.",
+  skills: {
+    verifiedCore: ["Document production", "Presentation production", "Layout formatting"],
+    transferable: ["Brand consistency support", "Visual content preparation", "Stakeholder coordination"],
+  },
+  experience: [{
+    role: "Proposal Coordinator",
+    company: "Example Professional Services",
+    dates: "2021 - Present",
+    bullets: [
+      "Prepared proposal documents and presentation materials from approved technical and commercial content.",
+      "Applied established layout and brand guidance and coordinated stakeholder review before submission.",
+      "Organized approved visual content and maintained version-controlled production files.",
+    ],
+  }],
+  education: [{ degree: "Communications Diploma", institution: "Example College", dates: "2021" }],
+  content_strategy: "adjacent",
+});
+
+export const marketingTargetItem = Object.freeze({
+  id: "phase-b3-marketing",
+  title: "Marketing Communications Specialist",
+  company: "Example Member Organization",
+  category: "marketing",
+  description: "Plan integrated campaigns, develop content, coordinate channels, use HubSpot, and improve conversion by 30%.",
+});
+
+export const creativeTargetItem = Object.freeze({
+  id: "phase-b3-creative",
+  title: "Visual Designer",
+  company: "Example Product Studio",
+  category: "design",
+  description: "Create brand and digital design in Figma and Adobe tools, lead creative reviews, and maintain the design system.",
+});

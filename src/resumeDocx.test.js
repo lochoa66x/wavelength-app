@@ -85,6 +85,19 @@ test("generated DOCX is a valid package with complete ordered visible text", asy
   assert.doesNotMatch(visibleText, /PRIVATE_|\[object Object\]|undefined|null/i);
 });
 
+test("DOCX keeps compact project paragraphs together when Word paginates", async () => {
+  const fixture = structuredFixture();
+  fixture.projects[0].bullets.push({ text: "Recorded approved project outcomes." });
+  const { documentXml } = await inspectDocx(await createResumeDocxBlob(fixture, "professional"));
+  const paragraphs = Array.from(documentXml.matchAll(/<w:p>([\s\S]*?)<\/w:p>/g), (match) => match[0]);
+  const firstBulletParagraph = paragraphs.find((paragraph) => paragraph.includes("Documented verified requirements."));
+  const finalBulletParagraph = paragraphs.find((paragraph) => paragraph.includes("Recorded approved project outcomes."));
+
+  assert.match(firstBulletParagraph || "", /<w:keepNext\/>/);
+  assert.doesNotMatch(finalBulletParagraph || "", /<w:keepNext\/>/);
+  assert.match(finalBulletParagraph || "", /<w:keepNext w:val="false"\/>/);
+});
+
 test("preliminary DOCX is visibly labeled while final DOCX is not", async () => {
   const preliminary = await inspectDocx(await createResumeDocxBlob(structuredFixture(), "professional", { preliminary: true }));
   const final = await inspectDocx(await createResumeDocxBlob(structuredFixture(), "professional", { preliminary: false }));

@@ -125,6 +125,16 @@ export async function createResumePdfBytes(input, template = "professional", opt
     doc.text(lines, textX, y, { baseline: "top", lineHeightFactor: 1.32 });
     y += height + 4;
   };
+  const projectBlockHeight = (project) => {
+    const projectHeading = [project.name, project.organization].filter(Boolean).join(" - ");
+    const dates = [project.startDate, project.endDate].filter(Boolean).join(" - ");
+    return [
+      projectHeading ? wrappedLines(projectHeading, contentWidth, 10.2).length * 13.2 + 3 : 0,
+      dates ? wrappedLines(dates, contentWidth).length * 13.2 + 4 : 0,
+      project.description ? wrappedLines(project.description, contentWidth).length * 13.2 + 4 : 0,
+      ...project.bullets.map((value) => wrappedLines(value.text, contentWidth - 14).length * 13.2 + 4),
+    ].reduce((total, height) => total + height, 0);
+  };
   const firstSectionBlockHeight = (section) => {
     const first = section.items[0];
     if (!first) return 0;
@@ -135,8 +145,7 @@ export async function createResumePdfBytes(input, template = "professional", opt
       return 19 + wrappedLines(firstBullet, contentWidth - 14).length * 13.2;
     }
     if (section.type === "projects") {
-      const firstContent = first.description || first.bullets[0]?.text || "";
-      return 18 + wrappedLines(firstContent, contentWidth).length * 13.2;
+      return projectBlockHeight(first);
     }
     if (section.type === "credentials") return wrappedLines(joined([first.name, first.issuer, first.dateDisplay]), contentWidth).length * 13.2 + 4;
     if (section.type === "education") {
@@ -180,8 +189,8 @@ export async function createResumePdfBytes(input, template = "professional", opt
       }
     } else if (section.type === "projects") {
       for (const project of section.items) {
-        const firstContent = project.description || project.bullets[0]?.text || "";
-        ensureSpace(18 + wrappedLines(firstContent, contentWidth).length * 13.2);
+        const blockHeight = projectBlockHeight(project);
+        if (blockHeight <= page.height - page.top - page.bottom) ensureSpace(blockHeight);
         const projectHeading = [project.name, project.organization].filter(Boolean).join(" - ");
         if (projectHeading) writeLines(projectHeading, { size: 10.2, style: "bold", leading: 13.2, after: 3, ensure: false });
         const dates = [project.startDate, project.endDate].filter(Boolean).join(" - ");

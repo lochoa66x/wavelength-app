@@ -70,3 +70,22 @@ test("Phase B2 persists per account and target and adapts the hidden legacy trad
   storage.setItem(legacyKey, JSON.stringify({ version: 1, templateId: "trades-legacy-v1" }));
   assert.equal(loadResumeTemplateSelection("user-a", legacyTarget, storage), TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES);
 });
+
+test("Phase B3 persists both families per account and migrates unversioned aliases", () => {
+  const storage = memoryStorage();
+  const marketingTarget = resumeTemplateTargetKey({ id: "marketing-listing" });
+  const creativeTarget = resumeTemplateTargetKey({ id: "creative-listing" });
+  assert.equal(saveResumeTemplateSelection("user-a", marketingTarget, TEMPLATE_IDS.MARKETING_COMMUNICATIONS, storage), true);
+  assert.equal(saveResumeTemplateSelection("user-a", creativeTarget, TEMPLATE_IDS.CREATIVE_DESIGN, storage), true);
+  assert.equal(loadResumeTemplateSelection("user-a", marketingTarget, storage), TEMPLATE_IDS.MARKETING_COMMUNICATIONS);
+  assert.equal(loadResumeTemplateSelection("user-a", creativeTarget, storage), TEMPLATE_IDS.CREATIVE_DESIGN);
+  assert.equal(loadResumeTemplateSelection("user-b", marketingTarget, storage), null);
+
+  const legacyMarketing = resumeTemplateTargetKey({ id: "legacy-marketing-listing" });
+  storage.setItem(resumeTemplateStorageKey("user-a", legacyMarketing), JSON.stringify({ version: 1, templateId: "marketing-communications" }));
+  assert.equal(loadResumeTemplateSelection("user-a", legacyMarketing, storage), TEMPLATE_IDS.MARKETING_COMMUNICATIONS);
+
+  const legacyCreative = resumeTemplateTargetKey({ id: "legacy-creative-listing" });
+  storage.setItem(resumeTemplateStorageKey("user-a", legacyCreative), JSON.stringify({ version: 1, templateId: "creative-design" }));
+  assert.equal(loadResumeTemplateSelection("user-a", legacyCreative, storage), TEMPLATE_IDS.CREATIVE_DESIGN);
+});

@@ -15,6 +15,7 @@ export function recommendResumeTemplate(resumeData, { item = {}, atsReview = {} 
     reasonCode: resumePackage.presentation.recommendationReasonCode,
     strength: resumePackage.presentation.recommendationStrength,
     confidence: resumePackage.presentation.recommendationStrength,
+    disposition: resumePackage.presentation.recommendationDisposition,
     trace: resumePackage.classification.recommendationTrace,
     occupationFamily: resumePackage.classification.occupationFamily,
     careerStrategy: resumePackage.classification.careerStrategy,
@@ -22,5 +23,9 @@ export function recommendResumeTemplate(resumeData, { item = {}, atsReview = {} 
     tradeCredentialStatus: resumePackage.classification.tradeCredentialStatus,
     requiredTradeCredentials: resumePackage.classification.requiredTradeCredentials,
     missingTradeCredentials: resumePackage.classification.missingTradeCredentials,
+    marketingProfileType: resumePackage.classification.marketingProfileType,
+    creativeProfileType: resumePackage.classification.creativeProfileType,
+    verifiedPortfolioEvidence: resumePackage.classification.verifiedPortfolioEvidence,
+    verifiedCreativeLeadershipEvidence: resumePackage.classification.verifiedCreativeLeadershipEvidence,
   };
 }

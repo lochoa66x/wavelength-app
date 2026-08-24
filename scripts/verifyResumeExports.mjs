@@ -11,11 +11,17 @@ import {
   adminCustomerOperationsResumeFixture,
   adminCustomerTargetItem,
   apprenticeTargetItem,
+  creativeAdjacentResumeFixture,
+  creativeDesignResumeFixture,
+  creativeTargetItem,
   fieldServiceTargetItem,
   fieldServiceTechnicianResumeFixture,
   technicalSoftwareResumeFixture,
   technicalTargetItem,
   tradeApprenticeResumeFixture,
+  marketingCareerChangerResumeFixture,
+  marketingCommunicationsResumeFixture,
+  marketingTargetItem,
 } from "../tests/fixtures/resumePhaseBFixtures.js";
 
 const keepArtifacts = process.argv.includes("--keep");
@@ -30,6 +36,8 @@ const templateIds = [
   TEMPLATE_IDS.TECHNICAL_SOFTWARE,
   TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS,
   TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
+  TEMPLATE_IDS.MARKETING_COMMUNICATIONS,
+  TEMPLATE_IDS.CREATIVE_DESIGN,
 ];
 
 const resume = {
@@ -128,6 +136,23 @@ function verifyPdfSectionStarts(pdfInspection, context, format) {
   }
 }
 
+function verifyCompactProjectsStayTogether(pdfInspection, context, format) {
+  const projectSections = context.renderPlan.sections.filter((section) => section.type === "projects");
+  for (const section of projectSections) {
+    for (const project of section.items) {
+      if (!project.name || !project.bullets.length || project.bullets.length > 3) continue;
+      const projectPage = pdfInspection.pageTexts.find((page) => page.toLowerCase().includes(normalized(project.name).toLowerCase()));
+      assert.ok(projectPage, `${format} is missing the ${project.name} project`);
+      for (const bullet of project.bullets) {
+        assert.ok(
+          projectPage.toLowerCase().includes(normalized(bullet.text).toLowerCase()),
+          `${format} strands a compact ${project.name} project bullet on another page`,
+        );
+      }
+    }
+  }
+}
+
 function verifyAgainstManifest(text, context, format) {
   const output = normalized(text);
   for (const expected of manifestVisibleText(context.renderPlan.manifest)) {
@@ -169,6 +194,12 @@ try {
     if (templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES) {
       return createResumeExportContext(fieldServiceTechnicianResumeFixture, verifiedReview, { item: fieldServiceTargetItem, templateId });
     }
+    if (templateId === TEMPLATE_IDS.MARKETING_COMMUNICATIONS) {
+      return createResumeExportContext(marketingCommunicationsResumeFixture, verifiedReview, { item: marketingTargetItem, templateId });
+    }
+    if (templateId === TEMPLATE_IDS.CREATIVE_DESIGN) {
+      return createResumeExportContext(creativeDesignResumeFixture, verifiedReview, { item: creativeTargetItem, templateId });
+    }
     return createResumeExportContext(resume, verifiedReview, { item, templateId });
   });
   const apprenticeContext = createResumeExportContext(tradeApprenticeResumeFixture, verifiedReview, {
@@ -176,7 +207,15 @@ try {
     templateId: TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
   });
   const preliminaryContext = createResumeExportContext(resume, partialReviewWithStaleFlags, { item, templateId: TEMPLATE_IDS.ATS_CORE });
-  for (const context of [...finalContexts, apprenticeContext, preliminaryContext]) validateResumeExportContext(context);
+  const marketingTransitionContext = createResumeExportContext(marketingCareerChangerResumeFixture, verifiedReview, {
+    item: marketingTargetItem,
+    templateId: TEMPLATE_IDS.MARKETING_COMMUNICATIONS,
+  });
+  const creativeAdjacentContext = createResumeExportContext(creativeAdjacentResumeFixture, verifiedReview, {
+    item: creativeTargetItem,
+    templateId: TEMPLATE_IDS.CREATIVE_DESIGN,
+  });
+  for (const context of [...finalContexts, apprenticeContext, marketingTransitionContext, creativeAdjacentContext, preliminaryContext]) validateResumeExportContext(context);
   assert.equal(preliminaryContext.authorization.mode, "preliminary");
   assert.equal(preliminaryContext.renderPlan.preliminary, true);
 
@@ -187,6 +226,10 @@ try {
   }
   const [apprenticeDocx, apprenticePdf] = await Promise.all([createResumeDocxBlob(apprenticeContext), createResumePdfBytes(apprenticeContext)]);
   outputs.push({ prefix: "apprentice-skilled-trades-field-services-v1", context: apprenticeContext, docx: apprenticeDocx, pdf: apprenticePdf });
+  const [marketingTransitionDocx, marketingTransitionPdf] = await Promise.all([createResumeDocxBlob(marketingTransitionContext), createResumePdfBytes(marketingTransitionContext)]);
+  outputs.push({ prefix: "marketing-transition-marketing-communications-v1", context: marketingTransitionContext, docx: marketingTransitionDocx, pdf: marketingTransitionPdf });
+  const [creativeAdjacentDocx, creativeAdjacentPdf] = await Promise.all([createResumeDocxBlob(creativeAdjacentContext), createResumePdfBytes(creativeAdjacentContext)]);
+  outputs.push({ prefix: "creative-adjacent-creative-design-v1", context: creativeAdjacentContext, docx: creativeAdjacentDocx, pdf: creativeAdjacentPdf });
   const [preliminaryDocx, preliminaryPdf] = await Promise.all([createResumeDocxBlob(preliminaryContext), createResumePdfBytes(preliminaryContext)]);
   outputs.push({ prefix: "preliminary-ats-core-v1", context: preliminaryContext, docx: preliminaryDocx, pdf: preliminaryPdf });
 
@@ -205,6 +248,7 @@ try {
     verifyAgainstManifest(docxText, output.context, `${output.prefix} DOCX`);
     verifyAgainstManifest(pdfInspection.text, output.context, `${output.prefix} PDF`);
     verifyPdfSectionStarts(pdfInspection, output.context, `${output.prefix} PDF`);
+    verifyCompactProjectsStayTogether(pdfInspection, output.context, `${output.prefix} PDF`);
     verifyAgainstManifest(plainText, output.context, `${output.prefix} plain text`);
     if (output.context.renderPlan.preliminary) {
       assert.match(docxText, /PRELIMINARY DRAFT/);
@@ -214,12 +258,26 @@ try {
       assert.doesNotMatch(pdfInspection.text, /PRELIMINARY DRAFT/);
     }
     assert.ok(pdfInspection.items.length > 15, `${output.prefix} PDF did not expose enough selectable text items`);
-    if ([TEMPLATE_IDS.TECHNICAL_SOFTWARE, TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS, TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES].includes(output.context.renderPlan.templateId)
-      && output.prefix !== "apprentice-skilled-trades-field-services-v1") {
+    if ([
+      TEMPLATE_IDS.TECHNICAL_SOFTWARE,
+      TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS,
+      TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
+      TEMPLATE_IDS.MARKETING_COMMUNICATIONS,
+      TEMPLATE_IDS.CREATIVE_DESIGN,
+    ].includes(output.context.renderPlan.templateId)
+      && ![
+        "apprentice-skilled-trades-field-services-v1",
+        "marketing-transition-marketing-communications-v1",
+        "creative-adjacent-creative-design-v1",
+      ].includes(output.prefix)) {
       assert.equal(pdfInspection.pages, 2, `${output.prefix} realistic fixture must render as a two-page direct PDF`);
     }
-    if (output.prefix === "apprentice-skilled-trades-field-services-v1") {
-      assert.equal(pdfInspection.pages, 1, "the apprentice fixture must render as a one-page direct PDF");
+    if ([
+      "apprentice-skilled-trades-field-services-v1",
+      "marketing-transition-marketing-communications-v1",
+      "creative-adjacent-creative-design-v1",
+    ].includes(output.prefix)) {
+      assert.equal(pdfInspection.pages, 1, `${output.prefix} must render as a one-page direct PDF`);
     }
     pdfPages += pdfInspection.pages;
     pdfTextItems += pdfInspection.items.length;
@@ -244,8 +302,18 @@ try {
     manifestParity: true,
     verifiedFinalGate: true,
     staleReadyFlagBlocked: true,
-    realisticTwoPageTemplates: [TEMPLATE_IDS.TECHNICAL_SOFTWARE, TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS, TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES],
-    realisticOnePageFixtures: ["apprentice-skilled-trades-field-services-v1"],
+    realisticTwoPageTemplates: [
+      TEMPLATE_IDS.TECHNICAL_SOFTWARE,
+      TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS,
+      TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
+      TEMPLATE_IDS.MARKETING_COMMUNICATIONS,
+      TEMPLATE_IDS.CREATIVE_DESIGN,
+    ],
+    realisticOnePageFixtures: [
+      "apprentice-skilled-trades-field-services-v1",
+      "marketing-transition-marketing-communications-v1",
+      "creative-adjacent-creative-design-v1",
+    ],
   }, null, 2));
 } finally {
   if (!keepArtifacts) await rm(outputDir, { recursive: true, force: true });

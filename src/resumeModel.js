@@ -10,6 +10,8 @@ export const TEMPLATE_IDS = Object.freeze({
   TECHNICAL_SOFTWARE: "technical-software-v1",
   ADMIN_CUSTOMER_OPERATIONS: "admin-customer-operations-v1",
   SKILLED_TRADES_FIELD_SERVICES: "skilled-trades-field-services-v1",
+  MARKETING_COMMUNICATIONS: "marketing-communications-v1",
+  CREATIVE_DESIGN: "creative-design-v1",
 });
 
 const LEGACY_TRADES_TEMPLATE_ID = "trades-legacy-v1";
@@ -35,6 +37,10 @@ const TEMPLATE_ALIASES = Object.freeze({
   "skilled-trades": TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
   "skilled-trades-field-services": TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
   [LEGACY_TRADES_TEMPLATE_ID]: TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
+  "marketing-communications": TEMPLATE_IDS.MARKETING_COMMUNICATIONS,
+  marketing: TEMPLATE_IDS.MARKETING_COMMUNICATIONS,
+  "creative-design": TEMPLATE_IDS.CREATIVE_DESIGN,
+  creative: TEMPLATE_IDS.CREATIVE_DESIGN,
 });
 
 const BASE_SECTIONS = Object.freeze([
@@ -68,7 +74,18 @@ const BASE_VISUAL_TOKENS = Object.freeze({
   paper: "#ffffff",
 });
 
-function templateDefinition({ id, displayName, description, intendedUse, accent, sectionOrder, visualTokens = {}, visible = true }) {
+function templateDefinition({
+  id,
+  displayName,
+  description,
+  intendedUse,
+  accent,
+  sectionOrder,
+  visualTokens = {},
+  visible = true,
+  contentStrategy = "Evidence-first single-column presentation of canonical resume facts.",
+  recommendationMetadata = {},
+}) {
   return Object.freeze({
     id,
     version: 1,
@@ -83,6 +100,8 @@ function templateDefinition({ id, displayName, description, intendedUse, accent,
     sectionOrder: Object.freeze(sectionOrder),
     previewMetadata: Object.freeze({ columnCount: 1, hasSidebar: false, usesGraphics: false }),
     compatibilityNotes: "Single-column semantic text; no skill bars, icons, graphics, or layout tables.",
+    contentStrategy,
+    recommendationMetadata: Object.freeze({ evidenceRequired: true, categoryAloneAllowed: false, ...recommendationMetadata }),
   });
 }
 
@@ -162,6 +181,40 @@ export const RESUME_TEMPLATE_REGISTRY = Object.freeze({
       sectionFontSizePt: 10.2,
     },
     sectionOrder: ["summary", "certifications", "safety", "skills", "experience", "projects", "training", "education", "languages"],
+  }),
+  [TEMPLATE_IDS.MARKETING_COMMUNICATIONS]: templateDefinition({
+    id: TEMPLATE_IDS.MARKETING_COMMUNICATIONS,
+    displayName: "Marketing & Communications",
+    description: "Editorial business structure for verified campaign, content, channel, brand, communications, and marketing-operations evidence.",
+    intendedUse: "Marketing, communications, public relations, content, campaign, brand, social, email, lifecycle, and evidence-supported marketing operations",
+    accent: "#7a4e2d",
+    visualTokens: {
+      bodyFontSizePt: 9.9,
+      bodyLineHeight: 1.34,
+      nameFontSizePt: 18,
+      sectionFontSizePt: 10.4,
+    },
+    contentStrategy: "Prioritize verified marketing or communications capabilities, experience, and supported campaigns without importing posting metrics or platforms.",
+    recommendationMetadata: { occupationFamily: "marketing-communications", adjacentFitAllowed: true },
+    sectionOrder: ["summary", "skills", "experience", "projects", "certifications", "education", "training", "languages", "safety"],
+  }),
+  [TEMPLATE_IDS.CREATIVE_DESIGN]: templateDefinition({
+    id: TEMPLATE_IDS.CREATIVE_DESIGN,
+    displayName: "Creative & Design",
+    description: "Restrained creative structure for verified visual, production, brand, presentation, portfolio, project, and design-tool evidence.",
+    intendedUse: "Graphic, visual, brand, production, digital, presentation, illustration, motion, UI, UX, content, and evidence-supported creative leadership",
+    accent: "#5a4a86",
+    visualTokens: {
+      marginTopIn: 0.62,
+      marginBottomIn: 0.62,
+      bodyFontSizePt: 9.9,
+      bodyLineHeight: 1.36,
+      nameFontSizePt: 18.5,
+      sectionFontSizePt: 10.6,
+    },
+    contentStrategy: "Prioritize verified creative capabilities, experience, projects, tools, and an explicitly identified safe portfolio link while keeping essential facts selectable and ATS-readable.",
+    recommendationMetadata: { occupationFamily: "creative-design", adjacentFitAllowed: true },
+    sectionOrder: ["summary", "skills", "experience", "projects", "education", "certifications", "training", "languages", "safety"],
   }),
 });
 
@@ -576,6 +629,18 @@ const LEADERSHIP_EVIDENCE_PATTERN = /\b(?:led|directed|managed|oversaw|governanc
 const ADMIN_CUSTOMER_TARGET_PATTERN = /\b(?:administrative assistant|executive assistant|office (?:assistant|administrator|coordinator|manager)|operations coordinator|administrative coordinator|customer (?:support|service|success)|client service|service operations|data entry|scheduler|scheduling coordinator|dispatcher|dispatch coordinator|support specialist|support representative|service coordinator|operations assistant)\b/i;
 const ADMIN_CUSTOMER_EVIDENCE_PATTERN = /\b(?:administrative support|calendar coordination|calendar management|meeting coordination|scheduling|dispatch|documentation|records management|data entry|customer support|customer service|customer success|client service|issue resolution|service delivery|ticketing|help desk|crm|case management|office coordination|process compliance|cross[- ]functional coordination)\b/i;
 const ADMIN_EXCLUDED_TARGET_PATTERN = /\b(?:account executive|sales representative|business development|marketing|communications|copywriter|financial analyst|accountant|bookkeeper|controller|chief|vice president|\bvp\b|director)\b/i;
+const MARKETING_TARGET_PATTERN = /\b(?:marketing (?:assistant|associate|coordinator|specialist|analyst|manager|lead|director|operations)|digital marketing|content marketing|product marketing|growth marketing|brand marketing|marketing automation|campaign (?:coordinator|specialist|manager|lead)|communications? (?:assistant|associate|coordinator|specialist|manager|lead|director)|corporate communications?|public relations|\bpr (?:coordinator|specialist|manager|lead|director)|media relations|social[- ]media (?:coordinator|specialist|manager|lead)|email (?:marketing|campaign)|crm marketing|lifecycle marketing)\b/i;
+const MARKETING_EXCLUDED_TARGET_PATTERN = /\b(?:communications? engineer|telecommunications?|communication systems?|digital transformation|product manager|product management|growth manager|business growth|sales representative|account executive|business development representative)\b/i;
+const MARKETING_TITLE_EVIDENCE_PATTERN = /\b(?:marketing (?:assistant|associate|coordinator|specialist|analyst|manager|lead|director|operations)|digital marketing specialist|content marketing specialist|product marketing manager|brand marketing manager|campaign manager|communications? (?:assistant|associate|coordinator|specialist|manager|lead|director)|public relations (?:coordinator|specialist|manager)|social[- ]media (?:coordinator|specialist|manager)|email marketing specialist|lifecycle marketing|marketing operations)\b/i;
+const MARKETING_DIRECT_EVIDENCE_PATTERN = /\b(?:campaign (?:strategy|planning|execution|development|coordination|launch|reporting|analysis)|audience segmentation|customer segmentation|content (?:marketing|strategy|development|calendar|production)|editorial (?:planning|calendar|strategy)|communications? (?:planning|strategy|campaign|program)|public relations|media relations|press releases?|brand (?:marketing|strategy|consistency|governance)|channel (?:strategy|coordination|management)|social[- ]media (?:strategy|management|content|campaign)|email (?:marketing|campaign|automation)|lifecycle marketing|crm marketing|marketing operations|marketing analytics|campaign analytics|search engine optimization|\bseo\b|paid search|\bppc\b|customer marketing|go-to-market communications?)\b/i;
+const MARKETING_PLATFORM_EVIDENCE_PATTERN = /\b(?:google analytics|google ads|meta ads|hubspot|salesforce|marketo|mailchimp|hootsuite|adobe analytics|semrush|ahrefs|wordpress|sprout social)\b/i;
+const MARKETING_ADJACENT_EVIDENCE_PATTERN = /\b(?:stakeholder communications?|customer communications?|customer engagement|presentations?|research|documentation|event coordination|event planning|content preparation|project coordination|training materials?|facilitat(?:ed|ing) workshops?)\b/i;
+const CREATIVE_TARGET_PATTERN = /\b(?:(?:graphic|visual|brand|production|digital|presentation|motion|ui|ux|content|instructional) designer|graphic artist|illustrator|art director|creative director)\b/i;
+const CREATIVE_EXCLUDED_TARGET_PATTERN = /\b(?:software designer|solution designer|systems? designer|mechanical designer|architectural designer|database designer|sap solution designer|design engineer|communications? designer)\b/i;
+const CREATIVE_TITLE_EVIDENCE_PATTERN = /\b(?:(?:graphic|visual|brand|production|digital|presentation|motion|ui|ux|content) designer|graphic artist|illustrator|art director|creative director)\b/i;
+const CREATIVE_DIRECT_EVIDENCE_PATTERN = /\b(?:graphic design|visual design|brand design|production design|digital design|presentation design|motion design|ui design|ux design|content design|brand identity|visual identity|creative direction|art direction|illustration|typography|print production|page layout|wireframing|prototyping|design systems?|motion graphics|adobe photoshop|adobe illustrator|adobe indesign|after effects|premiere pro|figma|sketch|blender|cinema 4d|canva)\b/i;
+const CREATIVE_ADJACENT_EVIDENCE_PATTERN = /\b(?:document production|presentation production|presentation materials?|visual content (?:preparation|production|creation)|brand governance support|brand consistency support|layout formatting|creative production support|prepared visual|adapted approved designs?)\b/i;
+const CREATIVE_LEADERSHIP_EVIDENCE_PATTERN = /\b(?:art director|creative director|design director|head of design)\b|\b(?:led|directed|supervised)\b.{0,80}\b(?:creative|design|visual|brand|art direction)\b/i;
 const TRADE_TARGET_PATTERN = /\b(?:electrician|electrical (?:technician|apprentice|helper)|plumber|plumbing (?:technician|apprentice|helper)|pipefitter|steamfitter|gas fitter|hvac|refrigeration (?:technician|mechanic)|carpenter|carpentry (?:apprentice|helper)|welder|welding (?:apprentice|helper)|millwright|industrial mechanic|automotive (?:technician|mechanic)|auto mechanic|diesel mechanic|heavy[- ]equipment (?:technician|mechanic|operator)|maintenance technician|industrial maintenance|facilities maintenance|property maintenance|handyman|general repair worker|landscap(?:e|er|ing)|grounds maintenance|installer|installation technician|field[- ]service technician|service technician|appliance (?:service )?technician|construction (?:worker|labou?rer|helper)|trade apprentice|journeyperson|journeyman)\b/i;
 const TRADE_EXCLUDED_TARGET_PATTERN = /\b(?:sap(?: plant maintenance| pm)?|software|application|it |information technology|help desk|service desk|maintenance planner|maintenance planning|project manager|program manager|operations manager|engineering manager|technical project|asset management system|computerized maintenance management)\b/i;
 const REGULATED_TRADE_TARGET_PATTERN = /\b(?:electrician|electrical (?:technician|mechanic)|plumber|plumbing technician|pipefitter|steamfitter|gas fitter|hvac|refrigeration (?:technician|mechanic))\b/i;
@@ -643,6 +708,13 @@ function requiredTradeCredentialGroups(targetTitle, atsReview, regulatedTradeTar
 export function classifyResumePackageInput(document, source = {}, atsReview = {}, item = {}) {
   const targetTitle = cleanScalar(item?.title ?? source.target?.jobTitle ?? source.target?.job_title ?? document.target.jobTitle, 300);
   const targetCorpus = `${targetTitle} ${cleanScalar(item?.description, 5_000)}`;
+  const targetRequirementCorpus = reviewRequirements(atsReview).map((entry) => cleanScalar(entry.requirement, 500)).join(" ");
+  const b3TargetCorpus = `${targetCorpus} ${targetRequirementCorpus} ${cleanScalar(stableStringify({
+    responsibilities: item?.responsibilities,
+    requiredQualifications: item?.requiredQualifications ?? item?.required_qualifications,
+    preferredQualifications: item?.preferredQualifications ?? item?.preferred_qualifications,
+    highSignalKeywords: item?.highSignalKeywords ?? item?.high_signal_keywords,
+  }), 8_000)}`;
   const evidenceCorpus = stableStringify({
     headline: document.headline,
     summary: document.summary,
@@ -652,7 +724,13 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
     training: document.training,
     certifications: document.certifications,
     safety: document.safety,
+    professionalLinks: document.candidate.professionalLinks,
   });
+  const candidateTitleCorpus = [document.headline, ...document.experience.map((entry) => entry.title)].join(" ");
+  const verifiedPortfolioEvidence = document.candidate.professionalLinks.some((link) => /\bportfolio\b/i.test(link.label));
+  const postingReadiness = cleanScalar(atsReview?.posting_readiness?.status, 120);
+  const explicitlyIncompletePosting = atsReview?.posting_readiness?.fit_allowed === false
+    || /(?:needs[_ -]full|incomplete|partial|unverified|blocked|failed)/i.test(postingReadiness);
   const sourceCareerStrategy = normalizeCareerStrategy(source);
   const tradeTarget = TRADE_TARGET_PATTERN.test(targetTitle) && !TRADE_EXCLUDED_TARGET_PATTERN.test(targetTitle);
   const apprenticeTradeTarget = tradeTarget && APPRENTICE_TARGET_PATTERN.test(targetTitle);
@@ -687,6 +765,41 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
     else tradeProfileType = "experienced-field-service-professional";
   } else if (tradeTarget && adjacentTradeEvidence) tradeProfileType = "adjacent-pivot";
   else if (tradeTarget) tradeProfileType = "significant-career-change";
+  const marketingTarget = MARKETING_TARGET_PATTERN.test(b3TargetCorpus) && !MARKETING_EXCLUDED_TARGET_PATTERN.test(targetTitle);
+  const verifiedMarketingEvidence = MARKETING_TITLE_EVIDENCE_PATTERN.test(candidateTitleCorpus)
+    || MARKETING_DIRECT_EVIDENCE_PATTERN.test(evidenceCorpus)
+    || hasVerifiedCandidateEvidence(atsReview, MARKETING_DIRECT_EVIDENCE_PATTERN)
+    || ((MARKETING_PLATFORM_EVIDENCE_PATTERN.test(evidenceCorpus) || hasVerifiedCandidateEvidence(atsReview, MARKETING_PLATFORM_EVIDENCE_PATTERN))
+      && (MARKETING_ADJACENT_EVIDENCE_PATTERN.test(evidenceCorpus) || hasVerifiedCandidateEvidence(atsReview, MARKETING_ADJACENT_EVIDENCE_PATTERN)));
+  const adjacentMarketingEvidence = !verifiedMarketingEvidence && (
+    MARKETING_ADJACENT_EVIDENCE_PATTERN.test(evidenceCorpus)
+    || hasVerifiedCandidateEvidence(atsReview, MARKETING_ADJACENT_EVIDENCE_PATTERN)
+  );
+  const marketingProfileType = !marketingTarget
+    ? "not-applicable"
+    : verifiedMarketingEvidence
+      ? "direct-marketing-communications"
+      : adjacentMarketingEvidence
+        ? "adjacent-communications"
+        : "significant-career-change";
+  const creativeTarget = CREATIVE_TARGET_PATTERN.test(b3TargetCorpus) && !CREATIVE_EXCLUDED_TARGET_PATTERN.test(targetTitle);
+  const verifiedCreativeEvidence = CREATIVE_TITLE_EVIDENCE_PATTERN.test(candidateTitleCorpus)
+    || CREATIVE_DIRECT_EVIDENCE_PATTERN.test(evidenceCorpus)
+    || hasVerifiedCandidateEvidence(atsReview, CREATIVE_DIRECT_EVIDENCE_PATTERN)
+    || (verifiedPortfolioEvidence && document.projects.length > 0);
+  const adjacentCreativeEvidence = !verifiedCreativeEvidence && (
+    CREATIVE_ADJACENT_EVIDENCE_PATTERN.test(evidenceCorpus)
+    || hasVerifiedCandidateEvidence(atsReview, CREATIVE_ADJACENT_EVIDENCE_PATTERN)
+    || verifiedPortfolioEvidence
+  );
+  const verifiedCreativeLeadershipEvidence = verifiedCreativeEvidence && CREATIVE_LEADERSHIP_EVIDENCE_PATTERN.test(evidenceCorpus);
+  const creativeProfileType = !creativeTarget
+    ? "not-applicable"
+    : verifiedCreativeEvidence
+      ? "direct-creative-design"
+      : adjacentCreativeEvidence
+        ? "adjacent-visual-production"
+        : "significant-career-change";
   const sapTarget = SAP_PATTERN.test(targetCorpus);
   const technicalTarget = TECHNICAL_TARGET_PATTERN.test(targetCorpus);
   const sapFunctionalTarget = sapTarget && SAP_FUNCTIONAL_PATTERN.test(targetCorpus) && !technicalTarget;
@@ -711,10 +824,19 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
     && !verifiedTechnicalEvidence
     && (sourceCareerStrategy === "major-transition" || verifiedSapFunctionalEvidence);
   const tradeEvidenceGapTransition = tradeTarget && !verifiedTradeEvidence;
-  const careerStrategy = technicalEvidenceGapTransition || tradeEvidenceGapTransition ? "major-transition" : sourceCareerStrategy;
+  const marketingEvidenceGapTransition = marketingTarget && !verifiedMarketingEvidence && !adjacentMarketingEvidence;
+  const creativeEvidenceGapTransition = creativeTarget && !verifiedCreativeEvidence && !adjacentCreativeEvidence;
+  const careerStrategy = technicalEvidenceGapTransition
+    || tradeEvidenceGapTransition
+    || marketingEvidenceGapTransition
+    || creativeEvidenceGapTransition
+    ? "major-transition"
+    : sourceCareerStrategy;
 
   let occupationFamily = "general-professional";
   if (tradeTarget) occupationFamily = "skilled-trades-field-services";
+  else if (marketingTarget) occupationFamily = "marketing-communications";
+  else if (creativeTarget) occupationFamily = "creative-design";
   else if (sapTarget && technicalTarget) occupationFamily = "technical";
   else if (sapFunctionalTarget) occupationFamily = "sap-functional";
   else if (leadershipTarget) occupationFamily = "project-leadership";
@@ -725,6 +847,7 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
   let recommendationReason = "ATS Core is the safest general-purpose match for this verified content.";
   let recommendationReasonCode = "ats_core_ambiguous_or_general";
   let recommendationStrength = "conservative";
+  let recommendationDisposition = "not-recommended";
   if (occupationFamily === "skilled-trades-field-services" && !verifiedTradeEvidence) {
     recommendedTemplateId = TEMPLATE_IDS.CAREER_TRANSITION;
     recommendationReason = adjacentTradeEvidence
@@ -732,15 +855,37 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
       : "The target is field-based, but the résumé does not establish hands-on trade or field-service evidence, so career-transition positioning is safer.";
     recommendationReasonCode = adjacentTradeEvidence ? "skilled_trades_adjacent_pivot" : "skilled_trades_evidence_gap";
     recommendationStrength = "conservative";
+    recommendationDisposition = adjacentTradeEvidence ? "adjacent-fit" : "insufficient-evidence";
+  } else if (occupationFamily === "marketing-communications" && !verifiedMarketingEvidence && !adjacentMarketingEvidence) {
+    recommendedTemplateId = TEMPLATE_IDS.CAREER_TRANSITION;
+    recommendationReason = "The target is marketing or communications oriented, but the verified candidate evidence does not establish direct or adjacent work, so transition positioning is safer than implying marketing experience.";
+    recommendationReasonCode = "marketing_communications_evidence_gap";
+    recommendationStrength = "conservative";
+    recommendationDisposition = "insufficient-evidence";
+  } else if (occupationFamily === "creative-design" && !verifiedCreativeEvidence && !adjacentCreativeEvidence) {
+    recommendedTemplateId = TEMPLATE_IDS.CAREER_TRANSITION;
+    recommendationReason = "The target is creative or design oriented, but the verified candidate evidence does not establish direct or adjacent visual work, so transition positioning is safer than implying design experience.";
+    recommendationReasonCode = "creative_design_evidence_gap";
+    recommendationStrength = "conservative";
+    recommendationDisposition = "insufficient-evidence";
   } else if (careerStrategy === "major-transition") {
     recommendedTemplateId = TEMPLATE_IDS.CAREER_TRANSITION;
     recommendationReason = technicalEvidenceGapTransition
       ? "The target is software-oriented, but the verified résumé does not contain direct development evidence, so transferable strengths and the technical gap must remain explicit."
+      : occupationFamily === "marketing-communications"
+        ? "Verified transferable communications evidence can support an honest marketing transition, but it does not establish direct campaign ownership or platform experience."
+        : occupationFamily === "creative-design"
+          ? "Verified transferable visual-production evidence can support an honest creative transition, but it does not establish a formal design role, portfolio, tools, or creative leadership."
       : "The evidence indicates a material transition, so transferable strengths need explicit, honest positioning.";
     recommendationReasonCode = technicalEvidenceGapTransition
       ? "career_transition_technical_evidence_gap"
+      : occupationFamily === "marketing-communications"
+        ? "career_transition_marketing_adjacent"
+        : occupationFamily === "creative-design"
+          ? "career_transition_creative_adjacent"
       : "career_transition_explicit";
     recommendationStrength = "strong";
+    recommendationDisposition = "career-transition";
   } else if (occupationFamily === "skilled-trades-field-services" && verifiedTradeEvidence) {
     recommendedTemplateId = TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES;
     if (missingTradeCredentials.length) {
@@ -764,11 +909,41 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
       recommendationReasonCode = "skilled_trades_field_service_verified";
       recommendationStrength = "strong";
     }
+    recommendationDisposition = "direct-fit";
+  } else if (occupationFamily === "marketing-communications" && verifiedMarketingEvidence) {
+    recommendedTemplateId = TEMPLATE_IDS.MARKETING_COMMUNICATIONS;
+    recommendationReason = explicitlyIncompletePosting
+      ? "Verified marketing or communications evidence supports this family, but the incomplete posting keeps the recommendation provisional."
+      : "The marketing or communications target is supported by verified campaign, content, channel, platform, brand, public-relations, or marketing-operations evidence.";
+    recommendationReasonCode = explicitlyIncompletePosting ? "marketing_communications_verified_preliminary" : "marketing_communications_verified";
+    recommendationStrength = explicitlyIncompletePosting ? "moderate" : "strong";
+    recommendationDisposition = "direct-fit";
+  } else if (occupationFamily === "marketing-communications" && adjacentMarketingEvidence) {
+    recommendedTemplateId = TEMPLATE_IDS.MARKETING_COMMUNICATIONS;
+    recommendationReason = "Verified communications, research, presentation, event, content-preparation, or coordination evidence supports an adjacent presentation without implying campaign ownership or platform experience.";
+    recommendationReasonCode = "marketing_communications_adjacent_verified";
+    recommendationStrength = explicitlyIncompletePosting ? "conservative" : "moderate";
+    recommendationDisposition = "adjacent-fit";
+  } else if (occupationFamily === "creative-design" && verifiedCreativeEvidence) {
+    recommendedTemplateId = TEMPLATE_IDS.CREATIVE_DESIGN;
+    recommendationReason = explicitlyIncompletePosting
+      ? "Verified creative or design evidence supports this family, but the incomplete posting keeps the recommendation provisional."
+      : "The creative or design target is supported by verified role, project, portfolio, production, or design-tool evidence.";
+    recommendationReasonCode = explicitlyIncompletePosting ? "creative_design_verified_preliminary" : "creative_design_verified";
+    recommendationStrength = explicitlyIncompletePosting ? "moderate" : "strong";
+    recommendationDisposition = "direct-fit";
+  } else if (occupationFamily === "creative-design" && adjacentCreativeEvidence) {
+    recommendedTemplateId = TEMPLATE_IDS.CREATIVE_DESIGN;
+    recommendationReason = "Verified presentation, document-production, brand-support, or visual-content evidence supports an adjacent creative presentation without implying a formal design role, portfolio, tools, or leadership.";
+    recommendationReasonCode = "creative_design_adjacent_verified";
+    recommendationStrength = explicitlyIncompletePosting ? "conservative" : "moderate";
+    recommendationDisposition = "adjacent-fit";
   } else if (occupationFamily === "project-leadership" && verifiedLeadershipEvidence) {
     recommendedTemplateId = TEMPLATE_IDS.PROJECT_LEADERSHIP;
     recommendationReason = "The target is delivery/leadership oriented and the résumé contains verified ownership evidence.";
     recommendationReasonCode = "project_leadership_verified";
     recommendationStrength = "strong";
+    recommendationDisposition = "direct-fit";
   } else if (occupationFamily === "sap-functional" && verifiedSapFunctionalEvidence) {
     recommendedTemplateId = TEMPLATE_IDS.SAP_FUNCTIONAL;
     recommendationReason = careerStrategy === "adjacent"
@@ -776,6 +951,7 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
       : "The target and verified background align with functional SAP delivery rather than software development.";
     recommendationReasonCode = careerStrategy === "adjacent" ? "sap_functional_adjacent_verified" : "sap_functional_verified";
     recommendationStrength = "strong";
+    recommendationDisposition = careerStrategy === "adjacent" ? "adjacent-fit" : "direct-fit";
   } else if (occupationFamily === "technical" && verifiedTechnicalEvidence) {
     recommendedTemplateId = TEMPLATE_IDS.TECHNICAL_SOFTWARE;
     recommendationReason = sapTarget
@@ -783,11 +959,13 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
       : "The software-oriented target is supported by verified development, engineering, or technical implementation evidence.";
     recommendationReasonCode = sapTarget ? "technical_software_sap_development_verified" : "technical_software_verified";
     recommendationStrength = "strong";
+    recommendationDisposition = "direct-fit";
   } else if (occupationFamily === "admin-customer-operations" && verifiedAdminCustomerEvidence) {
     recommendedTemplateId = TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS;
     recommendationReason = "The target and verified background align with administrative, service, or customer-operations work without implying unverified management authority.";
     recommendationReasonCode = "admin_customer_operations_verified";
     recommendationStrength = "strong";
+    recommendationDisposition = "direct-fit";
   } else if (occupationFamily === "technical") {
     recommendationReason = "The target is technical, but ATS Core remains safer because the verified résumé does not establish direct software or engineering evidence.";
     recommendationReasonCode = "technical_software_evidence_gap";
@@ -807,6 +985,14 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
     verifiedLeadershipEvidence,
     verifiedTechnicalEvidence,
     verifiedAdminCustomerEvidence,
+    verifiedMarketingEvidence,
+    adjacentMarketingEvidence,
+    marketingProfileType,
+    verifiedCreativeEvidence,
+    adjacentCreativeEvidence,
+    verifiedPortfolioEvidence,
+    verifiedCreativeLeadershipEvidence,
+    creativeProfileType,
     verifiedTradeEvidence,
     verifiedTradeCredential,
     regulatedTradeTarget,
@@ -820,6 +1006,7 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
     recommendationReason,
     recommendationReasonCode,
     recommendationStrength,
+    recommendationDisposition,
     recommendationTrace: [
       `careerStrategy:${careerStrategy}`,
       `occupationFamily:${occupationFamily}`,
@@ -831,6 +1018,16 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
       `leadershipEvidence:${verifiedLeadershipEvidence}`,
       `adminCustomerTarget:${adminCustomerTarget}`,
       `adminCustomerEvidence:${verifiedAdminCustomerEvidence}`,
+      `marketingTarget:${marketingTarget}`,
+      `marketingEvidence:${verifiedMarketingEvidence}`,
+      `marketingAdjacentEvidence:${adjacentMarketingEvidence}`,
+      `marketingProfile:${marketingProfileType}`,
+      `creativeTarget:${creativeTarget}`,
+      `creativeEvidence:${verifiedCreativeEvidence}`,
+      `creativeAdjacentEvidence:${adjacentCreativeEvidence}`,
+      `creativePortfolioEvidence:${verifiedPortfolioEvidence}`,
+      `creativeLeadershipEvidence:${verifiedCreativeLeadershipEvidence}`,
+      `creativeProfile:${creativeProfileType}`,
       `tradeTarget:${tradeTarget}`,
       `tradeEvidence:${verifiedTradeEvidence}`,
       `tradeProfile:${tradeProfileType}`,
@@ -905,6 +1102,7 @@ export function createResumePackage(resumeData = {}, { item = {}, atsReview = {}
       recommendationReason: classification.recommendationReason,
       recommendationReasonCode: classification.recommendationReasonCode,
       recommendationStrength: classification.recommendationStrength,
+      recommendationDisposition: classification.recommendationDisposition,
       pageTarget: RESUME_TEMPLATE_REGISTRY[selected].pageTarget,
       locale: cleanScalar(source.presentation?.locale ?? globalThis.navigator?.language, 40) || "en-CA",
       version: 1,
@@ -958,6 +1156,10 @@ function safeSectionHeading(section, templateId, classification) {
   const isTechnical = classification.occupationFamily === "technical" && classification.verifiedTechnicalEvidence;
   const isAdminCustomer = classification.occupationFamily === "admin-customer-operations" && classification.verifiedAdminCustomerEvidence;
   const isTrade = classification.occupationFamily === "skilled-trades-field-services" && classification.verifiedTradeEvidence;
+  const isMarketing = classification.occupationFamily === "marketing-communications" && classification.verifiedMarketingEvidence;
+  const isMarketingAdjacent = classification.occupationFamily === "marketing-communications" && classification.adjacentMarketingEvidence;
+  const isCreative = classification.occupationFamily === "creative-design" && classification.verifiedCreativeEvidence;
+  const isCreativeAdjacent = classification.occupationFamily === "creative-design" && classification.adjacentCreativeEvidence;
   const headings = {
     summary: templateId === TEMPLATE_IDS.SAP_FUNCTIONAL && isSap
       ? "SAP Functional Profile"
@@ -971,6 +1173,14 @@ function safeSectionHeading(section, templateId, classification) {
               ? "Operations & Service Profile"
               : templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade
                 ? "Trade & Field Service Profile"
+                : templateId === TEMPLATE_IDS.MARKETING_COMMUNICATIONS && isMarketing
+                  ? "Marketing & Communications Profile"
+                  : templateId === TEMPLATE_IDS.MARKETING_COMMUNICATIONS && isMarketingAdjacent
+                    ? "Communications & Content Profile"
+                    : templateId === TEMPLATE_IDS.CREATIVE_DESIGN && isCreative
+                      ? classification.verifiedCreativeLeadershipEvidence ? "Creative Leadership Profile" : "Creative & Design Profile"
+                      : templateId === TEMPLATE_IDS.CREATIVE_DESIGN && isCreativeAdjacent
+                        ? "Visual Content & Production Profile"
                 : "Professional Summary",
     skills: templateId === TEMPLATE_IDS.SAP_FUNCTIONAL && isSap
       ? "SAP Modules & Functional Capabilities"
@@ -984,6 +1194,14 @@ function safeSectionHeading(section, templateId, classification) {
               ? "Operations & Customer Service Skills"
               : templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade
                 ? "Trade & Field Capabilities"
+                : templateId === TEMPLATE_IDS.MARKETING_COMMUNICATIONS && isMarketing
+                  ? "Marketing & Communications Capabilities"
+                  : templateId === TEMPLATE_IDS.MARKETING_COMMUNICATIONS && isMarketingAdjacent
+                    ? "Communications & Transferable Capabilities"
+                    : templateId === TEMPLATE_IDS.CREATIVE_DESIGN && isCreative
+                      ? "Creative Capabilities & Verified Tools"
+                      : templateId === TEMPLATE_IDS.CREATIVE_DESIGN && isCreativeAdjacent
+                        ? "Visual Content & Production Capabilities"
                 : "Core Skills",
     experience: templateId === TEMPLATE_IDS.TECHNICAL_SOFTWARE && isTechnical
       ? "Technical Experience"
@@ -991,11 +1209,23 @@ function safeSectionHeading(section, templateId, classification) {
         ? "Administrative & Customer Operations Experience"
         : templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade
           ? "Trade & Field Experience"
+          : templateId === TEMPLATE_IDS.MARKETING_COMMUNICATIONS && isMarketing
+            ? "Marketing & Communications Experience"
+            : templateId === TEMPLATE_IDS.CREATIVE_DESIGN && isCreative
+              ? "Creative & Design Experience"
           : "Professional Experience",
     projects: templateId === TEMPLATE_IDS.TECHNICAL_SOFTWARE && isTechnical
       ? "Technical Projects"
       : templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade
         ? "Field Projects & Practical Experience"
+        : templateId === TEMPLATE_IDS.MARKETING_COMMUNICATIONS && isMarketing
+          ? "Campaigns & Communications Projects"
+          : templateId === TEMPLATE_IDS.MARKETING_COMMUNICATIONS && isMarketingAdjacent
+            ? "Selected Relevant Projects"
+            : templateId === TEMPLATE_IDS.CREATIVE_DESIGN && isCreative
+              ? "Selected Creative Projects"
+              : templateId === TEMPLATE_IDS.CREATIVE_DESIGN && isCreativeAdjacent
+                ? "Selected Visual Content Projects"
         : "Verified Projects",
     training: templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade ? "Training & Apprenticeship" : "Training & Certifications",
     certifications: templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade ? "Licences & Trade Credentials" : "Certifications",
@@ -1021,7 +1251,12 @@ function sectionOrderForTemplate(template, classification) {
 }
 
 function contactLine(candidate) {
-  if (candidate.contactLine) return candidate.contactLine;
+  if (candidate.contactLine) {
+    const additionalLinks = candidate.professionalLinks
+      .map((link) => link.url)
+      .filter((url) => !candidate.contactLine.includes(url));
+    return [candidate.contactLine, ...additionalLinks].filter(Boolean).join(" | ");
+  }
   const location = [candidate.city, candidate.region, candidate.country].filter(Boolean).join(", ");
   return [candidate.email, candidate.phone, location, ...candidate.professionalLinks.map((link) => link.url)].filter(Boolean).join(" | ");
 }

@@ -4,7 +4,7 @@ Updated: 2026-08-24
 
 ## Scope
 
-P2.1 Phase A establishes one versioned résumé-content pipeline for browser preview, DOCX, direct PDF, and plain text. Phase B1 adds Technical / Software and Admin / Customer Operations. Phase B2 replaces the hidden legacy trades presentation with the canonical Skilled Trades / Field Services family. All seven selectable families share one factual content plan, render manifest, persistence boundary, and export-authorization path.
+P2.1 Phase A establishes one versioned résumé-content pipeline for browser preview, DOCX, direct PDF, and plain text. Phase B1 adds Technical / Software and Admin / Customer Operations. Phase B2 replaces the hidden legacy trades presentation with the canonical Skilled Trades / Field Services family. Phase B3 adds Marketing & Communications and Creative & Design. All nine selectable families share one factual content plan, render manifest, persistence boundary, and export-authorization path.
 
 ## Contract
 
@@ -48,13 +48,16 @@ Classification uses normalized target context, the validated tailored résumé, 
 Recommendation precedence is fixed so later families cannot bypass earlier trust decisions:
 
 1. A trade or field-service target without verified hands-on evidence recommends Career Transition; a listing category alone never establishes trade experience.
-2. A major transition recommends Career Transition.
-3. A trade or field-service target with verified physical installation, repair, diagnostic, maintenance, construction, landscaping, service-call, or recognized-title evidence recommends Skilled Trades / Field Services. Missing required credentials cap the recommendation at moderate strength and remain outside the résumé.
-4. A leadership/delivery target with verified ownership evidence recommends Project Leadership.
-5. A functional SAP target with verified SAP functional lifecycle evidence recommends SAP Functional.
-6. A software, web/application, cloud, data, DevOps/SRE, security, infrastructure, or technical-QA target with direct or adjacent verified technical evidence recommends Technical / Software.
-7. A non-leadership administration, customer-support/success, scheduling, dispatch, data-entry, or service-operations target with direct or adjacent verified service evidence recommends Admin / Customer Operations.
-8. Ambiguous targets and evidence gaps use ATS Core.
+2. A Marketing & Communications or Creative & Design target with neither direct nor adjacent candidate evidence recommends Career Transition conservatively.
+3. A major transition recommends Career Transition.
+4. A trade or field-service target with verified physical installation, repair, diagnostic, maintenance, construction, landscaping, service-call, or recognized-title evidence recommends Skilled Trades / Field Services. Missing required credentials cap the recommendation at moderate strength and remain outside the résumé.
+5. A marketing/communications target with verified direct candidate evidence recommends Marketing & Communications strongly; verified adjacent communications evidence is capped at moderate. An explicitly incomplete posting caps even direct evidence at moderate.
+6. A creative/design target with verified direct role, project, portfolio, production, or tool evidence recommends Creative & Design strongly; verified adjacent visual-production evidence is capped at moderate. An explicitly incomplete posting caps even direct evidence at moderate.
+7. A leadership/delivery target with verified ownership evidence recommends Project Leadership.
+8. A functional SAP target with verified SAP functional lifecycle evidence recommends SAP Functional.
+9. A software, web/application, cloud, data, DevOps/SRE, security, infrastructure, or technical-QA target with direct or adjacent verified technical evidence recommends Technical / Software.
+10. A non-leadership administration, customer-support/success, scheduling, dispatch, data-entry, or service-operations target with direct or adjacent verified service evidence recommends Admin / Customer Operations.
+11. Ambiguous targets and evidence gaps use ATS Core.
 
 Programming-heavy SAP targets are technical. Explicit ABAP development or implementation evidence can qualify for Technical / Software; merely collaborating with an ABAP team cannot. A functional SAP candidate targeting a developer role without coding evidence is treated as a material transition rather than upgraded into a technical profile. A generic SAP keyword never establishes functional consulting by itself.
 
@@ -62,9 +65,13 @@ Admin/customer-operations matching excludes sales, marketing/communications, fin
 
 Skilled-trades matching excludes SAP Plant Maintenance, software/application maintenance, IT/service-desk work, maintenance planning, asset-management systems, and management targets. Those signals may remain adjacent evidence, but they cannot prove physical field work. The classifier distinguishes regulated-trade professionals, experienced field-service professionals, apprentices/helpers, general maintenance profiles, adjacent pivots, and significant career changes. A posting's licence or safety requirement never counts as candidate evidence; only explicit candidate credentials or verified candidate-side evidence can satisfy it.
 
+Marketing matching separates direct marketing/communications work from adjacent stakeholder communication, research, presentation, documentation, event, content-preparation, and coordination evidence. Posting metrics and platform requirements never enter candidate facts. Product management, generic business growth, telecommunications engineering, digital transformation, unrelated brand/team management, generic sales, and category-only signals cannot produce a strong Marketing & Communications recommendation.
+
+Creative matching separates professional design, verified projects/tools, and explicitly labeled safe portfolio evidence from adjacent document, presentation, brand-support, layout, and visual-content production. A portfolio link must be candidate supplied, labeled as a portfolio, and use HTTP(S); a social profile is not promoted into a portfolio. Software, solution, systems, mechanical, architectural, database, SAP solution, design-engineering, process-design, posting-only tool, and category-only signals cannot produce a strong Creative & Design recommendation. Creative leadership is a separate candidate-side evidence gate.
+
 An adjacent SAP module pivot may use SAP Functional when verified functional lifecycle evidence exists. Missing target modules remain missing and are never inserted into skills or history.
 
-The user may override the recommended template, but not classification or career strategy. Safe section headings are based on both the selected presentation and the verified classification, so a visual override cannot create an unsupported SAP, leadership, or transition claim.
+The user may override the recommended template, but not classification or career strategy. Safe section headings are based on both the selected presentation and the verified classification, so a visual override cannot create an unsupported SAP, leadership, marketing, creative, or transition claim.
 
 ## Template registry
 
@@ -79,10 +86,16 @@ Selectable IDs:
 - `technical-software-v1`
 - `admin-customer-operations-v1`
 - `skilled-trades-field-services-v1`
+- `marketing-communications-v1`
+- `creative-design-v1`
 
 Legacy `trades`, `skilled-trades`, and `trades-legacy-v1` stored values resolve to `skilled-trades-field-services-v1` on read. No second trades family or persisted-data backfill is created.
 
+Unversioned `marketing-communications`/`marketing` and `creative-design`/`creative` aliases resolve to their versioned B3 IDs on read. Invalid IDs still fail deterministically to the current recommendation.
+
 The B2 render plan is compact, single-column, and credential-aware. It deterministically moves verified licences, safety training, apprenticeship/training, capabilities, experience, and projects according to the classified trade profile. Short apprentice/helper evidence targets one page; experienced trade and field-service evidence may use two pages. Missing or unverified credentials are review-only gaps and never become résumé content.
+
+The B3 Marketing plan uses a restrained editorial/business treatment and prioritizes verified capabilities, experience, and supported campaigns or communications projects. The Creative plan uses slightly more expressive but reproducible type/spacing tokens and prioritizes verified capabilities, experience, projects, tools, and visible safe professional links. Both remain single-column selectable text with no sidebars, text boxes, skill bars, charts, photos, canvas text, or essential header/footer-only facts.
 
 To add a template:
 
@@ -131,7 +144,7 @@ Exact DOCX pagination is not expected to match the PDF because Word-compatible l
 3. Render every direct PDF page to PNG and inspect it at full size.
 4. Convert every DOCX fixture with LibreOffice when installed, render every converted PDF page, and inspect it.
 5. Extract text independently from direct and converted PDFs and confirm identity, headings, section order, bullet order, labels, and artifact absence.
-6. Run desktop and 390 × 844 browser checks. Change every template, verify immediate rerender, content-hash stability, keyboard focus, `aria-pressed` state, and mobile touch targets.
+6. Run desktop and 390 × 844 browser checks. Change all nine templates, verify immediate rerender, content-hash stability, keyboard focus, `aria-pressed` state, and mobile touch targets.
 7. Test verified, partial, stale-readiness, and missing-identity cases.
 8. Remove `tmp/export-verification` and all screenshots/renders before staging.
 
@@ -140,4 +153,4 @@ Exact DOCX pagination is not expected to match the PDF because Word-compatible l
 - Microsoft Word and Google Docs compatibility must be reported as unverified when those applications are unavailable; LibreOffice is the automated local compatibility engine.
 - Browser and direct PDF share layout tokens but unrelated browsers may produce small font-metric differences.
 - Skilled-trades classification uses deterministic title, action, physical-context, and credential vocabularies. Jurisdiction-specific credential aliases may require future vocabulary additions, but unknown credentials always fail conservatively.
-- Marketing/communications and creative/design remain later work.
+- Marketing/communications and creative/design matching use deterministic vocabularies. Specialized role aliases may require later additions, but unknown or overlapping evidence always fails conservatively.

@@ -4,8 +4,12 @@ import assert from "node:assert/strict";
 import { recommendResumeTemplate, resumeTemplateKind } from "./resumeStrategy.js";
 import { TEMPLATE_IDS } from "./resumeModel.js";
 import {
+  creativeDesignResumeFixture,
+  creativeTargetItem,
   electricianTargetItem,
   licensedElectricianResumeFixture,
+  marketingCommunicationsResumeFixture,
+  marketingTargetItem,
   technicalSoftwareResumeFixture,
   technicalTargetItem,
   verifiedElectricianReview,
@@ -44,4 +48,24 @@ test("public B2 recommendation exposes the credential-safe trade classification"
   assert.equal(recommendation.tradeCredentialStatus, "required-verified");
   assert.deepEqual(recommendation.requiredTradeCredentials, ["electrical licence"]);
   assert.deepEqual(recommendation.missingTradeCredentials, []);
+});
+
+test("public B3 recommendation exposes disposition and family-safe classification", () => {
+  const marketing = recommendResumeTemplate(marketingCommunicationsResumeFixture, {
+    item: marketingTargetItem,
+    atsReview: verifiedPostingReview,
+  });
+  assert.equal(marketing.templateId, TEMPLATE_IDS.MARKETING_COMMUNICATIONS);
+  assert.equal(marketing.disposition, "direct-fit");
+  assert.equal(marketing.marketingProfileType, "direct-marketing-communications");
+
+  const creative = recommendResumeTemplate(creativeDesignResumeFixture, {
+    item: creativeTargetItem,
+    atsReview: verifiedPostingReview,
+  });
+  assert.equal(creative.templateId, TEMPLATE_IDS.CREATIVE_DESIGN);
+  assert.equal(creative.disposition, "direct-fit");
+  assert.equal(creative.creativeProfileType, "direct-creative-design");
+  assert.equal(creative.verifiedPortfolioEvidence, true);
+  assert.equal(creative.verifiedCreativeLeadershipEvidence, false);
 });

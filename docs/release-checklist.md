@@ -49,10 +49,21 @@ Do not reapply the P1.4 migration or change production Auth/database settings du
 - [x] Credential-aware section order, one-page apprentice fixture, and two-page experienced field-service fixture.
 - [x] Shared seven-card selector, account/target persistence, and factual content-hash parity across all seven templates.
 
+## P2.1 Phase B3 implementation
+
+- [x] Marketing & Communications (`marketing-communications-v1`) canonical registry template.
+- [x] Creative & Design (`creative-design-v1`) canonical registry template.
+- [x] Candidate-only direct/adjacent evidence gates with explicit transition, evidence-gap, and incomplete-posting outcomes.
+- [x] Posting metrics, platforms, design tools, portfolio claims, and leadership language remain requirements rather than candidate facts.
+- [x] Product-management, business-growth, telecommunications, digital-transformation, technical-design, process-design, posting-only-tool, and category-only false positives are covered.
+- [x] Safe HTTP(S) portfolio treatment reuses canonical professional links and never promotes a generic social profile.
+- [x] Shared nine-card selector, account/target persistence, alias migration, and factual content-hash parity across all nine templates.
+- [x] Two-page direct Marketing/Creative fixtures plus one-page Marketing-transition and Creative-adjacent fixtures.
+
 ## Required local verification before commit
 
 - [x] Focused canonical/template/export/tailoring tests pass with exact count recorded.
-- [x] `npm run verify:exports` passes for all seven templates, the apprentice fixture, and preliminary gating.
+- [x] `npm run verify:exports` passes for all nine templates, the apprentice fixture, both B3 adjacent fixtures, and preliminary gating.
 - [x] Full `npm test` passes with exact count recorded.
 - [x] Production build passes and keeps DOCX/PDF libraries lazy.
 - [x] `npm audit --json` is reviewed without forced upgrades.
@@ -113,11 +124,26 @@ Do not reapply the P1.4 migration or change production Auth/database settings du
 - Browser QA: the real seven-card selector and preview passed at 1,440 × 900 and 390 × 844 with visible keyboard focus, native button semantics, accurate labels and `aria-pressed` state, immediate pointer switching, stable factual content hash, zero selector-triggered fetch/XHR calls, no horizontal overflow, and no console errors.
 - Accessibility: all nine current DOCX fixtures reported zero high-, medium-, or low-severity findings; browser buttons exposed visible focus and accessible selection state.
 - Microsoft Word and Google Docs were unavailable locally; LibreOffice provided the Word-compatible verification engine.
-- Release state: local commit only. Phase B2 was not pushed or deployed.
+- Release state at verification time: local commit only. Phase B2 was not pushed or deployed during that pass; commit `4431e27e3803a908da912d6f6fa51af39f9d2fc5` is now present on `origin/main`.
+
+## P2.1 Phase B3 local verification record — 2026-08-24
+
+- Preflight: clean `main` at `4431e27e3803a908da912d6f6fa51af39f9d2fc5`, matching `origin/main`; the committed B2 Skilled Trades / Field Services work was preserved.
+- Focused canonical/template/export/tailoring suite: 84 passed, 0 failed.
+- Full suite: 299 passed, 0 failed.
+- Export verifier: 26 files across nine selector templates, one apprentice pair, Marketing transition and Creative adjacent pairs, and one preliminary pair; 18 direct-PDF pages, 545 selectable text items, canonical manifest parity, verified-final gating, stale-readiness rejection, two-page experienced-template assertions, and one-page concise-fixture assertions passed.
+- Production build: 1,971 modules transformed; `resumeDocx`, `resumePdf`, and `jspdf` remained lazy export chunks. The existing main-chunk size warning remains.
+- Dependency audit: 0 critical, 1 high, and 1 moderate finding, both confined to the existing Vite/esbuild development toolchain. The available fix requires a Vite 8 major upgrade and remains outside B3 scope.
+- Real-file QA: the 13 direct PDFs and 13 LibreOffice-converted DOCX PDFs produced 36 rendered pages, all inspected at full size. A marketing project-boundary defect was corrected with compact-project keep-with-next logic and regression tests; the corrected two-page marketing DOCX and direct PDF were re-rendered and all four replacement pages inspected, for 40 total page inspections. Direct and converted text had normalized token parity for all 13 fixture pairs, with no `[object Object]`, `undefined`, `null`, metadata leakage, clipping, overlap, stranded heading, orphan project bullet, broken URL, or blank trailing page.
+- Browser QA: the real nine-card selector and preview passed on 1,440 × 900 and 390 × 844 layout surfaces. All nine choices were reachable, the mobile minimum card height was 88 pixels, pointer and keyboard/Enter activation worked with visible focus, exactly one `aria-pressed` selection remained, preview IDs and accent colors changed immediately, the canonical content hash stayed `resume-bicg0d`, and selector-triggered fetch/XHR and page errors remained zero. Chrome-extension-only warnings were excluded from application findings.
+- Accessibility: the 13 retained DOCX fixtures plus the corrected marketing DOCX reported zero high-, medium-, or low-severity findings. Browser buttons exposed native semantics, descriptive labels, visible focus, and accessible selection state.
+- Compatibility limits: Microsoft Word, Google Docs, and an external ATS parser were unavailable. LibreOffice conversion plus independent PDF.js extraction and visual inspection supplied the local compatibility evidence.
+- Release state: the verified B3 feature commit is local-only. Nothing in this pass was pushed or deployed.
 
 Do not commit while a required check is failing. Do not push or deploy without separate authorization.
 
-## Later P2.1 families
+## Next pipeline step
 
-- Phase B3: Marketing / Communications
-- Phase B3: Creative / Design
+- Release the verified B3 commit through the normal GitHub/Vercel path only after explicit authorization.
+- Run signed-out and authorized production smoke checks for the deployed SHA.
+- Continue with P2.2 landing-page work after the B3 release is verified, unless product priorities change.

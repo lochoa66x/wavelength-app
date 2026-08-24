@@ -17,12 +17,18 @@ import {
   adminCustomerOperationsResumeFixture,
   adminCustomerTargetItem,
   apprenticeTargetItem,
+  creativeAdjacentResumeFixture,
+  creativeDesignResumeFixture,
+  creativeTargetItem,
   electricianTargetItem,
   fieldServiceTargetItem,
   fieldServiceTechnicianResumeFixture,
   landscapeMaintenanceResumeFixture,
   licensedElectricianResumeFixture,
   missingElectricianCredentialReview,
+  marketingCareerChangerResumeFixture,
+  marketingCommunicationsResumeFixture,
+  marketingTargetItem,
   noisyFieldServicePostingReview,
   propertyMaintenanceResumeFixture,
   technicalSoftwareResumeFixture,
@@ -76,7 +82,7 @@ test("canonical package separates facts, evidence, classification, and presentat
   assert.doesNotMatch(JSON.stringify(resumePackage.document), /sourceReferences|recommendationTrace|posting_readiness/);
 });
 
-test("template registry exposes seven unique stable Phase A, B1, and B2 IDs", () => {
+test("template registry exposes nine unique stable Phase A through B3 IDs", () => {
   const templates = availableResumeTemplates();
   const ids = templates.map((template) => template.id);
   assert.deepEqual(ids, [
@@ -87,6 +93,8 @@ test("template registry exposes seven unique stable Phase A, B1, and B2 IDs", ()
     TEMPLATE_IDS.TECHNICAL_SOFTWARE,
     TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS,
     TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
+    TEMPLATE_IDS.MARKETING_COMMUNICATIONS,
+    TEMPLATE_IDS.CREATIVE_DESIGN,
   ]);
   assert.equal(new Set(ids).size, ids.length);
   for (const id of ids) {
@@ -194,11 +202,197 @@ test("template override changes presentation only and preserves factual IDs and 
   assert.equal(overridden.presentation.selectedTemplateId, TEMPLATE_IDS.PROJECT_LEADERSHIP);
 });
 
-test("all seven selectable templates keep the same selected factual item IDs", () => {
+test("all nine selectable templates keep the same selected factual item IDs", () => {
   const resumePackage = createResumePackage(baseResume(), { item: { title: "SAP Functional Consultant", category: "tech" }, atsReview: verifiedPosting });
   const ids = (plan) => plan.manifest.sections.flatMap((section) => section.items.flatMap((item) => [item.id, ...(item.bullets || []).map((bullet) => bullet.id), ...(item.details || []).map((detail) => detail.id)])).sort();
   const plans = Object.values(TEMPLATE_IDS).map((id) => buildResumeRenderPlan(resumePackage, id));
   for (const plan of plans.slice(1)) assert.deepEqual(ids(plan), ids(plans[0]));
+});
+
+test("B3 direct recommendations require verified marketing or creative candidate evidence", () => {
+  const marketing = createResumePackage(marketingCommunicationsResumeFixture, {
+    item: marketingTargetItem,
+    atsReview: verifiedPosting,
+  });
+  assert.equal(marketing.classification.occupationFamily, "marketing-communications");
+  assert.equal(marketing.classification.marketingProfileType, "direct-marketing-communications");
+  assert.equal(marketing.presentation.recommendedTemplateId, TEMPLATE_IDS.MARKETING_COMMUNICATIONS);
+  assert.equal(marketing.presentation.recommendationDisposition, "direct-fit");
+  assert.equal(marketing.presentation.recommendationStrength, "strong");
+  assert.match(JSON.stringify(marketing.document), /18%/);
+  assert.doesNotMatch(JSON.stringify(marketing.document), /30%/);
+
+  const creative = createResumePackage(creativeDesignResumeFixture, {
+    item: creativeTargetItem,
+    atsReview: verifiedPosting,
+  });
+  assert.equal(creative.classification.occupationFamily, "creative-design");
+  assert.equal(creative.classification.creativeProfileType, "direct-creative-design");
+  assert.equal(creative.classification.verifiedPortfolioEvidence, true);
+  assert.equal(creative.classification.verifiedCreativeLeadershipEvidence, false);
+  assert.equal(creative.presentation.recommendedTemplateId, TEMPLATE_IDS.CREATIVE_DESIGN);
+  assert.equal(creative.presentation.recommendationDisposition, "direct-fit");
+  assert.equal(creative.presentation.recommendationStrength, "strong");
+  const visible = manifestVisibleText(buildResumeRenderPlan(creative, TEMPLATE_IDS.CREATIVE_DESIGN)).join(" ");
+  assert.match(visible, /https:\/\/portfolio\.example\.com\/riley-morgan\/?/i);
+});
+
+test("B3 adjacent candidates stay capped and never acquire posting metrics, platforms, portfolios, or leadership", () => {
+  const marketing = createResumePackage(marketingCareerChangerResumeFixture, {
+    item: marketingTargetItem,
+    atsReview: verifiedPosting,
+  });
+  assert.equal(marketing.classification.adjacentMarketingEvidence, true);
+  assert.equal(marketing.classification.marketingProfileType, "adjacent-communications");
+  assert.equal(marketing.presentation.recommendedTemplateId, TEMPLATE_IDS.CAREER_TRANSITION);
+  assert.equal(marketing.presentation.recommendationDisposition, "career-transition");
+  assert.doesNotMatch(JSON.stringify(marketing.document), /HubSpot|30%|conversion/i);
+  const marketingPlan = buildResumeRenderPlan(marketing, TEMPLATE_IDS.MARKETING_COMMUNICATIONS);
+  assert.ok(marketingPlan.sections.some((section) => section.heading === "Communications & Content Profile"));
+
+  const creative = createResumePackage(creativeAdjacentResumeFixture, {
+    item: creativeTargetItem,
+    atsReview: verifiedPosting,
+  });
+  assert.equal(creative.classification.adjacentCreativeEvidence, true);
+  assert.equal(creative.classification.creativeProfileType, "adjacent-visual-production");
+  assert.equal(creative.classification.verifiedPortfolioEvidence, false);
+  assert.equal(creative.classification.verifiedCreativeLeadershipEvidence, false);
+  assert.equal(creative.presentation.recommendedTemplateId, TEMPLATE_IDS.CREATIVE_DESIGN);
+  assert.equal(creative.presentation.recommendationDisposition, "adjacent-fit");
+  assert.equal(creative.presentation.recommendationStrength, "moderate");
+  assert.doesNotMatch(JSON.stringify(creative.document), /Figma|Adobe|design system|portfolio|lead creative/i);
+  const creativePlan = buildResumeRenderPlan(creative, TEMPLATE_IDS.CREATIVE_DESIGN);
+  assert.ok(creativePlan.sections.some((section) => section.heading === "Visual Content & Production Profile"));
+});
+
+test("posting requirements can identify a B3 target but can never satisfy candidate-side evidence", () => {
+  const marketing = createResumePackage(baseResume({
+    title: "Automation Analyst",
+    profile: "IT analyst with verified workflow automation and systems documentation experience.",
+    skills: ["IT automation", "Systems documentation"],
+  }), {
+    item: { title: "Marketing Automation Analyst", category: "marketing" },
+    atsReview: {
+      ...verifiedPosting,
+      requirements: [{
+        requirement: "Lead HubSpot email campaigns and improve conversion by 25%.",
+        classification: "direct",
+        evidence_match: "direct",
+        resume_evidence: "Automated internal IT workflows.",
+      }],
+    },
+  });
+  assert.equal(marketing.classification.verifiedMarketingEvidence, false);
+  assert.notEqual(marketing.presentation.recommendationStrength, "strong");
+  assert.notEqual(marketing.presentation.recommendationDisposition, "direct-fit");
+  assert.doesNotMatch(JSON.stringify(marketing.document), /HubSpot|25%|email campaign/i);
+
+  const creative = createResumePackage(baseResume({
+    title: "Operations Analyst",
+    profile: "Operations analyst who designed a process for reviewed service requests.",
+    skills: ["Process documentation"],
+  }), {
+    item: { title: "Graphic Designer", category: "design", description: "Use Canva and Figma and lead creative reviews." },
+    atsReview: verifiedPosting,
+  });
+  assert.equal(creative.classification.verifiedCreativeEvidence, false);
+  assert.equal(creative.classification.verifiedCreativeLeadershipEvidence, false);
+  assert.equal(creative.presentation.recommendedTemplateId, TEMPLATE_IDS.CAREER_TRANSITION);
+  assert.doesNotMatch(JSON.stringify(creative.document), /Canva|Figma|creative review/i);
+});
+
+test("B3 false-positive overlaps never produce a strong family recommendation", () => {
+  const marketingCases = [
+    ["Marketing Automation Analyst", "IT Automation Analyst", "Automated generic IT service workflows and documented system operations."],
+    ["Product Marketing Manager", "Product Manager", "Managed a product roadmap, backlog, and delivery priorities."],
+    ["Growth Marketing Manager", "Business Operations Manager", "Supported business growth through operational planning."],
+    ["Communications Engineer", "Telecommunications Engineer", "Maintained telecommunications systems and communication networks."],
+    ["Digital Marketing Specialist", "Transformation Analyst", "Supported digital transformation and process governance."],
+    ["Brand Manager", "Operations Team Manager", "Managed an unrelated operational team and service inventory."],
+    ["Sales Representative", "Sales Representative", "Managed sales accounts and customer orders without marketing responsibilities."],
+    ["Office Coordinator", "Office Coordinator", "Coordinated schedules and reports."],
+  ];
+  for (const [targetTitle, candidateTitle, profile] of marketingCases) {
+    const pkg = createResumePackage({ name: "Case Candidate", title: candidateTitle, profile, content_strategy: "direct" }, {
+      item: { title: targetTitle, category: "marketing", description: "Role-specific responsibilities." },
+      atsReview: verifiedPosting,
+    });
+    assert.ok(pkg.presentation.recommendedTemplateId !== TEMPLATE_IDS.MARKETING_COMMUNICATIONS || pkg.presentation.recommendationStrength !== "strong", targetTitle);
+  }
+
+  const creativeCases = [
+    "Software Designer",
+    "Solution Designer",
+    "Systems Designer",
+    "Instructional Designer",
+    "Mechanical Designer",
+    "Architectural Designer",
+    "Design Engineer",
+    "Database Designer",
+    "SAP Solution Designer",
+  ];
+  for (const title of creativeCases) {
+    const pkg = createResumePackage({
+      name: "Case Candidate",
+      title,
+      profile: title === "Instructional Designer"
+        ? "Prepared learning objectives, course content, and facilitator guidance."
+        : "Designed a process and documented technical or operational requirements.",
+      content_strategy: "direct",
+    }, {
+      item: { title, category: "design", description: "Complete role responsibilities without verified candidate evidence." },
+      atsReview: verifiedPosting,
+    });
+    assert.ok(pkg.presentation.recommendedTemplateId !== TEMPLATE_IDS.CREATIVE_DESIGN || pkg.presentation.recommendationStrength !== "strong", title);
+  }
+
+  const categoryOnly = createResumePackage({ name: "Case Candidate", title: "Office Coordinator", profile: "Coordinated schedules and records." }, {
+    item: { title: "Office Coordinator", category: "design", description: "Coordinate schedules and records." },
+    atsReview: verifiedPosting,
+  });
+  assert.notEqual(categoryOnly.presentation.recommendedTemplateId, TEMPLATE_IDS.CREATIVE_DESIGN);
+});
+
+test("B3 portfolio URLs are allowlisted, explicitly identified, and visible without inventing a portfolio", () => {
+  const safe = createResumePackage(creativeDesignResumeFixture, { item: creativeTargetItem, atsReview: verifiedPosting });
+  const safePlan = buildResumeRenderPlan(safe, TEMPLATE_IDS.CREATIVE_DESIGN);
+  assert.equal(safe.classification.verifiedPortfolioEvidence, true);
+  assert.match(safePlan.header.contactLine, /https:\/\/portfolio\.example\.com\/riley-morgan\/?/i);
+
+  const unsafe = createResumePackage({
+    ...creativeDesignResumeFixture,
+    candidate: {
+      ...creativeDesignResumeFixture.candidate,
+      professionalLinks: [
+        { label: "Portfolio", url: "javascript:alert(1)" },
+        { label: "LinkedIn", url: "https://www.linkedin.com/in/safe-example" },
+      ],
+    },
+  }, { item: creativeTargetItem, atsReview: verifiedPosting });
+  assert.equal(unsafe.classification.verifiedPortfolioEvidence, false);
+  assert.doesNotMatch(buildResumeRenderPlan(unsafe, TEMPLATE_IDS.CREATIVE_DESIGN).header.contactLine, /javascript|portfolio available/i);
+  assert.match(buildResumeRenderPlan(unsafe, TEMPLATE_IDS.CREATIVE_DESIGN).header.contactLine, /linkedin\.com/i);
+});
+
+test("incomplete postings cap direct B3 recommendations and produce preliminary-only authorization", () => {
+  const partialReview = {
+    posting_readiness: { status: "needs_full_posting", fit_allowed: false, application_ready_allowed: false },
+    readiness: { status: "needs_full_posting" },
+    application_ready: false,
+  };
+  const packageResult = createResumePackage(marketingCommunicationsResumeFixture, { item: marketingTargetItem, atsReview: partialReview });
+  assert.equal(packageResult.presentation.recommendedTemplateId, TEMPLATE_IDS.MARKETING_COMMUNICATIONS);
+  assert.equal(packageResult.presentation.recommendationStrength, "moderate");
+  assert.equal(packageResult.presentation.recommendationReasonCode, "marketing_communications_verified_preliminary");
+  const context = createResumeExportContext(marketingCommunicationsResumeFixture, partialReview, {
+    item: marketingTargetItem,
+    templateId: TEMPLATE_IDS.MARKETING_COMMUNICATIONS,
+  });
+  assert.equal(context.authorization.mode, "preliminary");
+  assert.equal(context.renderPlan.preliminary, true);
+  assert.match(resumeDataToPlainText(context), /PRELIMINARY DRAFT/);
+  assert.equal(validateResumeExportContext(context), context);
 });
 
 test("B2 recommendation distinguishes regulated, apprentice, field-service, general-maintenance, and landscape profiles", () => {

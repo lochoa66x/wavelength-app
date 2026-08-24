@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 
 import { PRELIMINARY_EXPORT_NOTICE } from "./resumeExport.js";
 import { createResumePdfBytes, createResumePrintDocument } from "./resumePdf.js";
+import { marketingCommunicationsResumeFixture } from "../tests/fixtures/resumePhaseBFixtures.js";
 
 const fixture = {
   name: { text: "Luis Example", metadata: "PRIVATE_NAME_METADATA" },
@@ -35,13 +36,16 @@ async function extractPdf(bytes) {
   const pdf = await task.promise;
   const pages = pdf.numPages;
   const items = [];
+  const pageTexts = [];
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
     const page = await pdf.getPage(pageNumber);
     const content = await page.getTextContent();
-    items.push(...content.items.filter((item) => typeof item.str === "string" && item.str.trim()).map((item) => item.str.trim()));
+    const pageItems = content.items.filter((item) => typeof item.str === "string" && item.str.trim()).map((item) => item.str.trim());
+    items.push(...pageItems);
+    pageTexts.push(pageItems.join(" "));
   }
   await task.destroy();
-  return { pages, items, text: items.join(" ") };
+  return { pages, items, pageTexts, text: items.join(" ") };
 }
 
 test("direct PDF contains ordered selectable ATS text and no object artifacts", async () => {
@@ -83,6 +87,16 @@ test("direct PDF paginates long resumes without losing first or last experience 
   assert.match(extracted.text, /Verified delivery bullet 1\.1/);
   assert.match(extracted.text, /Verified delivery bullet 10\.5/);
   assert.doesNotMatch(extracted.text, /\[object Object\]/);
+});
+
+test("direct PDF keeps compact project bullets together across a page boundary", async () => {
+  const extracted = await extractPdf(await createResumePdfBytes(marketingCommunicationsResumeFixture, "marketing-communications-v1"));
+  const projectPage = extracted.pageTexts.find((page) => page.includes("Program Launch Content"));
+
+  assert.ok(projectPage, "expected the second marketing project in the PDF");
+  assert.match(projectPage, /Verified Projects/);
+  assert.match(projectPage, /Created approved email, landing-page, and social copy/);
+  assert.match(projectPage, /Reported channel activity using documented HubSpot and Google Analytics records/);
 });
 
 test("direct PDF rejects missing or placeholder identity", async () => {
