@@ -167,3 +167,243 @@ export const adminCustomerTargetItem = Object.freeze({
   category: "admin",
   description: "Coordinate scheduling, customer support, documentation, CRM records, issue resolution, and service follow-up.",
 });
+
+export const licensedElectricianResumeFixture = Object.freeze({
+  name: "Alex Romero",
+  title: "309A Construction and Maintenance Electrician",
+  contact: "alex.romero@example.com | 416-555-0128 | Toronto, Ontario",
+  profile: "Construction and maintenance electrician with verified commercial installation, circuit testing, repair, work-order, and preventive-maintenance experience.",
+  skills: {
+    verifiedCore: ["Commercial electrical installation", "Circuit testing", "Electrical repair", "Preventive maintenance"],
+    verifiedDomain: ["Lighting systems", "Panels", "Conduit", "Work orders"],
+    verifiedTools: ["Multimeter", "Hand tools", "Power tools"],
+  },
+  certifications: [{ name: "309A Construction and Maintenance Electrician Certificate of Qualification", issuer: "Skilled Trades Ontario", year: "2020" }],
+  safety_certifications: ["WHMIS", "Working at Heights", "Lockout/tagout training"],
+  experience: [{
+    role: "Construction and Maintenance Electrician",
+    company: "Example Electrical Services",
+    dates: "2020 - Present",
+    bullets: [
+      "Installed and tested commercial lighting, conduit, wiring, and electrical panels from approved work plans.",
+      "Diagnosed electrical faults with a multimeter and completed documented repairs within assigned work orders.",
+      "Performed preventive maintenance on building electrical systems and recorded inspection findings.",
+    ],
+  }],
+  education: [{ degree: "Electrical Apprenticeship Program", institution: "Example Training Centre", dates: "2020" }],
+  content_strategy: "direct",
+});
+
+export const tradeApprenticeResumeFixture = Object.freeze({
+  name: "Priya Singh",
+  title: "Electrical Apprentice",
+  contact: "priya.singh@example.com | 647-555-0177 | Brampton, Ontario",
+  profile: "Electrical apprentice with verified supervised installation, material preparation, circuit-testing support, and construction-site safety experience.",
+  skills: {
+    verifiedCore: ["Supervised electrical installation", "Material preparation", "Circuit-testing support"],
+    verifiedTools: ["Hand tools", "Power tools", "Multimeter"],
+  },
+  training: [{ name: "Registered Electrical Apprenticeship", provider: "Skilled Trades Ontario", dates: "2024 - Present" }],
+  safety_certifications: ["WHMIS", "Working at Heights"],
+  experience: [{
+    role: "Electrical Apprentice",
+    company: "Example Contracting",
+    dates: "2024 - Present",
+    bullets: [
+      "Assisted with commercial lighting and conduit installation under the supervision of a licensed electrician.",
+      "Prepared materials, maintained organized work areas, and documented completed supervised tasks.",
+      "Supported circuit testing and reported readings to the supervising electrician.",
+    ],
+  }],
+  education: [{ degree: "Electrical Techniques Certificate", institution: "Example College", dates: "2024" }],
+  content_strategy: "direct",
+});
+
+export const propertyMaintenanceResumeFixture = Object.freeze({
+  name: "Noah Williams",
+  title: "Property Maintenance Worker",
+  contact: "noah.williams@example.com | 905-555-0134 | Hamilton, Ontario",
+  profile: "Property maintenance worker with verified general repair, fixture replacement, drywall patching, painting, grounds upkeep, and tenant-service experience.",
+  skills: ["General repairs", "Fixture replacement", "Drywall patching", "Painting", "Grounds upkeep"],
+  experience: [{
+    role: "Property Maintenance Worker",
+    company: "Example Housing Cooperative",
+    dates: "2019 - Present",
+    bullets: [
+      "Completed approved work orders for drywall patching, painting, door hardware, and non-regulated fixture replacement.",
+      "Inspected common areas and reported electrical, plumbing, and HVAC issues to licensed contractors.",
+      "Communicated repair status to tenants and documented required follow-up.",
+    ],
+  }],
+  projects: [{ name: "Suite Turnover Support", description: "Completed verified general repairs and finish work for scheduled suite turnovers." }],
+  content_strategy: "direct",
+});
+
+export const fieldServiceTechnicianResumeFixture = Object.freeze({
+  name: "Samira Haddad",
+  title: "Field Service Technician",
+  contact: "samira.haddad@example.com | 289-555-0152 | Oakville, Ontario",
+  profile: "Field service technician with verified customer-site diagnostics, equipment installation, preventive maintenance, repair, work-order documentation, and operational handoff experience.",
+  skills: {
+    verifiedCore: ["Equipment diagnostics", "Installation", "Preventive maintenance", "Repair", "Customer-site service"],
+    verifiedDomain: ["Service calls", "Work orders", "Parts inspection", "Operational handoff"],
+    verifiedTools: ["Digital multimeter", "Diagnostic software", "Hand tools", "Power tools", "CMMS"],
+    transferable: ["Customer communication", "Technical documentation"],
+  },
+  experience: [{
+    role: "Senior Field Service Technician",
+    company: "Example Equipment Services",
+    dates: "2022 - Present",
+    bullets: [
+      "Diagnosed equipment faults during scheduled customer-site service calls using approved test procedures and diagnostic tools.",
+      "Installed replacement components, tested equipment operation, and documented completed work in service records.",
+      "Completed preventive-maintenance work orders and recorded inspection findings, parts used, and required follow-up.",
+      "Explained equipment status and safe operating steps to customer contacts after completed service work.",
+    ],
+  }, {
+    role: "Field Service Technician",
+    company: "Example Industrial Support",
+    dates: "2018 - 2022",
+    bullets: [
+      "Responded to assigned service calls for commercial equipment installation, inspection, diagnostics, and repair.",
+      "Inspected motors, pumps, sensors, wiring connections, and mechanical components against service documentation.",
+      "Coordinated parts requirements with dispatch and inventory teams before scheduled return visits.",
+      "Prepared service summaries for reviewed work orders and escalated unresolved faults to technical specialists.",
+    ],
+  }, {
+    role: "Equipment Maintenance Technician",
+    company: "Example Production Group",
+    dates: "2014 - 2018",
+    bullets: [
+      "Performed preventive maintenance on production equipment according to established schedules and work instructions.",
+      "Inspected guards, belts, motors, pumps, and control components and reported conditions requiring authorized repair.",
+      "Replaced approved mechanical components and tested equipment operation before documented return to service.",
+      "Recorded maintenance activity and follow-up requirements in the computerized maintenance management system.",
+    ],
+  }, {
+    role: "Service Installation Assistant",
+    company: "Example Technical Installations",
+    dates: "2011 - 2014",
+    bullets: [
+      "Assisted technicians with customer-site equipment delivery, assembly, installation, and operational testing.",
+      "Prepared hand tools, power tools, fasteners, cables, and approved installation materials for assigned work.",
+      "Maintained accurate installation checklists and returned completed documentation for supervisor review.",
+    ],
+  }],
+  projects: [{
+    name: "Customer Equipment Replacement Program",
+    organization: "Example Equipment Services",
+    startDate: "2023",
+    endDate: "2024",
+    description: "Supported a scheduled replacement program for documented customer-site equipment.",
+    bullets: [
+      "Inspected installation locations and documented verified equipment, connection, and access conditions.",
+      "Installed assigned replacement units and completed approved operational test checklists.",
+    ],
+  }, {
+    name: "Preventive-Maintenance Procedure Review",
+    organization: "Example Industrial Support",
+    startDate: "2021",
+    endDate: "2021",
+    description: "Reviewed existing service procedures with technicians and documented confirmed field steps.",
+    bullets: [
+      "Recorded approved inspection points and required service-record fields for recurring work orders.",
+      "Validated revised checklists during scheduled maintenance visits and reported unclear instructions.",
+    ],
+  }],
+  certifications: [{ name: "Industrial Equipment Service Certificate", issuer: "Example Technical Institute", year: "2018" }],
+  training: [{ name: "Equipment Diagnostics and Service Documentation", provider: "Example Equipment Services", dates: "2023" }],
+  safety_certifications: ["WHMIS", "Lockout/tagout training", "First Aid/CPR"],
+  education: [{ degree: "Mechanical Technician Diploma", institution: "Example College", dates: "2011" }],
+  languages: [{ language: "English", proficiency: "Fluent" }, { language: "Arabic", proficiency: "Fluent" }],
+  content_strategy: "direct",
+});
+
+export const landscapeMaintenanceResumeFixture = Object.freeze({
+  name: "Ethan Brooks",
+  title: "Landscape Maintenance Worker",
+  contact: "ethan.brooks@example.com | 519-555-0119 | Guelph, Ontario",
+  profile: "Landscape maintenance worker with verified grounds care, irrigation inspection, planting, site preparation, and outdoor equipment operation experience.",
+  skills: ["Grounds maintenance", "Planting", "Site preparation", "Irrigation inspection", "Outdoor equipment operation"],
+  experience: [{
+    role: "Landscape Maintenance Worker",
+    company: "Example Grounds Services",
+    dates: "2017 - Present",
+    bullets: [
+      "Maintained commercial grounds through mowing, trimming, planting, debris removal, and seasonal site preparation.",
+      "Inspected irrigation components and reported damaged lines, valves, and sprinkler heads for approved repair.",
+      "Operated documented outdoor equipment and completed pre-use inspections according to established procedures.",
+    ],
+  }],
+  content_strategy: "direct",
+});
+
+export const electricianTargetItem = Object.freeze({
+  id: "phase-b2-electrician",
+  title: "Construction and Maintenance Electrician",
+  company: "Example Facilities",
+  category: "trades",
+  description: "A valid 309A electrical licence is required. Install, test, inspect, and repair commercial electrical systems.",
+});
+
+export const apprenticeTargetItem = Object.freeze({
+  id: "phase-b2-apprentice",
+  title: "Electrical Apprentice",
+  company: "Example Contracting",
+  category: "trades",
+  description: "Assist licensed electricians with supervised installation, testing, materials, and site documentation.",
+});
+
+export const fieldServiceTargetItem = Object.freeze({
+  id: "phase-b2-field-service",
+  title: "Field Service Technician",
+  company: "Example Equipment Company",
+  category: "home_services",
+  description: "Complete customer-site diagnostics, equipment installation, preventive maintenance, repair, service calls, and work-order documentation.",
+});
+
+export const verifiedElectricianReview = Object.freeze({
+  ...verifiedPostingReview,
+  requirements: [{
+    requirement: "Valid 309A electrical licence required",
+    classification: "direct",
+    evidence_match: "direct",
+    resume_evidence: "309A Construction and Maintenance Electrician Certificate of Qualification",
+  }],
+});
+
+export const missingElectricianCredentialReview = Object.freeze({
+  ...verifiedPostingReview,
+  requirements: [{
+    requirement: "Valid 309A electrical licence required",
+    classification: "credential-required",
+    evidence_match: "missing",
+    resume_evidence: "",
+  }],
+  missing_evidence: ["Valid 309A electrical licence"],
+});
+
+export const noisyFieldServicePostingReview = Object.freeze({
+  ...verifiedPostingReview,
+  requirements: [
+    {
+      requirement: "VALID DRIVER'S LICENCE\nREQUIRED FOR SERVICE CALLS",
+      classification: "credential-required",
+      evidence_match: "missing",
+      resume_evidence: "",
+    },
+    {
+      requirement: "Valid driver's licence required for service calls",
+      classification: "credential-required",
+      evidence_match: "missing",
+      resume_evidence: "",
+    },
+    {
+      requirement: "WHMIS REQUIRED   WHMIS REQUIRED",
+      classification: "credential-required",
+      evidence_match: "missing",
+      resume_evidence: "",
+    },
+  ],
+  missing_evidence: ["Valid driver's licence", "WHMIS", "Valid driver's licence"],
+});

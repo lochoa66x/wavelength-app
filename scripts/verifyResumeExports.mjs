@@ -10,8 +10,12 @@ import { resumeDataToPlainText } from "../src/resumeText.js";
 import {
   adminCustomerOperationsResumeFixture,
   adminCustomerTargetItem,
+  apprenticeTargetItem,
+  fieldServiceTargetItem,
+  fieldServiceTechnicianResumeFixture,
   technicalSoftwareResumeFixture,
   technicalTargetItem,
+  tradeApprenticeResumeFixture,
 } from "../tests/fixtures/resumePhaseBFixtures.js";
 
 const keepArtifacts = process.argv.includes("--keep");
@@ -25,6 +29,7 @@ const templateIds = [
   TEMPLATE_IDS.CAREER_TRANSITION,
   TEMPLATE_IDS.TECHNICAL_SOFTWARE,
   TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS,
+  TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
 ];
 
 const resume = {
@@ -90,14 +95,37 @@ async function inspectPdf(bytes) {
   const task = getDocument({ data: bytes.slice(), disableWorker: true, standardFontDataUrl });
   const pdf = await task.promise;
   const items = [];
+  const pageTexts = [];
   for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
     const page = await pdf.getPage(pageNumber);
     const content = await page.getTextContent();
-    items.push(...content.items.filter((entry) => typeof entry.str === "string" && entry.str.trim()).map((entry) => entry.str.trim()));
+    const pageItems = content.items.filter((entry) => typeof entry.str === "string" && entry.str.trim()).map((entry) => entry.str.trim());
+    items.push(...pageItems);
+    pageTexts.push(normalized(pageItems.join(" ")));
   }
-  const result = { pages: pdf.numPages, items, text: normalized(items.join(" ")) };
+  const result = { pages: pdf.numPages, items, pageTexts, text: normalized(items.join(" ")) };
   await task.destroy();
   return result;
+}
+
+function firstManifestValue(section) {
+  const first = section.items[0];
+  if (!first) return "";
+  return first.text || first.values?.[0] || first.bullets?.[0]?.text || first.details?.[0]?.text || "";
+}
+
+function verifyPdfSectionStarts(pdfInspection, context, format) {
+  for (const section of context.renderPlan.manifest.sections) {
+    const heading = normalized(section.heading).toLowerCase();
+    const firstValue = normalized(firstManifestValue(section)).toLowerCase();
+    if (!firstValue) continue;
+    const headingPage = pdfInspection.pageTexts.findIndex((page) => page.toLowerCase().includes(heading));
+    assert.notEqual(headingPage, -1, `${format} is missing the ${section.heading} heading`);
+    assert.ok(
+      pdfInspection.pageTexts[headingPage].toLowerCase().includes(firstValue),
+      `${format} strands the ${section.heading} heading away from its first content item`,
+    );
+  }
 }
 
 function verifyAgainstManifest(text, context, format) {
@@ -138,10 +166,17 @@ try {
     if (templateId === TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS) {
       return createResumeExportContext(adminCustomerOperationsResumeFixture, verifiedReview, { item: adminCustomerTargetItem, templateId });
     }
+    if (templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES) {
+      return createResumeExportContext(fieldServiceTechnicianResumeFixture, verifiedReview, { item: fieldServiceTargetItem, templateId });
+    }
     return createResumeExportContext(resume, verifiedReview, { item, templateId });
   });
+  const apprenticeContext = createResumeExportContext(tradeApprenticeResumeFixture, verifiedReview, {
+    item: apprenticeTargetItem,
+    templateId: TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
+  });
   const preliminaryContext = createResumeExportContext(resume, partialReviewWithStaleFlags, { item, templateId: TEMPLATE_IDS.ATS_CORE });
-  for (const context of [...finalContexts, preliminaryContext]) validateResumeExportContext(context);
+  for (const context of [...finalContexts, apprenticeContext, preliminaryContext]) validateResumeExportContext(context);
   assert.equal(preliminaryContext.authorization.mode, "preliminary");
   assert.equal(preliminaryContext.renderPlan.preliminary, true);
 
@@ -150,6 +185,8 @@ try {
     const [docx, pdf] = await Promise.all([createResumeDocxBlob(context), createResumePdfBytes(context)]);
     outputs.push({ prefix: context.renderPlan.templateId, context, docx, pdf });
   }
+  const [apprenticeDocx, apprenticePdf] = await Promise.all([createResumeDocxBlob(apprenticeContext), createResumePdfBytes(apprenticeContext)]);
+  outputs.push({ prefix: "apprentice-skilled-trades-field-services-v1", context: apprenticeContext, docx: apprenticeDocx, pdf: apprenticePdf });
   const [preliminaryDocx, preliminaryPdf] = await Promise.all([createResumeDocxBlob(preliminaryContext), createResumePdfBytes(preliminaryContext)]);
   outputs.push({ prefix: "preliminary-ats-core-v1", context: preliminaryContext, docx: preliminaryDocx, pdf: preliminaryPdf });
 
@@ -167,6 +204,7 @@ try {
     const plainText = resumeDataToPlainText(output.context.renderPlan);
     verifyAgainstManifest(docxText, output.context, `${output.prefix} DOCX`);
     verifyAgainstManifest(pdfInspection.text, output.context, `${output.prefix} PDF`);
+    verifyPdfSectionStarts(pdfInspection, output.context, `${output.prefix} PDF`);
     verifyAgainstManifest(plainText, output.context, `${output.prefix} plain text`);
     if (output.context.renderPlan.preliminary) {
       assert.match(docxText, /PRELIMINARY DRAFT/);
@@ -176,8 +214,12 @@ try {
       assert.doesNotMatch(pdfInspection.text, /PRELIMINARY DRAFT/);
     }
     assert.ok(pdfInspection.items.length > 15, `${output.prefix} PDF did not expose enough selectable text items`);
-    if ([TEMPLATE_IDS.TECHNICAL_SOFTWARE, TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS].includes(output.context.renderPlan.templateId)) {
+    if ([TEMPLATE_IDS.TECHNICAL_SOFTWARE, TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS, TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES].includes(output.context.renderPlan.templateId)
+      && output.prefix !== "apprentice-skilled-trades-field-services-v1") {
       assert.equal(pdfInspection.pages, 2, `${output.prefix} realistic fixture must render as a two-page direct PDF`);
+    }
+    if (output.prefix === "apprentice-skilled-trades-field-services-v1") {
+      assert.equal(pdfInspection.pages, 1, "the apprentice fixture must render as a one-page direct PDF");
     }
     pdfPages += pdfInspection.pages;
     pdfTextItems += pdfInspection.items.length;
@@ -202,7 +244,8 @@ try {
     manifestParity: true,
     verifiedFinalGate: true,
     staleReadyFlagBlocked: true,
-    realisticTwoPageTemplates: [TEMPLATE_IDS.TECHNICAL_SOFTWARE, TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS],
+    realisticTwoPageTemplates: [TEMPLATE_IDS.TECHNICAL_SOFTWARE, TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS, TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES],
+    realisticOnePageFixtures: ["apprentice-skilled-trades-field-services-v1"],
   }, null, 2));
 } finally {
   if (!keepArtifacts) await rm(outputDir, { recursive: true, force: true });

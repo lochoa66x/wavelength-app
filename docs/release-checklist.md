@@ -39,10 +39,20 @@ Do not reapply the P1.4 migration or change production Auth/database settings du
 - [x] Account/target persistence and factual content-hash parity across all six templates.
 - [x] Realistic two-page Technical and Admin fixtures for DOCX/PDF verification.
 
+## P2.1 Phase B2 implementation
+
+- [x] Skilled Trades / Field Services (`skilled-trades-field-services-v1`) canonical registry template.
+- [x] Legacy trades stored IDs adapt to the new family without a second content model or backfill.
+- [x] Deterministic target-plus-verified-hands-on recommendation and six conservative profile states.
+- [x] Posting credentials remain requirements, never candidate evidence; missing regulated credentials block strong positioning.
+- [x] SAP Plant Maintenance, software maintenance, IT support, maintenance-planning, and category-only false positives are excluded.
+- [x] Credential-aware section order, one-page apprentice fixture, and two-page experienced field-service fixture.
+- [x] Shared seven-card selector, account/target persistence, and factual content-hash parity across all seven templates.
+
 ## Required local verification before commit
 
 - [x] Focused canonical/template/export/tailoring tests pass with exact count recorded.
-- [x] `npm run verify:exports` passes for all six templates and preliminary gating.
+- [x] `npm run verify:exports` passes for all seven templates, the apprentice fixture, and preliminary gating.
 - [x] Full `npm test` passes with exact count recorded.
 - [x] Production build passes and keeps DOCX/PDF libraries lazy.
 - [x] `npm audit --json` is reviewed without forced upgrades.
@@ -90,12 +100,24 @@ Do not reapply the P1.4 migration or change production Auth/database settings du
 - Real-file QA: all seven direct PDFs and all seven LibreOffice-converted DOCX PDFs were rendered; all 18 pages were inspected. Both B1 fixtures were exactly two pages in each engine. Canonical tokens were present in direct PDFs, DOCX and LibreOffice-converted text had sequence parity, and no `[object Object]`, `undefined`, `null`, clipping, overlap, orphan heading, or blank trailing page was found.
 - Browser QA: the isolated real-component harness passed at 1,440 × 900 and 390 × 844 with six accessible cards, 88-pixel minimum mobile card height, keyboard activation, correct `aria-expanded`/`aria-pressed` state, zero selector-triggered resource requests, stable factual content hash, no horizontal overflow, and no console/page errors.
 - Microsoft Word and Google Docs were unavailable locally; LibreOffice provided the Word-compatible verification engine.
-- Release state: local commit only. Phase B1 was not pushed or deployed.
+- Repository state at B2 start: B1 commit `4e278ff1ebd2cb42561c8eb4b7ad74ba9aa47ac2` was present on both `main` and `origin/main`. Production deployment state was not re-verified during the local B2 scope.
+
+## P2.1 Phase B2 local verification record — 2026-08-24
+
+- Focused tests: 72 passed, 0 failed.
+- Full suite: 287 passed, 0 failed.
+- Export verifier: 18 files across seven final templates, one apprentice pair, and one preliminary pair; 12 direct-PDF pages, 370 selectable text items, manifest parity, verified-final gating, stale-readiness protection, two-page experienced-template assertions, one-page apprentice assertion, and heading/content page cohesion passed.
+- Production build: 1,971 modules transformed; `resumeDocx`, `resumePdf`, `docx`, and `jspdf` remained lazy chunks. The existing main-chunk size warning remains.
+- Dependency audit: 0 critical, 1 high, and 1 moderate finding, both confined to the existing Vite/esbuild development toolchain. The available fix requires a Vite 8 major upgrade and remains outside B2 scope.
+- Real-file QA: all nine direct PDFs and all nine LibreOffice-converted DOCX PDFs were rendered; all 24 pages were inspected. The experienced Skilled Trades fixture was exactly two pages and the apprentice fixture exactly one page in both engines. Direct and converted text retained canonical order with no `[object Object]`, `undefined`, `null`, metadata leakage, clipping, overlap, stranded heading, or blank trailing page.
+- Browser QA: the real seven-card selector and preview passed at 1,440 × 900 and 390 × 844 with visible keyboard focus, native button semantics, accurate labels and `aria-pressed` state, immediate pointer switching, stable factual content hash, zero selector-triggered fetch/XHR calls, no horizontal overflow, and no console errors.
+- Accessibility: all nine current DOCX fixtures reported zero high-, medium-, or low-severity findings; browser buttons exposed visible focus and accessible selection state.
+- Microsoft Word and Google Docs were unavailable locally; LibreOffice provided the Word-compatible verification engine.
+- Release state: local commit only. Phase B2 was not pushed or deployed.
 
 Do not commit while a required check is failing. Do not push or deploy without separate authorization.
 
 ## Later P2.1 families
 
-- Skilled trades rebuild
-- Marketing and communications
-- Creative and design
+- Phase B3: Marketing / Communications
+- Phase B3: Creative / Design

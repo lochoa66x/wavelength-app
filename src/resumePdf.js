@@ -125,6 +125,30 @@ export async function createResumePdfBytes(input, template = "professional", opt
     doc.text(lines, textX, y, { baseline: "top", lineHeightFactor: 1.32 });
     y += height + 4;
   };
+  const firstSectionBlockHeight = (section) => {
+    const first = section.items[0];
+    if (!first) return 0;
+    if (section.type === "paragraph") return wrappedLines(first.text, contentWidth).length * 13.2 + 4;
+    if (section.type === "inline-list") return wrappedLines(section.items.map((item) => item.text).join(" | "), contentWidth).length * 13.2 + 4;
+    if (section.type === "experience") {
+      const firstBullet = first.bullets[0]?.text || "";
+      return 19 + wrappedLines(firstBullet, contentWidth - 14).length * 13.2;
+    }
+    if (section.type === "projects") {
+      const firstContent = first.description || first.bullets[0]?.text || "";
+      return 18 + wrappedLines(firstContent, contentWidth).length * 13.2;
+    }
+    if (section.type === "credentials") return wrappedLines(joined([first.name, first.issuer, first.dateDisplay]), contentWidth).length * 13.2 + 4;
+    if (section.type === "education") {
+      const educationLine = joined([[first.credential, first.field].filter(Boolean).join(" - "), first.institution, first.location, first.dateDisplay]);
+      return wrappedLines(educationLine, contentWidth).length * 13.2 + 4;
+    }
+    if (section.type === "languages") {
+      const languages = section.items.map((item) => [item.name, item.proficiency].filter(Boolean).join(" - ")).join(", ");
+      return wrappedLines(languages, contentWidth).length * 13.2 + 4;
+    }
+    return wrappedLines(first.text, contentWidth).length * 13.2 + 4;
+  };
 
   writeLines(renderPlan.header.fullName, { size: tokens.nameFontSizePt, style: "bold", leading: 20, after: 4, align: "center" });
   if (renderPlan.header.headline) writeLines(renderPlan.header.headline, { size: tokens.headlineFontSizePt, style: "bold", color: [55, 55, 60], leading: 14, after: 3, align: "center" });
@@ -140,6 +164,7 @@ export async function createResumePdfBytes(input, template = "professional", opt
   }
 
   for (const section of renderPlan.sections) {
+    ensureSpace(34 + firstSectionBlockHeight(section));
     heading(section.heading);
     if (section.type === "paragraph") {
       for (const item of section.items) paragraph(item.text);

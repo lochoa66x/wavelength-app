@@ -144,10 +144,13 @@ The initial registry provides:
 4. Career Transition (`career-transition-v1`)
 5. Technical / Software (`technical-software-v1`)
 6. Admin / Customer Operations (`admin-customer-operations-v1`)
+7. Skilled Trades / Field Services (`skilled-trades-field-services-v1`)
 
-**Phase B1 status:** Implemented and locally verified on 2026-08-24; local commit only. The two new families use the same selector in feed and bring-your-own-job flows, preserve account/target-scoped overrides, and rerender without AI or a network request. Technical and admin recommendations require a matching target plus verified direct/adjacent family evidence. Programming-heavy SAP roles require real development evidence, and service coordination is never promoted into management ownership.
+**Phase B1 status:** Implemented and verified on 2026-08-24. Commit `4e278ff1ebd2cb42561c8eb4b7ad74ba9aa47ac2` is present on `origin/main`. The two families use the same selector in feed and bring-your-own-job flows, preserve account/target-scoped overrides, and rerender without AI or a network request. Technical and admin recommendations require a matching target plus verified direct/adjacent family evidence. Programming-heavy SAP roles require real development evidence, and service coordination is never promoted into management ownership.
 
-Template selection cannot alter factual item IDs, evidence classification, immutable career strategy, readiness, or the canonical content hash. Recommendation precedence is skilled-trades compatibility, major transition, verified project leadership, verified SAP functional fit, verified technical fit, verified admin/customer-operations fit, then ATS Core.
+**Phase B2 status:** Implemented and locally verified on 2026-08-24; release state remains local-only. Skilled Trades / Field Services replaces the hidden legacy trades registry entry through an on-read alias. Recommendation requires a matching target and verified physical hands-on evidence. Regulated credentials must be explicit candidate evidence; a posting requirement cannot satisfy itself, and a required credential gap blocks strong positioning. SAP Plant Maintenance, software maintenance, IT support, and maintenance-planning language are excluded from direct trade matching.
+
+Template selection cannot alter factual item IDs, evidence classification, immutable career strategy, readiness, or the canonical content hash. Recommendation precedence protects trade evidence gaps and major transitions before verified skilled-trades, project-leadership, SAP-functional, technical, and admin/customer-operations matches, then ATS Core.
 
 Final/preliminary exporters validate a short-lived authorization bound to the document, identity, posting state, schema, and mode. Stored readiness booleans cannot authorize a mismatched export. See `docs/resume-architecture.md` for the contract and extension procedure.
 
@@ -162,7 +165,7 @@ Keep one canonical evidence model and vary section order, density, language emph
 7. Marketing and communications
 8. Creative and design portfolio
 
-Technical / Software and Administration / Customer Operations are complete in Phase B1. The next family pass should rebuild Skilled Trades and Field Services on the canonical renderer before adding Marketing / Communications and Creative / Design.
+Technical / Software and Administration / Customer Operations are complete in Phase B1. Skilled Trades / Field Services is complete in Phase B2. The next family pass is Phase B3: Marketing / Communications and Creative / Design.
 
 Every family needs a screen renderer, DOCX renderer, plain-text export, and automated parseability check. The user may override the recommendation. Creative styling must never be the only export; retain a conservative ATS-safe version.
 

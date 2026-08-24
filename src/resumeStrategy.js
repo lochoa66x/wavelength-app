@@ -18,5 +18,9 @@ export function recommendResumeTemplate(resumeData, { item = {}, atsReview = {} 
     trace: resumePackage.classification.recommendationTrace,
     occupationFamily: resumePackage.classification.occupationFamily,
     careerStrategy: resumePackage.classification.careerStrategy,
+    tradeProfileType: resumePackage.classification.tradeProfileType,
+    tradeCredentialStatus: resumePackage.classification.tradeCredentialStatus,
+    requiredTradeCredentials: resumePackage.classification.requiredTradeCredentials,
+    missingTradeCredentials: resumePackage.classification.missingTradeCredentials,
   };
 }

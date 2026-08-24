@@ -9,8 +9,10 @@ export const TEMPLATE_IDS = Object.freeze({
   CAREER_TRANSITION: "career-transition-v1",
   TECHNICAL_SOFTWARE: "technical-software-v1",
   ADMIN_CUSTOMER_OPERATIONS: "admin-customer-operations-v1",
-  LEGACY_TRADES: "trades-legacy-v1",
+  SKILLED_TRADES_FIELD_SERVICES: "skilled-trades-field-services-v1",
 });
+
+const LEGACY_TRADES_TEMPLATE_ID = "trades-legacy-v1";
 
 const INVALID_EXACT_TEXT = /^(?:\[object Object\]|undefined|null|<\s*unknown\s*>)$/i;
 const PLACEHOLDER_IDENTITY = /^(?:<\s*)?(?:unknown|unnamed|name unavailable|candidate|n\/?a|null|undefined)(?:\s*>)?$/i;
@@ -29,7 +31,10 @@ const TEMPLATE_ALIASES = Object.freeze({
   software: TEMPLATE_IDS.TECHNICAL_SOFTWARE,
   "admin-customer-operations": TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS,
   "admin-operations": TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS,
-  trades: TEMPLATE_IDS.LEGACY_TRADES,
+  trades: TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
+  "skilled-trades": TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
+  "skilled-trades-field-services": TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
+  [LEGACY_TRADES_TEMPLATE_ID]: TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
 });
 
 const BASE_SECTIONS = Object.freeze([
@@ -142,14 +147,21 @@ export const RESUME_TEMPLATE_REGISTRY = Object.freeze({
     },
     sectionOrder: ["summary", "skills", "experience", "certifications", "training", "education", "projects", "languages", "safety"],
   }),
-  [TEMPLATE_IDS.LEGACY_TRADES]: templateDefinition({
-    id: TEMPLATE_IDS.LEGACY_TRADES,
-    displayName: "Skilled Trades (existing)",
-    description: "Compatibility presentation for the already-shipped trades experience.",
-    intendedUse: "Existing skilled-trades flows pending the dedicated later-family pass",
-    accent: "#37634d",
-    sectionOrder: ["summary", "certifications", "safety", "experience", "skills", "education", "projects", "training", "languages"],
-    visible: false,
+  [TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES]: templateDefinition({
+    id: TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
+    displayName: "Skilled Trades / Field Services",
+    description: "Credential-aware practical structure for verified trade, maintenance, installation, repair, and customer-site service evidence.",
+    intendedUse: "Skilled trades, apprentices, field service, facilities maintenance, construction support, landscaping, and practical repair roles",
+    accent: "#4f653c",
+    visualTokens: {
+      marginTopIn: 0.6,
+      marginBottomIn: 0.6,
+      bodyFontSizePt: 9.8,
+      bodyLineHeight: 1.32,
+      nameFontSizePt: 17.5,
+      sectionFontSizePt: 10.2,
+    },
+    sectionOrder: ["summary", "certifications", "safety", "skills", "experience", "projects", "training", "education", "languages"],
   }),
 });
 
@@ -546,6 +558,14 @@ function hasVerifiedRequirement(atsReview, pattern) {
   });
 }
 
+function hasVerifiedCandidateEvidence(atsReview, pattern) {
+  return reviewRequirements(atsReview).some((entry) => {
+    const match = cleanScalar(entry.evidence_match ?? entry.classification).toLowerCase();
+    const evidence = cleanScalar(entry.resume_evidence ?? entry.evidence);
+    return ["direct", "adjacent"].includes(match) && evidence && pattern.test(evidence);
+  });
+}
+
 const SAP_PATTERN = /\b(?:sap|s\/4hana|s4hana|hana)\b/i;
 const SAP_FUNCTIONAL_PATTERN = /\b(?:functional|fi[- /]?ca|pscd|fico|fi\/co|mdg|mm|sd|configuration|requirements?|uat|functional specifications?|cutover|go-live|process analysis|integration design)\b/i;
 const TECHNICAL_TARGET_PATTERN = /\b(?:abap|c\+\+|c#|java(?:script)?|typescript|python|react|node(?:\.js)?|front[- ]?end|back[- ]?end|full[- ]?stack|software|application|mobile|web)\s*(?:developer|development|engineer|engineering)?\b|\b(?:developer|programmer|coding|data engineer|analytics engineer|machine learning|ml engineer|ai engineer|cloud engineer|devops|platform engineer|site reliability|sre|cybersecurity|security engineer|qa automation|test automation|systems engineer|infrastructure engineer)\b/i;
@@ -556,6 +576,69 @@ const LEADERSHIP_EVIDENCE_PATTERN = /\b(?:led|directed|managed|oversaw|governanc
 const ADMIN_CUSTOMER_TARGET_PATTERN = /\b(?:administrative assistant|executive assistant|office (?:assistant|administrator|coordinator|manager)|operations coordinator|administrative coordinator|customer (?:support|service|success)|client service|service operations|data entry|scheduler|scheduling coordinator|dispatcher|dispatch coordinator|support specialist|support representative|service coordinator|operations assistant)\b/i;
 const ADMIN_CUSTOMER_EVIDENCE_PATTERN = /\b(?:administrative support|calendar coordination|calendar management|meeting coordination|scheduling|dispatch|documentation|records management|data entry|customer support|customer service|customer success|client service|issue resolution|service delivery|ticketing|help desk|crm|case management|office coordination|process compliance|cross[- ]functional coordination)\b/i;
 const ADMIN_EXCLUDED_TARGET_PATTERN = /\b(?:account executive|sales representative|business development|marketing|communications|copywriter|financial analyst|accountant|bookkeeper|controller|chief|vice president|\bvp\b|director)\b/i;
+const TRADE_TARGET_PATTERN = /\b(?:electrician|electrical (?:technician|apprentice|helper)|plumber|plumbing (?:technician|apprentice|helper)|pipefitter|steamfitter|gas fitter|hvac|refrigeration (?:technician|mechanic)|carpenter|carpentry (?:apprentice|helper)|welder|welding (?:apprentice|helper)|millwright|industrial mechanic|automotive (?:technician|mechanic)|auto mechanic|diesel mechanic|heavy[- ]equipment (?:technician|mechanic|operator)|maintenance technician|industrial maintenance|facilities maintenance|property maintenance|handyman|general repair worker|landscap(?:e|er|ing)|grounds maintenance|installer|installation technician|field[- ]service technician|service technician|appliance (?:service )?technician|construction (?:worker|labou?rer|helper)|trade apprentice|journeyperson|journeyman)\b/i;
+const TRADE_EXCLUDED_TARGET_PATTERN = /\b(?:sap(?: plant maintenance| pm)?|software|application|it |information technology|help desk|service desk|maintenance planner|maintenance planning|project manager|program manager|operations manager|engineering manager|technical project|asset management system|computerized maintenance management)\b/i;
+const REGULATED_TRADE_TARGET_PATTERN = /\b(?:electrician|electrical (?:technician|mechanic)|plumber|plumbing technician|pipefitter|steamfitter|gas fitter|hvac|refrigeration (?:technician|mechanic))\b/i;
+const APPRENTICE_TARGET_PATTERN = /\b(?:apprentice|helper|trainee|junior)\b/i;
+const GENERAL_FIELD_TARGET_PATTERN = /\b(?:handyman|general repair|property maintenance|facilities maintenance|landscap(?:e|er|ing)|grounds maintenance|construction (?:worker|labou?rer|helper))\b/i;
+const TRADE_TITLE_EVIDENCE_PATTERN = /\b(?:electrician|plumber|pipefitter|steamfitter|gas fitter|hvac technician|refrigeration (?:technician|mechanic)|carpenter|welder|millwright|industrial mechanic|automotive (?:technician|mechanic)|auto mechanic|diesel mechanic|heavy[- ]equipment (?:technician|mechanic|operator)|maintenance technician|handyman|landscap(?:e|er|ing)|groundskeeper|installer|field[- ]service technician|appliance (?:service )?technician|construction (?:worker|labou?rer)|trade apprentice|electrical apprentice|plumbing apprentice)\b/i;
+const HANDS_ON_ACTION_PATTERN = /\b(?:install(?:ed|ing)?|repair(?:ed|ing)?|diagnos(?:ed|ing)|inspect(?:ed|ing)?|test(?:ed|ing)?|maintain(?:ed|ing)?|assembl(?:ed|ing)|fabricat(?:ed|ing)|operat(?:ed|ing)|servic(?:ed|ing)|replac(?:ed|ing)|troubleshot|calibrat(?:ed|ing)|construct(?:ed|ing)|renovat(?:ed|ing)|landscap(?:ed|ing)|mow(?:ed|ing)|weld(?:ed|ing)|wire(?:d|ing)|plumb(?:ed|ing)|assist(?:ed|ing).{0,50}(?:installation|repair|maintenance|inspection|construction))\b/i;
+const PHYSICAL_FIELD_CONTEXT_PATTERN = /\b(?:electrical|wiring|circuit|panel|lighting|fixture|conduit|plumbing|pipe|drain|faucet|boiler|furnace|refrigeration|hvac|motor|pump|compressor|vehicle|engine|brake|equipment|machinery|production line|building|facility|property|drywall|framing|cabinet|door|window|roof|concrete|landscape|grounds|lawn|irrigation|appliance|customer site|service call|work order|preventive maintenance|hand tool|power tool|multimeter|diagnostic equipment|construction site)\b/i;
+const ADJACENT_FIELD_EVIDENCE_PATTERN = /\b(?:work orders?|cmms|sap plant maintenance|sap pm|maintenance planning|asset management|warehouse|logistics|customer service|dispatch|scheduling|safety procedures?|inventory|parts coordination|mechanical aptitude|field operations|facilities operations|contractor coordination)\b/i;
+
+const TRADE_CREDENTIAL_GROUPS = Object.freeze([
+  { code: "red-seal-journeyperson", label: "Red Seal or journeyperson credential", pattern: /\b(?:red seal|journeyperson|journeyman|certificate of qualification|\bcoq\b)\b/i },
+  { code: "electrical-licence", label: "electrical licence", pattern: /\b(?:309a|442a|master electrician|electrical (?:licen[cs]e|certificate of qualification)|licensed electrician)\b/i },
+  { code: "plumbing-licence", label: "plumbing licence", pattern: /\b(?:306a|master plumber|plumbing (?:licen[cs]e|certificate of qualification)|licensed plumber)\b/i },
+  { code: "gas-fitter-licence", label: "gas fitter licence", pattern: /\b(?:gas fitter|g1 gas|g2 gas|g3 gas|gas technician)\b/i },
+  { code: "hvac-refrigeration-credential", label: "HVAC or refrigeration credential", pattern: /\b(?:313a|313d|refrigeration and air conditioning|hvac (?:certification|certificate|licen[cs]e)|refrigeration (?:certification|certificate|licen[cs]e))\b/i },
+  { code: "driver-licence", label: "driver's licence", pattern: /\b(?:driver'?s? licen[cs]e|class [a-z0-9]+ licen[cs]e|valid driving licen[cs]e)\b/i },
+  { code: "clean-driving-record", label: "clean driving record", pattern: /\b(?:clean driving record|acceptable driver'?s? abstract)\b/i },
+  { code: "whmis", label: "WHMIS", pattern: /\bwhmis\b/i },
+  { code: "working-at-heights", label: "Working at Heights or fall-protection training", pattern: /\b(?:working at heights|fall protection|fall arrest)\b/i },
+  { code: "confined-space", label: "confined-space training", pattern: /\bconfined[- ]space\b/i },
+  { code: "lockout-tagout", label: "lockout/tagout training", pattern: /\b(?:lockout[ /-]?tagout|loto)\b/i },
+  { code: "first-aid-cpr", label: "First Aid or CPR", pattern: /\b(?:first aid|cpr)\b/i },
+  { code: "forklift-heavy-equipment", label: "forklift or heavy-equipment certification", pattern: /\b(?:(?:forklift|heavy[- ]equipment) (?:certification|certificate|ticket|licen[cs]e)|certified (?:forklift|heavy[- ]equipment) operator)\b/i },
+  { code: "welding-ticket", label: "welding ticket", pattern: /\b(?:welding ticket|cwb certified|welding certification)\b/i },
+  { code: "security-bondability", label: "security clearance or bondability", pattern: /\b(?:security clearance|bondable|bondability)\b/i },
+  { code: "manufacturer-certification", label: "manufacturer certification", pattern: /\bmanufacturer (?:certification|certified|training)\b/i },
+  { code: "apprenticeship-registration", label: "registered apprenticeship", pattern: /\b(?:registered apprentice|apprenticeship registration|registered apprenticeship)\b/i },
+]);
+
+function tradeCredentialEvidence(document, atsReview) {
+  const candidateCorpus = stableStringify({
+    certifications: document.certifications,
+    training: document.training,
+    safety: document.safety,
+  });
+  const verifiedRequirementCorpus = reviewRequirements(atsReview)
+    .filter((entry) => ["direct", "adjacent"].includes(cleanScalar(entry.evidence_match ?? entry.classification).toLowerCase()))
+    // Posting requirements describe the role, not the candidate. Only the
+    // verified candidate-side evidence may satisfy a credential requirement.
+    .map((entry) => cleanScalar(entry.resume_evidence ?? entry.evidence))
+    .join(" ");
+  return `${candidateCorpus} ${verifiedRequirementCorpus}`;
+}
+
+function requiredTradeCredentialGroups(targetTitle, atsReview, regulatedTradeTarget) {
+  const explicitRequirements = reviewRequirements(atsReview).filter((entry) => {
+    const classification = cleanScalar(entry.classification ?? entry.evidence_match).toLowerCase();
+    const requirement = cleanScalar(entry.requirement);
+    return classification === "credential-required" || /\b(?:required|must|valid|licensed|certified|ticket|registration)\b/i.test(requirement);
+  });
+  const explicitCorpus = explicitRequirements.map((entry) => cleanScalar(entry.requirement)).join(" ");
+  const codes = new Set(TRADE_CREDENTIAL_GROUPS.filter((group) => group.pattern.test(explicitCorpus)).map((group) => group.code));
+
+  if (regulatedTradeTarget) {
+    if (/\belectric/i.test(targetTitle)) codes.add("electrical-licence");
+    if (/\b(?:plumb|pipefitter|steamfitter)/i.test(targetTitle)) codes.add("plumbing-licence");
+    if (/\bgas fitter/i.test(targetTitle)) codes.add("gas-fitter-licence");
+    if (/\b(?:hvac|refrigeration)/i.test(targetTitle)) codes.add("hvac-refrigeration-credential");
+  }
+
+  return TRADE_CREDENTIAL_GROUPS.filter((group) => codes.has(group.code));
+}
 
 export function classifyResumePackageInput(document, source = {}, atsReview = {}, item = {}) {
   const targetTitle = cleanScalar(item?.title ?? source.target?.jobTitle ?? source.target?.job_title ?? document.target.jobTitle, 300);
@@ -565,9 +648,45 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
     summary: document.summary,
     skills: document.skills,
     experience: document.experience,
+    projects: document.projects,
+    training: document.training,
+    certifications: document.certifications,
+    safety: document.safety,
   });
   const sourceCareerStrategy = normalizeCareerStrategy(source);
-  const trades = ["trades", "home_services"].includes(cleanScalar(item?.category ?? source.target?.category).toLowerCase());
+  const tradeTarget = TRADE_TARGET_PATTERN.test(targetTitle) && !TRADE_EXCLUDED_TARGET_PATTERN.test(targetTitle);
+  const apprenticeTradeTarget = tradeTarget && APPRENTICE_TARGET_PATTERN.test(targetTitle);
+  const regulatedTradeTarget = tradeTarget && !apprenticeTradeTarget && REGULATED_TRADE_TARGET_PATTERN.test(targetTitle);
+  const tradeTitleEvidence = TRADE_TITLE_EVIDENCE_PATTERN.test(evidenceCorpus);
+  const verifiedTradeEvidence = tradeTitleEvidence
+    || (HANDS_ON_ACTION_PATTERN.test(evidenceCorpus) && PHYSICAL_FIELD_CONTEXT_PATTERN.test(evidenceCorpus))
+    || (hasVerifiedCandidateEvidence(atsReview, HANDS_ON_ACTION_PATTERN) && hasVerifiedCandidateEvidence(atsReview, PHYSICAL_FIELD_CONTEXT_PATTERN));
+  const adjacentTradeEvidence = !verifiedTradeEvidence && (
+    ADJACENT_FIELD_EVIDENCE_PATTERN.test(evidenceCorpus)
+    || hasVerifiedCandidateEvidence(atsReview, ADJACENT_FIELD_EVIDENCE_PATTERN)
+  );
+  const credentialCorpus = tradeCredentialEvidence(document, atsReview);
+  const requiredCredentialGroups = requiredTradeCredentialGroups(targetTitle, atsReview, regulatedTradeTarget);
+  const requiredTradeCredentials = requiredCredentialGroups.map((group) => group.label);
+  const missingTradeCredentials = requiredCredentialGroups.filter((group) => !group.pattern.test(credentialCorpus)).map((group) => group.label);
+  const verifiedTradeCredential = requiredCredentialGroups.length > 0
+    ? missingTradeCredentials.length === 0
+    : TRADE_CREDENTIAL_GROUPS.some((group) => group.pattern.test(credentialCorpus));
+  const tradeCredentialStatus = missingTradeCredentials.length
+    ? "required-missing"
+    : requiredTradeCredentials.length
+      ? "required-verified"
+      : verifiedTradeCredential
+        ? "verified-not-required"
+        : "not-established";
+  let tradeProfileType = "not-applicable";
+  if (tradeTarget && verifiedTradeEvidence) {
+    if (apprenticeTradeTarget || /\b(?:apprentice|helper|trainee)\b/i.test(evidenceCorpus)) tradeProfileType = "apprentice-helper";
+    else if (regulatedTradeTarget && verifiedTradeCredential) tradeProfileType = "regulated-trade-professional";
+    else if (GENERAL_FIELD_TARGET_PATTERN.test(targetTitle)) tradeProfileType = "general-maintenance";
+    else tradeProfileType = "experienced-field-service-professional";
+  } else if (tradeTarget && adjacentTradeEvidence) tradeProfileType = "adjacent-pivot";
+  else if (tradeTarget) tradeProfileType = "significant-career-change";
   const sapTarget = SAP_PATTERN.test(targetCorpus);
   const technicalTarget = TECHNICAL_TARGET_PATTERN.test(targetCorpus);
   const sapFunctionalTarget = sapTarget && SAP_FUNCTIONAL_PATTERN.test(targetCorpus) && !technicalTarget;
@@ -591,10 +710,11 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
   const technicalEvidenceGapTransition = technicalTarget
     && !verifiedTechnicalEvidence
     && (sourceCareerStrategy === "major-transition" || verifiedSapFunctionalEvidence);
-  const careerStrategy = technicalEvidenceGapTransition ? "major-transition" : sourceCareerStrategy;
+  const tradeEvidenceGapTransition = tradeTarget && !verifiedTradeEvidence;
+  const careerStrategy = technicalEvidenceGapTransition || tradeEvidenceGapTransition ? "major-transition" : sourceCareerStrategy;
 
   let occupationFamily = "general-professional";
-  if (trades) occupationFamily = "skilled-trades";
+  if (tradeTarget) occupationFamily = "skilled-trades-field-services";
   else if (sapTarget && technicalTarget) occupationFamily = "technical";
   else if (sapFunctionalTarget) occupationFamily = "sap-functional";
   else if (leadershipTarget) occupationFamily = "project-leadership";
@@ -605,11 +725,13 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
   let recommendationReason = "ATS Core is the safest general-purpose match for this verified content.";
   let recommendationReasonCode = "ats_core_ambiguous_or_general";
   let recommendationStrength = "conservative";
-  if (occupationFamily === "skilled-trades") {
-    recommendedTemplateId = TEMPLATE_IDS.LEGACY_TRADES;
-    recommendationReason = "The existing skilled-trades presentation is preserved until that later template family is rebuilt on the canonical registry.";
-    recommendationReasonCode = "skilled_trades_compatibility";
-    recommendationStrength = "moderate";
+  if (occupationFamily === "skilled-trades-field-services" && !verifiedTradeEvidence) {
+    recommendedTemplateId = TEMPLATE_IDS.CAREER_TRANSITION;
+    recommendationReason = adjacentTradeEvidence
+      ? "The target is field-based, but only adjacent operational or service evidence is verified, so a conservative transition presentation avoids implying hands-on trade experience."
+      : "The target is field-based, but the résumé does not establish hands-on trade or field-service evidence, so career-transition positioning is safer.";
+    recommendationReasonCode = adjacentTradeEvidence ? "skilled_trades_adjacent_pivot" : "skilled_trades_evidence_gap";
+    recommendationStrength = "conservative";
   } else if (careerStrategy === "major-transition") {
     recommendedTemplateId = TEMPLATE_IDS.CAREER_TRANSITION;
     recommendationReason = technicalEvidenceGapTransition
@@ -619,6 +741,29 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
       ? "career_transition_technical_evidence_gap"
       : "career_transition_explicit";
     recommendationStrength = "strong";
+  } else if (occupationFamily === "skilled-trades-field-services" && verifiedTradeEvidence) {
+    recommendedTemplateId = TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES;
+    if (missingTradeCredentials.length) {
+      recommendationReason = `Verified hands-on trade or field-service evidence supports this structure, but the posting or regulated target still requires ${missingTradeCredentials.join(", ")}. The missing credential remains outside the résumé.`;
+      recommendationReasonCode = "skilled_trades_verified_credential_gap";
+      recommendationStrength = "moderate";
+    } else if (tradeProfileType === "apprentice-helper") {
+      recommendationReason = "Verified apprentice or helper experience supports supervised-work, training, safety, and practical-capability positioning without implying journeyperson status.";
+      recommendationReasonCode = "skilled_trades_apprentice_verified";
+      recommendationStrength = "strong";
+    } else if (tradeProfileType === "general-maintenance") {
+      recommendationReason = "Verified general repair, property, construction, or grounds-maintenance evidence supports a practical field-work presentation without implying a regulated trade licence.";
+      recommendationReasonCode = "skilled_trades_general_maintenance_verified";
+      recommendationStrength = "strong";
+    } else if (regulatedTradeTarget) {
+      recommendationReason = "The regulated-trade target is supported by verified hands-on experience and the relevant credential evidence.";
+      recommendationReasonCode = "skilled_trades_regulated_verified";
+      recommendationStrength = "strong";
+    } else {
+      recommendationReason = "Verified installation, diagnostics, repair, maintenance, or customer-site evidence supports the Skilled Trades / Field Services structure.";
+      recommendationReasonCode = "skilled_trades_field_service_verified";
+      recommendationStrength = "strong";
+    }
   } else if (occupationFamily === "project-leadership" && verifiedLeadershipEvidence) {
     recommendedTemplateId = TEMPLATE_IDS.PROJECT_LEADERSHIP;
     recommendationReason = "The target is delivery/leadership oriented and the résumé contains verified ownership evidence.";
@@ -662,6 +807,13 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
     verifiedLeadershipEvidence,
     verifiedTechnicalEvidence,
     verifiedAdminCustomerEvidence,
+    verifiedTradeEvidence,
+    verifiedTradeCredential,
+    regulatedTradeTarget,
+    tradeProfileType,
+    tradeCredentialStatus,
+    requiredTradeCredentials,
+    missingTradeCredentials,
     functionalVersusTechnical: occupationFamily === "sap-functional" ? "functional" : occupationFamily === "technical" ? "technical" : "not-applicable",
     materialRequirementGaps: valueList(atsReview?.missing_evidence ?? atsReview?.coverage?.missing).map((entry) => cleanScalar(entry, 500)).filter(Boolean),
     recommendedTemplateId,
@@ -679,6 +831,11 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
       `leadershipEvidence:${verifiedLeadershipEvidence}`,
       `adminCustomerTarget:${adminCustomerTarget}`,
       `adminCustomerEvidence:${verifiedAdminCustomerEvidence}`,
+      `tradeTarget:${tradeTarget}`,
+      `tradeEvidence:${verifiedTradeEvidence}`,
+      `tradeProfile:${tradeProfileType}`,
+      `tradeCredentialStatus:${tradeCredentialStatus}`,
+      `missingTradeCredentials:${missingTradeCredentials.join("|") || "none"}`,
       `reasonCode:${recommendationReasonCode}`,
     ],
   };
@@ -800,6 +957,7 @@ function safeSectionHeading(section, templateId, classification) {
   const isTransition = classification.careerStrategy === "major-transition";
   const isTechnical = classification.occupationFamily === "technical" && classification.verifiedTechnicalEvidence;
   const isAdminCustomer = classification.occupationFamily === "admin-customer-operations" && classification.verifiedAdminCustomerEvidence;
+  const isTrade = classification.occupationFamily === "skilled-trades-field-services" && classification.verifiedTradeEvidence;
   const headings = {
     summary: templateId === TEMPLATE_IDS.SAP_FUNCTIONAL && isSap
       ? "SAP Functional Profile"
@@ -811,7 +969,9 @@ function safeSectionHeading(section, templateId, classification) {
             ? "Technical Profile"
             : templateId === TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS && isAdminCustomer
               ? "Operations & Service Profile"
-          : "Professional Summary",
+              : templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade
+                ? "Trade & Field Service Profile"
+                : "Professional Summary",
     skills: templateId === TEMPLATE_IDS.SAP_FUNCTIONAL && isSap
       ? "SAP Modules & Functional Capabilities"
       : templateId === TEMPLATE_IDS.PROJECT_LEADERSHIP && isLeadership
@@ -822,22 +982,42 @@ function safeSectionHeading(section, templateId, classification) {
             ? "Technical Skills"
             : templateId === TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS && isAdminCustomer
               ? "Operations & Customer Service Skills"
-          : templateId === TEMPLATE_IDS.LEGACY_TRADES
-            ? "Skills & Equipment"
-            : "Core Skills",
+              : templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade
+                ? "Trade & Field Capabilities"
+                : "Core Skills",
     experience: templateId === TEMPLATE_IDS.TECHNICAL_SOFTWARE && isTechnical
       ? "Technical Experience"
       : templateId === TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS && isAdminCustomer
         ? "Administrative & Customer Operations Experience"
-        : "Professional Experience",
-    projects: templateId === TEMPLATE_IDS.TECHNICAL_SOFTWARE && isTechnical ? "Technical Projects" : "Verified Projects",
-    training: "Training & Certifications",
-    certifications: templateId === TEMPLATE_IDS.LEGACY_TRADES ? "Certifications & Licenses" : "Certifications",
-    safety: "Safety Training",
+        : templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade
+          ? "Trade & Field Experience"
+          : "Professional Experience",
+    projects: templateId === TEMPLATE_IDS.TECHNICAL_SOFTWARE && isTechnical
+      ? "Technical Projects"
+      : templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade
+        ? "Field Projects & Practical Experience"
+        : "Verified Projects",
+    training: templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade ? "Training & Apprenticeship" : "Training & Certifications",
+    certifications: templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade ? "Licences & Trade Credentials" : "Certifications",
+    safety: templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade ? "Verified Safety Training" : "Safety Training",
     education: "Education",
     languages: "Languages",
   };
   return headings[section.id] || "Additional Information";
+}
+
+function sectionOrderForTemplate(template, classification) {
+  if (template.id !== TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES || !classification.verifiedTradeEvidence) return template.sectionOrder;
+  if (classification.tradeProfileType === "regulated-trade-professional") {
+    return ["summary", "certifications", "safety", "skills", "experience", "projects", "training", "education", "languages"];
+  }
+  if (classification.tradeProfileType === "apprentice-helper") {
+    return ["summary", "training", "safety", "skills", "experience", "certifications", "projects", "education", "languages"];
+  }
+  if (classification.tradeProfileType === "experienced-field-service-professional") {
+    return ["summary", "skills", "experience", "certifications", "safety", "projects", "training", "education", "languages"];
+  }
+  return ["summary", "skills", "experience", "projects", "safety", "training", "certifications", "education", "languages"];
 }
 
 function contactLine(candidate) {
@@ -851,7 +1031,8 @@ export function buildResumeRenderPlan(resumePackage, templateId, { preliminary =
   const resolvedTemplateId = resolveTemplateId(templateId ?? pkg.presentation.selectedTemplateId, pkg.presentation.recommendedTemplateId);
   const template = RESUME_TEMPLATE_REGISTRY[resolvedTemplateId];
   const contentPlan = buildResumeContentPlan(pkg);
-  const order = new Map(template.sectionOrder.map((id, index) => [id, index]));
+  const sectionOrder = sectionOrderForTemplate(template, pkg.classification);
+  const order = new Map(sectionOrder.map((id, index) => [id, index]));
   const sections = [...contentPlan.sections]
     .sort((left, right) => (order.get(left.id) ?? 10_000) - (order.get(right.id) ?? 10_000))
     .map((section) => ({ ...section, heading: safeSectionHeading(section, resolvedTemplateId, pkg.classification) }));

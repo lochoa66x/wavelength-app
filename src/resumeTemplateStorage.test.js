@@ -57,3 +57,16 @@ test("Phase B1 template IDs persist without crossing account or target scope", (
   assert.equal(loadResumeTemplateSelection("user-a", adminTarget, storage), TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS);
   assert.equal(loadResumeTemplateSelection("user-b", technicalTarget, storage), null);
 });
+
+test("Phase B2 persists per account and target and adapts the hidden legacy trades ID", () => {
+  const storage = memoryStorage();
+  const target = resumeTemplateTargetKey({ id: "trade-listing" });
+  assert.equal(saveResumeTemplateSelection("user-a", target, TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES, storage), true);
+  assert.equal(loadResumeTemplateSelection("user-a", target, storage), TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES);
+  assert.equal(loadResumeTemplateSelection("user-b", target, storage), null);
+
+  const legacyTarget = resumeTemplateTargetKey({ id: "legacy-trade-listing" });
+  const legacyKey = resumeTemplateStorageKey("user-a", legacyTarget);
+  storage.setItem(legacyKey, JSON.stringify({ version: 1, templateId: "trades-legacy-v1" }));
+  assert.equal(loadResumeTemplateSelection("user-a", legacyTarget, storage), TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES);
+});

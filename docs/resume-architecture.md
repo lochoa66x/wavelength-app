@@ -4,7 +4,7 @@ Updated: 2026-08-24
 
 ## Scope
 
-P2.1 Phase A establishes one versioned résumé-content pipeline for browser preview, DOCX, direct PDF, and plain text. Phase B1 adds Technical / Software and Admin / Customer Operations to the original ATS Core, SAP Functional, Project Leadership, and Career Transition profiles. The already-shipped trades flow remains available through a hidden compatibility registry entry; rebuilding that family is later roadmap work.
+P2.1 Phase A establishes one versioned résumé-content pipeline for browser preview, DOCX, direct PDF, and plain text. Phase B1 adds Technical / Software and Admin / Customer Operations. Phase B2 replaces the hidden legacy trades presentation with the canonical Skilled Trades / Field Services family. All seven selectable families share one factual content plan, render manifest, persistence boundary, and export-authorization path.
 
 ## Contract
 
@@ -47,17 +47,20 @@ Classification uses normalized target context, the validated tailored résumé, 
 
 Recommendation precedence is fixed so later families cannot bypass earlier trust decisions:
 
-1. Existing skilled-trades records retain the compatibility presentation.
+1. A trade or field-service target without verified hands-on evidence recommends Career Transition; a listing category alone never establishes trade experience.
 2. A major transition recommends Career Transition.
-3. A leadership/delivery target with verified ownership evidence recommends Project Leadership.
-4. A functional SAP target with verified SAP functional lifecycle evidence recommends SAP Functional.
-5. A software, web/application, cloud, data, DevOps/SRE, security, infrastructure, or technical-QA target with direct or adjacent verified technical evidence recommends Technical / Software.
-6. A non-leadership administration, customer-support/success, scheduling, dispatch, data-entry, or service-operations target with direct or adjacent verified service evidence recommends Admin / Customer Operations.
-7. Ambiguous targets and evidence gaps use ATS Core.
+3. A trade or field-service target with verified physical installation, repair, diagnostic, maintenance, construction, landscaping, service-call, or recognized-title evidence recommends Skilled Trades / Field Services. Missing required credentials cap the recommendation at moderate strength and remain outside the résumé.
+4. A leadership/delivery target with verified ownership evidence recommends Project Leadership.
+5. A functional SAP target with verified SAP functional lifecycle evidence recommends SAP Functional.
+6. A software, web/application, cloud, data, DevOps/SRE, security, infrastructure, or technical-QA target with direct or adjacent verified technical evidence recommends Technical / Software.
+7. A non-leadership administration, customer-support/success, scheduling, dispatch, data-entry, or service-operations target with direct or adjacent verified service evidence recommends Admin / Customer Operations.
+8. Ambiguous targets and evidence gaps use ATS Core.
 
 Programming-heavy SAP targets are technical. Explicit ABAP development or implementation evidence can qualify for Technical / Software; merely collaborating with an ABAP team cannot. A functional SAP candidate targeting a developer role without coding evidence is treated as a material transition rather than upgraded into a technical profile. A generic SAP keyword never establishes functional consulting by itself.
 
 Admin/customer-operations matching excludes sales, marketing/communications, finance/accounting, and director/executive targets. Coordination language remains coordination unless verified ownership evidence independently supports leadership.
+
+Skilled-trades matching excludes SAP Plant Maintenance, software/application maintenance, IT/service-desk work, maintenance planning, asset-management systems, and management targets. Those signals may remain adjacent evidence, but they cannot prove physical field work. The classifier distinguishes regulated-trade professionals, experienced field-service professionals, apprentices/helpers, general maintenance profiles, adjacent pivots, and significant career changes. A posting's licence or safety requirement never counts as candidate evidence; only explicit candidate credentials or verified candidate-side evidence can satisfy it.
 
 An adjacent SAP module pivot may use SAP Functional when verified functional lifecycle evidence exists. Missing target modules remain missing and are never inserted into skills or history.
 
@@ -75,8 +78,11 @@ Selectable IDs:
 - `career-transition-v1`
 - `technical-software-v1`
 - `admin-customer-operations-v1`
+- `skilled-trades-field-services-v1`
 
-`trades-legacy-v1` preserves the existing shipped behavior but is not one of the six selector cards.
+Legacy `trades`, `skilled-trades`, and `trades-legacy-v1` stored values resolve to `skilled-trades-field-services-v1` on read. No second trades family or persisted-data backfill is created.
+
+The B2 render plan is compact, single-column, and credential-aware. It deterministically moves verified licences, safety training, apprenticeship/training, capabilities, experience, and projects according to the classified trade profile. Short apprentice/helper evidence targets one page; experienced trade and field-service evidence may use two pages. Missing or unverified credentials are review-only gaps and never become résumé content.
 
 To add a template:
 
@@ -133,5 +139,5 @@ Exact DOCX pagination is not expected to match the PDF because Word-compatible l
 
 - Microsoft Word and Google Docs compatibility must be reported as unverified when those applications are unavailable; LibreOffice is the automated local compatibility engine.
 - Browser and direct PDF share layout tokens but unrelated browsers may produce small font-metric differences.
-- The existing trades compatibility template has not yet received the full later-family redesign.
-- Skilled trades, marketing/communications, and creative/design remain later work.
+- Skilled-trades classification uses deterministic title, action, physical-context, and credential vocabularies. Jurisdiction-specific credential aliases may require future vocabulary additions, but unknown credentials always fail conservatively.
+- Marketing/communications and creative/design remain later work.

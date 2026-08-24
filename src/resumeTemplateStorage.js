@@ -23,8 +23,9 @@ export function loadResumeTemplateSelection(userId, targetKey, storage = globalT
   if (!key || !storage) return null;
   try {
     const parsed = JSON.parse(storage.getItem(key) || "null");
-    if (parsed?.version !== RESUME_TEMPLATE_STORAGE_VERSION || !RESUME_TEMPLATE_REGISTRY[parsed.templateId]) return null;
-    return parsed.templateId;
+    if (parsed?.version !== RESUME_TEMPLATE_STORAGE_VERSION) return null;
+    const normalized = resolveTemplateId(parsed.templateId, "");
+    return RESUME_TEMPLATE_REGISTRY[normalized] ? normalized : null;
   } catch {
     return null;
   }

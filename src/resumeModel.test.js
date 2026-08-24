@@ -16,8 +16,19 @@ import { resumeDataToPlainText } from "./resumeText.js";
 import {
   adminCustomerOperationsResumeFixture,
   adminCustomerTargetItem,
+  apprenticeTargetItem,
+  electricianTargetItem,
+  fieldServiceTargetItem,
+  fieldServiceTechnicianResumeFixture,
+  landscapeMaintenanceResumeFixture,
+  licensedElectricianResumeFixture,
+  missingElectricianCredentialReview,
+  noisyFieldServicePostingReview,
+  propertyMaintenanceResumeFixture,
   technicalSoftwareResumeFixture,
   technicalTargetItem,
+  tradeApprenticeResumeFixture,
+  verifiedElectricianReview,
 } from "../tests/fixtures/resumePhaseBFixtures.js";
 
 const verifiedPosting = {
@@ -65,7 +76,7 @@ test("canonical package separates facts, evidence, classification, and presentat
   assert.doesNotMatch(JSON.stringify(resumePackage.document), /sourceReferences|recommendationTrace|posting_readiness/);
 });
 
-test("template registry exposes six unique stable Phase A and B1 IDs", () => {
+test("template registry exposes seven unique stable Phase A, B1, and B2 IDs", () => {
   const templates = availableResumeTemplates();
   const ids = templates.map((template) => template.id);
   assert.deepEqual(ids, [
@@ -75,6 +86,7 @@ test("template registry exposes six unique stable Phase A and B1 IDs", () => {
     TEMPLATE_IDS.CAREER_TRANSITION,
     TEMPLATE_IDS.TECHNICAL_SOFTWARE,
     TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS,
+    TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
   ]);
   assert.equal(new Set(ids).size, ids.length);
   for (const id of ids) {
@@ -182,11 +194,156 @@ test("template override changes presentation only and preserves factual IDs and 
   assert.equal(overridden.presentation.selectedTemplateId, TEMPLATE_IDS.PROJECT_LEADERSHIP);
 });
 
-test("all six selectable templates keep the same selected factual item IDs", () => {
+test("all seven selectable templates keep the same selected factual item IDs", () => {
   const resumePackage = createResumePackage(baseResume(), { item: { title: "SAP Functional Consultant", category: "tech" }, atsReview: verifiedPosting });
   const ids = (plan) => plan.manifest.sections.flatMap((section) => section.items.flatMap((item) => [item.id, ...(item.bullets || []).map((bullet) => bullet.id), ...(item.details || []).map((detail) => detail.id)])).sort();
-  const plans = Object.values(TEMPLATE_IDS).filter((id) => id !== TEMPLATE_IDS.LEGACY_TRADES).map((id) => buildResumeRenderPlan(resumePackage, id));
+  const plans = Object.values(TEMPLATE_IDS).map((id) => buildResumeRenderPlan(resumePackage, id));
   for (const plan of plans.slice(1)) assert.deepEqual(ids(plan), ids(plans[0]));
+});
+
+test("B2 recommendation distinguishes regulated, apprentice, field-service, general-maintenance, and landscape profiles", () => {
+  const electrician = createResumePackage(licensedElectricianResumeFixture, {
+    item: electricianTargetItem,
+    atsReview: verifiedElectricianReview,
+  });
+  assert.equal(electrician.presentation.recommendedTemplateId, TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES);
+  assert.equal(electrician.classification.tradeProfileType, "regulated-trade-professional");
+  assert.equal(electrician.classification.tradeCredentialStatus, "required-verified");
+  assert.equal(electrician.presentation.recommendationStrength, "strong");
+
+  const apprentice = createResumePackage(tradeApprenticeResumeFixture, { item: apprenticeTargetItem, atsReview: verifiedPosting });
+  assert.equal(apprentice.presentation.recommendedTemplateId, TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES);
+  assert.equal(apprentice.classification.tradeProfileType, "apprentice-helper");
+  assert.equal(apprentice.presentation.recommendationReasonCode, "skilled_trades_apprentice_verified");
+  assert.doesNotMatch(JSON.stringify(apprentice.document), /journeyperson|journeyman|red seal/i);
+
+  const fieldService = createResumePackage(fieldServiceTechnicianResumeFixture, { item: fieldServiceTargetItem, atsReview: verifiedPosting });
+  assert.equal(fieldService.classification.tradeProfileType, "experienced-field-service-professional");
+  assert.equal(fieldService.presentation.recommendedTemplateId, TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES);
+
+  const maintenance = createResumePackage(propertyMaintenanceResumeFixture, {
+    item: { title: "Property Maintenance Worker", category: "home_services" },
+    atsReview: verifiedPosting,
+  });
+  assert.equal(maintenance.classification.tradeProfileType, "general-maintenance");
+  assert.doesNotMatch(maintenance.document.headline, /electrician|plumber|hvac/i);
+
+  const landscape = createResumePackage(landscapeMaintenanceResumeFixture, {
+    item: { title: "Landscape Maintenance Worker", category: "trades" },
+    atsReview: verifiedPosting,
+  });
+  assert.equal(landscape.presentation.recommendedTemplateId, TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES);
+  assert.equal(landscape.classification.tradeProfileType, "general-maintenance");
+});
+
+test("category and ambiguous maintenance language never create direct trade evidence", () => {
+  const categoryOnly = createResumePackage(baseResume({ title: "Office Coordinator" }), {
+    item: { title: "Office Coordinator", category: "trades", description: "Coordinate office schedules and reports." },
+    atsReview: verifiedPosting,
+  });
+  assert.notEqual(categoryOnly.classification.occupationFamily, "skilled-trades-field-services");
+  assert.notEqual(categoryOnly.presentation.recommendedTemplateId, TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES);
+
+  for (const title of ["SAP Plant Maintenance Consultant", "Software Maintenance Engineer", "Maintenance Planner", "IT Service Desk Technician"]) {
+    const ambiguous = createResumePackage(baseResume({
+      title,
+      profile: "Supported SAP Plant Maintenance configuration, maintenance planning, software troubleshooting, work orders, and asset-management reporting.",
+      skills: ["SAP PM", "CMMS", "Maintenance planning", "Software troubleshooting"],
+    }), { item: { title, category: "trades", description: "Maintain SAP configuration, software services, asset records, and planning workflows." }, atsReview: verifiedPosting });
+    assert.notEqual(ambiguous.presentation.recommendedTemplateId, TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES, title);
+    assert.equal(ambiguous.classification.verifiedTradeEvidence, false, title);
+  }
+});
+
+test("direct hands-on evidence with a missing regulated credential cannot receive a strong recommendation", () => {
+  const unlicensed = {
+    ...licensedElectricianResumeFixture,
+    title: "Electrical Installation Worker",
+    certifications: [],
+  };
+  const resumePackage = createResumePackage(unlicensed, {
+    item: electricianTargetItem,
+    atsReview: missingElectricianCredentialReview,
+  });
+  assert.equal(resumePackage.presentation.recommendedTemplateId, TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES);
+  assert.equal(resumePackage.presentation.recommendationStrength, "moderate");
+  assert.equal(resumePackage.classification.tradeCredentialStatus, "required-missing");
+  assert.deepEqual(resumePackage.classification.missingTradeCredentials, ["electrical licence"]);
+  assert.doesNotMatch(JSON.stringify(resumePackage.document), /309A|electrical licen[cs]e/i);
+  assert.match(resumePackage.presentation.recommendationReason, /remains outside the résumé/i);
+});
+
+test("posting credential language never counts as candidate credential evidence", () => {
+  const resumePackage = createResumePackage(baseResume({
+    title: "Office Coordinator",
+    profile: "Coordinated work orders, contractor schedules, records, and customer updates.",
+  }), {
+    item: electricianTargetItem,
+    atsReview: {
+      ...verifiedPosting,
+      requirements: [
+        {
+          requirement: "Install and test commercial electrical systems; a valid 309A licence is required.",
+          classification: "direct",
+          resume_evidence: "Coordinated contractor work orders and customer updates.",
+        },
+      ],
+    },
+  });
+
+  assert.equal(resumePackage.classification.verifiedTradeEvidence, false);
+  assert.equal(resumePackage.classification.tradeCredentialStatus, "required-missing");
+  assert.match(resumePackage.classification.missingTradeCredentials.join(" "), /electrical licence/i);
+  assert.equal(resumePackage.presentation.recommendedTemplateId, TEMPLATE_IDS.CAREER_TRANSITION);
+  assert.equal(resumePackage.presentation.recommendationStrength, "conservative");
+});
+
+test("noisy duplicated posting requirements stay review-only and deduplicate credential gaps", () => {
+  const clean = createResumePackage(fieldServiceTechnicianResumeFixture, {
+    item: fieldServiceTargetItem,
+    atsReview: verifiedPosting,
+  });
+  const noisy = createResumePackage(fieldServiceTechnicianResumeFixture, {
+    item: fieldServiceTargetItem,
+    atsReview: noisyFieldServicePostingReview,
+  });
+
+  assert.equal(noisy.presentation.recommendedTemplateId, TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES);
+  assert.equal(noisy.presentation.recommendationStrength, "moderate");
+  assert.deepEqual(noisy.classification.missingTradeCredentials, ["driver's licence"]);
+  assert.equal(noisy.contentHash, clean.contentHash);
+  assert.deepEqual(noisy.document, clean.document);
+  assert.doesNotMatch(JSON.stringify(noisy.document), /driver'?s licence/i);
+  assert.equal(JSON.stringify(noisy.document).match(/WHMIS/g)?.length, 1);
+});
+
+test("manual B2 selection changes render strategy only and stays conservative without direct trade evidence", () => {
+  const officeCandidate = createResumePackage(baseResume({
+    title: "SAP Plant Maintenance Coordinator",
+    profile: "SAP Plant Maintenance coordinator with verified planning and work-order reporting experience.",
+  }), {
+    item: { title: "Field Service Technician", category: "trades" },
+    atsReview: verifiedPosting,
+  });
+  const selected = createResumePackage(officeCandidate, { selectedTemplateId: TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES });
+  const plan = buildResumeRenderPlan(selected, TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES);
+  assert.equal(selected.contentHash, officeCandidate.contentHash);
+  assert.equal(selected.classification.tradeProfileType, "adjacent-pivot");
+  assert.equal(plan.header.headline, officeCandidate.document.headline);
+  assert.ok(plan.sections.some((section) => section.heading === "Professional Summary"));
+  assert.equal(plan.sections.some((section) => /Trade & Field/.test(section.heading)), false);
+});
+
+test("B2 section order adapts deterministically without changing canonical content", () => {
+  const regulated = createResumePackage(licensedElectricianResumeFixture, { item: electricianTargetItem, atsReview: verifiedElectricianReview });
+  const apprentice = createResumePackage(tradeApprenticeResumeFixture, { item: apprenticeTargetItem, atsReview: verifiedPosting });
+  const fieldService = createResumePackage(fieldServiceTechnicianResumeFixture, { item: fieldServiceTargetItem, atsReview: verifiedPosting });
+  const order = (pkg) => buildResumeRenderPlan(pkg, TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES).sections.map((section) => section.id);
+  assert.deepEqual(order(regulated).slice(0, 5), ["summary", "certifications", "safety", "skills", "experience"]);
+  assert.deepEqual(order(apprentice).slice(0, 5), ["summary", "training", "safety", "skills", "experience"]);
+  assert.deepEqual(order(fieldService).slice(0, 5), ["summary", "skills", "experience", "certifications", "safety"]);
+  assert.deepEqual(order(fieldService), order(fieldService));
+  assert.equal(buildResumeRenderPlan(fieldService, TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES).contentHash, fieldService.contentHash);
 });
 
 test("admin template preserves coordination wording instead of upgrading it to management", () => {
