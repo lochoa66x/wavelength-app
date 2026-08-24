@@ -138,12 +138,24 @@ Do not reapply the P1.4 migration or change production Auth/database settings du
 - Browser QA: the real nine-card selector and preview passed on 1,440 × 900 and 390 × 844 layout surfaces. All nine choices were reachable, the mobile minimum card height was 88 pixels, pointer and keyboard/Enter activation worked with visible focus, exactly one `aria-pressed` selection remained, preview IDs and accent colors changed immediately, the canonical content hash stayed `resume-bicg0d`, and selector-triggered fetch/XHR and page errors remained zero. Chrome-extension-only warnings were excluded from application findings.
 - Accessibility: the 13 retained DOCX fixtures plus the corrected marketing DOCX reported zero high-, medium-, or low-severity findings. Browser buttons exposed native semantics, descriptive labels, visible focus, and accessible selection state.
 - Compatibility limits: Microsoft Word, Google Docs, and an external ATS parser were unavailable. LibreOffice conversion plus independent PDF.js extraction and visual inspection supplied the local compatibility evidence.
-- Release state: the verified B3 feature commit is local-only. Nothing in this pass was pushed or deployed.
+- Release state at local verification time: the verified B3 feature commit was local-only. It was subsequently released through the normal GitHub/Vercel path; see the production record below.
+
+## P2.1 Phase B3 production release record — 2026-08-24
+
+- Feature and deployed-code SHA: `63f1ea7b4d467394e2378cad1031d9cb7e2bac8d` (`Implement marketing and creative resume templates`). A final pre-push fetch confirmed `origin/main` at the B2 baseline with the feature commit exactly one commit ahead and no remote divergence. The normal non-force push completed, and GitHub `main`, local `main`, and `origin/main` then matched the feature SHA.
+- Production deployment: <https://wavelength-dpqgj775q-luisochoasap-2007s-projects.vercel.app> (`dpl_9ezyZwnSa48bqnH2Zg1gTAQq3L63`) was created from the Git push, reached `READY` in 16 seconds, reported no alias error, and carried the `gigscapes.com`, `www.gigscapes.com`, and `main` aliases. Vercel metadata binds it to the exact feature SHA.
+- Release gates rerun immediately before push: 84 focused canonical/template/export/tailoring tests passed; 91 focused guest/Auth/security tests passed; the full suite passed 299/299; `git diff --check` passed; the source secret scan passed; and the production bundle contained no secret value, résumé fixture identity, or private export artifact.
+- Export/build gates: `npm run verify:exports` passed for 26 files, all nine templates, 18 direct-PDF pages, 545 selectable text items, canonical-manifest parity, fresh final-export gating, stale-readiness rejection, and the documented one-/two-page assertions. The production build transformed 1,971 modules and kept `resumeDocx`, `resumePdf`, and `jspdf` lazy. Vercel completed its build without an error; only the existing install-script and large-chunk warnings appeared.
+- Dependency audit: 0 critical, 1 high, and 1 moderate finding, both confined to the existing Vite/esbuild development toolchain. The available remediation requires a Vite 8 major upgrade and remains outside B3 scope.
+- Signed-out production smoke at a measured 1,265 × 720 viewport: `/app` remained public with no Auth redirect or browser-console error. On-site Canada searches returned 32 SAP, 14 plumber, 42 marketing, and 7 graphic-designer matches. Ontario plus Remote filters applied. Load-more increased rendered listing URLs from 40 to 45 with 45 unique URLs and no duplicate. Sample provider and listing links were HTTPS, opened in a new tab, used `noreferrer`, and retained visible attribution. Save and Tailor showed action-specific private-account dialogs, moved focus to the email field, and closed with Escape.
+- Responsive production limitation: the connected production browser exposed a fixed 1,265 × 720 viewport and rejected an exact 390 × 844 navigation surface. No production-mobile result is claimed. The same nine-card component and preview had already passed the local 390 × 844 acceptance surface in the committed B3 verification record.
+- Authenticated production smoke: the existing Chrome profile remained signed in, `/app` loaded public SAP results, and the local-only résumé workspace reported `Ready`. No previously tailored draft was available after reload, so selector switching and DOCX/PDF download could not be exercised without making a new production AI request. No new AI request was made and no credential, résumé, or posting content was exposed.
+- Production diagnostics: the one-hour Vercel runtime-error query returned no clusters; the deployed-SHA 5xx grouping was empty; error/fatal runtime logs were empty; and the signed-out browser console was empty.
+- Final release-record SHA: the commit containing this section. The final report and Vercel deployment metadata provide its immutable Git SHA after this documentation-only commit is created.
 
 Do not commit while a required check is failing. Do not push or deploy without separate authorization.
 
 ## Next pipeline step
 
-- Release the verified B3 commit through the normal GitHub/Vercel path only after explicit authorization.
-- Run signed-out and authorized production smoke checks for the deployed SHA.
-- Continue with P2.2 landing-page work after the B3 release is verified, unless product priorities change.
+- Continue with P2.2 landing-page work, unless product priorities change.
+- When an existing post-release tailored draft is safely available, complete the deferred authenticated nine-template switch and DOCX/PDF production-export smoke without creating an otherwise unnecessary AI request.

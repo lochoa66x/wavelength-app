@@ -53,3 +53,9 @@ Generate persistent fixtures with `npm run verify:exports -- --keep`; they are w
 3. Confirm the intended commit is not already contained by `origin/main` before reporting deployment state.
 4. Commit only after all locally available required checks pass. Do not push or deploy without explicit authorization.
 5. After an authorized deployment, verify the production asset manifest, direct PDF download, preliminary labels, missing-identity block, and one verified final export. Record the deployment URL and commit SHA.
+
+## Latest verified release — P2.1 Phase B3
+
+On 2026-08-24, feature SHA `63f1ea7b4d467394e2378cad1031d9cb7e2bac8d` passed the automated, export, build, source, Git-divergence, signed-out production, and Vercel diagnostics gates and was released through the normal GitHub-triggered production deployment. Deployment `dpl_9ezyZwnSa48bqnH2Zg1gTAQq3L63` reached `READY`, was bound to the exact feature SHA, and had no alias error. The immutable counts and observed production outcomes are recorded in `docs/release-checklist.md`.
+
+The production browser connector was fixed at 1,265 × 720 and did not provide the requested 390 × 844 production viewport; the committed local B3 browser acceptance covers that exact responsive surface. An existing authenticated session was available, but no existing tailored output survived reload. The authenticated selector/export smoke therefore remains deferred rather than making a new AI request solely for release verification. These are explicit coverage limitations, not claimed passes.
