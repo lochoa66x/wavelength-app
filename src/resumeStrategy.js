@@ -12,6 +12,9 @@ export function recommendResumeTemplate(resumeData, { item = {}, atsReview = {} 
   return {
     templateId: resumePackage.presentation.recommendedTemplateId,
     reason: resumePackage.presentation.recommendationReason,
+    reasonCode: resumePackage.presentation.recommendationReasonCode,
+    strength: resumePackage.presentation.recommendationStrength,
+    confidence: resumePackage.presentation.recommendationStrength,
     trace: resumePackage.classification.recommendationTrace,
     occupationFamily: resumePackage.classification.occupationFamily,
     careerStrategy: resumePackage.classification.careerStrategy,

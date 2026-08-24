@@ -46,3 +46,14 @@ test("template persistence requires an account-scoped identity", () => {
   assert.equal(saveResumeTemplateSelection("", target, TEMPLATE_IDS.ATS_CORE, storage), false);
   assert.equal(loadResumeTemplateSelection("", target, storage), null);
 });
+
+test("Phase B1 template IDs persist without crossing account or target scope", () => {
+  const storage = memoryStorage();
+  const technicalTarget = resumeTemplateTargetKey({ id: "technical-listing" });
+  const adminTarget = resumeTemplateTargetKey({ id: "admin-listing" });
+  assert.equal(saveResumeTemplateSelection("user-a", technicalTarget, TEMPLATE_IDS.TECHNICAL_SOFTWARE, storage), true);
+  assert.equal(saveResumeTemplateSelection("user-a", adminTarget, TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS, storage), true);
+  assert.equal(loadResumeTemplateSelection("user-a", technicalTarget, storage), TEMPLATE_IDS.TECHNICAL_SOFTWARE);
+  assert.equal(loadResumeTemplateSelection("user-a", adminTarget, storage), TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS);
+  assert.equal(loadResumeTemplateSelection("user-b", technicalTarget, storage), null);
+});

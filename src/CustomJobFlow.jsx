@@ -4,10 +4,7 @@ import { AlertTriangle, ArrowLeft, FileImage, Link2, Loader2, Pencil, Sparkles, 
 import { AtsReview } from "./AtsReview.jsx";
 import { EvidenceRefinementPanel } from "./EvidenceRefinementPanel.jsx";
 import { PositioningSummary } from "./PositioningSummary.jsx";
-import { ResumeTemplateCareerChange } from "./ResumeTemplateCareerChange.jsx";
-import { ResumeTemplateProfessional } from "./ResumeTemplateProfessional.jsx";
-import { ResumeTemplateTrades } from "./ResumeTemplateTrades.jsx";
-import { resumeTemplateKind } from "./resumeStrategy.js";
+import { ResumeExperience } from "./ResumeExperience.jsx";
 import { extractCustomJob, tailorResume } from "./tailorClient.js";
 import { appendScreenshotFiles, MAX_SCREENSHOTS, mergeExtractedJobBriefs, screenshotBatches } from "./customJobIntake.js";
 import {
@@ -215,13 +212,6 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
     category: brief.category,
     url: brief.source_url || "",
   } : null;
-  const templateKind = resumeTemplateKind(brief?.category, tailored?.resume);
-  const Template = templateKind === "trades"
-    ? ResumeTemplateTrades
-    : templateKind === "career-change"
-      ? ResumeTemplateCareerChange
-      : ResumeTemplateProfessional;
-
   if (!resume) {
     return (
       <div style={{ maxWidth: 760, margin: "0 auto" }}>
@@ -394,7 +384,7 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
             onSaveAndRetailor={handleEvidenceRetailor}
             C={C}
           />
-          <Template resumeData={tailored.resume} item={customItem} hasLink={Boolean(brief.source_url)} atsReview={tailored.atsReview} onEditResume={onEditResume} C={C} primaryBtnStyle={primaryBtnStyle} />
+          <ResumeExperience resumeData={tailored.resume} item={customItem} hasLink={Boolean(brief.source_url)} atsReview={tailored.atsReview} onEditResume={onEditResume} C={C} primaryBtnStyle={primaryBtnStyle} />
         </div>
       )}
     </div>

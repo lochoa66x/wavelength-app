@@ -7,12 +7,25 @@ import { manifestVisibleText, TEMPLATE_IDS } from "../src/resumeModel.js";
 import { createResumePdfBytes } from "../src/resumePdf.js";
 import { createResumeExportContext, getResumeExportReadiness, validateResumeExportContext } from "../src/resumeReadiness.js";
 import { resumeDataToPlainText } from "../src/resumeText.js";
+import {
+  adminCustomerOperationsResumeFixture,
+  adminCustomerTargetItem,
+  technicalSoftwareResumeFixture,
+  technicalTargetItem,
+} from "../tests/fixtures/resumePhaseBFixtures.js";
 
 const keepArtifacts = process.argv.includes("--keep");
 const root = fileURLToPath(new URL("..", import.meta.url));
 const outputDir = fileURLToPath(new URL("../tmp/export-verification/", import.meta.url));
 const standardFontDataUrl = `${fileURLToPath(new URL("../node_modules/pdfjs-dist/standard_fonts/", import.meta.url))}/`;
-const templateIds = [TEMPLATE_IDS.ATS_CORE, TEMPLATE_IDS.SAP_FUNCTIONAL, TEMPLATE_IDS.PROJECT_LEADERSHIP, TEMPLATE_IDS.CAREER_TRANSITION];
+const templateIds = [
+  TEMPLATE_IDS.ATS_CORE,
+  TEMPLATE_IDS.SAP_FUNCTIONAL,
+  TEMPLATE_IDS.PROJECT_LEADERSHIP,
+  TEMPLATE_IDS.CAREER_TRANSITION,
+  TEMPLATE_IDS.TECHNICAL_SOFTWARE,
+  TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS,
+];
 
 const resume = {
   name: { firstName: "Luis", lastName: "Example", metadata: "PRIVATE_NAME_METADATA" },
@@ -118,7 +131,15 @@ try {
   );
   assert.equal(getResumeExportReadiness({ name: "<UNKNOWN>" }, verifiedReview).canExport, false);
 
-  const finalContexts = templateIds.map((templateId) => createResumeExportContext(resume, verifiedReview, { item, templateId }));
+  const finalContexts = templateIds.map((templateId) => {
+    if (templateId === TEMPLATE_IDS.TECHNICAL_SOFTWARE) {
+      return createResumeExportContext(technicalSoftwareResumeFixture, verifiedReview, { item: technicalTargetItem, templateId });
+    }
+    if (templateId === TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS) {
+      return createResumeExportContext(adminCustomerOperationsResumeFixture, verifiedReview, { item: adminCustomerTargetItem, templateId });
+    }
+    return createResumeExportContext(resume, verifiedReview, { item, templateId });
+  });
   const preliminaryContext = createResumeExportContext(resume, partialReviewWithStaleFlags, { item, templateId: TEMPLATE_IDS.ATS_CORE });
   for (const context of [...finalContexts, preliminaryContext]) validateResumeExportContext(context);
   assert.equal(preliminaryContext.authorization.mode, "preliminary");
@@ -155,6 +176,9 @@ try {
       assert.doesNotMatch(pdfInspection.text, /PRELIMINARY DRAFT/);
     }
     assert.ok(pdfInspection.items.length > 15, `${output.prefix} PDF did not expose enough selectable text items`);
+    if ([TEMPLATE_IDS.TECHNICAL_SOFTWARE, TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS].includes(output.context.renderPlan.templateId)) {
+      assert.equal(pdfInspection.pages, 2, `${output.prefix} realistic fixture must render as a two-page direct PDF`);
+    }
     pdfPages += pdfInspection.pages;
     pdfTextItems += pdfInspection.items.length;
   }
@@ -178,6 +202,7 @@ try {
     manifestParity: true,
     verifiedFinalGate: true,
     staleReadyFlagBlocked: true,
+    realisticTwoPageTemplates: [TEMPLATE_IDS.TECHNICAL_SOFTWARE, TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS],
   }, null, 2));
 } finally {
   if (!keepArtifacts) await rm(outputDir, { recursive: true, force: true });

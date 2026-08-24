@@ -7,6 +7,8 @@ export const TEMPLATE_IDS = Object.freeze({
   SAP_FUNCTIONAL: "sap-functional-v1",
   PROJECT_LEADERSHIP: "project-leadership-v1",
   CAREER_TRANSITION: "career-transition-v1",
+  TECHNICAL_SOFTWARE: "technical-software-v1",
+  ADMIN_CUSTOMER_OPERATIONS: "admin-customer-operations-v1",
   LEGACY_TRADES: "trades-legacy-v1",
 });
 
@@ -23,6 +25,10 @@ const TEMPLATE_ALIASES = Object.freeze({
   "project-leadership": TEMPLATE_IDS.PROJECT_LEADERSHIP,
   "career-change": TEMPLATE_IDS.CAREER_TRANSITION,
   "career-transition": TEMPLATE_IDS.CAREER_TRANSITION,
+  "technical-software": TEMPLATE_IDS.TECHNICAL_SOFTWARE,
+  software: TEMPLATE_IDS.TECHNICAL_SOFTWARE,
+  "admin-customer-operations": TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS,
+  "admin-operations": TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS,
   trades: TEMPLATE_IDS.LEGACY_TRADES,
 });
 
@@ -57,7 +63,7 @@ const BASE_VISUAL_TOKENS = Object.freeze({
   paper: "#ffffff",
 });
 
-function templateDefinition({ id, displayName, description, intendedUse, accent, sectionOrder, visible = true }) {
+function templateDefinition({ id, displayName, description, intendedUse, accent, sectionOrder, visualTokens = {}, visible = true }) {
   return Object.freeze({
     id,
     version: 1,
@@ -68,7 +74,7 @@ function templateDefinition({ id, displayName, description, intendedUse, accent,
     supportedSections: BASE_SECTIONS,
     pageTarget: 2,
     visible,
-    visualTokens: Object.freeze({ ...BASE_VISUAL_TOKENS, accent }),
+    visualTokens: Object.freeze({ ...BASE_VISUAL_TOKENS, accent, ...visualTokens }),
     sectionOrder: Object.freeze(sectionOrder),
     previewMetadata: Object.freeze({ columnCount: 1, hasSidebar: false, usesGraphics: false }),
     compatibilityNotes: "Single-column semantic text; no skill bars, icons, graphics, or layout tables.",
@@ -107,6 +113,34 @@ export const RESUME_TEMPLATE_REGISTRY = Object.freeze({
     intendedUse: "Candidates relying on verified transferable evidence",
     accent: "#6b513d",
     sectionOrder: ["summary", "skills", "projects", "training", "experience", "certifications", "education", "languages", "safety"],
+  }),
+  [TEMPLATE_IDS.TECHNICAL_SOFTWARE]: templateDefinition({
+    id: TEMPLATE_IDS.TECHNICAL_SOFTWARE,
+    displayName: "Technical / Software",
+    description: "Compact engineering structure for verified software, data, cloud, infrastructure, security, and technical-delivery evidence.",
+    intendedUse: "Software, data, cloud, DevOps, SRE, cybersecurity, technical QA, and infrastructure roles",
+    accent: "#245f87",
+    visualTokens: {
+      marginTopIn: 0.6,
+      marginBottomIn: 0.6,
+      bodyFontSizePt: 9.8,
+      bodyLineHeight: 1.3,
+      nameFontSizePt: 17.5,
+      sectionFontSizePt: 10.2,
+    },
+    sectionOrder: ["summary", "skills", "projects", "experience", "certifications", "training", "education", "languages", "safety"],
+  }),
+  [TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS]: templateDefinition({
+    id: TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS,
+    displayName: "Admin / Customer Operations",
+    description: "Service-oriented operations structure that preserves verified coordination and responsibility levels.",
+    intendedUse: "Administration, customer support, customer success, scheduling, dispatch, and service operations",
+    accent: "#3f6a5a",
+    visualTokens: {
+      bodyLineHeight: 1.38,
+      sectionFontSizePt: 10.3,
+    },
+    sectionOrder: ["summary", "skills", "experience", "certifications", "training", "education", "projects", "languages", "safety"],
   }),
   [TEMPLATE_IDS.LEGACY_TRADES]: templateDefinition({
     id: TEMPLATE_IDS.LEGACY_TRADES,
@@ -514,9 +548,14 @@ function hasVerifiedRequirement(atsReview, pattern) {
 
 const SAP_PATTERN = /\b(?:sap|s\/4hana|s4hana|hana)\b/i;
 const SAP_FUNCTIONAL_PATTERN = /\b(?:functional|fi[- /]?ca|pscd|fico|fi\/co|mdg|mm|sd|configuration|requirements?|uat|functional specifications?|cutover|go-live|process analysis|integration design)\b/i;
-const TECHNICAL_PATTERN = /\b(?:abap|java(?:script)?|typescript|react|node(?:\.js)?|front[- ]?end|back[- ]?end|full[- ]?stack|software (?:developer|engineer)|programmer|coding|developer)\b/i;
+const TECHNICAL_TARGET_PATTERN = /\b(?:abap|c\+\+|c#|java(?:script)?|typescript|python|react|node(?:\.js)?|front[- ]?end|back[- ]?end|full[- ]?stack|software|application|mobile|web)\s*(?:developer|development|engineer|engineering)?\b|\b(?:developer|programmer|coding|data engineer|analytics engineer|machine learning|ml engineer|ai engineer|cloud engineer|devops|platform engineer|site reliability|sre|cybersecurity|security engineer|qa automation|test automation|systems engineer|infrastructure engineer)\b/i;
+const TECHNICAL_EVIDENCE_PATTERN = /\b(?:c\+\+|c#|java(?:script)?|typescript|python|react|node(?:\.js)?|programming|coded|software development|application development|front[- ]?end|back[- ]?end|full[- ]?stack|data pipeline|etl|machine learning|cloud infrastructure|devops|site reliability|cybersecurity|test automation|qa automation|version control|git|repository|api implementation|database development)\b/i;
+const ABAP_DEVELOPMENT_EVIDENCE_PATTERN = /\b(?:abap developer|abap development)\b|\b(?:developed|implemented|programmed|coded)\b.{0,80}\babap\b|\babap\b.{0,80}\b(?:development|developer|coding|programming|implementation)\b/i;
 const LEADERSHIP_TARGET_PATTERN = /\b(?:project|program|portfolio|delivery|transformation|operations)\s+(?:manager|management|lead|leader|director)|\b(?:project manager|program manager|delivery manager|transformation lead|operations leader)\b/i;
 const LEADERSHIP_EVIDENCE_PATTERN = /\b(?:led|directed|managed|oversaw|governance|program leadership|project leadership|team leadership)\b/i;
+const ADMIN_CUSTOMER_TARGET_PATTERN = /\b(?:administrative assistant|executive assistant|office (?:assistant|administrator|coordinator|manager)|operations coordinator|administrative coordinator|customer (?:support|service|success)|client service|service operations|data entry|scheduler|scheduling coordinator|dispatcher|dispatch coordinator|support specialist|support representative|service coordinator|operations assistant)\b/i;
+const ADMIN_CUSTOMER_EVIDENCE_PATTERN = /\b(?:administrative support|calendar coordination|calendar management|meeting coordination|scheduling|dispatch|documentation|records management|data entry|customer support|customer service|customer success|client service|issue resolution|service delivery|ticketing|help desk|crm|case management|office coordination|process compliance|cross[- ]functional coordination)\b/i;
+const ADMIN_EXCLUDED_TARGET_PATTERN = /\b(?:account executive|sales representative|business development|marketing|communications|copywriter|financial analyst|accountant|bookkeeper|controller|chief|vice president|\bvp\b|director)\b/i;
 
 export function classifyResumePackageInput(document, source = {}, atsReview = {}, item = {}) {
   const targetTitle = cleanScalar(item?.title ?? source.target?.jobTitle ?? source.target?.job_title ?? document.target.jobTitle, 300);
@@ -527,19 +566,32 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
     skills: document.skills,
     experience: document.experience,
   });
-  const careerStrategy = normalizeCareerStrategy(source);
+  const sourceCareerStrategy = normalizeCareerStrategy(source);
   const trades = ["trades", "home_services"].includes(cleanScalar(item?.category ?? source.target?.category).toLowerCase());
   const sapTarget = SAP_PATTERN.test(targetCorpus);
-  const technicalTarget = TECHNICAL_PATTERN.test(targetCorpus);
+  const technicalTarget = TECHNICAL_TARGET_PATTERN.test(targetCorpus);
   const sapFunctionalTarget = sapTarget && SAP_FUNCTIONAL_PATTERN.test(targetCorpus) && !technicalTarget;
   const verifiedSapFunctionalEvidence = (SAP_PATTERN.test(evidenceCorpus) && SAP_FUNCTIONAL_PATTERN.test(evidenceCorpus))
     || hasVerifiedRequirement(atsReview, SAP_FUNCTIONAL_PATTERN);
+  const verifiedTechnicalEvidence = TECHNICAL_EVIDENCE_PATTERN.test(evidenceCorpus)
+    || ABAP_DEVELOPMENT_EVIDENCE_PATTERN.test(evidenceCorpus)
+    || hasVerifiedRequirement(atsReview, TECHNICAL_EVIDENCE_PATTERN);
   const leadershipTarget = LEADERSHIP_TARGET_PATTERN.test(targetCorpus);
+  const adminCustomerTarget = ADMIN_CUSTOMER_TARGET_PATTERN.test(targetCorpus)
+    && !ADMIN_EXCLUDED_TARGET_PATTERN.test(targetCorpus)
+    && !leadershipTarget;
+  const verifiedAdminCustomerEvidence = ADMIN_CUSTOMER_EVIDENCE_PATTERN.test(evidenceCorpus)
+    || hasVerifiedRequirement(atsReview, ADMIN_CUSTOMER_EVIDENCE_PATTERN);
   const reviewIntegritySafe = !["blocked", "failed"].includes(cleanScalar(atsReview?.integrity?.status).toLowerCase());
   const verifiedLeadershipEvidence = reviewIntegritySafe && (
     hasVerifiedRequirement(atsReview, LEADERSHIP_EVIDENCE_PATTERN)
     || document.experience.some((entry) => entry.bullets.some((bullet) => /^(?:led|directed|managed|oversaw)\b/i.test(bullet.text)))
   );
+
+  const technicalEvidenceGapTransition = technicalTarget
+    && !verifiedTechnicalEvidence
+    && (sourceCareerStrategy === "major-transition" || verifiedSapFunctionalEvidence);
+  const careerStrategy = technicalEvidenceGapTransition ? "major-transition" : sourceCareerStrategy;
 
   let occupationFamily = "general-professional";
   if (trades) occupationFamily = "skilled-trades";
@@ -547,27 +599,59 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
   else if (sapFunctionalTarget) occupationFamily = "sap-functional";
   else if (leadershipTarget) occupationFamily = "project-leadership";
   else if (technicalTarget) occupationFamily = "technical";
+  else if (adminCustomerTarget) occupationFamily = "admin-customer-operations";
 
   let recommendedTemplateId = TEMPLATE_IDS.ATS_CORE;
   let recommendationReason = "ATS Core is the safest general-purpose match for this verified content.";
+  let recommendationReasonCode = "ats_core_ambiguous_or_general";
+  let recommendationStrength = "conservative";
   if (occupationFamily === "skilled-trades") {
     recommendedTemplateId = TEMPLATE_IDS.LEGACY_TRADES;
     recommendationReason = "The existing skilled-trades presentation is preserved until that later template family is rebuilt on the canonical registry.";
+    recommendationReasonCode = "skilled_trades_compatibility";
+    recommendationStrength = "moderate";
   } else if (careerStrategy === "major-transition") {
     recommendedTemplateId = TEMPLATE_IDS.CAREER_TRANSITION;
-    recommendationReason = "The evidence indicates a material transition, so transferable strengths need explicit, honest positioning.";
+    recommendationReason = technicalEvidenceGapTransition
+      ? "The target is software-oriented, but the verified résumé does not contain direct development evidence, so transferable strengths and the technical gap must remain explicit."
+      : "The evidence indicates a material transition, so transferable strengths need explicit, honest positioning.";
+    recommendationReasonCode = technicalEvidenceGapTransition
+      ? "career_transition_technical_evidence_gap"
+      : "career_transition_explicit";
+    recommendationStrength = "strong";
   } else if (occupationFamily === "project-leadership" && verifiedLeadershipEvidence) {
     recommendedTemplateId = TEMPLATE_IDS.PROJECT_LEADERSHIP;
     recommendationReason = "The target is delivery/leadership oriented and the résumé contains verified ownership evidence.";
+    recommendationReasonCode = "project_leadership_verified";
+    recommendationStrength = "strong";
   } else if (occupationFamily === "sap-functional" && verifiedSapFunctionalEvidence) {
     recommendedTemplateId = TEMPLATE_IDS.SAP_FUNCTIONAL;
     recommendationReason = careerStrategy === "adjacent"
       ? "Verified SAP functional lifecycle evidence supports an adjacent functional-module presentation without claiming the missing module."
       : "The target and verified background align with functional SAP delivery rather than software development.";
-  } else if (occupationFamily === "technical" && sapTarget) {
-    recommendationReason = "The SAP target is programming-heavy, so the general ATS template avoids misrepresenting it as functional consulting.";
+    recommendationReasonCode = careerStrategy === "adjacent" ? "sap_functional_adjacent_verified" : "sap_functional_verified";
+    recommendationStrength = "strong";
+  } else if (occupationFamily === "technical" && verifiedTechnicalEvidence) {
+    recommendedTemplateId = TEMPLATE_IDS.TECHNICAL_SOFTWARE;
+    recommendationReason = sapTarget
+      ? "The programming-heavy SAP target is supported by direct technical implementation evidence."
+      : "The software-oriented target is supported by verified development, engineering, or technical implementation evidence.";
+    recommendationReasonCode = sapTarget ? "technical_software_sap_development_verified" : "technical_software_verified";
+    recommendationStrength = "strong";
+  } else if (occupationFamily === "admin-customer-operations" && verifiedAdminCustomerEvidence) {
+    recommendedTemplateId = TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS;
+    recommendationReason = "The target and verified background align with administrative, service, or customer-operations work without implying unverified management authority.";
+    recommendationReasonCode = "admin_customer_operations_verified";
+    recommendationStrength = "strong";
+  } else if (occupationFamily === "technical") {
+    recommendationReason = "The target is technical, but ATS Core remains safer because the verified résumé does not establish direct software or engineering evidence.";
+    recommendationReasonCode = "technical_software_evidence_gap";
   } else if (occupationFamily === "project-leadership") {
     recommendationReason = "The target mentions leadership, but ATS Core avoids upgrading coordination into unverified ownership.";
+    recommendationReasonCode = "project_leadership_evidence_gap";
+  } else if (occupationFamily === "admin-customer-operations") {
+    recommendationReason = "The target is operations-oriented, but ATS Core remains safer until direct administrative or customer-service evidence is present.";
+    recommendationReasonCode = "admin_customer_operations_evidence_gap";
   }
 
   return {
@@ -576,17 +660,26 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
     fitLevel: cleanScalar(atsReview?.readiness?.status ?? atsReview?.candidate_fit?.status ?? source.fit_assessment?.recommended_level, 120),
     postingReadiness: cleanScalar(atsReview?.posting_readiness?.status, 120),
     verifiedLeadershipEvidence,
+    verifiedTechnicalEvidence,
+    verifiedAdminCustomerEvidence,
     functionalVersusTechnical: occupationFamily === "sap-functional" ? "functional" : occupationFamily === "technical" ? "technical" : "not-applicable",
     materialRequirementGaps: valueList(atsReview?.missing_evidence ?? atsReview?.coverage?.missing).map((entry) => cleanScalar(entry, 500)).filter(Boolean),
     recommendedTemplateId,
     recommendationReason,
+    recommendationReasonCode,
+    recommendationStrength,
     recommendationTrace: [
       `careerStrategy:${careerStrategy}`,
       `occupationFamily:${occupationFamily}`,
       `sapTarget:${sapTarget}`,
       `sapFunctionalEvidence:${verifiedSapFunctionalEvidence}`,
+      `technicalTarget:${technicalTarget}`,
+      `technicalEvidence:${verifiedTechnicalEvidence}`,
       `leadershipTarget:${leadershipTarget}`,
       `leadershipEvidence:${verifiedLeadershipEvidence}`,
+      `adminCustomerTarget:${adminCustomerTarget}`,
+      `adminCustomerEvidence:${verifiedAdminCustomerEvidence}`,
+      `reasonCode:${recommendationReasonCode}`,
     ],
   };
 }
@@ -653,6 +746,8 @@ export function createResumePackage(resumeData = {}, { item = {}, atsReview = {}
       recommendedTemplateId,
       selectedTemplateId: selected,
       recommendationReason: classification.recommendationReason,
+      recommendationReasonCode: classification.recommendationReasonCode,
+      recommendationStrength: classification.recommendationStrength,
       pageTarget: RESUME_TEMPLATE_REGISTRY[selected].pageTarget,
       locale: cleanScalar(source.presentation?.locale ?? globalThis.navigator?.language, 40) || "en-CA",
       version: 1,
@@ -703,6 +798,8 @@ function safeSectionHeading(section, templateId, classification) {
   const isSap = classification.occupationFamily === "sap-functional";
   const isLeadership = classification.occupationFamily === "project-leadership" && classification.verifiedLeadershipEvidence;
   const isTransition = classification.careerStrategy === "major-transition";
+  const isTechnical = classification.occupationFamily === "technical" && classification.verifiedTechnicalEvidence;
+  const isAdminCustomer = classification.occupationFamily === "admin-customer-operations" && classification.verifiedAdminCustomerEvidence;
   const headings = {
     summary: templateId === TEMPLATE_IDS.SAP_FUNCTIONAL && isSap
       ? "SAP Functional Profile"
@@ -710,6 +807,10 @@ function safeSectionHeading(section, templateId, classification) {
         ? "Project Delivery Profile"
         : templateId === TEMPLATE_IDS.CAREER_TRANSITION && isTransition
           ? "Career Transition Summary"
+          : templateId === TEMPLATE_IDS.TECHNICAL_SOFTWARE && isTechnical
+            ? "Technical Profile"
+            : templateId === TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS && isAdminCustomer
+              ? "Operations & Service Profile"
           : "Professional Summary",
     skills: templateId === TEMPLATE_IDS.SAP_FUNCTIONAL && isSap
       ? "SAP Modules & Functional Capabilities"
@@ -717,11 +818,19 @@ function safeSectionHeading(section, templateId, classification) {
         ? "Leadership Competencies"
         : templateId === TEMPLATE_IDS.CAREER_TRANSITION && isTransition
           ? "Transferable Strengths"
+          : templateId === TEMPLATE_IDS.TECHNICAL_SOFTWARE && isTechnical
+            ? "Technical Skills"
+            : templateId === TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS && isAdminCustomer
+              ? "Operations & Customer Service Skills"
           : templateId === TEMPLATE_IDS.LEGACY_TRADES
             ? "Skills & Equipment"
             : "Core Skills",
-    experience: "Professional Experience",
-    projects: "Verified Projects",
+    experience: templateId === TEMPLATE_IDS.TECHNICAL_SOFTWARE && isTechnical
+      ? "Technical Experience"
+      : templateId === TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS && isAdminCustomer
+        ? "Administrative & Customer Operations Experience"
+        : "Professional Experience",
+    projects: templateId === TEMPLATE_IDS.TECHNICAL_SOFTWARE && isTechnical ? "Technical Projects" : "Verified Projects",
     training: "Training & Certifications",
     certifications: templateId === TEMPLATE_IDS.LEGACY_TRADES ? "Certifications & Licenses" : "Certifications",
     safety: "Safety Training",

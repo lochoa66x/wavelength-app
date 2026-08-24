@@ -4,7 +4,7 @@ Updated: 2026-08-24
 
 ## Scope
 
-P2.1 Phase A establishes one versioned résumé-content pipeline for browser preview, DOCX, direct PDF, and plain text. The first selectable presentation profiles are ATS Core, SAP Functional, Project Leadership, and Career Transition. The already-shipped trades flow remains available through a hidden compatibility registry entry; rebuilding that family is later roadmap work.
+P2.1 Phase A establishes one versioned résumé-content pipeline for browser preview, DOCX, direct PDF, and plain text. Phase B1 adds Technical / Software and Admin / Customer Operations to the original ATS Core, SAP Functional, Project Leadership, and Career Transition profiles. The already-shipped trades flow remains available through a hidden compatibility registry entry; rebuilding that family is later roadmap work.
 
 ## Contract
 
@@ -12,8 +12,8 @@ P2.1 Phase A establishes one versioned résumé-content pipeline for browser pre
 
 - `document`: user-visible candidate facts and target context.
 - `evidence`: private source references, relevance, verified metric references, normalization warnings, and posting-completeness evidence.
-- `classification`: occupation family, immutable career strategy, fit level, leadership evidence, SAP functional/technical distinction, and recommendation trace.
-- `presentation`: recommended and selected template IDs, reason, page target, locale, and presentation version.
+- `classification`: occupation family, immutable career strategy, fit level, verified family evidence, SAP functional/technical distinction, recommendation reason code/strength, and deterministic trace.
+- `presentation`: recommended and selected template IDs, human-readable reason, internal reason code/strength, page target, locale, and presentation version.
 
 The package uses `schemaVersion: 2`. New code must not pass raw AI output to an exporter.
 
@@ -45,14 +45,19 @@ Template switching can change safe headings, section placement, typography, spac
 
 Classification uses normalized target context, the validated tailored résumé, and the ATS/evidence review. It is deterministic and produces an internal trace.
 
-Recommendation precedence:
+Recommendation precedence is fixed so later families cannot bypass earlier trust decisions:
 
-1. A major transition recommends Career Transition.
-2. A leadership/delivery target with verified ownership evidence recommends Project Leadership.
-3. A functional SAP target with verified SAP functional lifecycle evidence recommends SAP Functional.
-4. Other initial roles use ATS Core.
+1. Existing skilled-trades records retain the compatibility presentation.
+2. A major transition recommends Career Transition.
+3. A leadership/delivery target with verified ownership evidence recommends Project Leadership.
+4. A functional SAP target with verified SAP functional lifecycle evidence recommends SAP Functional.
+5. A software, web/application, cloud, data, DevOps/SRE, security, infrastructure, or technical-QA target with direct or adjacent verified technical evidence recommends Technical / Software.
+6. A non-leadership administration, customer-support/success, scheduling, dispatch, data-entry, or service-operations target with direct or adjacent verified service evidence recommends Admin / Customer Operations.
+7. Ambiguous targets and evidence gaps use ATS Core.
 
-Programming-heavy SAP targets containing evidence such as ABAP, Java, JavaScript, React, Node, frontend/backend, software engineering, or developer positioning are technical and fall back to ATS Core. A generic SAP keyword never establishes functional consulting by itself.
+Programming-heavy SAP targets are technical. Explicit ABAP development or implementation evidence can qualify for Technical / Software; merely collaborating with an ABAP team cannot. A functional SAP candidate targeting a developer role without coding evidence is treated as a material transition rather than upgraded into a technical profile. A generic SAP keyword never establishes functional consulting by itself.
+
+Admin/customer-operations matching excludes sales, marketing/communications, finance/accounting, and director/executive targets. Coordination language remains coordination unless verified ownership evidence independently supports leadership.
 
 An adjacent SAP module pivot may use SAP Functional when verified functional lifecycle evidence exists. Missing target modules remain missing and are never inserted into skills or history.
 
@@ -62,14 +67,16 @@ The user may override the recommended template, but not classification or career
 
 The registry stores stable ID/version, display metadata, ATS safety level, page target, supported sections, section order, preview metadata, compatibility notes, and shared visual tokens.
 
-Initial selectable IDs:
+Selectable IDs:
 
 - `ats-core-v1`
 - `sap-functional-v1`
 - `project-leadership-v1`
 - `career-transition-v1`
+- `technical-software-v1`
+- `admin-customer-operations-v1`
 
-`trades-legacy-v1` preserves the existing shipped behavior but is not one of the four Phase A selector cards.
+`trades-legacy-v1` preserves the existing shipped behavior but is not one of the six selector cards.
 
 To add a template:
 
@@ -127,4 +134,4 @@ Exact DOCX pagination is not expected to match the PDF because Word-compatible l
 - Microsoft Word and Google Docs compatibility must be reported as unverified when those applications are unavailable; LibreOffice is the automated local compatibility engine.
 - Browser and direct PDF share layout tokens but unrelated browsers may produce small font-metric differences.
 - The existing trades compatibility template has not yet received the full later-family redesign.
-- Skilled trades, admin/customer operations, marketing/communications, creative/design, and a dedicated technical/software presentation remain later work.
+- Skilled trades, marketing/communications, and creative/design remain later work.

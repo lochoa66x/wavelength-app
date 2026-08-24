@@ -28,10 +28,21 @@ Do not reapply the P1.4 migration or change production Auth/database settings du
 - [x] Responsive and accessible template selector.
 - [x] Architecture and extension documentation.
 
+## P2.1 Phase B1 implementation
+
+- [x] Technical / Software (`technical-software-v1`) registry template.
+- [x] Admin / Customer Operations (`admin-customer-operations-v1`) registry template.
+- [x] Deterministic target-plus-evidence recommendation with stable reason code and strength.
+- [x] Functional-SAP-to-developer evidence-gap safeguard and explicit ABAP-development path.
+- [x] Admin exclusions for sales, marketing/communications, finance/accounting, and director/executive roles.
+- [x] Shared six-card selector in feed and bring-your-own-job flows.
+- [x] Account/target persistence and factual content-hash parity across all six templates.
+- [x] Realistic two-page Technical and Admin fixtures for DOCX/PDF verification.
+
 ## Required local verification before commit
 
 - [x] Focused canonical/template/export/tailoring tests pass with exact count recorded.
-- [x] `npm run verify:exports` passes for all four templates and preliminary gating.
+- [x] `npm run verify:exports` passes for all six templates and preliminary gating.
 - [x] Full `npm test` passes with exact count recorded.
 - [x] Production build passes and keeps DOCX/PDF libraries lazy.
 - [x] `npm audit --json` is reviewed without forced upgrades.
@@ -69,12 +80,22 @@ Do not reapply the P1.4 migration or change production Auth/database settings du
 - Final release-record SHA: the commit containing this section. The final report and Vercel deployment metadata provide its immutable Git SHA after the documentation-only commit is created.
 - Next pipeline item: P2.1 Phase B occupation-family templates.
 
+## P2.1 Phase B1 local verification record — 2026-08-24
+
+- Focused tests: 62 passed, 0 failed.
+- Full suite: 277 passed, 0 failed.
+- Export verifier: 14 files across six final templates plus one preliminary pair; 9 direct-PDF pages, 268 selectable text items, manifest parity, verified-final gating, stale-readiness protection, and two-page B1 assertions passed.
+- Production build: 1,971 modules transformed; `resumeDocx`, `resumePdf`, `docx`, and `jspdf` remained lazy chunks. The existing main-chunk size warning remains.
+- Dependency audit: 0 critical, 1 high, and 1 moderate finding, both confined to the existing Vite/esbuild development toolchain. The available fix requires a Vite 8 major upgrade and remains outside B1 scope.
+- Real-file QA: all seven direct PDFs and all seven LibreOffice-converted DOCX PDFs were rendered; all 18 pages were inspected. Both B1 fixtures were exactly two pages in each engine. Canonical tokens were present in direct PDFs, DOCX and LibreOffice-converted text had sequence parity, and no `[object Object]`, `undefined`, `null`, clipping, overlap, orphan heading, or blank trailing page was found.
+- Browser QA: the isolated real-component harness passed at 1,440 × 900 and 390 × 844 with six accessible cards, 88-pixel minimum mobile card height, keyboard activation, correct `aria-expanded`/`aria-pressed` state, zero selector-triggered resource requests, stable factual content hash, no horizontal overflow, and no console/page errors.
+- Microsoft Word and Google Docs were unavailable locally; LibreOffice provided the Word-compatible verification engine.
+- Release state: local commit only. Phase B1 was not pushed or deployed.
+
 Do not commit while a required check is failing. Do not push or deploy without separate authorization.
 
 ## Later P2.1 families
 
 - Skilled trades rebuild
-- Admin and customer operations
 - Marketing and communications
 - Creative and design
-- Dedicated technical/software presentation

@@ -2,8 +2,10 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  RESUME_TEMPLATE_REGISTRY,
   TEMPLATE_IDS,
   analyzeResumeWording,
+  availableResumeTemplates,
   buildResumeContentPlan,
   buildResumeRenderPlan,
   createResumePackage,
@@ -11,6 +13,12 @@ import {
 } from "./resumeModel.js";
 import { createResumeExportContext, validateResumeExportContext } from "./resumeReadiness.js";
 import { resumeDataToPlainText } from "./resumeText.js";
+import {
+  adminCustomerOperationsResumeFixture,
+  adminCustomerTargetItem,
+  technicalSoftwareResumeFixture,
+  technicalTargetItem,
+} from "../tests/fixtures/resumePhaseBFixtures.js";
 
 const verifiedPosting = {
   posting_readiness: { status: "reviewed_complete", fit_allowed: true, application_ready_allowed: true },
@@ -57,13 +65,38 @@ test("canonical package separates facts, evidence, classification, and presentat
   assert.doesNotMatch(JSON.stringify(resumePackage.document), /sourceReferences|recommendationTrace|posting_readiness/);
 });
 
+test("template registry exposes six unique stable Phase A and B1 IDs", () => {
+  const templates = availableResumeTemplates();
+  const ids = templates.map((template) => template.id);
+  assert.deepEqual(ids, [
+    TEMPLATE_IDS.ATS_CORE,
+    TEMPLATE_IDS.SAP_FUNCTIONAL,
+    TEMPLATE_IDS.PROJECT_LEADERSHIP,
+    TEMPLATE_IDS.CAREER_TRANSITION,
+    TEMPLATE_IDS.TECHNICAL_SOFTWARE,
+    TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS,
+  ]);
+  assert.equal(new Set(ids).size, ids.length);
+  for (const id of ids) {
+    assert.equal(RESUME_TEMPLATE_REGISTRY[id].id, id);
+    assert.equal(RESUME_TEMPLATE_REGISTRY[id].version, 1);
+    assert.equal(RESUME_TEMPLATE_REGISTRY[id].previewMetadata.columnCount, 1);
+  }
+});
+
 test("deterministic recommendation distinguishes functional SAP, technical SAP, leadership, transition, and fallback", () => {
   const functional = createResumePackage(baseResume(), { item: { title: "SAP FICO Functional Consultant", category: "tech" }, atsReview: verifiedPosting });
   assert.equal(functional.presentation.recommendedTemplateId, TEMPLATE_IDS.SAP_FUNCTIONAL);
 
-  const technical = createResumePackage(baseResume(), { item: { title: "SAP ABAP Developer", category: "tech" }, atsReview: verifiedPosting });
-  assert.equal(technical.classification.functionalVersusTechnical, "technical");
-  assert.equal(technical.presentation.recommendedTemplateId, TEMPLATE_IDS.ATS_CORE);
+  const unsupportedTechnicalPivot = createResumePackage(baseResume(), { item: { title: "SAP ABAP Developer", category: "tech" }, atsReview: verifiedPosting });
+  assert.equal(unsupportedTechnicalPivot.classification.functionalVersusTechnical, "technical");
+  assert.equal(unsupportedTechnicalPivot.presentation.recommendedTemplateId, TEMPLATE_IDS.CAREER_TRANSITION);
+  assert.equal(unsupportedTechnicalPivot.presentation.recommendationReasonCode, "career_transition_technical_evidence_gap");
+
+  const technical = createResumePackage(technicalSoftwareResumeFixture, { item: technicalTargetItem, atsReview: verifiedPosting });
+  assert.equal(technical.classification.verifiedTechnicalEvidence, true);
+  assert.equal(technical.presentation.recommendedTemplateId, TEMPLATE_IDS.TECHNICAL_SOFTWARE);
+  assert.equal(technical.presentation.recommendationStrength, "strong");
 
   const leadership = createResumePackage(baseResume({ title: "Project Delivery Leader" }), { item: { title: "Program Manager", category: "business" }, atsReview: verifiedPosting });
   assert.equal(leadership.presentation.recommendedTemplateId, TEMPLATE_IDS.PROJECT_LEADERSHIP);
@@ -73,6 +106,60 @@ test("deterministic recommendation distinguishes functional SAP, technical SAP, 
 
   const generic = createResumePackage(baseResume({ title: "Operations Analyst", content_strategy: "direct" }), { item: { title: "Operations Analyst", category: "business" }, atsReview: verifiedPosting });
   assert.equal(generic.presentation.recommendedTemplateId, TEMPLATE_IDS.ATS_CORE);
+});
+
+test("admin/customer operations recommendation requires matching target and verified service evidence", () => {
+  const direct = createResumePackage(adminCustomerOperationsResumeFixture, { item: adminCustomerTargetItem, atsReview: verifiedPosting });
+  assert.equal(direct.classification.occupationFamily, "admin-customer-operations");
+  assert.equal(direct.classification.verifiedAdminCustomerEvidence, true);
+  assert.equal(direct.presentation.recommendedTemplateId, TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS);
+  assert.equal(direct.presentation.recommendationReasonCode, "admin_customer_operations_verified");
+
+  const evidenceGap = createResumePackage(baseResume({ title: "SAP Functional Consultant" }), { item: adminCustomerTargetItem, atsReview: verifiedPosting });
+  assert.equal(evidenceGap.classification.occupationFamily, "admin-customer-operations");
+  assert.equal(evidenceGap.classification.verifiedAdminCustomerEvidence, false);
+  assert.equal(evidenceGap.presentation.recommendedTemplateId, TEMPLATE_IDS.ATS_CORE);
+
+  for (const title of ["Sales Representative", "Marketing Coordinator", "Financial Analyst", "Operations Director"]) {
+    const excluded = createResumePackage(adminCustomerOperationsResumeFixture, { item: { title, category: "business" }, atsReview: verifiedPosting });
+    assert.notEqual(excluded.presentation.recommendedTemplateId, TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS, title);
+  }
+});
+
+test("technical recommendation covers software, web, cloud, data, and QA targets only with verified evidence", () => {
+  for (const title of ["Software Engineer", "Web Application Developer", "Cloud Engineer", "Data Engineer", "QA Automation Engineer"]) {
+    const qualified = createResumePackage(technicalSoftwareResumeFixture, { item: { ...technicalTargetItem, title }, atsReview: verifiedPosting });
+    assert.equal(qualified.presentation.recommendedTemplateId, TEMPLATE_IDS.TECHNICAL_SOFTWARE, title);
+  }
+
+  const titleOnly = createResumePackage(baseResume({ title: "Office Coordinator" }), {
+    item: { ...technicalTargetItem, title: "Software Engineer" },
+    atsReview: verifiedPosting,
+  });
+  assert.equal(titleOnly.classification.verifiedTechnicalEvidence, false);
+  assert.notEqual(titleOnly.presentation.recommendedTemplateId, TEMPLATE_IDS.TECHNICAL_SOFTWARE);
+});
+
+test("ABAP development evidence qualifies while functional collaboration does not", () => {
+  const abapDeveloper = createResumePackage(baseResume({
+    title: "SAP ABAP Developer",
+    skills: ["SAP ABAP", "JavaScript", "Git"],
+    profile: "SAP ABAP developer with verified application development and version-control experience.",
+    experience: [{
+      role: "SAP ABAP Developer",
+      company: "Example Consulting",
+      dates: "2020 - Present",
+      bullets: ["Developed ABAP application enhancements from approved technical specifications."],
+    }],
+  }), { item: { title: "SAP ABAP Developer", category: "tech" }, atsReview: verifiedPosting });
+  assert.equal(abapDeveloper.presentation.recommendedTemplateId, TEMPLATE_IDS.TECHNICAL_SOFTWARE);
+  assert.equal(abapDeveloper.presentation.recommendationReasonCode, "technical_software_sap_development_verified");
+
+  const functionalCollaborator = createResumePackage(baseResume({
+    profile: "SAP functional consultant who collaborated with ABAP teams on functional specifications and UAT.",
+  }), { item: { title: "SAP ABAP Developer", category: "tech" }, atsReview: verifiedPosting });
+  assert.equal(functionalCollaborator.presentation.recommendedTemplateId, TEMPLATE_IDS.CAREER_TRANSITION);
+  assert.equal(functionalCollaborator.classification.verifiedTechnicalEvidence, false);
 });
 
 test("adjacent SAP module pivot remains functional without inserting the target module", () => {
@@ -95,11 +182,23 @@ test("template override changes presentation only and preserves factual IDs and 
   assert.equal(overridden.presentation.selectedTemplateId, TEMPLATE_IDS.PROJECT_LEADERSHIP);
 });
 
-test("all four templates keep the same selected factual item IDs", () => {
+test("all six selectable templates keep the same selected factual item IDs", () => {
   const resumePackage = createResumePackage(baseResume(), { item: { title: "SAP Functional Consultant", category: "tech" }, atsReview: verifiedPosting });
   const ids = (plan) => plan.manifest.sections.flatMap((section) => section.items.flatMap((item) => [item.id, ...(item.bullets || []).map((bullet) => bullet.id), ...(item.details || []).map((detail) => detail.id)])).sort();
   const plans = Object.values(TEMPLATE_IDS).filter((id) => id !== TEMPLATE_IDS.LEGACY_TRADES).map((id) => buildResumeRenderPlan(resumePackage, id));
   for (const plan of plans.slice(1)) assert.deepEqual(ids(plan), ids(plans[0]));
+});
+
+test("admin template preserves coordination wording instead of upgrading it to management", () => {
+  const resumePackage = createResumePackage(adminCustomerOperationsResumeFixture, { item: adminCustomerTargetItem, atsReview: verifiedPosting });
+  const plan = buildResumeRenderPlan(resumePackage, TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS);
+  const bullets = plan.sections
+    .filter((section) => section.type === "experience")
+    .flatMap((section) => section.items)
+    .flatMap((entry) => entry.bullets)
+    .map((bullet) => bullet.text);
+  assert.ok(bullets.some((bullet) => bullet.startsWith("Coordinated customer requests")));
+  assert.equal(bullets.some((bullet) => /^(?:managed|directed|led) customer requests/i.test(bullet)), false);
 });
 
 test("malformed values and cycles are omitted with warnings instead of object coercion", () => {

@@ -8,7 +8,7 @@ Treat this as an idempotent release procedure. First discover whether the featur
 
 1. Run focused canonical/template/export/tailoring tests:
    `node --test src/ResumeExperience.test.js src/resumeModel.test.js src/resumeParity.test.js src/resumeTemplateStorage.test.js src/resumeDocx.test.js src/resumePdf.test.js src/resumeStrategy.test.js tests/resumeQuality.test.js tests/tailoringEvidence.test.js tests/safeResumeFallback.test.js`
-2. Run `npm run verify:exports`. This creates final DOCX/PDF fixtures for ATS Core, SAP Functional, Project Leadership, and Career Transition plus a preliminary ATS Core pair. It compares DOCX, selectable PDF, and plain text against the canonical manifest, checks package/PDF structure and reading order, rejects object/metadata artifacts, and exercises fresh/stale authorization and identity gates before removing temporary files.
+2. Run `npm run verify:exports`. This creates final DOCX/PDF fixtures for all six selector templates plus a preliminary ATS Core pair. Technical / Software and Admin / Customer Operations use realistic two-page fixtures. The verifier compares DOCX, selectable PDF, and plain text against the canonical manifest, checks package/PDF structure and reading order, rejects object/metadata artifacts, and exercises fresh/stale authorization and identity gates before removing temporary files.
 3. Run `npm test` and record the pass/total count.
 4. Run `npm run build -- --sourcemap` and record the transformed-module count and output chunk sizes. Confirm `resumeDocx`, `resumePdf`, `docx`, and `jspdf` remain lazy export chunks; investigate any new main-bundle growth.
 5. Run `npm audit --json`. Do not apply a forced dependency upgrade as part of export verification.
@@ -43,7 +43,7 @@ Generate persistent fixtures with `npm run verify:exports -- --keep`; they are w
 3. Extract text independently from the direct PDF and LibreOffice-converted PDF. Confirm candidate identity, target title, experience, education, and languages are in reading order and that `[object Object]`, `undefined`, `null`, and private fixture metadata are absent.
 4. Confirm the direct PDF text is selectable/searchable and is not a page-sized image.
 5. Manually test the browser buttons for a verified posting, an incomplete posting, a stale ready flag paired with an incomplete posting, and a missing candidate identity. Direct download is primary; the print dialog should appear only when direct PDF creation fails.
-6. On desktop and at 390 × 844, open the four-card selector using keyboard and pointer input. Verify focus visibility, `aria-expanded`/`aria-pressed` state, touch targets, immediate rerender without a network request, account/target persistence, and an unchanged `data-resume-content-hash` across template choices.
+6. On desktop and at 390 × 844, open the six-card selector using keyboard and pointer input. Verify focus visibility, `aria-expanded`/`aria-pressed` state, touch targets, immediate rerender without a network request, account/target persistence, and an unchanged `data-resume-content-hash` across template choices.
 7. When available, repeat DOCX checks in Microsoft Word and Google Docs and run both formats through the ATS parsers supported by the release environment.
 
 ## Source and release checks

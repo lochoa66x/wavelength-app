@@ -77,7 +77,14 @@ async function pdfVisibleText(bytes) {
   return result;
 }
 
-for (const templateId of [TEMPLATE_IDS.ATS_CORE, TEMPLATE_IDS.SAP_FUNCTIONAL, TEMPLATE_IDS.PROJECT_LEADERSHIP, TEMPLATE_IDS.CAREER_TRANSITION]) {
+for (const templateId of [
+  TEMPLATE_IDS.ATS_CORE,
+  TEMPLATE_IDS.SAP_FUNCTIONAL,
+  TEMPLATE_IDS.PROJECT_LEADERSHIP,
+  TEMPLATE_IDS.CAREER_TRANSITION,
+  TEMPLATE_IDS.TECHNICAL_SOFTWARE,
+  TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS,
+]) {
   test(`${templateId} keeps DOCX, PDF, and text aligned with the canonical manifest`, async () => {
     const context = createResumeExportContext(fixture, finalReview, {
       item: { title: "SAP FICO Functional Consultant", company: "Example Bank", category: "tech" },
