@@ -26,6 +26,7 @@ import {
   publicAuthErrorMessage,
   recordMagicLinkSubmission,
 } from "./authSecurity.js";
+import { loadVerifiedAuthSession } from "./authSession.js";
 import { supabase } from "./supabase.js";
 import {
   APP_PATH,
@@ -55,22 +56,10 @@ export function AuthProvider({ children }) {
 
     async function initialize() {
       try {
-        const { data: { claims }, error: claimsError } = await supabase.auth.getClaims();
+        const result = await loadVerifiedAuthSession(supabase.auth);
         if (!active) return;
-        if (claimsError || !claims?.sub) {
-          setSession(null);
-          return;
-        }
-
-        const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
-        if (!active) return;
-        if (sessionError || currentSession?.user?.id !== claims.sub) {
-          setSession(null);
-          setError("Your account session could not be verified. Public job search is still available.");
-        } else {
-          setSession(currentSession);
-          setError("");
-        }
+        setSession(result.session);
+        setError(result.error);
       } catch {
         if (active) {
           setSession(null);
