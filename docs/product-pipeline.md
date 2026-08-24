@@ -1,6 +1,6 @@
 # Gigscapes product pipeline
 
-Updated: 2026-08-23
+Updated: 2026-08-24
 
 This roadmap orders work by the value of the product's core promise: produce a truthful, role-specific, ATS-readable resume from enough candidate and job-posting evidence. Search volume and presentation work follow that foundation.
 
@@ -115,11 +115,18 @@ Turn the existing “Questions that could strengthen this version” into an evi
 
 ### P1.4 Guest-first browsing with account-required workspaces
 
-- Allow landing page, onboarding preferences, searching, filtering, and listing details without sign-in.
-- Keep anonymous preferences locally.
-- Ask for email authentication when the user saves jobs, stores a resume, tailors, exports, or syncs across devices.
-- Maintain Supabase RLS: public listing reads can be anonymous; resumes, answers, saved jobs, and tailored outputs stay user-owned.
-- Evaluate email OTP code entry as the future alternative to magic links; do not remove the working magic-link path until OTP is tested end to end.
+**Implementation status:** Complete locally on 2026-08-24. Production release remains pending until the checked-in Supabase migration is applied and the production smoke checklist passes; no production Auth, database, or Vercel settings were changed in this implementation pass.
+
+- `/app` now renders the same discovery shell for guests and signed-in users without waiting for session initialization. Search, country/province/city filters, workplace filters, pagination, summaries, attribution, and original provider links remain public.
+- Anonymous preferences use a versioned, allowlisted `localStorage` record. Résumé text, posting content, evidence, email, tokens, and account records are excluded.
+- One centralized account-action gate covers saved jobs, résumé editing, posting URL/paste/screenshots, tailoring/evidence, saved workspace access, DOCX/PDF downloads, and copied tailored text. Its dialog explains the attempted action and is keyboard/escape accessible on mobile and desktop.
+- Pending actions use a versioned 15-minute `sessionStorage` record, strict action/path/listing validation, and consume-once behavior. A magic-link callback may also carry only the allowlisted action, timestamp, safe internal path, and public listing ID so email clients opening a new tab can restore it. Sensitive content is never placed in the URL.
+- Magic link remains the only production-default sign-in method. UI requests have a local cooldown, generic account-neutral success copy, sanitized errors, and safe invalid/expired-link recovery. Email OTP/code entry was not added or enabled.
+- Public discovery requests only an explicit listing projection. `20260824015935_expose_public_listing_discovery.sql` creates a `security_invoker` view, explicit grants, public-listing RLS, and same-user profile SELECT/UPDATE policies. Until that migration is applied, code falls back to the same explicit fields on the existing anonymous-readable table—never `select("*")`.
+- Protected server endpoints still validate the caller JWT before reading private input or creating a privileged server-only database client. Browser code has no service-role/secret-key path.
+- Trusted DOCX/PDF readiness, identity, deterministic serialization, evidence scoping, direct selectable Letter PDF, and lazy export chunks remain mandatory regressions.
+
+**Release condition:** Do not mark the production release complete until the migration has been reviewed/applied, Auth redirect URLs have been confirmed, and `docs/guest-auth-smoke-test.md` passes in production. P2.1 is the next implementation item; do not begin it as part of P1.4 release work.
 
 ## Priority 2 — Resume families and product presentation
 
@@ -179,7 +186,7 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 4. P0.4 multi-page intake, provenance, and export-integrity verification
 5. P1.1 evidence follow-up comments
 6. P1.2 ATS writing feedback and P1.3 resume focus
-7. P1.4 guest-first access and OTP experiment
+7. P1.4 guest-first access and action-gated magic links
 8. P2.1 resume families plus DOCX/PDF compatibility
 9. P2.2 landing page
 10. P2.3 ongoing source/feed work

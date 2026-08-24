@@ -8,6 +8,26 @@ import { inferKeywordIntent, normalizeSearchText } from "./listingCategories.js"
 export const LISTINGS_PAGE_SIZE = 100;
 export const INACTIVE_LISTING_SOURCES = ["craigslist"];
 export const INITIAL_LISTING_PAGE_LIMIT = 3;
+export const PUBLIC_LISTING_RELATION = "public_listings";
+export const PUBLIC_LISTING_BASE_RELATION = "listings";
+export const PUBLIC_LISTING_SELECT = [
+  "id",
+  "category",
+  "tier",
+  "title",
+  "company",
+  "location",
+  "job_type",
+  "source",
+  "city",
+  "region",
+  "country_code",
+  "location_type",
+  "reason",
+  "description_snippet",
+  "url",
+  "posted_at",
+].join(",");
 
 const TECHNOLOGY_SEARCH_ALIASES = {
   sap: ["sap", "s/4hana", "s4hana", "abap", "fiori", "successfactors", "ariba"],
@@ -83,7 +103,7 @@ export function applyKeywordSearchFilters(query, criteria = {}) {
   const expression = terms
     .flatMap((term) => {
       const pattern = `%${escapeLikePattern(term)}%`;
-      return [`title.ilike.${pattern}`, `description.ilike.${pattern}`];
+      return [`title.ilike.${pattern}`, `description_snippet.ilike.${pattern}`];
     })
     .join(",");
 
@@ -125,7 +145,12 @@ export function applyStructuredLocationFilters(query, criteria = {}) {
 export function createListingsQuery(
   client,
   criteria = {},
-  { page = 0, pageSize = LISTINGS_PAGE_SIZE, includeStructuredFilters = true } = {},
+  {
+    page = 0,
+    pageSize = LISTINGS_PAGE_SIZE,
+    includeStructuredFilters = true,
+    relation = PUBLIC_LISTING_RELATION,
+  } = {},
 ) {
   const safePage = Math.max(0, Number(page) || 0);
   const safePageSize = Math.max(1, Number(pageSize) || LISTINGS_PAGE_SIZE);
@@ -133,9 +158,9 @@ export function createListingsQuery(
   const to = from + safePageSize - 1;
 
   let query = client
-    .from("listings")
-    .select("*", { count: "exact" })
-    .order("fetched_at", { ascending: false })
+    .from(relation)
+    .select(PUBLIC_LISTING_SELECT, { count: "exact" })
+    .order("posted_at", { ascending: false, nullsFirst: false })
     .order("id", { ascending: false });
 
   for (const source of INACTIVE_LISTING_SOURCES) {
@@ -145,6 +170,14 @@ export function createListingsQuery(
   if (includeStructuredFilters) query = applyStructuredLocationFilters(query, criteria);
   query = applyKeywordSearchFilters(query, criteria);
   return query.range(from, to);
+}
+
+export function isMissingPublicListingView(error) {
+  if (!error) return false;
+  const message = String(error.message || "").toLowerCase();
+  return error.code === "PGRST205"
+    || error.code === "42P01"
+    || (message.includes("public_listings") && message.includes("could not find"));
 }
 
 export function canUseLegacyLocationFallback(error, criteria = {}) {

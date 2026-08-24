@@ -1,5 +1,3 @@
-import { createClient } from "@supabase/supabase-js";
-
 import { extractJobPostingsFromHtml, composeJobPostingText, readablePageMatchesListing, selectMatchingJobPosting } from "./_lib/jobPostingHtml.js";
 import {
   assessDescriptionStatus,
@@ -13,15 +11,7 @@ import {
 } from "./_lib/listingDescription.js";
 import { fetchPublicJobPage } from "./_lib/publicJobPage.js";
 import { authenticateSupabaseRequest, bearerToken } from "./_lib/requestAuth.js";
-
-function createAdminClient() {
-  const url = String(process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || "").trim();
-  const secret = String(process.env.SUPABASE_SECRET_KEY || "").trim();
-  if (!url || !secret) throw new Error("Server database credentials are not configured");
-  return createClient(url, secret, {
-    auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
-  });
-}
+import { createServerSupabaseClient } from "./_lib/serverSupabase.js";
 
 function fallbackPayload(row, errorCode, message, cached = false) {
   return {
@@ -47,7 +37,7 @@ async function updateListing(supabase, listingId, patch) {
 
 export function createListingEnrichmentHandler({
   authenticate = authenticateSupabaseRequest,
-  createAdmin = createAdminClient,
+  createAdmin = createServerSupabaseClient,
   fetchPage = fetchPublicJobPage,
   now = () => new Date(),
 } = {}) {

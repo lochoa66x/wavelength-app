@@ -5,7 +5,6 @@ import Gigscapes from "./App.jsx";
 import {
   AuthCallback,
   AuthProvider,
-  ProtectedRoute,
   PublicOnlyRoute,
   SignInPage,
 } from "./auth.jsx";
@@ -26,14 +25,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
             }
           />
           <Route path={AUTH_CALLBACK_PATH} element={<AuthCallback />} />
-          <Route
-            path={`${APP_PATH}/*`}
-            element={
-              <ProtectedRoute>
-                <Gigscapes />
-              </ProtectedRoute>
-            }
-          />
+          <Route path={`${APP_PATH}/*`} element={<Gigscapes />} />
           <Route path="*" element={<Navigate to={APP_PATH} replace />} />
         </Routes>
       </AuthProvider>

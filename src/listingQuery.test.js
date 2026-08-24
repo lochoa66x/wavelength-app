@@ -8,9 +8,12 @@ import {
   createListingsQuery,
   escapeLikePattern,
   hasNextListingPage,
+  isMissingPublicListingView,
   listingServerSearchTerms,
   listingQueryFingerprint,
   mergeListingPages,
+  PUBLIC_LISTING_RELATION,
+  PUBLIC_LISTING_SELECT,
   shouldAutoContinueListingSearch,
 } from "./listingQuery.js";
 
@@ -43,9 +46,9 @@ test("structured filters are applied before an inclusive database page range", (
   }, { page: 2, pageSize: 25 });
 
   assert.deepEqual(calls, [
-    ["from", "listings"],
-    ["select", "*", { count: "exact" }],
-    ["order", "fetched_at", { ascending: false }],
+    ["from", PUBLIC_LISTING_RELATION],
+    ["select", PUBLIC_LISTING_SELECT, { count: "exact" }],
+    ["order", "posted_at", { ascending: false, nullsFirst: false }],
     ["order", "id", { ascending: false }],
     ["neq", "source", "craigslist"],
     ["eq", "location_type", "remote"],
@@ -80,7 +83,7 @@ test("recognized technology terms filter at the database before pagination", () 
   assert.ok(orIndex > -1);
   assert.ok(orIndex < rangeIndex);
   assert.match(calls[orIndex][1], /title\.ilike\.%sap%/);
-  assert.match(calls[orIndex][1], /description\.ilike\.%abap%/);
+  assert.match(calls[orIndex][1], /description_snippet\.ilike\.%abap%/);
   assert.doesNotMatch(calls[orIndex][1], /%analyst%/);
   assert.deepEqual(calls[rangeIndex], ["range", 0, 99]);
 });
@@ -121,6 +124,11 @@ test("legacy fallback is restricted to missing location columns", () => {
     code: "PGRST204",
     message: "Could not find the 'country_code' column",
   }, { location: "either" }), false);
+});
+
+test("public-view fallback is restricted to a missing relation", () => {
+  assert.equal(isMissingPublicListingView({ code: "PGRST205", message: "Could not find public.public_listings" }), true);
+  assert.equal(isMissingPublicListingView({ code: "42501", message: "permission denied" }), false);
 });
 
 test("query fingerprints reset pagination for search and geographic changes", () => {

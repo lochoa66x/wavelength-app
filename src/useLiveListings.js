@@ -17,6 +17,8 @@ import {
   hasNextListingPage,
   listingQueryFingerprint,
   mergeListingPages,
+  PUBLIC_LISTING_BASE_RELATION,
+  isMissingPublicListingView,
   shouldAutoContinueListingSearch,
 } from "./listingQuery.js";
 import { supabase } from "./supabase.js";
@@ -54,13 +56,9 @@ export function mapListingRow(row) {
     source: SOURCE_DISPLAY_NAMES[row.source] || row.source,
     city: row.city,
     reason: normalizeListingReason(row.reason, row.category, classification.category),
-    description: row.description || null,
-    descriptionSnippet: row.description_snippet || row.description || null,
-    descriptionSource: row.description_source || "provider_snippet",
-    descriptionStatus: row.description_status || null,
-    descriptionSourceUrl: row.description_source_url || row.url || "",
-    descriptionFetchedAt: row.description_fetched_at || null,
-    descriptionEnrichmentErrorCode: row.description_enrichment_error_code || null,
+    description: null,
+    descriptionSnippet: row.description_snippet || null,
+    descriptionSourceUrl: row.url || "",
     url: row.url,
   };
 }
@@ -133,6 +131,18 @@ export function useLiveListings(criteria = {}, { resetKey = "", pageSize = LISTI
           pageSize,
           includeStructuredFilters: true,
         });
+
+        // Deployment-safe bridge: older environments may not have applied the
+        // narrow public view yet. Query the same explicit public columns from
+        // the existing read-only listing table; never fall back to select("*").
+        if (result.error && isMissingPublicListingView(result.error)) {
+          result = await createListingsQuery(supabase, filters, {
+            page: currentPage,
+            pageSize,
+            includeStructuredFilters: true,
+            relation: PUBLIC_LISTING_BASE_RELATION,
+          });
+        }
 
         if (result.error && canUseLegacyLocationFallback(result.error, filters)) {
           result = await createListingsQuery(supabase, filters, {

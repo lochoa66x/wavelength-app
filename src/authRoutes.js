@@ -6,7 +6,12 @@ export function safeNextPath(value, fallback = APP_PATH) {
   if (typeof value !== "string") return fallback;
 
   const candidate = value.trim();
-  if (!candidate.startsWith("/") || candidate.startsWith("//") || candidate.includes("\\")) {
+  if (
+    !candidate.startsWith("/")
+    || candidate.startsWith("//")
+    || candidate.includes("\\")
+    || candidate.length > 500
+  ) {
     return fallback;
   }
 
@@ -15,13 +20,21 @@ export function safeNextPath(value, fallback = APP_PATH) {
     if (parsed.origin !== "https://app.invalid") return fallback;
 
     const path = `${parsed.pathname}${parsed.search}${parsed.hash}`;
-    if (parsed.pathname === SIGN_IN_PATH || parsed.pathname === AUTH_CALLBACK_PATH) {
-      return fallback;
-    }
+    if (parsed.pathname !== APP_PATH && !parsed.pathname.startsWith(`${APP_PATH}/`)) return fallback;
     return path;
   } catch {
     return fallback;
   }
+}
+
+export function resolveAuthCallbackState({ loading, session, callbackError, authError } = {}) {
+  if (loading) return { status: "checking", next: null };
+  if (session?.user?.id) return { status: "authenticated", next: APP_PATH };
+  return {
+    status: "failed",
+    next: SIGN_IN_PATH,
+    reason: callbackError || authError ? "invalid_or_expired" : "missing_session",
+  };
 }
 
 export function buildAuthRedirectUrl(origin, nextPath = APP_PATH) {

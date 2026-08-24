@@ -1,4 +1,4 @@
-# Resume export release verification
+# Gigscapes release verification
 
 Run this checklist from the repository root before committing a resume-export release. Do not deploy when any required check fails.
 
@@ -10,6 +10,25 @@ Run this checklist from the repository root before committing a resume-export re
 3. Run `npm test` and record the pass/total count.
 4. Run `npm run build -- --sourcemap` and record output chunk sizes. Confirm `docx` and `jspdf` remain lazy export chunks; investigate any new main-bundle growth.
 5. Run `npm audit --json`. Do not apply a forced dependency upgrade as part of export verification.
+
+For a guest/Auth release, also run:
+
+1. Focused guest/Auth/security tests:
+   `node --test src/accountActions.test.js src/appAccess.test.js src/authRoutes.test.js src/authSecurity.test.js src/guestPreferences.test.js src/listingQuery.test.js src/resumeStorage.test.js src/candidateEvidenceStorage.test.js tests/guestAuthArchitecture.test.js tests/protectedEndpoints.test.js tests/job-intake.test.js tests/listing-enrichment.test.js tests/tailor.test.js`
+2. Re-run the focused export/readiness/evidence tests. Account gates must not weaken canonical posting verification, placeholder identity blocks, preliminary labels, deterministic serialization, evidence boundaries, or direct PDF checks.
+3. Confirm the production build contains separate `resumeDocx` and `resumePdf` chunks and contains no `sb_secret_`, service-role key, résumé fixture, or pending-action private content.
+4. Run `git diff --check` and record exact focused/full counts.
+
+## Guest/Auth manual checks
+
+Follow `docs/guest-auth-smoke-test.md` on desktop and a mobile viewport. Required outcomes include public search before Auth initializes, contextual account dialogs for every private action, consume-once magic-link continuation, invalid/expired-link recovery, sign-out returning to discovery, and controlled 401 responses for protected endpoints.
+
+Before production smoke testing:
+
+1. Review and apply `supabase/migrations/20260824015935_expose_public_listing_discovery.sql` through the normal Supabase migration workflow. Do not paste an edited variant into the Dashboard.
+2. Confirm the project Site URL and exact callback allowlist entries described in `docs/auth-architecture.md`. Wildcards may be used for preview deployments only; use exact production URLs for production.
+3. Confirm the magic-link email template honors `{{ .RedirectTo }}`. Do not enable email OTP or change templates as part of this release without a separate tested change.
+4. Verify anonymous users can query `public_listings` but cannot read or write `profiles`; verify User A cannot select or update User B's profile.
 
 ## Real-file compatibility checks
 

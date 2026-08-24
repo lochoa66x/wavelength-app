@@ -2,6 +2,7 @@ import { isTradesLikeCategory, normalizeListingCategory } from "../src/listingCa
 import { buildAtsReview, enforceReverseChronology } from "./_lib/atsValidation.js";
 import { jobBriefToText, normalizeCustomJobBrief } from "./_lib/jobBrief.js";
 import { authenticateSupabaseRequest, bearerToken } from "./_lib/requestAuth.js";
+import { createServerSupabaseClient } from "./_lib/serverSupabase.js";
 import { createSafeResumeFallback } from "./_lib/safeResumeFallback.js";
 import { formatCandidateEvidence, validateCandidateEvidence } from "./_lib/candidateEvidence.js";
 import { shapeTailoredResumeWithReview } from "./_lib/resumeQuality.js";
@@ -437,6 +438,7 @@ async function callAnthropicToolWithRetry({
 export function createTailorHandler({
   authenticate = authenticateSupabaseRequest,
   loadListing = loadTrustedListing,
+  createAdmin = createServerSupabaseClient,
   fetchImpl = globalThis.fetch,
   getApiKey = () => process.env.ANTHROPIC_API_KEY,
   timing = DEFAULT_TAILOR_TIMING,
@@ -455,7 +457,7 @@ export function createTailorHandler({
   }
 
   const auth = await authenticate(token).catch(() => null);
-  if (!auth?.user || !auth.supabase) {
+  if (!auth?.user) {
     return res.status(401).json({ error: "Invalid or expired session" });
   }
 
@@ -481,8 +483,21 @@ export function createTailorHandler({
   }
   const verifiedCandidateEvidence = candidateEvidenceValidation.evidence;
 
+  let listingClient = null;
+  if (validListingId) {
+    try {
+      // Production listing reads use server-only credentials after the caller's
+      // JWT is verified. Browser roles therefore need no access to operational
+      // ingestion or enrichment columns. Injected test loaders keep their
+      // existing harmless mock client.
+      listingClient = loadListing === loadTrustedListing ? createAdmin() : auth.supabase;
+    } catch {
+      return res.status(500).json({ error: "Server database access is not configured" });
+    }
+  }
+
   const item = validListingId
-    ? await loadListing(auth.supabase, listingId)
+    ? await loadListing(listingClient, listingId)
     : {
       ...normalizedCustomJob,
       id: null,

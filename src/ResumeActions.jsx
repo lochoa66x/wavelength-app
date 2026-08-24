@@ -3,15 +3,17 @@ import { Copy, Download, ExternalLink, FileText, Loader2 } from "lucide-react";
 
 import { resumeDataToPlainText } from "./resumeShared.jsx";
 import { getResumeExportReadiness } from "./resumeReadiness.js";
+import { useAuth } from "./auth.jsx";
 
 export function ResumeActions({ resumeData, template, previewRef, item, hasLink, atsReview, onEditResume, C, primaryBtnStyle }) {
+  const { requestAccountAction } = useAuth();
   const [docxState, setDocxState] = useState("idle");
   const [pdfState, setPdfState] = useState("idle");
   const [message, setMessage] = useState(null);
   const readiness = getResumeExportReadiness(resumeData, atsReview);
   const exportBusy = docxState === "loading" || pdfState === "loading";
 
-  const handleDocxDownload = async () => {
+  const downloadDocx = async () => {
     setDocxState("loading");
     setMessage(null);
     try {
@@ -25,7 +27,11 @@ export function ResumeActions({ resumeData, template, previewRef, item, hasLink,
     }
   };
 
-  const handlePdfDownload = async () => {
+  const handleDocxDownload = () => requestAccountAction("download_docx", {
+    continuation: downloadDocx,
+  });
+
+  const downloadPdf = async () => {
     setPdfState("loading");
     setMessage(null);
     let pdfExports;
@@ -49,6 +55,21 @@ export function ResumeActions({ resumeData, template, previewRef, item, hasLink,
       }
     }
   };
+
+  const handlePdfDownload = () => requestAccountAction("download_pdf", {
+    continuation: downloadPdf,
+  });
+
+  const handleCopy = () => requestAccountAction("copy_tailored_text", {
+    continuation: async () => {
+      try {
+        await navigator.clipboard?.writeText(resumeDataToPlainText(resumeData, template));
+        setMessage({ type: "info", text: "The tailored résumé text was copied." });
+      } catch {
+        setMessage({ type: "error", text: "The text could not be copied. Try the DOCX download instead." });
+      }
+    },
+  });
 
   return (
     <>
@@ -85,7 +106,7 @@ export function ResumeActions({ resumeData, template, previewRef, item, hasLink,
         </button>
         <button
           type="button"
-          onClick={() => navigator.clipboard?.writeText(resumeDataToPlainText(resumeData, template))}
+          onClick={handleCopy}
           className="wl-btn"
           style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 13, fontWeight: 500, padding: "9px 16px", borderRadius: 980, border: `1px solid ${C.border}`, background: C.bgCard, color: C.text, cursor: "pointer" }}
         >

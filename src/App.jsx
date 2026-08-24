@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { MapPin, Clock, ExternalLink, Check, ArrowRight, ArrowLeft, Pencil, Sparkles, Loader2, CheckCircle2, Circle, Search, Bookmark, X, RotateCcw, LogOut, ChevronDown, Link2, FileImage, Text } from "lucide-react";
+import { MapPin, Clock, ExternalLink, Check, ArrowRight, ArrowLeft, Pencil, Sparkles, Loader2, CheckCircle2, Circle, Search, Bookmark, X, RotateCcw, LogOut, ChevronDown, Link2, FileImage, Text, Building2 } from "lucide-react";
 import { BrandMark } from "./BrandMark.jsx";
 import { AtsReview } from "./AtsReview.jsx";
 import { EvidenceRefinementPanel } from "./EvidenceRefinementPanel.jsx";
@@ -37,6 +37,9 @@ import {
   regionOptionsForCountry,
 } from "./listingLocations.js";
 import { useLiveListings } from "./useLiveListings.js";
+import { readPendingAccountAction } from "./accountActions.js";
+import { shouldLoadPrivateProfile, stepAfterSignOut } from "./appAccess.js";
+import { loadGuestPreferences, normalizeGuestPreferences, saveGuestPreferences } from "./guestPreferences.js";
 import {
   CATEGORY_FIELDS,
   WORK_ARRANGEMENT_OPTIONS,
@@ -80,6 +83,7 @@ html, body, #root { min-height: 100%; background: #F5F5F7; }
 .wl-btn { transition: opacity 0.15s, transform 0.12s cubic-bezier(.2,.8,.2,1); }
 .wl-btn:hover:not(:disabled) { opacity: 0.88; }
 .wl-btn:active:not(:disabled) { transform: scale(0.97); }
+.wl-btn:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, a:focus-visible { outline: 3px solid rgba(254,94,3,0.32); outline-offset: 2px; }
 .wl-card { transition: box-shadow 0.2s, transform 0.15s; }
 .wl-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 12px 28px rgba(0,0,0,0.07) !important; }
 .wl-digest-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; align-items: start; }
@@ -148,7 +152,7 @@ function useProfile(session) {
   const [reloadKey, setReloadKey] = useState(0);
 
   useEffect(() => {
-    if (!session) {
+    if (!shouldLoadPrivateProfile(session)) {
       setProfile(null);
       setLoading(false);
       setError(null);
@@ -236,17 +240,17 @@ const C = {
   bgCard: "#FFFFFF",
   text: "#1D1D1F",
   textSub: "#6E6E73",
-  textFaint: "#9A9AA0",
+  textFaint: "#6E6E73",
   border: "#E5E5EA",
   // Primary CTA orange — the identity/action moment. Used rarely: only for
   // filled buttons and small semantic accents. Chip/filter active states use
   // dark neutrals inline (not this) so orange stays powerful when it appears.
-  green: "#FE5E03",
+  green: "#B83800",
   // Warm peach — semantic positive tint. Used for confirmation cards and
   // evidence-backed direct résumé fit after tailoring.
   greenTint: "#FEE1CE",
   greenBorder: "#FBC4A0",
-  blue: "#0071E3",
+  blue: "#005BBB",
   blueTint: "#E8F1FC",
   blueBorder: "#C7DFF8",
   amber: "#B9791A",
@@ -389,7 +393,7 @@ function SourceAttribution({ source }) {
   if (source !== "Jobs by Adzuna") return <span>{source}</span>;
 
   return (
-    <span aria-label="Jobs by Adzuna" style={ADZUNA_ATTRIBUTION_STYLE}>
+    <span style={ADZUNA_ATTRIBUTION_STYLE}>
       <a href="https://www.adzuna.ca/" target="_blank" rel="noreferrer" style={ADZUNA_LINK_STYLE}>Jobs</a>
       <span>&nbsp;by&nbsp;</span>
       <a href="https://www.adzuna.ca/" target="_blank" rel="noreferrer" style={ADZUNA_NAME_LINK_STYLE}>Adzuna</a>
@@ -575,9 +579,19 @@ function ScanningTransition({ onDone }) {
 // ============================================================================
 
 export default function Gigscapes() {
-  const { session, signOut } = useAuth();
+  const {
+    session,
+    signOut,
+    error: authError,
+    requestAccountAction,
+    openSignIn,
+    consumeAccountAction,
+  } = useAuth();
   const { profile, loading: profileLoading, error: profileError, writeError: profileWriteError, updateProfile, reloadProfile } = useProfile(session);
-  const storedCriteria = profile?.criteria && Object.keys(profile.criteria).length ? profile.criteria : DEFAULT_CRITERIA;
+  const [guestCriteria, setGuestCriteria] = useState(() => loadGuestPreferences());
+  const storedCriteria = session?.user?.id && profile?.criteria && Object.keys(profile.criteria).length
+    ? profile.criteria
+    : guestCriteria;
   const normalizedLocationCriteria = normalizeLocationCriteria(storedCriteria);
   const criteria = {
     ...DEFAULT_CRITERIA,
@@ -610,7 +624,7 @@ export default function Gigscapes() {
     legacyFallback: legacyLocationFallback,
   } = useLiveListings(criteria, { resetKey: listingResetKey });
 
-  const [step, setStep] = useState("loading");
+  const [step, setStep] = useState("digest");
   const [expandedApply, setExpandedApply] = useState(null);
   const [tailored, setTailored] = useState({});
   const [candidateEvidenceByTarget, setCandidateEvidenceByTarget] = useState({});
@@ -630,17 +644,24 @@ export default function Gigscapes() {
   const [localResume, setLocalResume] = useState("");
   const [resumeStorageError, setResumeStorageError] = useState("");
   const [cloudResumeWarning, setCloudResumeWarning] = useState("");
+  const [guestDismissed, setGuestDismissed] = useState([]);
+  const [continuationNotice, setContinuationNotice] = useState("");
   const injected = useRef(false);
   const resumeMigrationStarted = useRef(new Set());
 
   const resume = localResume;
-  const dismissed = profile?.dismissed_listings || [];
-  const saved = profile?.saved_listings || [];
+  const dismissed = session?.user?.id ? profile?.dismissed_listings || [] : guestDismissed;
+  const saved = session?.user?.id ? profile?.saved_listings || [] : [];
 
-  // Search preferences and listing actions remain account-level. The resume is
-  // intentionally device-only because it contains much more sensitive data.
   const updateCriteria = (patch) => {
-    updateProfile({ criteria: { ...criteria, ...patch } }).catch(() => {});
+    const next = normalizeGuestPreferences({ ...criteria, ...patch });
+    if (session?.user?.id && profile) {
+      const { version: _version, ...accountCriteria } = next;
+      updateProfile({ criteria: accountCriteria }).catch(() => {});
+      return;
+    }
+    setGuestCriteria(next);
+    saveGuestPreferences(next);
   };
   const quickLocationPatch = () => ({
     location: quickLocationMode || "either",
@@ -670,6 +691,10 @@ export default function Gigscapes() {
     updateCriteria({ workTypes });
   };
   const saveResume = (text) => {
+    if (!session?.user?.id) {
+      requestAccountAction("edit_resume", { continuation: () => setStep("resume") });
+      return false;
+    }
     const savedLocally = saveLocalResume(session?.user?.id, text);
     if (!savedLocally) {
       setResumeStorageError("Your browser blocked local storage, so the résumé was not saved.");
@@ -681,19 +706,66 @@ export default function Gigscapes() {
   };
   const toggleDismiss = (key) => {
     const next = dismissed.includes(key) ? dismissed.filter((k) => k !== key) : [...dismissed, key];
-    updateProfile({ dismissed_listings: next }).catch(() => {});
+    if (session?.user?.id && profile) updateProfile({ dismissed_listings: next }).catch(() => {});
+    else setGuestDismissed(next);
   };
-  const toggleSave = (key) => {
-    const next = saved.includes(key) ? saved.filter((k) => k !== key) : [...saved, key];
-    updateProfile({ saved_listings: next }).catch(() => {});
+  const toggleSave = (item) => {
+    const key = itemKey(item);
+    const action = saved.includes(key) ? "unsave_job" : "save_job";
+    requestAccountAction(action, {
+      listingId: item.id,
+      continuation: () => {
+        const next = saved.includes(key) ? saved.filter((savedKey) => savedKey !== key) : [...saved, key];
+        updateProfile({ saved_listings: next }).catch(() => {});
+      },
+    });
   };
 
   const openCustomJob = (mode, url = "") => {
-    setCustomJobMode(mode);
-    setCustomJobInitialUrl(url);
-    setStep("custom_job");
+    const action = mode === "screenshots"
+      ? "upload_posting_screenshots"
+      : mode === "paste"
+        ? "paste_posting"
+        : "import_posting";
+    requestAccountAction(action, {
+      continuation: () => {
+        setCustomJobMode(mode);
+        setCustomJobInitialUrl(url);
+        setStep("custom_job");
+      },
+    });
+  };
+  const openResumeEditor = (returnStep = "digest") => {
+    requestAccountAction("edit_resume", {
+      continuation: () => {
+        setResumeDraft(resume || "");
+        setResumeReturnStep(returnStep);
+        setStep("resume");
+      },
+    });
+  };
+  const openSavedJobs = () => {
+    requestAccountAction("view_saved_jobs", {
+      continuation: () => {
+        setViewFilter("saved");
+        setStep("digest");
+      },
+    });
+  };
+  const openTailoring = (item, stateKey) => {
+    requestAccountAction("tailor_resume", {
+      listingId: item.id,
+      continuation: () => setExpandedApply((current) => current === stateKey ? null : stateKey),
+    });
   };
   const handleTailor = async (item, stateKey, { skipEnrichment = false, candidateEvidenceOverride } = {}) => {
+    if (!session?.user?.id) {
+      requestAccountAction("tailor_resume", {
+        listingId: item.id,
+        continuation: () => setExpandedApply(stateKey),
+      });
+      return;
+    }
     const previous = tailored[stateKey];
     const applicationEvidence = candidateEvidenceOverride
       ?? candidateEvidenceByTarget[stateKey]
@@ -738,6 +810,13 @@ export default function Gigscapes() {
   };
 
   const handleEvidenceRetailor = async (item, stateKey, { records, candidateEvidence }) => {
+    if (!session?.user?.id) {
+      requestAccountAction("add_evidence", {
+        listingId: item.id,
+        continuation: () => setExpandedApply(stateKey),
+      });
+      return;
+    }
     const userId = session?.user?.id;
     const applicationSaved = saveCandidateEvidence(userId, stateKey, records);
     const answeredIds = new Set(records.map((record) => record?.id).filter(Boolean));
@@ -766,7 +845,11 @@ export default function Gigscapes() {
     try {
       await signOut();
     } finally {
-      setStep("loading");
+      setStep(stepAfterSignOut());
+      setViewFilter("all");
+      setExpandedApply(null);
+      setTailored({});
+      setCandidateEvidenceByTarget({});
     }
   };
 
@@ -821,18 +904,78 @@ export default function Gigscapes() {
     })();
   }, [session?.user?.id, profile?.resume_text]);
 
-  // Sync step based on auth + profile status
+  // Private screens collapse back to public discovery on sign-out or session
+  // failure. Public search never waits for account initialization.
   useEffect(() => {
-    if (!session || profileLoading) return;
-    // Profile fetch failed for a signed-in user — route to a visible error state
-    // instead of hanging forever on "Loading…". Users can retry or sign out.
-    if (profileError) { setStep("profile_error"); return; }
-    if (!profile) return;
-    // Only auto-jump from loading/profile_error — respect step the user navigated to
-    if (step === "loading" || step === "profile_error") {
-      setStep(profile.onboarding_complete ? "digest" : "welcome");
+    if (!session?.user?.id && ["resume", "resume_onboarding", "custom_job", "scanning"].includes(step)) {
+      setStep("digest");
     }
-  }, [session, profileLoading, profile, profileError]);
+  }, [session?.user?.id, step]);
+
+  // A pending instruction contains only an allowlisted action, an optional
+  // public listing id, and an internal path. Consume it exactly once after a
+  // verified session exists; sensitive inputs are always requested again.
+  useEffect(() => {
+    if (!session?.user?.id || profileLoading) return;
+    const preview = readPendingAccountAction();
+    if (!preview) return;
+
+    const listingActions = new Set(["save_job", "unsave_job", "tailor_resume", "generate_evidence", "add_evidence"]);
+    if (listingActions.has(preview.action) && listingsStatus === "loading") return;
+    if (["save_job", "unsave_job", "view_saved_jobs"].includes(preview.action) && !profile) {
+      if (!profileError) return;
+    }
+
+    const pending = consumeAccountAction();
+    if (!pending) return;
+    const listing = pending.listingId
+      ? liveListings.find((item) => String(item.id) === pending.listingId)
+      : null;
+
+    if (pending.action === "edit_resume") {
+      setResumeDraft(resume || "");
+      setResumeReturnStep("digest");
+      setStep("resume");
+      return;
+    }
+    if (["import_posting", "upload_posting_screenshots", "paste_posting"].includes(pending.action)) {
+      setCustomJobMode(pending.action === "upload_posting_screenshots" ? "screenshots" : pending.action === "paste_posting" ? "paste" : "url");
+      setCustomJobInitialUrl("");
+      setStep("custom_job");
+      return;
+    }
+    if (pending.action === "view_saved_jobs") {
+      if (profile) setViewFilter("saved");
+      else setContinuationNotice("Your account is signed in, but the private workspace could not be loaded yet.");
+      setStep("digest");
+      return;
+    }
+    if (pending.action === "save_job" || pending.action === "unsave_job") {
+      if (!listing || !profile) {
+        setContinuationNotice("The selected listing is no longer in this search. Browse or search again to continue.");
+        return;
+      }
+      const key = itemKey(listing);
+      const next = pending.action === "save_job"
+        ? [...new Set([...saved, key])]
+        : saved.filter((savedKey) => savedKey !== key);
+      updateProfile({ saved_listings: next }).catch(() => {});
+      return;
+    }
+    if (["tailor_resume", "generate_evidence", "add_evidence"].includes(pending.action)) {
+      if (!listing) {
+        setContinuationNotice("The selected listing is no longer in this search. Find it again to continue tailoring.");
+        return;
+      }
+      setExpandedApply(listingStateKey(listing));
+      setStep("digest");
+      return;
+    }
+    if (["download_docx", "download_pdf", "copy_tailored_text"].includes(pending.action)) {
+      setContinuationNotice("You’re signed in. Regenerate the tailored résumé to create a private export; no résumé content was stored during sign-in.");
+      setStep("digest");
+    }
+  }, [session?.user?.id, profileLoading, profile, profileError, listingsStatus, liveListings, resume]);
 
   useEffect(() => {
     if (step === "digest" || step === "location") {
@@ -869,7 +1012,9 @@ export default function Gigscapes() {
   const keywordRelevantListings = liveListings
     .map((item) => ({
       ...item,
-      relevance: scoreListingRelevance(item, keywordInput, selectedCategories, keywordIntent),
+      relevance: !keywordInput && selectedCategories.length === 0
+        ? 1
+        : scoreListingRelevance(item, keywordInput, selectedCategories, keywordIntent),
     }))
     .filter((item) => item.relevance > 0);
 
@@ -912,22 +1057,49 @@ export default function Gigscapes() {
 
   const shell = (children, opts = {}) => (
     <div className="wl-shell" style={{ background: C.bgApp, width: "100%", color: C.text, fontFamily: SYS_FONT, padding: "20px 20px 40px" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 28, gap: 12, flexWrap: "wrap" }}>
+      <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 28, gap: 12, flexWrap: "wrap" }}>
         <div className="wl-glass" style={{ display: "flex", alignItems: "center", gap: 9, borderRadius: 980, padding: "8px 18px 8px 8px", width: "fit-content" }}>
           <BrandMark size={22} />
           <span style={{ fontFamily: SYS_FONT, fontSize: 15, fontWeight: 700, color: C.text }}>Gigscapes</span>
         </div>
-        {opts.showSignOut && session && (
-          <button
-            onClick={handleSignOut}
-            className="wl-btn"
-            title={session.user.email}
-            style={{ display: "flex", alignItems: "center", gap: 5, background: "none", border: `1px solid ${C.border}`, borderRadius: 980, padding: "7px 14px", color: C.textSub, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: SYS_FONT }}
-          >
-            <LogOut size={12} /> Sign out
-          </button>
+        {opts.showSignOut && (
+          session ? (
+            <button
+              onClick={handleSignOut}
+              className="wl-btn"
+              title="Sign out of your private workspace"
+              style={{ display: "flex", alignItems: "center", gap: 5, background: "none", border: `1px solid ${C.border}`, borderRadius: 980, padding: "7px 14px", color: C.textSub, fontSize: 13, fontWeight: 500, cursor: "pointer", fontFamily: SYS_FONT }}
+            >
+              <LogOut size={12} /> Sign out
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={openSignIn}
+              className="wl-btn"
+              style={{ display: "flex", alignItems: "center", gap: 5, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 980, padding: "7px 14px", color: C.text, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SYS_FONT }}
+            >
+              Sign in
+            </button>
+          )
         )}
-      </div>
+      </header>
+      {(authError || (session && profileError)) && (
+        <div role="status" style={{ maxWidth: 1120, margin: "-12px auto 20px", background: C.amberTint, border: `1px solid ${C.amberBorder}`, borderRadius: 12, padding: "10px 14px", color: C.text, fontSize: 13 }}>
+          {session && profileError
+            ? "Your private workspace could not be loaded. Public search remains available."
+            : authError}
+          {session && profileError ? (
+            <> <button type="button" onClick={reloadProfile} className="wl-btn" style={{ border: 0, padding: 0, background: "transparent", color: C.text, font: "inherit", fontWeight: 750, textDecoration: "underline", cursor: "pointer" }}>Try again</button></>
+          ) : null}
+        </div>
+      )}
+      {continuationNotice && (
+        <div role="status" style={{ maxWidth: 1120, margin: "-12px auto 20px", background: C.blueTint, border: `1px solid ${C.blueBorder}`, borderRadius: 12, padding: "10px 14px", color: C.text, fontSize: 13, display: "flex", justifyContent: "space-between", gap: 12 }}>
+          <span>{continuationNotice}</span>
+          <button type="button" onClick={() => setContinuationNotice("")} aria-label="Dismiss message" className="wl-btn" style={{ border: 0, background: "transparent", color: C.textSub, cursor: "pointer" }}><X size={14} /></button>
+        </div>
+      )}
       {profileWriteError && (
         <div role="alert" style={{ maxWidth: 1120, margin: "-12px auto 20px", background: C.amberTint, border: `1px solid ${C.amberBorder}`, borderRadius: 12, padding: "10px 14px", color: C.text, fontSize: 13 }}>
           {profileWriteError}
@@ -1134,6 +1306,10 @@ export default function Gigscapes() {
         <NavRow
           onBack={() => setStep("tuning")}
           onNext={async () => {
+            if (!session?.user?.id || !profile) {
+              setStep("digest");
+              return;
+            }
             if (profile.onboarding_complete) {
               setStep("digest");
               return;
@@ -1145,14 +1321,14 @@ export default function Gigscapes() {
               // The global account-change alert explains the failure.
             }
           }}
-          nextLabel={profile.onboarding_complete ? "Save preferences" : "Next"}
+          nextLabel={!session?.user?.id || profile?.onboarding_complete ? "Save preferences" : "Next"}
         />
       </div>,
       { showSignOut: true }
     );
   }
 
-  if (step === "resume_onboarding") {
+  if (step === "resume_onboarding" && session?.user?.id) {
     return shell(
       <div style={{ maxWidth: 560 }}>
         <ProgressBars current={stepIndex} total={5} />
@@ -1199,9 +1375,9 @@ export default function Gigscapes() {
     );
   }
 
-  if (step === "scanning") return shell(<ScanningTransition onDone={() => setStep("digest")} />, { showSignOut: true });
+  if (step === "scanning" && session?.user?.id) return shell(<ScanningTransition onDone={() => setStep("digest")} />, { showSignOut: true });
 
-  if (step === "resume") {
+  if (step === "resume" && session?.user?.id) {
     return shell(
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
         <h2 style={{ fontSize: 23, fontWeight: 700, margin: "0 0 6px", color: C.text }}>Your résumé</h2>
@@ -1240,7 +1416,7 @@ export default function Gigscapes() {
     );
   }
 
-  if (step === "custom_job") {
+  if (step === "custom_job" && session?.user?.id) {
     return shell(
       <CustomJobFlow
         resume={resume}
@@ -1251,11 +1427,7 @@ export default function Gigscapes() {
         primaryBtnStyle={primaryBtnStyle}
         glassBtnStyle={glassBtnStyle}
         onBack={() => setStep("digest")}
-        onEditResume={() => {
-          setResumeDraft(resume || "");
-          setResumeReturnStep("custom_job");
-          setStep("resume");
-        }}
+        onEditResume={() => openResumeEditor("custom_job")}
       />,
       { showSignOut: true },
     );
@@ -1268,12 +1440,13 @@ export default function Gigscapes() {
     : LOCATION_OPTIONS.find(({ id }) => id === criteria.location)?.label || "All workplaces";
   return shell(
     <div style={{ maxWidth: 1120, margin: "0 auto" }}>
-      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 4, gap: 12, flexWrap: "wrap" }}>
-        <span style={{ fontFamily: SYS_FONT, fontSize: 20, fontWeight: 700, color: C.text }}>Today's matches</span>
+      <section aria-labelledby="job-matches-heading">
+        <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 4, gap: 12, flexWrap: "wrap" }}>
+        <h1 id="job-matches-heading" style={{ fontFamily: SYS_FONT, fontSize: 20, fontWeight: 700, color: C.text, margin: 0 }}>Today's matches</h1>
         <div style={{ display: "flex", gap: 14 }}>
           {resume && (
             <button
-              onClick={() => { setResumeDraft(resume); setResumeReturnStep("digest"); setStep("resume"); }}
+              onClick={() => openResumeEditor("digest")}
               className="wl-btn"
               style={{ display: "flex", alignItems: "center", gap: 4, background: "none", border: "none", color: C.textSub, fontSize: 13, fontWeight: 500, cursor: "pointer" }}
             >
@@ -1288,9 +1461,9 @@ export default function Gigscapes() {
             <Pencil size={12} /> Edit preferences
           </button>
         </div>
-      </div>
-      <p style={{ fontSize: 13.5, color: C.textSub, margin: "6px 0 12px" }}>
-        {filtered.length} loaded matches for {criteria.keyword ? `"${criteria.keyword}"` : criteria.field?.toLowerCase()} · {formatLocationPreference(criteria)}. {" "}
+        </div>
+        <p style={{ fontSize: 13.5, color: C.textSub, margin: "6px 0 12px" }}>
+        {filtered.length} loaded matches for {criteria.keyword ? `"${criteria.keyword}"` : criteria.field?.toLowerCase() || "any work"} · {formatLocationPreference(criteria)}. {" "}
         {listingsStatus === "loading" && "Loading live listings…"}
         {listingsStatus === "loading_more" && "Loading more listings…"}
         {listingsStatus === "error" && (
@@ -1300,7 +1473,8 @@ export default function Gigscapes() {
           </>
         )}
         {listingsStatus === "ready" && lastFetched && `Updated ${lastFetched.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.`}
-      </p>
+        </p>
+      </section>
 
       <section aria-label="Search jobs and gigs" style={{ marginBottom: 18, padding: 16, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 16, boxShadow: "0 1px 2px rgba(0,0,0,0.025)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
@@ -1416,9 +1590,9 @@ export default function Gigscapes() {
               </div>
               <button
                 type="submit"
-                disabled={!quickSearch.trim() && !criteria.field}
+                disabled={!quickSearch.trim() && !criteria.field && !criteria.keyword}
                 className="wl-btn"
-                style={{ ...primaryBtnStyle(!quickSearch.trim() && !criteria.field), minHeight: 46, borderRadius: 12, padding: "10px 17px", fontSize: 13, whiteSpace: "nowrap" }}
+                style={{ ...primaryBtnStyle(!quickSearch.trim() && !criteria.field && !criteria.keyword), minHeight: 46, borderRadius: 12, padding: "10px 17px", fontSize: 13, whiteSpace: "nowrap" }}
               >
                 Search <ArrowRight size={15} />
               </button>
@@ -1448,7 +1622,7 @@ export default function Gigscapes() {
           All
         </button>
         <button
-          onClick={() => setViewFilter("saved")}
+          onClick={openSavedJobs}
           className="wl-btn"
           style={{ fontSize: 12.5, fontWeight: 600, padding: "6px 14px", borderRadius: 980, cursor: "pointer", border: `1px solid ${viewFilter === "saved" ? C.text : C.border}`, background: viewFilter === "saved" ? "#F0EFEE" : "transparent", color: viewFilter === "saved" ? C.text : C.textSub, display: "flex", alignItems: "center", gap: 4 }}
         >
@@ -1546,8 +1720,8 @@ export default function Gigscapes() {
             <div key={stateKey} className="wl-card" style={{ background: C.bgCard, borderRadius: 18, padding: "18px 20px", boxShadow: "0 1px 2px rgba(0,0,0,0.03), 0 6px 16px rgba(0,0,0,0.04)", opacity: isDismissed ? 0.5 : 1 }}>
               <div className="wl-cardhead" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 14 }}>
                 <div style={{ display: "flex", gap: 12, flex: 1, minWidth: 0 }}>
-                  <div style={{ width: 38, height: 38, borderRadius: 12, background: av.bg, color: av.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 700, flexShrink: 0, fontFamily: SYS_FONT }}>
-                    {(item.company || "?").charAt(0)}
+                  <div aria-hidden="true" style={{ width: 38, height: 38, borderRadius: 12, background: av.bg, color: av.color, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                    <Building2 size={16} />
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 3, color: C.text }}>{item.title}</div>
@@ -1568,7 +1742,7 @@ export default function Gigscapes() {
                     postingReadiness={t?.status === "done" ? t.postingReadiness || t.atsReview?.posting_readiness : null}
                   />
                   <div style={{ display: "flex", gap: 4 }}>
-                    <button onClick={() => toggleSave(key)} className="wl-btn" title={isSaved ? "Unsave" : "Save"} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: isSaved ? C.green : C.textFaint }}>
+                    <button onClick={() => toggleSave(item)} className="wl-btn" aria-label={isSaved ? `Unsave ${item.title}` : `Save ${item.title}`} title={isSaved ? "Unsave" : "Save"} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: isSaved ? C.green : C.textFaint }}>
                       <Bookmark size={15} fill={isSaved ? C.green : "none"} />
                     </button>
                     <button onClick={() => toggleDismiss(key)} className="wl-btn" title={isDismissed ? "Restore" : "Dismiss"} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: C.textFaint }}>
@@ -1585,7 +1759,7 @@ export default function Gigscapes() {
                   </a>
                 )}
                 <button
-                  onClick={() => setExpandedApply(isExpanded ? null : stateKey)}
+                  onClick={() => openTailoring(item, stateKey)}
                   className="wl-btn"
                   style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 13, fontWeight: 600, color: C.green, background: "none", border: "none", cursor: "pointer", marginLeft: hasLink ? 0 : "auto" }}
                 >
@@ -1601,7 +1775,7 @@ export default function Gigscapes() {
                         Add your résumé first so we can tailor it for this gig.
                       </p>
                       <button
-                        onClick={() => { setResumeDraft(""); setResumeReturnStep("digest"); setStep("resume"); }}
+                        onClick={() => openResumeEditor("digest")}
                         className="wl-btn"
                         style={{ ...primaryBtnStyle(false), fontSize: 13, padding: "10px 18px" }}
                       >
@@ -1680,7 +1854,7 @@ export default function Gigscapes() {
                         item={item}
                         hasLink={hasLink}
                         atsReview={t.atsReview}
-                        onEditResume={() => { setResumeDraft(resume || ""); setResumeReturnStep("digest"); setStep("resume"); }}
+                        onEditResume={() => openResumeEditor("digest")}
                         C={C}
                         primaryBtnStyle={primaryBtnStyle}
                       />
@@ -1763,31 +1937,41 @@ export default function Gigscapes() {
             </button>
           </section>
 
-          <section style={{ padding: 18, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 16 }}>
-            <h2 style={{ margin: "0 0 10px", color: C.text, fontSize: 14.5 }}>Your workspace</h2>
-            <button
-              type="button"
-              onClick={() => setViewFilter("saved")}
-              className="wl-btn"
-              style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", border: 0, padding: "7px 0", background: "transparent", color: C.textSub, fontSize: 12.5, fontWeight: 650, cursor: "pointer", fontFamily: SYS_FONT }}
-            >
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}><Bookmark size={14} /> Saved jobs</span>
-              <span>{saved.length}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => { setResumeDraft(resume || ""); setResumeReturnStep("digest"); setStep("resume"); }}
-              className="wl-btn"
-              style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", border: 0, borderTop: `1px solid ${C.border}`, padding: "11px 0 5px", marginTop: 4, background: "transparent", color: C.textSub, fontSize: 12.5, fontWeight: 650, cursor: "pointer", fontFamily: SYS_FONT }}
-            >
-              <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}><Pencil size={14} /> Résumé</span>
-              <span style={{ color: resume ? C.green : C.amber }}>{resume ? "Ready" : "Add"}</span>
-            </button>
-          </section>
+          {session ? (
+            <section style={{ padding: 18, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 16 }}>
+              <h2 style={{ margin: "0 0 10px", color: C.text, fontSize: 14.5 }}>Your workspace</h2>
+              <button
+                type="button"
+                onClick={openSavedJobs}
+                className="wl-btn"
+                style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", border: 0, padding: "7px 0", background: "transparent", color: C.textSub, fontSize: 12.5, fontWeight: 650, cursor: "pointer", fontFamily: SYS_FONT }}
+              >
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}><Bookmark size={14} /> Saved jobs</span>
+                <span>{saved.length}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => openResumeEditor("digest")}
+                className="wl-btn"
+                style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", border: 0, borderTop: `1px solid ${C.border}`, padding: "11px 0 5px", marginTop: 4, background: "transparent", color: C.textSub, fontSize: 12.5, fontWeight: 650, cursor: "pointer", fontFamily: SYS_FONT }}
+              >
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}><Pencil size={14} /> Résumé</span>
+                <span style={{ color: resume ? C.green : C.amber }}>{resume ? "Ready" : "Add"}</span>
+              </button>
+            </section>
+          ) : (
+            <section style={{ padding: 18, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 16 }}>
+              <h2 style={{ margin: "0 0 7px", color: C.text, fontSize: 14.5 }}>Keep your work private</h2>
+              <p style={{ margin: "0 0 12px", color: C.textSub, fontSize: 12.5, lineHeight: 1.5 }}>Sign in only when you want to save jobs, add a résumé, tailor, or export.</p>
+              <button type="button" onClick={openSignIn} className="wl-btn" style={{ ...primaryBtnStyle(false), width: "100%", justifyContent: "center", padding: "9px 13px", fontSize: 12.5 }}>
+                Sign in to your workspace
+              </button>
+            </section>
+          )}
         </aside>
       </div>
 
-      <div style={{ marginTop: 28, paddingTop: 18, borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", gap: 16 }}>
+      <footer style={{ marginTop: 28, paddingTop: 18, borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", gap: 16 }}>
         <div style={{ color: C.textFaint, display: "flex", flexDirection: "column", gap: 6 }}>
           <span style={{ fontSize: 12, fontWeight: 500, display: "flex", alignItems: "center", flexWrap: "wrap" }}>
             Live feeds: We Work Remotely&nbsp;•&nbsp;<SourceAttribution source="Jobs by Adzuna" />&nbsp;•&nbsp;<SourceAttribution source="Jooble" />&nbsp;•&nbsp;<SourceAttribution source="Jobicy" />&nbsp;•&nbsp;<SourceAttribution source="Himalayas" />
@@ -1797,7 +1981,7 @@ export default function Gigscapes() {
           </a>
         </div>
         <span style={{ fontSize: 12, color: C.textFaint }}>Refreshed daily</span>
-      </div>
+      </footer>
     </div>,
     { showSignOut: true }
   );
