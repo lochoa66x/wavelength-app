@@ -2,6 +2,7 @@ import { useState } from "react";
 import { AlertTriangle, ArrowLeft, FileImage, Link2, Loader2, Pencil, Sparkles, Text, Upload, X } from "lucide-react";
 
 import { AtsReview } from "./AtsReview.jsx";
+import { EvidenceRefinementPanel } from "./EvidenceRefinementPanel.jsx";
 import { PositioningSummary } from "./PositioningSummary.jsx";
 import { ResumeTemplateCareerChange } from "./ResumeTemplateCareerChange.jsx";
 import { ResumeTemplateProfessional } from "./ResumeTemplateProfessional.jsx";
@@ -9,6 +10,16 @@ import { ResumeTemplateTrades } from "./ResumeTemplateTrades.jsx";
 import { resumeTemplateKind } from "./resumeStrategy.js";
 import { extractCustomJob, tailorResume } from "./tailorClient.js";
 import { appendScreenshotFiles, MAX_SCREENSHOTS, mergeExtractedJobBriefs, screenshotBatches } from "./customJobIntake.js";
+import {
+  candidateEvidenceForRequest,
+  customEvidenceTargetKey,
+  loadCandidateEvidence,
+  loadReusableCandidateEvidence,
+  mergeReusableCandidateEvidence,
+  saveCandidateEvidence,
+  saveReusableCandidateEvidence,
+} from "./candidateEvidenceStorage.js";
+import { submittableCandidateEvidence } from "./evidenceRefinement.js";
 
 const CATEGORY_OPTIONS = [
   ["tech", "Technology & IT"], ["design", "Design"], ["writing", "Writing & content"],
@@ -66,7 +77,7 @@ function Field({ label, children }) {
   );
 }
 
-export function CustomJobFlow({ resume, C, primaryBtnStyle, glassBtnStyle, onBack, onEditResume, initialMode = "url", initialUrl = "" }) {
+export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyle, onBack, onEditResume, initialMode = "url", initialUrl = "" }) {
   const [mode, setMode] = useState(() => MODE_IDS.has(initialMode) ? initialMode : "url");
   const [postingText, setPostingText] = useState("");
   const [jobUrl, setJobUrl] = useState(initialUrl);
@@ -75,6 +86,9 @@ export function CustomJobFlow({ resume, C, primaryBtnStyle, glassBtnStyle, onBac
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState("");
   const [tailored, setTailored] = useState(null);
+  const [evidenceTargetKey, setEvidenceTargetKey] = useState(null);
+  const [evidenceRecords, setEvidenceRecords] = useState([]);
+  const [evidenceStorageError, setEvidenceStorageError] = useState("");
   const sourceReview = brief?.source_review;
   const sourceConflicts = sourceReview?.conflicts || [];
   const screenshotSetUnconfirmed = sourceReview?.mode === "screenshots" && !sourceReview.user_confirmed_complete;
@@ -119,6 +133,10 @@ export function CustomJobFlow({ resume, C, primaryBtnStyle, glassBtnStyle, onBac
         extracted = await extractCustomJob(payload);
       }
       setBrief(extracted);
+      const targetKey = customEvidenceTargetKey(extracted);
+      setEvidenceTargetKey(targetKey);
+      setEvidenceRecords(loadCandidateEvidence(userId, targetKey));
+      setEvidenceStorageError("");
       setStatus("review");
     } catch (extractError) {
       setError(extractError.message);
@@ -145,21 +163,50 @@ export function CustomJobFlow({ resume, C, primaryBtnStyle, glassBtnStyle, onBac
   const listValue = (key) => (brief?.[key] || []).join("\n");
   const updateList = (key, value) => updateBrief({ [key]: value.split("\n").map((item) => item.trim()).filter(Boolean) });
 
-  const handleTailor = async () => {
+  const handleTailor = async (evidenceOverride = evidenceRecords) => {
     if (!resume) {
       setError("Add your base résumé before tailoring this posting.");
       return;
     }
     setStatus("tailoring");
     setError("");
+    const previous = tailored;
     setTailored(null);
     try {
-      setTailored(await tailorResume(resume, { customJob: brief }));
+      const candidateEvidence = candidateEvidenceForRequest(
+        submittableCandidateEvidence(evidenceOverride),
+        submittableCandidateEvidence(loadReusableCandidateEvidence(userId)),
+      );
+      const result = await tailorResume(resume, { customJob: brief, candidateEvidence });
+      setTailored({
+        ...result,
+        baselineCoverage: previous?.baselineCoverage || previous?.atsReview?.coverage || result.atsReview?.coverage,
+        previousCoverage: previous?.atsReview?.coverage || null,
+      });
       setStatus("done");
     } catch (tailorError) {
       setError(tailorError.message);
       setStatus("review");
     }
+  };
+
+  const handleEvidenceRetailor = async ({ records, candidateEvidence }) => {
+    const applicationSaved = saveCandidateEvidence(userId, evidenceTargetKey, records);
+    const answeredIds = new Set(records.map((record) => record?.id).filter(Boolean));
+    const retainedReusable = loadReusableCandidateEvidence(userId)
+      .filter((record) => !answeredIds.has(record?.id));
+    const reusableSaved = saveReusableCandidateEvidence(userId, mergeReusableCandidateEvidence(
+      retainedReusable,
+      candidateEvidence.filter((record) => record.scope === "profile"),
+    ));
+    const storageMessage = applicationSaved && reusableSaved
+      ? ""
+      : "These answers will be used for this run, but your browser blocked saving one or more of them locally.";
+
+    setEvidenceRecords(records);
+    setEvidenceStorageError("");
+    await handleTailor(records);
+    setEvidenceStorageError(storageMessage);
   };
 
   const customItem = brief ? {
@@ -273,7 +320,7 @@ export function CustomJobFlow({ resume, C, primaryBtnStyle, glassBtnStyle, onBac
               <h3 style={{ color: C.text, fontSize: 18, margin: "0 0 3px" }}>Review the extracted job</h3>
               <p style={{ color: C.textSub, fontSize: 12.5, margin: 0 }}>Correct anything the page reader or screenshot OCR misunderstood.</p>
             </div>
-            <button type="button" onClick={() => { setBrief(null); setTailored(null); setStatus("idle"); }} className="wl-btn" style={{ ...glassBtnStyle(), padding: "7px 10px", border: `1px solid ${C.border}` }}><Pencil size={12} /> Change source</button>
+            <button type="button" onClick={() => { setBrief(null); setTailored(null); setEvidenceTargetKey(null); setEvidenceRecords([]); setEvidenceStorageError(""); setStatus("idle"); }} className="wl-btn" style={{ ...glassBtnStyle(), padding: "7px 10px", border: `1px solid ${C.border}` }}><Pencil size={12} /> Change source</button>
           </div>
           {sourceReview?.mode === "screenshots" && (
             <div style={{ border: `1px solid ${sourceReviewBlocked ? "#E5B567" : C.border}`, borderRadius: 13, background: sourceReviewBlocked ? "#FFF8EC" : C.bgCard, padding: 13, marginBottom: 14 }}>
@@ -322,7 +369,7 @@ export function CustomJobFlow({ resume, C, primaryBtnStyle, glassBtnStyle, onBac
 
           {error && <p role="alert" style={{ color: C.red, fontSize: 13, margin: "12px 0 0" }}>{error}</p>}
           {sourceReviewBlocked && <p style={{ color: "#9A5B00", fontSize: 12, lineHeight: 1.45, margin: "12px 0 0" }}>Complete the screenshot review above to unlock evidence-first tailoring.</p>}
-          <button type="button" onClick={handleTailor} disabled={status === "tailoring" || sourceReviewBlocked || !brief.title.trim() || !brief.description.trim()} className="wl-btn" style={{ ...primaryBtnStyle(status === "tailoring" || sourceReviewBlocked), marginTop: 16 }}>
+          <button type="button" onClick={() => handleTailor()} disabled={status === "tailoring" || sourceReviewBlocked || !brief.title.trim() || !brief.description.trim()} className="wl-btn" style={{ ...primaryBtnStyle(status === "tailoring" || sourceReviewBlocked), marginTop: 16 }}>
             {status === "tailoring" ? <Loader2 size={15} className="wl-spin" /> : <Sparkles size={15} />}
             {status === "tailoring" ? "Tailoring and checking evidence…" : "Tailor my résumé"}
           </button>
@@ -337,6 +384,16 @@ export function CustomJobFlow({ resume, C, primaryBtnStyle, glassBtnStyle, onBac
           </div>
           <PositioningSummary assessment={tailored.resume.fit_assessment} C={C} />
           <AtsReview review={tailored.atsReview} C={C} />
+          {evidenceStorageError ? <p role="alert" style={{ color: C.red, fontSize: 12, margin: "0 0 10px" }}>{evidenceStorageError}</p> : null}
+          <EvidenceRefinementPanel
+            questions={tailored.evidenceQuestions || tailored.atsReview?.evidence_questions || []}
+            initialEvidence={evidenceRecords}
+            beforeCoverage={tailored.baselineCoverage}
+            afterCoverage={tailored.atsReview?.coverage}
+            loading={status === "tailoring"}
+            onSaveAndRetailor={handleEvidenceRetailor}
+            C={C}
+          />
           <Template resumeData={tailored.resume} item={customItem} hasLink={Boolean(brief.source_url)} atsReview={tailored.atsReview} onEditResume={onEditResume} C={C} primaryBtnStyle={primaryBtnStyle} />
         </div>
       )}

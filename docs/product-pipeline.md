@@ -67,11 +67,13 @@ This roadmap orders work by the value of the product's core promise: produce a t
 - Require the user to confirm that the final responsibilities and qualifications page was included. Unconfirmed page sets and unresolved source conflicts remain preliminary and cannot produce a fit label or application-ready export.
 - Preserve later screenshot batches that legitimately omit the repeated title so they can be merged with the first page.
 - Serialize structured DOCX text runs as text, never as JavaScript object strings. Regression-test the generated document payload so `[object Object]` cannot appear in the identity header in Word or LibreOffice.
-- Next compatibility work: add first-class PDF export, render-and-inspect both DOCX and PDF fixtures, and test page breaks and fonts in Microsoft Word, LibreOffice, Google Docs, and common ATS parsers.
+- Provide first-class ATS-safe PDF export by printing the same searchable DOM used for the browser preview. Remaining compatibility work is hands-on page-break and font inspection in Microsoft Word, LibreOffice, Google Docs, browser PDF viewers, and common ATS parsers.
 
 ## Priority 1 — Let the user supply missing evidence precisely
 
 ### P1.1 Evidence follow-up and comments
+
+**Status:** Implemented on 2026-08-23; production deployment and hands-on UX verification remain in the release checklist.
 
 Turn the existing “Questions that could strengthen this version” into an evidence form:
 

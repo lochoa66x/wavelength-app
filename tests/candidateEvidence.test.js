@@ -23,14 +23,29 @@ test("validated candidate evidence is normalized and formatted separately", () =
   assert.match(formatCandidateEvidence(result.evidence), /Answer: Led SAP finance workshops\./);
 });
 
-test("declining a question is valid but is never formatted as supporting evidence", () => {
+test("declining a question becomes an explicit hard constraint, not supporting evidence", () => {
   const result = validateCandidateEvidence([{
     id: "n1",
     requirement_id: "R1",
-    declined: true,
+    answer_status: "no",
     user_confirmed: true,
   }]);
   assert.equal(result.errors.length, 0);
-  assert.match(formatCandidateEvidence(result.evidence), /No additional/);
+  assert.equal(result.evidence[0].answer, "");
+  assert.match(formatCandidateEvidence(result.evidence), /do not imply or add this experience/);
 });
 
+test("validated evidence preserves its application or reusable scope", () => {
+  const result = validateCandidateEvidence([{
+    id: "n1",
+    requirement_id: "R1",
+    answer_status: "yes",
+    answer: "Supported the S/4HANA integration design.",
+    scope: "profile",
+    contribution_level: "supported",
+    user_confirmed: true,
+  }]);
+  assert.equal(result.errors.length, 0);
+  assert.equal(result.evidence[0].scope, "profile");
+  assert.match(formatCandidateEvidence(result.evidence), /Scope: profile/);
+});

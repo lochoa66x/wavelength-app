@@ -11,7 +11,18 @@ test("the deterministic fallback omits final unsafe claims instead of failing th
     verified_transferable_skills: [{ skill: "Systems integration" }],
     requirements: [],
     prohibited_claims: [],
-    posting_assessment: { status: "complete", reason: "Complete." },
+    posting_assessment: {
+      status: "complete",
+      reason: "Complete.",
+      fit_allowed: true,
+      application_ready_allowed: true,
+    },
+    posting_readiness: {
+      status: "reviewed_complete",
+      reason: "Responsibilities and qualifications reviewed.",
+      fit_allowed: true,
+      application_ready_allowed: true,
+    },
     coverage: { direct: 0, adjacent: 0, transferable: 1, missing: 1 },
   };
   const rejected = {

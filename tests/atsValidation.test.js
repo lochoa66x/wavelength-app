@@ -46,7 +46,7 @@ test("ATS review recognizes supported history, metrics, verbs, and keywords", ()
     keywords: ["stakeholder management", "cross-functional collaboration"],
   });
 
-  assert.equal(review.status, "ready");
+  assert.equal(review.status, "review");
   assert.equal(review.reverse_chronological, true);
   assert.equal(review.unsupported_metrics.length, 0);
   assert.equal(review.unsupported_history.length, 0);
@@ -67,7 +67,7 @@ test("ATS truth check accepts cosmetic history formatting changes", () => {
     keywords: ["systems integration"],
   });
 
-  assert.equal(review.status, "ready");
+  assert.equal(review.status, "review");
   assert.equal(review.unsupported_history.length, 0);
 });
 
@@ -234,4 +234,36 @@ test("ATS review reports a missing placeholder identity separately from evidence
 
   assert.equal(review.identity.status, "missing");
   assert.equal(review.integrity.status, "pass");
+});
+
+test("application-ready export requires independently verified posting readiness", () => {
+  const resume = {
+    name: "Luis Example",
+    profile: "Operations leader.",
+    experience: [{ role: "Operations Manager", company: "Real Corp", dates: "2020–2023", bullets: ["Led operations."] }],
+  };
+  const baseResume = "Operations Manager — Real Corp — 2020–2023\nLed operations.";
+
+  const unverified = buildAtsReview(resume, baseResume, { keywords: [] });
+  assert.equal(unverified.application_ready, false);
+  assert.deepEqual(unverified.export_readiness.blockers, ["posting_readiness"]);
+
+  const verified = buildAtsReview(resume, baseResume, { keywords: [] }, {
+    analysis: {
+      posting_assessment: {
+        status: "complete",
+        reason: "Reviewed full posting.",
+        fit_allowed: true,
+        application_ready_allowed: true,
+      },
+      posting_readiness: {
+        status: "reviewed_complete",
+        reason: "Responsibilities and qualifications reviewed.",
+        fit_allowed: true,
+        application_ready_allowed: true,
+      },
+    },
+  });
+  assert.equal(verified.application_ready, true);
+  assert.deepEqual(verified.export_readiness.blockers, []);
 });

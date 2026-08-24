@@ -1,7 +1,16 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { candidateEvidenceStorageKey, loadCandidateEvidence, saveCandidateEvidence } from "./candidateEvidenceStorage.js";
+import {
+  candidateEvidenceForRequest,
+  candidateEvidenceStorageKey,
+  customEvidenceTargetKey,
+  loadCandidateEvidence,
+  loadReusableCandidateEvidence,
+  mergeReusableCandidateEvidence,
+  saveCandidateEvidence,
+  saveReusableCandidateEvidence,
+} from "./candidateEvidenceStorage.js";
 
 function memoryStorage() {
   const values = new Map();
@@ -25,3 +34,47 @@ test("candidate evidence round trips without crossing accounts", () => {
   assert.deepEqual(loadCandidateEvidence("user-b", "job-1", storage), []);
 });
 
+test("reusable evidence is account-isolated and excludes application-only reminders", () => {
+  const storage = memoryStorage();
+  const reusable = { id: "profile-1", answer_status: "yes", scope: "profile", answer: "Led UAT.", user_confirmed: true };
+  const application = { id: "app-1", answer_status: "yes", scope: "application", answer: "Configured a workflow.", user_confirmed: true };
+  const unsure = { id: "unsure-1", answer_status: "unsure", scope: "profile" };
+
+  assert.equal(saveReusableCandidateEvidence("user-a", [reusable, application, unsure], storage), true);
+  assert.deepEqual(loadReusableCandidateEvidence("user-a", storage), [reusable]);
+  assert.deepEqual(loadReusableCandidateEvidence("user-b", storage), []);
+});
+
+test("new reusable answers replace records for the same requirement note", () => {
+  const existing = [{ id: "note-1", scope: "profile", answer_status: "yes", answer: "Old answer" }];
+  const additions = [{ id: "note-1", scope: "profile", answer_status: "yes", answer: "Updated answer" }];
+  assert.deepEqual(mergeReusableCandidateEvidence(existing, additions), additions);
+});
+
+test("request evidence prioritizes the current application and caps the payload", () => {
+  const application = [
+    { id: "same", answer_status: "yes", answer: "Current application" },
+    { id: "app-2", answer_status: "no" },
+    { id: "unsure", answer_status: "unsure" },
+  ];
+  const reusable = [
+    { id: "same", answer_status: "yes", answer: "Older reusable answer" },
+    ...Array.from({ length: 6 }, (_, index) => ({ id: `profile-${index}`, answer_status: "yes" })),
+  ];
+  const selected = candidateEvidenceForRequest(application, reusable);
+
+  assert.equal(selected.length, 5);
+  assert.equal(selected[0].answer, "Current application");
+  assert.equal(selected.some((record) => record.id === "unsure"), false);
+});
+
+test("custom posting evidence uses a stable source identity with a field fallback", () => {
+  assert.equal(
+    customEvidenceTargetKey({ source_url: " HTTPS://EXAMPLE.COM/JOB/1 " }),
+    "custom:https://example.com/job/1",
+  );
+  assert.equal(
+    customEvidenceTargetKey({ title: "SAP Lead", company: "Example", location: "Toronto" }),
+    "custom:sap lead|example|toronto",
+  );
+});

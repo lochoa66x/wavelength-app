@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { shapeTailoredResume, shapeTailoredResumeWithReview } from "../api/_lib/resumeQuality.js";
-import { getResumeExportReadiness, hasUsableResumeIdentity } from "../src/resumeReadiness.js";
+import { getResumeExportReadiness, hasUsableResumeIdentity, hasVerifiedPosting } from "../src/resumeReadiness.js";
 
 const analysis = {
   fit_assessment: { path: "career_change" },
@@ -134,12 +134,19 @@ test("export readiness blocks placeholder identity and labels large-gap drafts a
   assert.equal(blocked.buttonLabel, "Download preliminary DOCX");
 
   const ready = getResumeExportReadiness({ name: "Luis Example" }, {
-    posting: { status: "complete" },
+    application_ready: true,
+    posting_readiness: {
+      status: "reviewed_complete",
+      fit_allowed: true,
+      application_ready_allowed: true,
+    },
     readiness: { status: "strong_fit" },
   });
   assert.equal(ready.canExport, true);
+  assert.equal(ready.verifiedPosting, true);
   assert.equal(ready.preliminary, false);
   assert.equal(ready.buttonLabel, "Download tailored résumé");
+  assert.equal(ready.pdfButtonLabel, "Save ATS-safe PDF");
 });
 
 test("canonical application readiness controls preliminary and final export labels", () => {
@@ -148,6 +155,7 @@ test("canonical application readiness controls preliminary and final export labe
     posting_readiness: {
       status: "needs_full_posting",
       fit_allowed: false,
+      application_ready_allowed: false,
     },
     readiness: { status: "needs_full_posting" },
   });
@@ -156,12 +164,14 @@ test("canonical application readiness controls preliminary and final export labe
   assert.equal(preliminary.applicationReady, false);
   assert.equal(preliminary.preliminary, true);
   assert.equal(preliminary.buttonLabel, "Download preliminary DOCX");
+  assert.equal(preliminary.pdfButtonLabel, "Save preliminary PDF");
 
   const final = getResumeExportReadiness({ name: "Luis Example" }, {
     application_ready: true,
     posting_readiness: {
       status: "reviewed_complete",
       fit_allowed: true,
+      application_ready_allowed: true,
     },
     readiness: { status: "credible_stretch" },
   });
@@ -169,4 +179,22 @@ test("canonical application readiness controls preliminary and final export labe
   assert.equal(final.applicationReady, true);
   assert.equal(final.preliminary, false);
   assert.equal(final.buttonLabel, "Download tailored résumé");
+});
+
+test("a stale ready flag cannot bypass verified-posting export gating", () => {
+  const stale = getResumeExportReadiness({ name: "Luis Example" }, {
+    application_ready: true,
+    export_readiness: { application_ready: true },
+    posting_readiness: {
+      status: "needs_full_posting",
+      fit_allowed: false,
+      application_ready_allowed: false,
+    },
+    readiness: { status: "strong_fit" },
+  });
+
+  assert.equal(hasVerifiedPosting({ posting_readiness: { status: "reviewed_complete", fit_allowed: true } }), false);
+  assert.equal(stale.verifiedPosting, false);
+  assert.equal(stale.applicationReady, false);
+  assert.equal(stale.preliminary, true);
 });

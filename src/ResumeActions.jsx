@@ -1,25 +1,43 @@
 import { useState } from "react";
-import { Copy, Download, ExternalLink, Loader2 } from "lucide-react";
+import { Copy, Download, ExternalLink, FileText, Loader2 } from "lucide-react";
 
 import { downloadResumeDocx } from "./resumeDocx.js";
+import { printResumePdf } from "./resumePdf.js";
 import { resumeDataToPlainText } from "./resumeShared.jsx";
 import { getResumeExportReadiness } from "./resumeReadiness.js";
 
-export function ResumeActions({ resumeData, template, item, hasLink, atsReview, onEditResume, C, primaryBtnStyle }) {
-  const [downloadState, setDownloadState] = useState("idle");
-  const [message, setMessage] = useState("");
+export function ResumeActions({ resumeData, template, previewRef, item, hasLink, atsReview, onEditResume, C, primaryBtnStyle }) {
+  const [docxState, setDocxState] = useState("idle");
+  const [pdfState, setPdfState] = useState("idle");
+  const [message, setMessage] = useState(null);
   const readiness = getResumeExportReadiness(resumeData, atsReview);
+  const exportBusy = docxState === "loading" || pdfState === "loading";
 
-  const handleDownload = async () => {
-    setDownloadState("loading");
-    setMessage("");
+  const handleDocxDownload = async () => {
+    setDocxState("loading");
+    setMessage(null);
     try {
       await downloadResumeDocx(resumeData, template);
-      setDownloadState("done");
+      setDocxState("done");
     } catch (error) {
       console.error("DOCX export failed:", error);
-      setDownloadState("error");
-      setMessage("The DOCX could not be created. Copy the tailored text instead.");
+      setDocxState("error");
+      setMessage({ type: "error", text: "The DOCX could not be created. Copy the tailored text instead." });
+    }
+  };
+
+  const handlePdfDownload = async () => {
+    setPdfState("loading");
+    setMessage(null);
+    try {
+      const title = [resumeData?.name, resumeData?.title].filter((value) => typeof value === "string" && value.trim()).join(" — ");
+      await printResumePdf(previewRef?.current, title || "Tailored resume");
+      setPdfState("done");
+      setMessage({ type: "info", text: "In the browser print dialog, choose “Save as PDF”. The exported text remains selectable and ATS-readable." });
+    } catch (error) {
+      console.error("PDF export failed:", error);
+      setPdfState("error");
+      setMessage({ type: "error", text: "The PDF print view could not be created. Download the DOCX or copy the tailored text instead." });
     }
   };
 
@@ -38,13 +56,23 @@ export function ResumeActions({ resumeData, template, item, hasLink, atsReview, 
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
         <button
           type="button"
-          onClick={handleDownload}
-          disabled={downloadState === "loading" || !readiness.canExport}
+          onClick={handleDocxDownload}
+          disabled={exportBusy || !readiness.canExport}
           className="wl-btn"
-          style={{ ...primaryBtnStyle(downloadState === "loading" || !readiness.canExport), fontSize: 13, padding: "9px 16px" }}
+          style={{ ...primaryBtnStyle(exportBusy || !readiness.canExport), fontSize: 13, padding: "9px 16px" }}
         >
-          {downloadState === "loading" ? <Loader2 size={12} className="wl-spin" /> : <Download size={12} />}
-          {readiness.buttonLabel}
+          {docxState === "loading" ? <Loader2 size={12} className="wl-spin" /> : <Download size={12} />}
+          {readiness.docxButtonLabel}
+        </button>
+        <button
+          type="button"
+          onClick={handlePdfDownload}
+          disabled={exportBusy || !readiness.canExport}
+          className="wl-btn"
+          style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 13, fontWeight: 600, padding: "9px 16px", borderRadius: 980, border: `1px solid ${C.border}`, background: C.bgCard, color: C.text, cursor: exportBusy || !readiness.canExport ? "not-allowed" : "pointer", opacity: exportBusy || !readiness.canExport ? 0.5 : 1 }}
+        >
+          {pdfState === "loading" ? <Loader2 size={12} className="wl-spin" /> : <FileText size={12} />}
+          {readiness.pdfButtonLabel}
         </button>
         <button
           type="button"
@@ -66,7 +94,7 @@ export function ResumeActions({ resumeData, template, item, hasLink, atsReview, 
           </a>
         )}
       </div>
-      {message && <p role="alert" style={{ color: C.red, fontSize: 12.5, margin: "10px 0 0" }}>{message}</p>}
+      {message && <p role={message.type === "error" ? "alert" : "status"} style={{ color: message.type === "error" ? C.red : C.textSub, fontSize: 12.5, margin: "10px 0 0" }}>{message.text}</p>}
     </>
   );
 }

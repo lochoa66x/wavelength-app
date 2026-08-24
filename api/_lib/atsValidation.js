@@ -233,18 +233,26 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
   const writingStatus = writingReview.status;
   const identityMissing = isPlaceholderIdentity(resumeData?.name);
   const postingAssessment = options.postingAssessment || options.analysis?.posting_assessment || {
-    status: "complete",
+    status: "unverified",
     reason: "The posting was not independently assessed.",
+    fit_allowed: false,
+    application_ready_allowed: false,
   };
+  const assessmentVerified = postingAssessment.status === "complete"
+    && postingAssessment.fit_allowed === true
+    && postingAssessment.application_ready_allowed === true;
   const postingReadiness = options.analysis?.posting_readiness || {
-    status: postingAssessment.status === "complete" ? "reviewed_complete" : "needs_full_posting",
+    status: assessmentVerified ? "reviewed_complete" : "needs_full_posting",
     reason: postingAssessment.reason,
     description_status: postingAssessment.status,
-    fit_allowed: postingAssessment.status === "complete",
-    application_ready_allowed: postingAssessment.status === "complete",
-    confidence: postingAssessment.status === "complete" ? "available" : "unavailable",
-    output_mode: postingAssessment.status === "complete" ? "final_candidate" : "preliminary",
+    fit_allowed: assessmentVerified,
+    application_ready_allowed: assessmentVerified,
+    confidence: assessmentVerified ? "available" : "unavailable",
+    output_mode: assessmentVerified ? "final_candidate" : "preliminary",
   };
+  const postingVerified = postingReadiness.status === "reviewed_complete"
+    && postingReadiness.fit_allowed === true
+    && postingReadiness.application_ready_allowed === true;
   const coverage = options.analysis?.coverage || {
     direct: 0,
     adjacent: 0,
@@ -259,11 +267,11 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
   const writingBlocked = writingReview.blocking_issue_count > 0;
   const status = integrityBlocked || writingBlocked
     ? "blocked"
-    : writingStatus === "review" || postingReadiness.fit_allowed !== true
+    : writingStatus === "review" || !postingVerified
       ? "review"
       : "ready";
   const applicationReady = Boolean(
-    postingReadiness.application_ready_allowed === true
+    postingVerified
       && !integrityBlocked
       && !identityMissing
       && reverse_chronological
@@ -286,13 +294,13 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
     status: applicationReady ? "ready" : "preliminary",
     application_ready: applicationReady,
     blockers: [
-      ...(postingReadiness.application_ready_allowed === true ? [] : ["posting_readiness"]),
+      ...(postingVerified ? [] : ["posting_readiness"]),
       ...(integrityBlocked ? ["evidence_integrity"] : []),
       ...(writingBlocked ? ["contribution_language"] : []),
       ...(identityMissing ? ["candidate_identity"] : []),
       ...(!reverse_chronological ? ["chronology"] : []),
     ],
-    consistency: "Screen preview, copied text, and DOCX use the same validated tailored résumé data.",
+    consistency: "Screen preview, copied text, DOCX, and ATS-safe PDF use the same validated tailored résumé data.",
   };
 
   return {

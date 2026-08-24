@@ -10,7 +10,15 @@ import { ResumeTemplateProfessional } from "./ResumeTemplateProfessional.jsx";
 import { ResumeTemplateTrades } from "./ResumeTemplateTrades.jsx";
 import { resumeTemplateKind } from "./resumeStrategy.js";
 import { loadLocalResume, saveLocalResume } from "./resumeStorage.js";
-import { loadCandidateEvidence, saveCandidateEvidence } from "./candidateEvidenceStorage.js";
+import {
+  candidateEvidenceForRequest,
+  loadCandidateEvidence,
+  loadReusableCandidateEvidence,
+  mergeReusableCandidateEvidence,
+  saveCandidateEvidence,
+  saveReusableCandidateEvidence,
+} from "./candidateEvidenceStorage.js";
+import { submittableCandidateEvidence } from "./evidenceRefinement.js";
 import { listingStateKey } from "./listingIdentity.js";
 import { getMatchPresentation } from "./matchPresentation.js";
 import { migrateCloudResume } from "./resumeMigration.js";
@@ -687,9 +695,13 @@ export default function Gigscapes() {
   };
   const handleTailor = async (item, stateKey, { skipEnrichment = false, candidateEvidenceOverride } = {}) => {
     const previous = tailored[stateKey];
-    const candidateEvidence = candidateEvidenceOverride
+    const applicationEvidence = candidateEvidenceOverride
       ?? candidateEvidenceByTarget[stateKey]
       ?? loadCandidateEvidence(session?.user?.id, stateKey);
+    const candidateEvidence = candidateEvidenceForRequest(
+      submittableCandidateEvidence(applicationEvidence),
+      submittableCandidateEvidence(loadReusableCandidateEvidence(session?.user?.id)),
+    );
     setTailored((t) => ({ ...t, [stateKey]: { ...t[stateKey], status: "loading", phase: skipEnrichment ? "tailoring" : "enriching" } }));
     try {
       let enrichment = null;
@@ -725,16 +737,29 @@ export default function Gigscapes() {
     }
   };
 
-  const handleEvidenceRetailor = (item, stateKey, evidence) => {
-    if (!saveCandidateEvidence(session?.user?.id, stateKey, evidence)) {
+  const handleEvidenceRetailor = async (item, stateKey, { records, candidateEvidence }) => {
+    const userId = session?.user?.id;
+    const applicationSaved = saveCandidateEvidence(userId, stateKey, records);
+    const answeredIds = new Set(records.map((record) => record?.id).filter(Boolean));
+    const retainedReusable = loadReusableCandidateEvidence(userId)
+      .filter((record) => !answeredIds.has(record?.id));
+    const reusable = mergeReusableCandidateEvidence(
+      retainedReusable,
+      candidateEvidence.filter((record) => record.scope === "profile"),
+    );
+    const reusableSaved = saveReusableCandidateEvidence(userId, reusable);
+    const evidenceStorageError = applicationSaved && reusableSaved
+      ? ""
+      : "These answers will be used for this run, but your browser blocked saving one or more of them locally.";
+
+    setCandidateEvidenceByTarget((current) => ({ ...current, [stateKey]: records }));
+    await handleTailor(item, stateKey, { skipEnrichment: true, candidateEvidenceOverride: records });
+    if (evidenceStorageError) {
       setTailored((current) => ({
         ...current,
-        [stateKey]: { ...current[stateKey], evidenceStorageError: "Your browser blocked local storage, so these answers were not saved." },
+        [stateKey]: { ...current[stateKey], evidenceStorageError },
       }));
-      return;
     }
-    setCandidateEvidenceByTarget((current) => ({ ...current, [stateKey]: evidence }));
-    handleTailor(item, stateKey, { skipEnrichment: true, candidateEvidenceOverride: evidence });
   };
 
   const handleSignOut = async () => {
@@ -1219,6 +1244,7 @@ export default function Gigscapes() {
     return shell(
       <CustomJobFlow
         resume={resume}
+        userId={session?.user?.id}
         initialMode={customJobMode}
         initialUrl={customJobInitialUrl}
         C={C}
@@ -1642,7 +1668,7 @@ export default function Gigscapes() {
                       ) : null}
                       <EvidenceRefinementPanel
                         questions={t.evidenceQuestions || t.atsReview?.evidence_questions || []}
-                        initialEvidence={candidateEvidenceByTarget[stateKey] || t.candidateEvidence || loadCandidateEvidence(session?.user?.id, stateKey)}
+                        initialEvidence={candidateEvidenceByTarget[stateKey] ?? loadCandidateEvidence(session?.user?.id, stateKey)}
                         beforeCoverage={t.baselineCoverage}
                         afterCoverage={t.atsReview?.coverage}
                         loading={false}

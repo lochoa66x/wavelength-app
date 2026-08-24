@@ -1,6 +1,7 @@
 const MAX_EVIDENCE_ITEMS = 5;
 
 const CONTRIBUTION_LEVELS = new Set(["supported", "contributed", "owned", "led"]);
+const EVIDENCE_SCOPES = new Set(["application", "profile"]);
 
 function cleanText(value, maxLength) {
   return String(value || "")
@@ -27,7 +28,7 @@ export function validateCandidateEvidence(input) {
       errors.push(`Answer ${index + 1} is invalid.`);
       return;
     }
-    const declined = raw.declined === true;
+    const declined = raw.answer_status === "no" || raw.declined === true;
     const requirementId = cleanText(raw.requirement_id, 40);
     const answer = cleanText(raw.answer, 1200);
     if (raw.user_confirmed !== true) errors.push(`Answer ${index + 1} must be confirmed by the candidate.`);
@@ -44,6 +45,8 @@ export function validateCandidateEvidence(input) {
       approximate_date: declined ? "" : cleanText(raw.approximate_date, 80),
       employer_or_project: declined ? "" : cleanText(raw.employer_or_project, 180),
       contribution_level: CONTRIBUTION_LEVELS.has(raw.contribution_level) ? raw.contribution_level : "supported",
+      scope: EVIDENCE_SCOPES.has(raw.scope) ? raw.scope : "application",
+      answer_status: declined ? "no" : "yes",
       declined,
       user_confirmed: true,
       created_at: cleanText(raw.created_at, 40) || new Date().toISOString(),
@@ -54,15 +57,23 @@ export function validateCandidateEvidence(input) {
 }
 
 export function formatCandidateEvidence(evidence) {
-  const confirmed = (evidence || []).filter((item) => item.user_confirmed === true && !item.declined && item.answer);
+  const confirmed = (evidence || []).filter((item) => item.user_confirmed === true && (item.declined || item.answer));
   if (!confirmed.length) return "No additional candidate-confirmed notes were supplied.";
-  return confirmed.map((item) => [
-    `[CANDIDATE NOTE ${item.id}]`,
-    `Requirement: ${item.requirement_id}`,
-    `Contribution level: ${item.contribution_level}`,
-    `Answer: ${item.answer}`,
-    item.context ? `Context: ${item.context}` : "",
-    item.employer_or_project ? `Employer or project: ${item.employer_or_project}` : "",
-    item.approximate_date ? `Approximate date: ${item.approximate_date}` : "",
-  ].filter(Boolean).join("\n")).join("\n\n");
+  return confirmed.map((item) => item.declined
+    ? [
+        `[CANDIDATE NOTE ${item.id}]`,
+        `Requirement: ${item.requirement_id}`,
+        "Candidate response: No — do not imply or add this experience.",
+      ].join("\n")
+    : [
+        `[CANDIDATE NOTE ${item.id}]`,
+        `Requirement: ${item.requirement_id}`,
+        `Contribution level: ${item.contribution_level}`,
+        `Scope: ${item.scope}`,
+        `Answer: ${item.answer}`,
+        item.context ? `Context: ${item.context}` : "",
+        item.employer_or_project ? `Employer or project: ${item.employer_or_project}` : "",
+        item.approximate_date ? `Approximate date: ${item.approximate_date}` : "",
+      ].filter(Boolean).join("\n"))
+    .join("\n\n");
 }

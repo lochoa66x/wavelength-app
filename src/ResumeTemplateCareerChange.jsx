@@ -1,3 +1,5 @@
+import { useRef } from "react";
+
 import { ResumeActions } from "./ResumeActions.jsx";
 import { DOC, SERIF, SANS, SectionHeader } from "./resumeShared.jsx";
 
@@ -30,9 +32,10 @@ function ExperienceSection({ experience }) {
 
 export function ResumeTemplateCareerChange({ resumeData, item, hasLink, atsReview, onEditResume, C, primaryBtnStyle }) {
   const resume = resumeData;
+  const previewRef = useRef(null);
   return (
     <div>
-      <div style={{ background: DOC.paper, borderRadius: 6, padding: "36px 40px 32px", margin: "0 0 12px", boxShadow: "0 1px 2px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.08)", fontFamily: SERIF, color: DOC.ink, lineHeight: 1.55 }}>
+      <div ref={previewRef} data-resume-preview="career-change" style={{ background: DOC.paper, borderRadius: 6, padding: "36px 40px 32px", margin: "0 0 12px", boxShadow: "0 1px 2px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.08)", fontFamily: SERIF, color: DOC.ink, lineHeight: 1.55 }}>
         <header style={{ textAlign: "center", marginBottom: 6 }}>
           {resume.name && <div style={{ fontFamily: SERIF, fontSize: 26, fontWeight: 700, letterSpacing: 1, color: DOC.ink, lineHeight: 1.15, marginBottom: 4 }}>{resume.name}</div>}
           {resume.title && <div style={{ fontFamily: SANS, fontSize: 12, fontWeight: 650, letterSpacing: 1.5, textTransform: "uppercase", color: DOC.accent, marginBottom: 8 }}>{resume.title}</div>}
@@ -100,7 +103,7 @@ export function ResumeTemplateCareerChange({ resumeData, item, hasLink, atsRevie
           </>
         )}
       </div>
-      <ResumeActions resumeData={resumeData} template="career-change" item={item} hasLink={hasLink} atsReview={atsReview} onEditResume={onEditResume} C={C} primaryBtnStyle={primaryBtnStyle} />
+      <ResumeActions resumeData={resumeData} template="career-change" previewRef={previewRef} item={item} hasLink={hasLink} atsReview={atsReview} onEditResume={onEditResume} C={C} primaryBtnStyle={primaryBtnStyle} />
     </div>
   );
 }

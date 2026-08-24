@@ -1,5 +1,5 @@
 function safeFilename(value) {
-  const cleaned = String(value || "tailored-resume")
+  const cleaned = serializeDocxText(value || "tailored-resume")
     .normalize("NFKD")
     .replace(/[^a-z0-9 -]/gi, "")
     .trim()
@@ -8,15 +8,42 @@ function safeFilename(value) {
   return cleaned || "tailored-resume";
 }
 
+export function serializeDocxText(value, seen = new Set()) {
+  if (value == null || typeof value === "boolean") return "";
+  if (["string", "number", "bigint"].includes(typeof value)) return String(value);
+  if (Array.isArray(value)) {
+    return value.map((item) => serializeDocxText(item, seen)).filter(Boolean).join(" · ");
+  }
+  if (typeof value !== "object" || seen.has(value)) return "";
+
+  seen.add(value);
+  if (Object.prototype.hasOwnProperty.call(value, "text")) {
+    const result = serializeDocxText(value.text, seen);
+    seen.delete(value);
+    return result;
+  }
+
+  const result = Object.values(value)
+    .map((item) => serializeDocxText(item, seen))
+    .filter(Boolean)
+    .join(" · ");
+  seen.delete(value);
+  return result;
+}
+
+function joinText(values, separator = " — ") {
+  return values.map((value) => serializeDocxText(value).trim()).filter(Boolean).join(separator);
+}
+
 function text(value, options = {}) {
-  return { text: String(value || ""), ...options };
+  return { text: serializeDocxText(value), ...options };
 }
 
 export function normalizeDocxRuns(content) {
   const values = Array.isArray(content) ? content : [content];
   return values.map((value) => {
     if (value && typeof value === "object" && !Array.isArray(value) && Object.prototype.hasOwnProperty.call(value, "text")) {
-      return { ...value, text: String(value.text ?? "") };
+      return { ...value, text: serializeDocxText(value.text) };
     }
     return text(value);
   });
@@ -25,7 +52,7 @@ export function normalizeDocxRuns(content) {
 const PLACEHOLDER_IDENTITY = /^(?:<\s*)?(?:unknown|unnamed|name unavailable|candidate|n\/?a|null|undefined)(?:\s*>)?$/i;
 
 export async function createResumeDocxBlob(resumeData, template = "professional") {
-  const candidateName = String(resumeData?.name || "").trim();
+  const candidateName = serializeDocxText(resumeData?.name).trim();
   if (!candidateName || PLACEHOLDER_IDENTITY.test(candidateName)) {
     throw new Error("Candidate name is required before DOCX export.");
   }
@@ -54,16 +81,17 @@ export async function createResumeDocxBlob(resumeData, template = "professional"
   const addSkills = () => {
     if (!resumeData.skills?.length) return;
     addHeading(template === "trades" ? "SKILLS & EQUIPMENT" : template === "career-change" ? "RELEVANT CAPABILITIES" : "SKILLS");
-    addParagraph(resumeData.skills.join(" | "), { spacing: { after: 80 } });
+    addParagraph(joinText(resumeData.skills, " | "), { spacing: { after: 80 } });
   };
   const addExperience = () => {
     if (!resumeData.experience?.length) return;
     addHeading(template === "career-change" ? "PROFESSIONAL EXPERIENCE" : "EXPERIENCE");
     for (const entry of resumeData.experience) {
-      const header = [entry.role, entry.company].filter(Boolean).join(" — ");
+      const header = joinText([entry.role, entry.company]);
+      const dates = serializeDocxText(entry.dates).trim();
       addParagraph([
         text(header, { bold: true }),
-        ...(entry.dates ? [text(`    ${entry.dates}`, { italics: true })] : []),
+        ...(dates ? [text(`    ${dates}`, { italics: true })] : []),
       ], { keepNext: true, spacing: { before: 80, after: 40 } });
       for (const bullet of entry.bullets || []) {
         addParagraph(bullet, { bullet: { level: 0 }, spacing: { after: 40 }, keepLines: true });
@@ -82,7 +110,7 @@ export async function createResumeDocxBlob(resumeData, template = "professional"
   const addTraining = () => {
     if (!resumeData.training?.length) return;
     addHeading("TRAINING & CERTIFICATIONS");
-    for (const training of resumeData.training) addParagraph([training.name, training.provider, training.dates].filter(Boolean).join(" — "));
+    for (const training of resumeData.training) addParagraph(joinText([training.name, training.provider, training.dates]));
   };
 
   if (candidateName) {
@@ -102,13 +130,13 @@ export async function createResumeDocxBlob(resumeData, template = "professional"
     if (resumeData.certifications?.length) {
       addHeading("CERTIFICATIONS & LICENSES");
       for (const credential of resumeData.certifications) {
-        addParagraph([credential.name, credential.issuer, credential.year].filter(Boolean).join(" — "));
+        addParagraph(joinText([credential.name, credential.issuer, credential.year]));
       }
     }
     if (resumeData.safety_record || resumeData.safety_certifications?.length) {
       addHeading("SAFETY TRAINING");
       if (resumeData.safety_record) addParagraph(resumeData.safety_record);
-      if (resumeData.safety_certifications?.length) addParagraph(resumeData.safety_certifications.join(" | "));
+      if (resumeData.safety_certifications?.length) addParagraph(joinText(resumeData.safety_certifications, " | "));
     }
     addExperience();
     addSkills();
@@ -127,12 +155,12 @@ export async function createResumeDocxBlob(resumeData, template = "professional"
   if (resumeData.education?.length) {
     addHeading("EDUCATION");
     for (const education of resumeData.education) {
-      addParagraph([education.degree, education.institution, education.dates].filter(Boolean).join(" — "));
+      addParagraph(joinText([education.degree, education.institution, education.dates]));
     }
   }
   if (resumeData.languages?.length) {
     addHeading("LANGUAGES");
-    addParagraph(resumeData.languages.join(", "));
+    addParagraph(joinText(resumeData.languages, ", "));
   }
 
   const document = new Document({
