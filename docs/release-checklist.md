@@ -54,6 +54,21 @@ Do not reapply the P1.4 migration or change production Auth/database settings du
 - Browser QA: signed-out `/app` loaded public listings with no console errors. The real four-template selector passed at 1,440 × 900 and 390 × 844, exposed four accessible buttons, switched immediately, and had no horizontal overflow or console errors.
 - Microsoft Word and Google Docs were not available locally; LibreOffice provided the Word-compatible verification engine.
 
+## P2.1 Phase A production release record — 2026-08-24
+
+- Feature and deployed-code SHA: `6ccaaf27ea0a12a16f5e9fbe23892b6840ed9c13` (`Implement occupation-aware resume templates`).
+- GitHub: `main` and `origin/main` matched the feature SHA before this release-record update; the push was a normal non-force push.
+- Production: <https://gigscapes.com> and <https://www.gigscapes.com> resolve to the Git-triggered Vercel production deployment <https://wavelength-hwasq7ben-luisochoasap-2007s-projects.vercel.app> (`dpl_BDXkNLiQuV2TJ7UEkCkfM4TaeCYo`). The deployment is `READY`, `PROMOTED`, and bound to the feature SHA.
+- Automated gates rerun: focused suite 52 passed/0 failed; full suite 267 passed/0 failed; `git diff --check` passed; production build transformed 1,975 modules and retained lazy DOCX/PDF chunks.
+- Export verifier: 10 files, four final templates, one preliminary pair, five direct-PDF pages, 136 selectable text items, canonical manifest parity, verified final-export gating, and stale-readiness blocking all passed.
+- Real-file QA: all five DOCX files opened through LibreOffice and rendered to complete one-page images; all five direct PDFs rendered with selectable text. DOCX text, direct-PDF text, and LibreOffice-converted PDF text had identical normalized word sequences for every fixture. No `[object Object]`, `undefined`, `null`, JSON fragments, internal evidence metadata, duplicate sections, clipping, overlap, orphan headings, or empty trailing pages were found. The preliminary label appeared only on the preliminary pair.
+- Signed-out production smoke: `/app` loaded without an Auth redirect; public inventory loaded; SAP Functional and plumber searches returned sensible results; Ontario and workplace filters applied; load-more expanded results from 19 to 47; Save, Tailor, URL import, screenshots, and pasted-text actions showed action-specific account dialogs. Desktop and 390 × 844 had no horizontal overflow. Dialog focus stayed contained and Escape dismissed it. No browser console errors appeared.
+- Authenticated production smoke: an existing authorized production session and an existing tailored SAP result were confirmed without exposing credentials. The open result was created by a pre-release browser bundle, so a fresh Phase A template-selector/switch/export run remains pending explicit action-time approval to transmit the saved résumé and posting through the production tailoring service. Local component/browser-fixture, recommendation, persistence, no-network switching, export-parity, and accessibility checks are green.
+- Production diagnostics: the one-hour Vercel error-level and 5xx scans returned no entries. No new ResumePackage, template, persistence, export, guest-initialization, or Auth-session error was observed.
+- Known non-blocking limitations: Microsoft Word and Google Docs were not available; LibreOffice was the compatibility engine. `npm audit` reports one high and one moderate Vite/esbuild development-tool finding; remediation requires a Vite 8 major upgrade and remains outside this release.
+- Final release-record SHA: the commit containing this section. The final report and Vercel deployment metadata provide its immutable Git SHA after the documentation-only commit is created.
+- Next pipeline item: P2.1 Phase B occupation-family templates.
+
 Do not commit while a required check is failing. Do not push or deploy without separate authorization.
 
 ## Later P2.1 families

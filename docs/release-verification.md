@@ -2,6 +2,8 @@
 
 Run this checklist from the repository root before committing a resume-export release. Do not deploy when any required check fails.
 
+Treat this as an idempotent release procedure. First discover whether the feature commit is local-only, already on `origin/main`, or already deployed. Do not repeat a push or create a manual Vercel deployment when the Git-triggered production deployment already contains the intended SHA.
+
 ## Automated checks
 
 1. Run focused canonical/template/export/tailoring tests:
@@ -10,6 +12,8 @@ Run this checklist from the repository root before committing a resume-export re
 3. Run `npm test` and record the pass/total count.
 4. Run `npm run build -- --sourcemap` and record the transformed-module count and output chunk sizes. Confirm `resumeDocx`, `resumePdf`, `docx`, and `jspdf` remain lazy export chunks; investigate any new main-bundle growth.
 5. Run `npm audit --json`. Do not apply a forced dependency upgrade as part of export verification.
+
+Record the actual count emitted by each exact command. Historical counts are comparison evidence, not a substitute for rerunning the documented command.
 
 For a guest/Auth release, also run:
 

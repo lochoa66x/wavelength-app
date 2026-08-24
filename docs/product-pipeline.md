@@ -132,7 +132,7 @@ Turn the existing “Questions that could strengthen this version” into an evi
 
 ### P2.1 Canonical resume model plus job-family renderers
 
-**Phase A status:** Implemented locally on 2026-08-24; release verification and the local commit are tracked by `docs/release-checklist.md` and `docs/release-verification.md`. Nothing is pushed or deployed by the Phase A implementation task.
+**Phase A status:** Released to production on 2026-08-24. Feature SHA `6ccaaf27ea0a12a16f5e9fbe23892b6840ed9c13` is on `origin/main` and is `READY`/`PROMOTED` at <https://gigscapes.com>. Automated, export-parity, LibreOffice, direct-PDF, signed-out desktop/mobile, and production-log gates passed. A fresh authenticated production template-switch/export run remains explicitly pending action-time approval; see `docs/release-checklist.md` for the complete evidence record.
 
 Phase A now uses a versioned `ResumePackage` that separates visible facts, private evidence, derived occupation/career strategy, presentation choice, and fresh export authorization. A deterministic `ResumeContentPlan` selects factual items once; browser, DOCX, direct PDF, plain text, and export verification consume one frozen `ResumeRenderPlan` and compare against a normalized content manifest.
 
