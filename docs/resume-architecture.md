@@ -1,6 +1,6 @@
 # Canonical résumé architecture
 
-Updated: 2026-08-24
+Updated: 2026-08-25
 
 ## Scope
 
@@ -127,7 +127,13 @@ The UI creates a fresh `ExportAuthorization` for each action. It is bound to:
 
 Download functions validate the context before generating a file. A stored readiness boolean, mutated posting state, mismatched document, expired context, or missing/placeholder identity fails closed. Template changes rebuild the render plan but retain the factual-content hash.
 
-Preliminary files use the same package and template. They retain the existing visible warning and preliminary filename treatment and do not imply application readiness.
+Preliminary files use the same package and template. They retain preliminary filename treatment and do not imply application readiness. The product displays the reason before the résumé preview and download actions; warning copy is UI-only and is never inserted into browser-preview, DOCX, PDF, or plain-text résumé content.
+
+## Bring-your-own-posting session boundary
+
+Each URL, screenshot set, or pasted posting starts an explicit source session with monotonically increasing source and request IDs. Beginning a new source, retrying, navigating away, or unmounting aborts the active request and invalidates any response that resolves later. This prevents a prior screenshot extraction or tailoring response from restoring stale job data or a screenshot-only confirmation gate.
+
+Source reset clears only posting-specific state: source fields/files, extracted brief, conflicts and confirmation state, target-scoped evidence, tailored output, status, and errors. The account-scoped base résumé and eligible reusable candidate evidence remain intact. A completed output exposes **Tailor another posting** as the intentional new-session path.
 
 ## Format parity
 

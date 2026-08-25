@@ -95,27 +95,29 @@ export function LandingHeader() {
   );
 
   return (
-    <header className="landing-header">
-      <div className="landing-header-inner">
-        <Link to="/" className="landing-brand" aria-label="Gigscapes home">
-          <BrandMark size={28} />
-          <span>Gigscapes</span>
-        </Link>
+    <>
+      <header className="landing-header">
+        <div className="landing-header-inner">
+          <Link to="/" className="landing-brand" aria-label="Gigscapes home">
+            <BrandMark size={28} />
+            <span>Gigscapes</span>
+          </Link>
 
-        {navigation()}
+          {navigation()}
 
-        <button
-          ref={menuButtonRef}
-          type="button"
-          className="landing-menu-button"
-          aria-expanded={menuOpen}
-          aria-controls={menuOpen ? "landing-mobile-menu" : undefined}
-          aria-label={menuOpen ? "Close navigation" : "Open navigation"}
-          onClick={() => setMenuOpen((current) => !current)}
-        >
-          {menuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
-        </button>
-      </div>
+          <button
+            ref={menuButtonRef}
+            type="button"
+            className="landing-menu-button"
+            aria-expanded={menuOpen}
+            aria-controls={menuOpen ? "landing-mobile-menu" : undefined}
+            aria-label={menuOpen ? "Close navigation" : "Open navigation"}
+            onClick={() => setMenuOpen((current) => !current)}
+          >
+            {menuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}
+          </button>
+        </div>
+      </header>
 
       {menuOpen ? (
         <div
@@ -140,6 +142,6 @@ export function LandingHeader() {
           </div>
         </div>
       ) : null}
-    </header>
+    </>
   );
 }

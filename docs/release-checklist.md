@@ -1,6 +1,6 @@
 # Gigscapes release checklist
 
-Updated: 2026-08-24
+Updated: 2026-08-25
 
 This is the high-level release gate. Detailed commands and artifact procedures live in `docs/release-verification.md`.
 
@@ -218,3 +218,26 @@ Do not commit while a required check is failing. Do not push or deploy without s
 - `git diff --check` passed. A value-aware scan found no actual server credential or private résumé fixture in the generated JavaScript or source maps; documented `.env.example` placeholders were excluded from credential classification.
 - Dependency audit remains the known non-blocking baseline: 0 critical, 1 high Vite finding, and 1 moderate esbuild finding. The available remediation requires a Vite 8 major upgrade and remains outside this release.
 - No Supabase schema, RLS/grant, Auth-provider, dependency, or Vercel schedule change is required. Production release and deployed-SHA verification remain the next release steps.
+
+## P2.3 Phase B multi-posting and export-trust hardening — 2026-08-25
+
+- [x] Source-scoped request coordination aborts and invalidates stale screenshot, URL, paste, and tailoring requests.
+- [x] Source changes clear only job-specific brief, conflicts, evidence target, tailored result, status, and errors; the base résumé and reusable account evidence are preserved.
+- [x] A completed result offers **Tailor another posting**, and a non-screenshot source never inherits a screenshot-confirmation gate.
+- [x] Export readiness is explicit outside the résumé preview, and preliminary/final DOCX/PDF content contains no warning banner.
+- [x] DOCX error copy distinguishes stale chunks, invalid authorization/content, browser download, serialization, and unknown failures without exposing résumé content.
+- [x] The mobile landing drawer is opaque, viewport-height, independently scrollable, keyboard-modal, and free of hero collisions at 390×844.
+- [x] The `/app` wordmark is a flat 44-pixel home link with transparent background, no pill radius, and no shadow on desktop and mobile.
+
+### Local verification record
+
+- Preflight: clean `main` at `2880251098dce74e587b8f408cde5feae26efb7b`, matching `origin/main`; all subsequent edits belong to this release.
+- Focused intake/export/landing suite: 130 passed, 0 failed. Full suite: 340 passed, 0 failed.
+- Export verifier: 26 files across all nine templates, 18 direct-PDF pages, manifest parity, verified-final gating, stale-readiness rejection, and documented one-/two-page assertions passed.
+- Real-file QA: 13 DOCX fixtures converted through LibreOffice into 18 PDF pages; all 18 converted pages and all 18 direct-PDF pages were inspected at full size. No clipping, overlap, missing glyphs, warning banners, `[object Object]`, `undefined`, `null`, private fixture metadata, or empty-text PDF was found.
+- Browser QA: local desktop `/` and `/app` had no horizontal overflow, one landing H1, a public signed-out workspace, a contextual tailoring account gate, a flat 44-pixel app wordmark, and zero console warnings/errors. Local 390×844 QA verified an opaque full-height mobile drawer with focus on Close and the flat app wordmark without overflow.
+- Production build: 1,980 modules transformed. `resumeDocx` (4.79 kB), `resumePdf` (8.62 kB), and `jspdf` (390.46 kB) remain separate lazy chunks; landing and app remain route-level chunks.
+- Source gates: `git diff --check` passed; no generated `tmp`/`dist` files are tracked. Bundle matches are limited to documented test placeholders, the upstream Supabase secret-key detector, and jsPDF internal `private_` identifiers.
+- Dependency audit remains the known non-blocking baseline: 0 critical, 1 high Vite finding, and 1 moderate esbuild finding. The available fix is a Vite 8 major upgrade and is outside this release.
+- Microsoft Word and Google Docs were unavailable locally. A fresh authenticated two-posting production run and live authenticated DOCX/PDF downloads require an approved existing session and are not claimed by local automation.
+- Release state: the feature SHA is the commit containing this record. Push, Git-triggered Vercel deployment, exact-SHA binding, production smoke, runtime-error scan, and 5xx scan are the remaining release steps.

@@ -65,11 +65,24 @@ For P2.3 discovery or ingestion changes:
 9. Confirm the two existing Vercel schedules remain unchanged, no new feed or credential is required, and operational fields remain absent from `public_listings`.
 10. Run the guest/Auth/security, export verifier, full suite, production build, bundle/secret scan, signed-out browser checks, Vercel runtime-error scan, and 5xx scan before release.
 
+## Multi-posting and export-trust checks
+
+For P2.3 Phase B and later tailoring-session changes:
+
+1. Start screenshot extraction, switch to pasted text before it resolves, and confirm the old request is aborted and its late result is discarded. Repeat screenshots→URL, paste→screenshots, request retry, Change source, navigation away, and component disposal.
+2. Tailor a first posting, choose **Tailor another posting**, and confirm the second source starts clean without retaining the first title, company, responsibilities, qualifications, keywords, source conflicts, screenshot confirmation, evidence target, error, or tailored result.
+3. Confirm the account-scoped base résumé and eligible reusable candidate evidence survive the source reset and remain isolated by account and target.
+4. Exercise application-ready, incomplete-posting preliminary, evidence-review preliminary, stale-readiness, and missing-identity states. Guidance must be outside the résumé preview and absent from DOCX/PDF/plain text.
+5. Force stale-chunk, invalid-context, browser-download, serialization, and unknown DOCX failures. Copy must be actionable, must not expose résumé content, and must leave the draft usable.
+6. At 390×844, open the landing navigation and verify an opaque `100dvh` panel, independent vertical scrolling, no hero/menu collision, no horizontal overflow, Escape dismissal, focus containment, and restoration.
+7. On `/app` at desktop and mobile widths, verify the brand is a 44-pixel home link with transparent background, zero radius, no shadow, and no collision with Sign in or the first heading.
+8. Run the focused Phase B slice, the full suite, `npm run verify:exports -- --keep`, full-size visual inspection of every direct and LibreOffice-converted page, the sourcemapped production build, source/bundle scans, signed-out local/production browser smoke, Vercel runtime logs, and a 5xx scan.
+
 ## Real-file compatibility checks
 
 Generate persistent fixtures with `npm run verify:exports -- --keep`; they are written below `tmp/export-verification` and are not release artifacts.
 
-1. Open all generated DOCX fixtures in LibreOffice Writer. Confirm the name/contact header, template-specific safe headings, bullets, line wrapping, page breaks, and preliminary notice. Convert each file to PDF with LibreOffice.
+1. Open all generated DOCX fixtures in LibreOffice Writer. Confirm the name/contact header, template-specific safe headings, bullets, line wrapping, and page breaks. Confirm preliminary guidance is outside the résumé file, then convert each file to PDF with LibreOffice.
 2. Render every direct-PDF page and every LibreOffice-converted page to images. Inspect every page at full size for clipping, overlap, missing glyphs, stranded headings, excessive whitespace, or visual drift from the browser preview tokens.
 3. Extract text independently from the direct PDF and LibreOffice-converted PDF. Confirm candidate identity, target title, experience, education, and languages are in reading order and that `[object Object]`, `undefined`, `null`, and private fixture metadata are absent.
 4. Confirm the direct PDF text is selectable/searchable and is not a page-sized image.

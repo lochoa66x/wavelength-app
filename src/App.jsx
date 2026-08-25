@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
-import { useLocation, useNavigate } from "react-router";
+import { Link, useLocation, useNavigate } from "react-router";
 import { MapPin, Clock, ExternalLink, Check, ArrowRight, ArrowLeft, Pencil, Sparkles, Loader2, CheckCircle2, Circle, Search, Bookmark, X, RotateCcw, LogOut, ChevronDown, Link2, FileImage, Text, Building2 } from "lucide-react";
 import { BrandMark } from "./BrandMark.jsx";
 import { AtsReview } from "./AtsReview.jsx";
@@ -77,6 +77,15 @@ const STYLE_TAG = `
 *, *::before, *::after { box-sizing: border-box; }
 html, body, #root { min-height: 100%; background: #F5F5F7; }
 .wl-shell { min-height: 100vh; min-height: 100dvh; }
+.wl-brand-link {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 4px;
+  color: #1D1D1F;
+  text-decoration: none;
+}
 .wl-chip { transition: all 0.15s cubic-bezier(.2,.8,.2,1); }
 .wl-chip:hover { border-color: #1D1D1F !important; background: #FAFAF9 !important; }
 .wl-chip.active:hover { background: #E8E6E4 !important; }
@@ -1095,10 +1104,10 @@ export default function Gigscapes() {
   const shell = (children, opts = {}) => (
     <div className="wl-shell" style={{ background: C.bgApp, width: "100%", color: C.text, fontFamily: SYS_FONT, padding: "20px 20px 40px" }}>
       <header style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 28, gap: 12, flexWrap: "wrap" }}>
-        <div className="wl-glass" style={{ display: "flex", alignItems: "center", gap: 9, borderRadius: 980, padding: "8px 18px 8px 8px", width: "fit-content" }}>
-          <BrandMark size={22} />
-          <span style={{ fontFamily: SYS_FONT, fontSize: 15, fontWeight: 700, color: C.text }}>Gigscapes</span>
-        </div>
+        <Link to="/" className="wl-brand-link" aria-label="Gigscapes home">
+          <BrandMark size={24} />
+          <span style={{ fontFamily: SYS_FONT, fontSize: 17, fontWeight: 750, color: C.text }}>Gigscapes</span>
+        </Link>
         {opts.showSignOut && (
           session ? (
             <button

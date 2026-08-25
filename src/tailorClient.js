@@ -1,6 +1,6 @@
 import { supabase } from "./supabase.js";
 
-async function authenticatedPost(path, body) {
+async function authenticatedPost(path, body, { signal } = {}) {
   const { data: { session } } = await supabase.auth.getSession();
   if (!session?.access_token) throw new Error("Your session expired. Sign in again to continue.");
 
@@ -11,14 +11,15 @@ async function authenticatedPost(path, body) {
       Authorization: `Bearer ${session.access_token}`,
     },
     body: JSON.stringify(body),
+    signal,
   });
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
   return data;
 }
 
-export async function tailorResume(resume, target) {
-  const data = await authenticatedPost("/api/tailor", { resume, ...target });
+export async function tailorResume(resume, target, options = {}) {
+  const data = await authenticatedPost("/api/tailor", { resume, ...target }, options);
   if (!data.resume?.profile) throw new Error("The tailor returned an incomplete draft.");
   return {
     resume: data.resume,
@@ -34,12 +35,12 @@ export async function tailorResume(resume, target) {
   };
 }
 
-export async function enrichListing(listingId) {
-  return authenticatedPost("/api/listing-enrichment", { listingId });
+export async function enrichListing(listingId, options = {}) {
+  return authenticatedPost("/api/listing-enrichment", { listingId }, options);
 }
 
-export async function extractCustomJob(payload) {
-  const data = await authenticatedPost("/api/job-intake", payload);
+export async function extractCustomJob(payload, options = {}) {
+  const data = await authenticatedPost("/api/job-intake", payload, options);
   if (!data.brief?.title || !data.brief?.description) throw new Error("The posting could not be extracted completely.");
   return data.brief;
 }

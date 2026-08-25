@@ -50,6 +50,46 @@ export function getResumeExportReadiness(resumeData, atsReview) {
   };
 }
 
+export function getResumeExportNotice(resumeData, atsReview) {
+  const readiness = getResumeExportReadiness(resumeData, atsReview);
+  if (readiness.missingIdentity) {
+    return {
+      state: "blocked",
+      code: "missing_identity",
+      title: "Export blocked — candidate identity missing",
+      message: "Add the candidate's real name before creating a résumé file.",
+    };
+  }
+  if (readiness.applicationReady) {
+    return {
+      state: "ready",
+      code: "application_ready",
+      title: "Application-ready export",
+      message: "The current posting and evidence checks authorize a final DOCX or PDF export.",
+    };
+  }
+  if (!readiness.verifiedPosting) {
+    const observedReason = [
+      atsReview?.posting_readiness?.reason,
+      atsReview?.posting_readiness?.message,
+      atsReview?.posting_readiness?.completeness_reason,
+    ].find((value) => typeof value === "string" && value.trim());
+    return {
+      state: "preliminary",
+      code: "posting_incomplete",
+      title: "Preliminary — posting incomplete",
+      message: observedReason?.trim()
+        || "The posting is not complete enough to authorize an application-ready export. Downloading a clearly named preliminary file is still available.",
+    };
+  }
+  return {
+    state: "preliminary",
+    code: "evidence_review_incomplete",
+    title: "Preliminary — evidence review incomplete",
+    message: "Resolve the evidence or writing checks above before treating this résumé as application-ready.",
+  };
+}
+
 function assessmentSnapshot(atsReview = {}) {
   return {
     posting_readiness: atsReview?.posting_readiness || null,

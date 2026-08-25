@@ -101,6 +101,13 @@ test("mobile navigation exposes modal state, focus containment, Escape, and rest
   assert.match(headerSource, /event\.key === "Escape"/);
   assert.match(headerSource, /event\.key !== "Tab"/);
   assert.match(headerSource, /menuButtonRef\.current\?\.focus\(\)/);
+  assert.ok(
+    headerSource.indexOf("</header>") < headerSource.indexOf('className="landing-mobile-backdrop"'),
+    "the fixed mobile drawer must not be contained by the backdrop-filtered sticky header",
+  );
+  assert.match(cssSource, /\.landing-mobile-panel\s*\{[\s\S]*height:\s*100dvh/);
+  assert.match(cssSource, /\.landing-mobile-panel\s*\{[\s\S]*overflow-y:\s*auto/);
+  assert.match(cssSource, /\.landing-mobile-panel\s*\{[\s\S]*background:\s*#fffdfa/);
 });
 
 test("all hash navigation targets exist in the landing source", () => {

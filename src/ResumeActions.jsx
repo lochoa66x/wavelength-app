@@ -3,15 +3,8 @@ import { Copy, Download, ExternalLink, FileText, Loader2 } from "lucide-react";
 
 import { resumeDataToPlainText } from "./resumeText.js";
 import { createResumeExportContext, getResumeExportReadiness, validateResumeExportContext } from "./resumeReadiness.js";
+import { docxExportErrorMessage } from "./resumeExportErrors.js";
 import { useAuth } from "./auth.jsx";
-
-export function docxExportErrorMessage(error) {
-  const detail = String(error?.message || error || "");
-  if (/dynamically imported module|importing a module script failed|chunkload|loading chunk|failed to fetch/i.test(detail)) {
-    return "Gigscapes was updated while this draft was open, so its DOCX exporter is stale. Refresh the page, regenerate the draft, and download it again.";
-  }
-  return "The DOCX could not be created. Try again, or copy the tailored text while this draft remains open.";
-}
 
 export function ResumeActions({ resumeData, resumePackage, renderPlan, template, previewRef, item, hasLink, atsReview, onEditResume, C, primaryBtnStyle }) {
   const { requestAccountAction } = useAuth();

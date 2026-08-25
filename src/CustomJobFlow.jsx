@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AlertTriangle, ArrowLeft, FileImage, Link2, Loader2, Pencil, Sparkles, Text, Upload, X } from "lucide-react";
 
 import { AtsReview } from "./AtsReview.jsx";
@@ -23,6 +23,7 @@ import {
   saveReusableCandidateEvidence,
 } from "./candidateEvidenceStorage.js";
 import { submittableCandidateEvidence } from "./evidenceRefinement.js";
+import { createCustomJobRequestCoordinator } from "./customJobSession.js";
 
 const CATEGORY_OPTIONS = [
   ["tech", "Technology & IT"], ["design", "Design"], ["writing", "Writing & content"],
@@ -81,6 +82,9 @@ function Field({ label, children }) {
 }
 
 export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyle, onBack, onEditResume, initialMode = "url", initialUrl = "" }) {
+  const requestCoordinatorRef = useRef(null);
+  requestCoordinatorRef.current ||= createCustomJobRequestCoordinator(initialMode);
+  const requestCoordinator = requestCoordinatorRef.current;
   const [mode, setMode] = useState(() => MODE_IDS.has(initialMode) ? initialMode : "url");
   const [postingText, setPostingText] = useState("");
   const [jobUrl, setJobUrl] = useState(initialUrl);
@@ -92,6 +96,7 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
   const [evidenceTargetKey, setEvidenceTargetKey] = useState(null);
   const [evidenceRecords, setEvidenceRecords] = useState([]);
   const [evidenceStorageError, setEvidenceStorageError] = useState("");
+  const [sourceSession, setSourceSession] = useState(() => requestCoordinator.snapshot());
   const sourceReview = brief?.source_review;
   const {
     conflicts: sourceConflicts,
@@ -123,7 +128,30 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
     boxShadow: "0 1px 2px rgba(0, 0, 0, 0.04)",
   };
 
+  useEffect(() => () => requestCoordinator.dispose(), [requestCoordinator]);
+
+  const resetSourceState = (nextMode = mode, nextUrl = "") => {
+    setSourceSession(requestCoordinator.beginSource(nextMode));
+    setMode(nextMode);
+    setPostingText("");
+    setJobUrl(nextUrl);
+    setFiles([]);
+    setBrief(null);
+    setTailored(null);
+    setEvidenceTargetKey(null);
+    setEvidenceRecords([]);
+    setEvidenceStorageError("");
+    setError("");
+    setStatus("idle");
+  };
+
+  const leaveFlow = () => {
+    requestCoordinator.beginSource(mode);
+    onBack();
+  };
+
   const handleExtract = async () => {
+    const request = requestCoordinator.beginRequest("extract");
     setStatus("extracting");
     setError("");
     try {
@@ -133,12 +161,14 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
         const batchBriefs = await Promise.all(batches.map(async (batch) => extractCustomJob({
           mode,
           images: await Promise.all(batch.map(compressScreenshot)),
-        })));
+        }, { signal: request.signal })));
         extracted = mergeExtractedJobBriefs(batchBriefs, { pageCount: files.length });
       } else {
         const payload = mode === "paste" ? { mode, text: postingText } : { mode, url: jobUrl };
-        extracted = await extractCustomJob(payload);
+        extracted = await extractCustomJob(payload, { signal: request.signal });
       }
+      if (!requestCoordinator.isCurrent(request)) return;
+      requestCoordinator.finish(request);
       setBrief(extracted);
       const targetKey = customEvidenceTargetKey(extracted);
       setEvidenceTargetKey(targetKey);
@@ -146,6 +176,8 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
       setEvidenceStorageError("");
       setStatus("review");
     } catch (extractError) {
+      if (!requestCoordinator.isCurrent(request) || request.signal.aborted) return;
+      requestCoordinator.finish(request);
       setError(extractError.message);
       setStatus("idle");
     }
@@ -175,6 +207,8 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
       setError("Add your base résumé before tailoring this posting.");
       return;
     }
+    const request = requestCoordinator.beginRequest("tailor");
+    const activeBrief = brief;
     setStatus("tailoring");
     setError("");
     const previous = tailored;
@@ -184,7 +218,9 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
         submittableCandidateEvidence(evidenceOverride),
         submittableCandidateEvidence(loadReusableCandidateEvidence(userId)),
       );
-      const result = await tailorResume(resume, { customJob: brief, candidateEvidence });
+      const result = await tailorResume(resume, { customJob: activeBrief, candidateEvidence }, { signal: request.signal });
+      if (!requestCoordinator.isCurrent(request)) return;
+      requestCoordinator.finish(request);
       setTailored({
         ...result,
         baselineCoverage: previous?.baselineCoverage || previous?.atsReview?.coverage || result.atsReview?.coverage,
@@ -192,6 +228,8 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
       });
       setStatus("done");
     } catch (tailorError) {
+      if (!requestCoordinator.isCurrent(request) || request.signal.aborted) return;
+      requestCoordinator.finish(request);
       setError(tailorError.message);
       setStatus("review");
     }
@@ -240,8 +278,8 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
   }
 
   return (
-    <div style={{ maxWidth: 760, margin: "0 auto" }}>
-      <button type="button" onClick={onBack} aria-label="Back to job matches" className="wl-btn" style={backButtonStyle}>
+    <div data-custom-job-source={sourceSession.sourceId} data-custom-job-mode={sourceSession.mode} style={{ maxWidth: 760, margin: "0 auto" }}>
+      <button type="button" onClick={leaveFlow} aria-label="Back to job matches" className="wl-btn" style={backButtonStyle}>
         <ArrowLeft size={16} aria-hidden="true" />
         <span>Back to matches</span>
       </button>
@@ -260,7 +298,7 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
             {MODES.map(({ id, label, icon: Icon, hint }) => {
               const active = mode === id;
               return (
-                <button key={id} type="button" role="tab" aria-selected={active} onClick={() => { setMode(id); setError(""); }} className="wl-btn" style={{ border: `1px solid ${active ? C.text : C.border}`, background: active ? "#F0EFEE" : C.bgCard, borderRadius: 12, padding: "10px 8px", color: C.text, cursor: "pointer", display: "grid", justifyItems: "center", gap: 3 }}>
+                <button key={id} type="button" role="tab" aria-selected={active} onClick={() => { if (!active) resetSourceState(id); else setError(""); }} className="wl-btn" style={{ border: `1px solid ${active ? C.text : C.border}`, background: active ? "#F0EFEE" : C.bgCard, borderRadius: 12, padding: "10px 8px", color: C.text, cursor: "pointer", display: "grid", justifyItems: "center", gap: 3 }}>
                   <Icon size={16} color={active ? C.green : C.textSub} />
                   <span style={{ fontSize: 12.5, fontWeight: 650 }}>{label}</span>
                   <span style={{ color: C.textFaint, fontSize: 10.5 }}>{hint}</span>
@@ -320,7 +358,7 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
               <h3 style={{ color: C.text, fontSize: 18, margin: "0 0 3px" }}>Review the extracted job</h3>
               <p style={{ color: C.textSub, fontSize: 12.5, margin: 0 }}>Correct anything the page reader or screenshot OCR misunderstood.</p>
             </div>
-            <button type="button" onClick={() => { setBrief(null); setTailored(null); setEvidenceTargetKey(null); setEvidenceRecords([]); setEvidenceStorageError(""); setStatus("idle"); }} className="wl-btn" style={{ ...glassBtnStyle(), padding: "7px 10px", border: `1px solid ${C.border}` }}><Pencil size={12} /> Change source</button>
+            <button type="button" onClick={() => resetSourceState(mode)} className="wl-btn" style={{ ...glassBtnStyle(), padding: "7px 10px", border: `1px solid ${C.border}` }}><Pencil size={12} /> Change source</button>
           </div>
           {showSourceReviewPanel && (
             <div style={{ border: `1px solid ${sourceReviewBlocked ? "#E5B567" : C.border}`, borderRadius: 13, background: sourceReviewBlocked ? "#FFF8EC" : C.bgCard, padding: 13, marginBottom: 14 }}>
@@ -384,7 +422,10 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
         <div>
           <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", marginBottom: 14 }}>
             <div><h3 style={{ color: C.text, fontSize: 20, margin: "0 0 3px" }}>Tailored for {brief.title}</h3><p style={{ color: C.textSub, fontSize: 13, margin: 0 }}>{brief.company || "Candidate-provided posting"}</p></div>
-            <button type="button" onClick={() => { setTailored(null); setStatus("review"); }} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, padding: "8px 11px" }}><Pencil size={12} /> Review posting</button>
+            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "flex-end", gap: 8 }}>
+              <button type="button" onClick={() => { setTailored(null); setStatus("review"); }} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, padding: "8px 11px" }}><Pencil size={12} /> Review posting</button>
+              <button type="button" onClick={() => resetSourceState("paste")} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, padding: "8px 11px" }}><Text size={12} /> Tailor another posting</button>
+            </div>
           </div>
           <PositioningSummary assessment={tailored.resume.fit_assessment} C={C} />
           <AtsReview review={tailored.atsReview} C={C} />

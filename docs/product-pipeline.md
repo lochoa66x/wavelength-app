@@ -1,6 +1,6 @@
 # Gigscapes product pipeline
 
-Updated: 2026-08-24
+Updated: 2026-08-25
 
 This roadmap orders work by the value of the product's core promise: produce a truthful, role-specific, ATS-readable resume from enough candidate and job-posting evidence. Search volume and presentation work follow that foundation.
 
@@ -201,6 +201,16 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 - Expand Canadian feeds only where API/feed terms permit redistribution and direct linking.
 - Treat a Job Bank feed as an external dependency until business and access requirements are met.
 - Make **Paste job link**, **Paste text**, and **Screenshots** permanent first-class alternatives to thin feeds.
+
+**Phase B status:** Implemented and release-verified on 2026-08-25. The feature SHA is the commit containing this status; the normal GitHub-to-Vercel production record is reported with that SHA.
+
+- Bring-your-own-posting state is scoped to an explicit source session. Switching between screenshots, URL, and pasted text aborts and invalidates the previous request so a late response cannot restore an earlier posting or screenshot-only review gate.
+- **Change source** and **Tailor another posting** start a clean job-specific session while preserving the account-scoped base résumé and reusable candidate evidence.
+- Export status is explicit before the résumé preview: application-ready, preliminary because the posting is incomplete, preliminary because evidence review is incomplete, or blocked because candidate identity is missing. Guidance stays outside browser, DOCX, and PDF résumé content.
+- DOCX failures use actionable, content-safe categories for stale exporter chunks, authorization/content mismatches, browser-download failures, serialization failures, and unknown failures. The draft remains available after an error.
+- The public mobile drawer is a viewport-level opaque, scrollable layer rather than a descendant of the filtered sticky header. The `/app` wordmark is a flat 44-pixel home link instead of an oversized glass pill.
+- The release gate covers 130 focused tests, the full 340-test suite, all 26 persistent DOCX/PDF fixtures, visual inspection of 18 LibreOffice-converted pages and 18 direct-PDF pages, selectable text/artifact checks, desktop/mobile browser checks, and the production sourcemapped build.
+- Microsoft Word, Google Docs, a fresh authenticated production two-posting run, and live production downloads remain explicitly unclaimed when no approved authenticated test session or local application is available.
 
 ## Priority 3 — Native mobile and growth work
 

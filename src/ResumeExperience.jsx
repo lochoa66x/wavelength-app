@@ -10,7 +10,7 @@ import {
   buildResumeRenderPlan,
   createResumePackage,
 } from "./resumeModel.js";
-import { getResumeExportReadiness } from "./resumeReadiness.js";
+import { getResumeExportNotice, getResumeExportReadiness } from "./resumeReadiness.js";
 import {
   loadResumeTemplateSelection,
   resumeTemplateTargetKey,
@@ -41,6 +41,7 @@ export function ResumeExperience({ resumeData, item, hasLink, atsReview, onEditR
 
   const resumePackage = useMemo(() => createResumePackage(resumeData, { item, atsReview, selectedTemplateId }), [resumeData, item, atsReview, selectedTemplateId]);
   const readiness = useMemo(() => getResumeExportReadiness(resumePackage, atsReview), [resumePackage, atsReview]);
+  const exportNotice = useMemo(() => getResumeExportNotice(resumePackage, atsReview), [resumePackage, atsReview]);
   const renderPlan = useMemo(
     () => buildResumeRenderPlan(resumePackage, selectedTemplateId, { preliminary: readiness.preliminary }),
     [resumePackage, selectedTemplateId, readiness.preliminary],
@@ -68,11 +69,23 @@ export function ResumeExperience({ resumeData, item, hasLink, atsReview, onEditR
         C={C}
       />
 
-      {readiness.preliminary ? (
-        <p role="status" style={{ margin: "0 0 12px", padding: "10px 12px", border: `1px solid ${C.amberBorder || C.amber}`, borderRadius: 10, background: C.amberBg || "#fff8eb", color: C.amber, fontSize: 12.5, lineHeight: 1.5 }}>
-          Preliminary résumé — downloading is available, but resolve the posting or evidence gaps above before treating it as application-ready. This guidance is not included in the résumé file.
-        </p>
-      ) : null}
+      <div
+        role={exportNotice.state === "blocked" ? "alert" : "status"}
+        data-export-state={exportNotice.state}
+        style={{
+          margin: "0 0 12px",
+          padding: "10px 12px",
+          border: `1px solid ${exportNotice.state === "ready" ? (C.greenBorder || C.green) : exportNotice.state === "blocked" ? C.red : (C.amberBorder || C.amber)}`,
+          borderRadius: 10,
+          background: exportNotice.state === "ready" ? (C.greenTint || "#f2fbf6") : exportNotice.state === "blocked" ? "#fff2f0" : (C.amberTint || "#fff8eb"),
+          color: exportNotice.state === "ready" ? C.green : exportNotice.state === "blocked" ? C.red : C.amber,
+          fontSize: 12.5,
+          lineHeight: 1.5,
+        }}
+      >
+        <strong>{exportNotice.title}</strong> · {exportNotice.message}
+        {exportNotice.state === "preliminary" ? " This guidance is not included in the résumé file." : ""}
+      </div>
       <ResumeDocumentPreview ref={previewRef} renderPlan={renderPlan} />
       <ResumeActions
         resumeData={resumeData}
