@@ -100,14 +100,16 @@ test("server search expands broad IT and sanitizes unsafe PostgREST punctuation"
 });
 
 test("pagination merges rows by stable identity and detects the next page", () => {
-  assert.deepEqual(mergeListingPages(
+  const merged = mergeListingPages(
     [{ id: "a", title: "Old" }, { id: "b", title: "Second" }],
     [{ id: "a", title: "New" }, { id: "c", title: "Third" }],
-  ), [
+  );
+  assert.deepEqual(merged.map(({ id, title }) => ({ id, title })), [
     { id: "a", title: "New" },
     { id: "b", title: "Second" },
     { id: "c", title: "Third" },
   ]);
+  assert.deepEqual(merged[0].duplicateIds, ["a"]);
   assert.equal(hasNextListingPage({ count: 51, page: 0, pageSize: 50, received: 50 }), true);
   assert.equal(hasNextListingPage({ count: 51, page: 1, pageSize: 50, received: 1 }), false);
   assert.equal(hasNextListingPage({ count: null, page: 0, pageSize: 50, received: 50 }), true);
@@ -147,5 +149,16 @@ test("initial search can auto-continue but remains bounded", () => {
   assert.equal(shouldAutoContinueListingSearch({ ...base, attempts: 1 }), true);
   assert.equal(shouldAutoContinueListingSearch({ ...base, attempts: 3 }), false);
   assert.equal(shouldAutoContinueListingSearch({ ...base, attempts: 1, hasRelevantListings: true }), false);
+  assert.equal(shouldAutoContinueListingSearch({
+    ...base,
+    attempts: 1,
+    hasRelevantListings: true,
+    collectCandidateWindow: true,
+  }), true);
+  assert.equal(shouldAutoContinueListingSearch({
+    ...base,
+    attempts: 3,
+    collectCandidateWindow: true,
+  }), false);
   assert.equal(shouldAutoContinueListingSearch({ ...base, attempts: 1, replace: false }), false);
 });

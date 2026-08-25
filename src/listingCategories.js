@@ -360,7 +360,9 @@ export function scoreListingRelevance(listing, keyword = "", selectedCategories 
   if (!normalizedKeyword) return 40;
 
   const normalizedTitle = normalizeSearchText(listing.title);
-  const normalizedDescription = normalizeSearchText(listing.description);
+  const normalizedDescription = normalizeSearchText(
+    listing.searchDescription || listing.descriptionSnippet || listing.description,
+  );
   if (normalizedTitle.includes(normalizedKeyword)) return 120;
 
   const intent = providedIntent || inferKeywordIntent(normalizedKeyword);
@@ -398,6 +400,18 @@ export function scoreListingRelevance(listing, keyword = "", selectedCategories 
   // normalized category, but only after title classification has removed
   // conflicting roles.
   return score;
+}
+
+function validListingTime(value) {
+  if (!value) return 0;
+  const timestamp = new Date(value).getTime();
+  return Number.isNaN(timestamp) ? 0 : timestamp;
+}
+
+export function compareListingDiscoveryOrder(left, right) {
+  return Number(right?.relevance || 0) - Number(left?.relevance || 0)
+    || validListingTime(right?.postedAt || right?.posted_at) - validListingTime(left?.postedAt || left?.posted_at)
+    || String(left?.id || "").localeCompare(String(right?.id || ""));
 }
 
 export function normalizeWorkArrangement(jobType = "", title = "") {

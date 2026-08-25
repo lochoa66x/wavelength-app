@@ -177,7 +177,7 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 
 ### P2.2 Landing page
 
-**Status:** Implemented and locally verified on 2026-08-24. The feature commit is the commit containing the P2.2 verification record; push, Vercel deployment, and production smoke are separate release steps.
+**Status:** Released and production-verified on 2026-08-25. Feature SHA `5ba2a10d30ec203209c2c31df29281d01468a49f` is on `origin/main` and `READY` at <https://gigscapes.com> through Vercel deployment `dpl_9fBCYHFm8u32WRXNjuJYvaXrEVz3`.
 
 - `/` is the public marketing surface and `/app` remains the anonymously browseable workspace. Existing sign-in, callback, deep-link fallback, and account-gate behavior is preserved.
 - The two primary paths are **Browse jobs & gigs** and **Tailor a posting I found**. URL, screenshot, and pasted-text intake reuse the existing allowlisted account actions through React Router history state; no sensitive posting or résumé content is placed in a URL.
@@ -186,12 +186,18 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 - Landing and workspace UI are separate lazy route chunks. DOCX, PDF, `docx`, and `jspdf` remain reachable only from the workspace/export path.
 - SEO includes truthful title/description, canonical URL, robots metadata, Open Graph/Twitter metadata, a lightweight 1200×630 brand asset, favicon, and basic `WebSite` JSON-LD.
 - Accessibility includes semantic landmarks and headings, one H1, visible focus, approximately 44-pixel primary touch targets, reduced-motion CSS, modal mobile navigation with a focus loop/Escape/restoration, descriptive controls, and AA key-color contrast.
-- Local browser QA covers the complete page at 390×844, 360×800, 768×1024, and 1440×900 with no horizontal overflow. Production verification, signed-in navigation when a safe retained session exists, and social-crawler preview validation remain part of the separate P2.2 release step.
+- Local browser QA covers the complete page at 390×844, 360×800, 768×1024, and 1440×900 with no horizontal overflow. Signed-out production verification covered `/`, `/app`, all four CTA paths, metadata, the social asset, public listings, mobile navigation, console diagnostics, runtime errors, and 5xx responses. A fresh authenticated export request remains intentionally deferred rather than sending private production data solely for release verification.
 
 ### P2.3 Search and feed quality
 
-- Continue source-health monitoring, deduplication, freshness, canonical links, and location normalization.
-- Rank title/domain relevance before pagination and explain zero-result states.
+**Phase A status:** Implemented and locally verified on 2026-08-25. The feature SHA is the commit containing this status; production release evidence is recorded separately after the Git-triggered deployment.
+
+- Recognized searches collect a bounded initial candidate window before rendering and rank eligible results by relevance, valid freshness, and stable database identity. Stronger title matches outrank public-description-snippet-only matches.
+- Public description snippets are discovery signals only. They may make a listing searchable but never become a verified complete posting, candidate evidence, or final-export authorization.
+- Conservative client-side clustering deduplicates stable row IDs and canonically equivalent public URLs while preserving original outbound links, source attribution, and existing card state during later-page merges. Similar jobs with distinct URLs remain distinct.
+- Search copy distinguishes relevant matches, deduplicated candidates, rendered cards, and source rows returned by the database query. Zero-result diagnostics remain grounded in observed inventory, work-type, and location stages.
+- Scheduled import summaries now whitelist operational metrics, categorize failures without raw upstream text, report success/partial/failure/skipped states, and keep credentials and ingestion internals server-only. Existing empty-batch, safe-upsert, freshness, pruning, attribution, and complete-description safeguards remain intact.
+- Phase A requires no Supabase schema, RLS, grant, credential, dependency, or additional Vercel cron change. `public_listings` remains the explicit security-invoker discovery surface.
 - Expand Canadian feeds only where API/feed terms permit redistribution and direct linking.
 - Treat a Job Bank feed as an external dependency until business and access requirements are met.
 - Make **Paste job link**, **Paste text**, and **Screenshots** permanent first-class alternatives to thin feeds.
@@ -222,8 +228,8 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 6. P1.2 ATS writing feedback and P1.3 resume focus
 7. P1.4 guest-first access and action-gated magic links
 8. P2.1 resume families plus DOCX/PDF compatibility
-9. P2.2 landing page — local implementation complete; production release next
-10. P2.3 ongoing source/feed work after the P2.2 production release
+9. P2.2 landing page — released and production-verified
+10. P2.3 Phase A discovery integrity and source-health release, then terms-approved feed expansion
 11. P3 native mobile and evaluation expansion
 
 ## Source constraints behind P0.1

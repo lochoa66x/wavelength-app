@@ -5,6 +5,7 @@ import {
   TECHNOLOGY_FIELD_LABEL,
   categoriesForField,
   classifyListingTitle,
+  compareListingDiscoveryOrder,
   guessCategoryFromKeyword,
   inferHighConfidenceTitleCategory,
   inferKeywordIntent,
@@ -90,6 +91,40 @@ test("matches requested technologies in titles or descriptions without leaking u
     intent.categories,
     intent,
   ), 0);
+});
+
+test("public description snippets remain discovery-only matches below title matches", () => {
+  const intent = inferKeywordIntent("SAP consultant");
+  const titleMatch = {
+    id: "title",
+    title: "SAP FICO Consultant",
+    searchDescription: "",
+    ...classifyListingTitle("SAP FICO Consultant", "tech"),
+  };
+  const snippetMatch = {
+    id: "snippet",
+    title: "Enterprise Applications Consultant",
+    description: null,
+    descriptionSnippet: "The consultant configures SAP FICO and supports S/4HANA delivery.",
+    ...classifyListingTitle("Enterprise Applications Consultant", "tech"),
+  };
+  const titleScore = scoreListingRelevance(titleMatch, "SAP consultant", intent.categories, intent);
+  const snippetScore = scoreListingRelevance(snippetMatch, "SAP consultant", intent.categories, intent);
+
+  assert.ok(snippetScore > 0);
+  assert.ok(titleScore > snippetScore);
+  assert.equal(snippetMatch.description, null);
+});
+
+test("discovery ordering uses relevance, then valid freshness, then stable id", () => {
+  const listings = [
+    { id: "b", relevance: 80, postedAt: "invalid" },
+    { id: "c", relevance: 90, postedAt: "2026-08-20T00:00:00Z" },
+    { id: "a", relevance: 80, postedAt: "2026-08-24T00:00:00Z" },
+    { id: "d", relevance: 80, postedAt: "2026-08-24T00:00:00Z" },
+  ].sort(compareListingDiscoveryOrder);
+
+  assert.deepEqual(listings.map(({ id }) => id), ["c", "a", "d", "b"]);
 });
 
 test("treats SaaS as a cross-functional domain while respecting role context", () => {

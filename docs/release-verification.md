@@ -50,6 +50,21 @@ Before production smoke testing:
 3. Confirm the magic-link email template honors `{{ .RedirectTo }}`. Do not enable email OTP or change templates as part of this release without a separate tested change.
 4. Verify anonymous users can query `public_listings` but cannot read or write `profiles`; verify User A cannot select or update User B's profile.
 
+## Search and feed quality checks
+
+For P2.3 discovery or ingestion changes:
+
+1. Run the focused search/feed suite: `node --test src/listingCategories.test.js src/listingMapping.test.js src/listingQuery.test.js src/searchDiagnostics.test.js src/listingIdentity.test.js src/listingLocations.test.js tests/sourceHealth.test.js tests/adzuna.test.js tests/jooble.test.js tests/jobicy.test.js tests/himalayas.test.js tests/atsBoards.test.js tests/guestAuthArchitecture.test.js`.
+2. Confirm title matches outrank public-description-snippet-only matches and that a snippet never becomes a verified complete posting or candidate evidence.
+3. Verify recognized searches collect no more than the documented candidate-window limit before the initial render. Sorting must use relevance, a valid posting date, then stable ID; invalid or missing dates remain unknown.
+4. Verify canonical URL comparison removes only allowlisted analytics parameters for identity. Original HTTPS outbound URLs and provider attribution must remain unchanged.
+5. Verify exact row updates and canonically equivalent URLs cluster, direct-source preference is deterministic on the initial window, later pages preserve the displayed representative, and similar jobs with distinct URLs or locations remain distinct.
+6. Confirm UI copy separately labels relevant results, deduplicated loaded candidates, rendered cards, and source rows. Do not present the database count as a fully filtered relevance count.
+7. Exercise recognized, unrecognized, thin-inventory, work-type, location, partial-source, and failed-source paths. Messages and suggestions must be supported by observed state.
+8. Confirm cron responses and structured logs contain only allowlisted metrics, sanitized failure categories, and success/partial/failure/skipped state. Empty batches must preserve existing rows, and companion failure must not erase primary success.
+9. Confirm the two existing Vercel schedules remain unchanged, no new feed or credential is required, and operational fields remain absent from `public_listings`.
+10. Run the guest/Auth/security, export verifier, full suite, production build, bundle/secret scan, signed-out browser checks, Vercel runtime-error scan, and 5xx scan before release.
+
 ## Real-file compatibility checks
 
 Generate persistent fixtures with `npm run verify:exports -- --keep`; they are written below `tmp/export-verification` and are not release artifacts.

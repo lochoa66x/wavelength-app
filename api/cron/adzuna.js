@@ -2,6 +2,12 @@ import { createClient } from "@supabase/supabase-js";
 
 import { runAdzunaIngestion } from "../_lib/adzuna.js";
 import { parseAtsBoardConfig, runAtsBoardIngestion } from "../_lib/atsBoards.js";
+import {
+  logCronHealth,
+  runSourceImport,
+  summarizeCronHealth,
+  summarizeSourceOutcome,
+} from "../_lib/sourceHealth.js";
 
 export function getAdzunaCronConfig(env = process.env) {
   const config = {
@@ -61,8 +67,8 @@ export function createAdzunaCronHandler({
 
     const adzunaConfigured = Boolean(config.adzunaAppId && config.adzunaAppKey);
     const atsConfigured = Boolean(config.atsBoards?.length);
-    const [adzunaResult, atsResult] = await Promise.allSettled([
-      adzunaConfigured
+    const [adzunaResult, atsResult] = await Promise.all([
+      runSourceImport(() => adzunaConfigured
         ? ingest({
           supabase,
           credentials: {
@@ -76,50 +82,38 @@ export function createAdzunaCronHandler({
           requests: 0,
           received: 0,
           saved: 0,
-        }),
-      atsConfigured
+        })),
+      runSourceImport(() => atsConfigured
         ? atsIngest({ supabase, boards: config.atsBoards })
-        : Promise.resolve({ skipped: true, boards: 0, received: 0, saved: 0 }),
+        : Promise.resolve({ skipped: true, reason: "ATS_JOB_BOARDS is not configured", boards: 0, received: 0, saved: 0 })),
     ]);
 
     const sources = {
-      adzuna: adzunaResult.status === "fulfilled"
-        ? { ok: true, ...adzunaResult.value }
-        : { ok: false, error: "Adzuna import failed" },
-      employerDirect: atsResult.status === "fulfilled"
-        ? { ok: true, ...atsResult.value }
-        : { ok: false, error: "Employer-direct ATS import failed" },
+      adzuna: summarizeSourceOutcome(adzunaResult, "Adzuna import failed"),
+      employerDirect: summarizeSourceOutcome(atsResult, "Employer-direct ATS import failed"),
     };
-    if (adzunaResult.status === "rejected") {
-      console.error(`Adzuna cron failed: ${adzunaResult.reason?.message || "Unknown error"}`);
-    }
-    if (atsResult.status === "rejected") {
-      console.error(`Employer-direct ATS import failed: ${atsResult.reason?.message || "Unknown error"}`);
-    }
-
-    const attemptedSources = Object.values(sources).filter(({ skipped }) => !skipped).length;
-    const successfulSources = Object.values(sources).filter(({ ok, skipped }) => ok && !skipped).length;
-    const failedSources = Object.values(sources).filter(({ ok }) => !ok).length;
-    const adzunaSummary = adzunaResult.status === "fulfilled" && !adzunaResult.value?.skipped
-      ? adzunaResult.value
-      : {};
-    if (attemptedSources === 0) {
+    const health = summarizeCronHealth(sources);
+    const adzunaSummary = sources.adzuna.ok && !sources.adzuna.skipped ? sources.adzuna : {};
+    logCronHealth(console.info, "scheduled_feed_refresh", health, sources);
+    if (health.attempted === 0) {
       return res.status(200).json({
         ok: true,
         skipped: true,
         country: "CA",
+        health,
         sources,
       });
     }
-    if (successfulSources === 0) {
-      return res.status(502).json({ ok: false, error: "Scheduled imports failed", country: "CA", sources });
+    if (health.succeeded === 0) {
+      return res.status(502).json({ ok: false, error: "Scheduled imports failed", country: "CA", health, sources });
     }
 
     return res.status(200).json({
       ok: true,
       source: adzunaConfigured ? "adzuna" : "employer-direct",
       country: "CA",
-      partial: failedSources > 0,
+      partial: health.state === "partial",
+      health,
       ...adzunaSummary,
       ats: sources.employerDirect,
       sources,

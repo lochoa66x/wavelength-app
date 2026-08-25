@@ -1,0 +1,82 @@
+const SAFE_NUMERIC_METRICS = [
+  "requests",
+  "received",
+  "fresh",
+  "unique",
+  "saved",
+  "inserted",
+  "updated",
+  "pruned",
+  "boards",
+  "failed",
+];
+
+function safeMetric(value) {
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0 ? number : undefined;
+}
+
+export function categorizeSourceError(error) {
+  const message = String(error?.message || "").toLowerCase();
+  if (/missing|not configured|configuration/.test(message)) return "configuration";
+  if (/no valid fresh|empty|invalid batch/.test(message)) return "invalid_batch";
+  if (/supabase|database|could not (?:load|save|prune)|permission/.test(message)) return "database";
+  if (/timeout|fetch|request|api|unavailable|upstream|board/.test(message)) return "upstream";
+  return "unknown";
+}
+
+export async function runSourceImport(task, { now = Date.now } = {}) {
+  const startedAt = now();
+  try {
+    const value = await task();
+    return { status: "fulfilled", value, durationMs: Math.max(0, now() - startedAt) };
+  } catch (reason) {
+    return { status: "rejected", reason, durationMs: Math.max(0, now() - startedAt) };
+  }
+}
+
+export function summarizeSourceOutcome(outcome, failureMessage) {
+  const durationMs = safeMetric(outcome?.durationMs) ?? 0;
+  if (outcome?.status !== "fulfilled") {
+    return {
+      ok: false,
+      state: "failed",
+      error: failureMessage,
+      errorCategory: categorizeSourceError(outcome?.reason),
+      durationMs,
+    };
+  }
+
+  const value = outcome.value && typeof outcome.value === "object" ? outcome.value : {};
+  const summary = {
+    ok: true,
+    state: value.skipped ? "skipped" : "success",
+    skipped: Boolean(value.skipped),
+    durationMs,
+  };
+  if (value.skipped && typeof value.reason === "string") summary.reason = value.reason;
+  for (const metric of SAFE_NUMERIC_METRICS) {
+    const safe = safeMetric(value[metric]);
+    if (safe !== undefined) summary[metric] = safe;
+  }
+  return summary;
+}
+
+export function summarizeCronHealth(sources = {}) {
+  const summaries = Object.values(sources);
+  const attempted = summaries.filter(({ skipped }) => !skipped).length;
+  const succeeded = summaries.filter(({ ok, skipped }) => ok && !skipped).length;
+  const failed = summaries.filter(({ ok }) => !ok).length;
+  const skipped = summaries.filter((summary) => summary.skipped).length;
+  return {
+    state: attempted === 0 ? "skipped" : succeeded === 0 ? "failed" : failed > 0 ? "partial" : "success",
+    attempted,
+    succeeded,
+    failed,
+    skipped,
+  };
+}
+
+export function logCronHealth(logger, event, health, sources) {
+  logger(JSON.stringify({ event, health, sources }));
+}

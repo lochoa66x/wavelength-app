@@ -183,5 +183,38 @@ Do not commit while a required check is failing. Do not push or deploy without s
 
 ## Next pipeline step
 
-- Release the verified P2.2 commit through the normal GitHub/Vercel path, then smoke `/`, `/app`, all four CTA destinations, metadata/social assets, console/network behavior, mobile navigation, and the deployed SHA in production.
+- Complete P2.3 Phase A discovery-integrity and source-health work without weakening the released landing, guest/Auth, posting-readiness, or export boundaries.
 - When an existing post-release tailored draft is safely available, complete the deferred authenticated nine-template switch and DOCX/PDF production-export smoke without creating an otherwise unnecessary AI request.
+
+## P2.2 production release — 2026-08-25
+
+- Feature SHA `5ba2a10d30ec203209c2c31df29281d01468a49f` was pushed to `main`; local `main` and `origin/main` matched with zero divergence.
+- The Git-triggered production deployment <https://wavelength-o84ics9ty-luisochoasap-2007s-projects.vercel.app> (`dpl_9fBCYHFm8u32WRXNjuJYvaXrEVz3`) reached `READY`, carried the `gigscapes.com`, `www.gigscapes.com`, and `main` aliases, and its build log bound it to commit `5ba2a10`.
+- Vercel transformed 1,977 modules and completed the production build/deploy without an application error. `/`, `/app`, and `/gigscapes-og.svg` returned HTTP 200 with the expected HTML/SVG content types.
+- Signed-out production smoke verified the landing H1 and metadata, nine template controls, public browse navigation, live public listings, and contextual URL/screenshot/pasted-text account dialogs.
+- A mobile production viewport verified zero horizontal overflow, nine template controls, modal navigation, Escape dismissal, and focus restoration. The browser console was empty; the deployment returned no runtime error/fatal entries and no 5xx entries during the verification window.
+
+## P2.3 Phase A search and feed quality
+
+- [x] Public description snippets participate in discovery scoring but remain separate from verified full-posting content.
+- [x] Recognized queries collect a bounded initial candidate window before deterministic relevance/freshness/ID ordering.
+- [x] Stable row IDs and canonically equivalent URLs cluster conservatively without modifying original outbound URLs.
+- [x] Initial clustering prefers employer-direct representatives; later-page merging preserves the already displayed representative and card state.
+- [x] Source attribution records every clustered provider, while similar listings with distinct URLs remain distinct.
+- [x] Search status copy distinguishes relevant, deduplicated candidate, rendered, and database source-row counts.
+- [x] Invalid or missing posting dates remain unknown and sort below valid equally relevant dates.
+- [x] Cron health responses/logs whitelist numeric metrics and sanitized failure categories with success/partial/failure/skipped state.
+- [x] Empty-batch preservation, partial-source isolation, safe upserts, stable ingestion IDs, pruning safeguards, and complete-description protection remain intact.
+- [x] No Supabase migration, RLS/grant change, credential, dependency, feed, analytics, or new Vercel cron schedule is included.
+
+## P2.3 Phase A local verification record — 2026-08-25
+
+- Preflight: clean `main` at `5ba2a10d30ec203209c2c31df29281d01468a49f`, matching `origin/main`; all subsequent edits in this record belong to the preserved P2.3 worktree.
+- Focused search/feed/source-health suite: 108 passed, 0 failed. Focused guest/Auth/security suite: 91 passed, 0 failed. Focused résumé/export/tailoring suite: 84 passed, 0 failed. Full suite: 325 passed, 0 failed.
+- Export verifier: 26 files, all nine templates, 18 direct-PDF pages, 545 selectable text items, manifest parity, verified-final gating, stale-readiness rejection, and the documented one-/two-page assertions passed.
+- Final sourcemapped production build: 1,978 modules transformed. The route-shared entry is 423.89 kB/124.68 kB gzip, the app route is 165.83 kB/47.02 kB gzip, and the landing route is 23.06 kB/6.70 kB gzip. `resumeDocx` (5.07 kB), `resumePdf` (8.66 kB), and `jspdf` (390.46 kB) remain separate lazy chunks.
+- Signed-out local production-preview searches returned 52 SAP, 52 SAP FICO, 34 Java, 24 C++, 25 C#/.NET, 32 React, and 3 SaaS sales results. Every result surface separately reported relevant, deduplicated, rendered, and database source-row counts; the inspected outbound URL sets contained zero duplicate URLs.
+- Search ordering placed strong title matches first in the inspected scenarios. Save and Tailor opened action-specific account dialogs; public browsing remained available. At 390×844 the search and result surface had no horizontal overflow, and the browser console had zero warnings or errors.
+- `git diff --check` passed. A value-aware scan found no actual server credential or private résumé fixture in the generated JavaScript or source maps; documented `.env.example` placeholders were excluded from credential classification.
+- Dependency audit remains the known non-blocking baseline: 0 critical, 1 high Vite finding, and 1 moderate esbuild finding. The available remediation requires a Vite 8 major upgrade and remains outside this release.
+- No Supabase schema, RLS/grant, Auth-provider, dependency, or Vercel schedule change is required. Production release and deployed-SHA verification remain the next release steps.

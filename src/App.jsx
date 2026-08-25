@@ -42,6 +42,7 @@ import {
   CATEGORY_FIELDS,
   WORK_ARRANGEMENT_OPTIONS,
   categoriesForField,
+  compareListingDiscoveryOrder,
   inferKeywordIntent,
   isTradesLikeCategory,
   normalizeFieldLabel,
@@ -364,7 +365,7 @@ function MatchBadge({ listing, keyword, fitAssessment, postingReadiness }) {
   );
 }
 
-function SourceAttribution({ source }) {
+function PrimarySourceAttribution({ source }) {
   if (source === "Jooble") {
     return <a href="https://ca.jooble.org/" target="_blank" rel="noreferrer" style={SOURCE_LINK_STYLE}>Jooble</a>;
   }
@@ -396,6 +397,22 @@ function SourceAttribution({ source }) {
       <a href="https://www.adzuna.ca/" target="_blank" rel="noreferrer" style={ADZUNA_LINK_STYLE}>Jobs</a>
       <span>&nbsp;by&nbsp;</span>
       <a href="https://www.adzuna.ca/" target="_blank" rel="noreferrer" style={ADZUNA_NAME_LINK_STYLE}>Adzuna</a>
+    </span>
+  );
+}
+
+function SourceAttribution({ source, sources = [] }) {
+  const additionalSources = [...new Set(
+    sources.map(({ label }) => label).filter((label) => label && label !== source),
+  )];
+  return (
+    <span style={{ display: "inline-flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
+      <PrimarySourceAttribution source={source} />
+      {additionalSources.length > 0 && (
+        <span title={`Also found via ${additionalSources.join(", ")}`}>
+          +{additionalSources.length} {additionalSources.length === 1 ? "source" : "sources"}
+        </span>
+      )}
     </span>
   );
 }
@@ -620,6 +637,7 @@ export default function Gigscapes() {
     error: listingsError,
     lastFetched,
     total: listingsTotal,
+    candidateCount: loadedCandidateCount,
     hasMore: hasMoreListings,
     loadMore: loadMoreListings,
     refetch: refetchListings,
@@ -1046,7 +1064,7 @@ export default function Gigscapes() {
 
   const filtered = relevantListings
     .filter((item) => locationMatches(item.locationData, criteria))
-    .sort((a, b) => b.relevance - a.relevance);
+    .sort(compareListingDiscoveryOrder);
 
   const keywordExactFound = keywordInput && filtered.some((item) => titleMatchesSearchQuery(item, keywordInput));
   const hasLocationFilter = hasStructuredLocationFilter(criteria);
@@ -1482,7 +1500,7 @@ export default function Gigscapes() {
         </div>
         </div>
         <p style={{ fontSize: 13.5, color: C.textSub, margin: "6px 0 12px" }}>
-        {filtered.length} loaded matches for {criteria.keyword ? `"${criteria.keyword}"` : criteria.field?.toLowerCase() || "any work"} · {formatLocationPreference(criteria)}. {" "}
+        {filtered.length} relevant matches from {loadedCandidateCount} deduplicated candidates for {criteria.keyword ? `"${criteria.keyword}"` : criteria.field?.toLowerCase() || "any work"} · {formatLocationPreference(criteria)}. {" "}
         {listingsStatus === "loading" && "Loading live listings…"}
         {listingsStatus === "loading_more" && "Loading more listings…"}
         {listingsStatus === "error" && (
@@ -1619,8 +1637,8 @@ export default function Gigscapes() {
           </label>
         </form>
         <div aria-live="polite" style={{ marginTop: 10, color: C.textFaint, fontSize: 12.5 }}>
-          {filtered.length} {filtered.length === 1 ? "job matches" : "jobs match"} · {formatLocationPreference(criteria)}
-          {Number.isInteger(listingsTotal) ? ` · ${listingsTotal} listings available` : ""}
+          {filtered.length} relevant {filtered.length === 1 ? "match" : "matches"} · {loadedCandidateCount} deduplicated candidates loaded · {visibleFiltered.length} shown · {formatLocationPreference(criteria)}
+          {Number.isInteger(listingsTotal) ? ` · ${listingsTotal} source rows matched the database query` : ""}
         </div>
         {legacyLocationFallback && (
           <div role="status" style={{ marginTop: 8, color: C.amber, fontSize: 12 }}>
@@ -1742,7 +1760,7 @@ export default function Gigscapes() {
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 10, fontSize: 12.5, color: C.textFaint }}>
                       <span style={{ display: "flex", alignItems: "center", gap: 4 }}><MapPin size={12} /> {item.location}</span>
                       <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Clock size={12} /> {item.type}</span>
-                      <SourceAttribution source={item.source} />
+                      <SourceAttribution source={item.source} sources={item.sourceAttributions} />
                     </div>
                     <div style={{ fontSize: 12.5, color: C.textFaint, marginTop: 8 }}>{item.reason}</div>
                   </div>

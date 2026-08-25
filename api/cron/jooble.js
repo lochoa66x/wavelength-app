@@ -3,6 +3,12 @@ import { createClient } from "@supabase/supabase-js";
 import { runHimalayasIngestion } from "../_lib/himalayas.js";
 import { runJobicyIngestion } from "../_lib/jobicy.js";
 import { runJoobleIngestion } from "../_lib/jooble.js";
+import {
+  logCronHealth,
+  runSourceImport,
+  summarizeCronHealth,
+  summarizeSourceOutcome,
+} from "../_lib/sourceHealth.js";
 
 export function getJoobleCronConfig(env = process.env) {
   const config = {
@@ -60,8 +66,8 @@ export function createJoobleCronHandler({
     });
 
     const joobleConfigured = Boolean(config.joobleApiKey);
-    const [joobleResult, jobicyResult, himalayasResult] = await Promise.allSettled([
-      joobleConfigured
+    const [joobleResult, jobicyResult, himalayasResult] = await Promise.all([
+      runSourceImport(() => joobleConfigured
         ? ingest({
           supabase,
           apiKey: config.joobleApiKey,
@@ -72,42 +78,27 @@ export function createJoobleCronHandler({
           requests: 0,
           received: 0,
           saved: 0,
-        }),
-      jobicyIngest({ supabase }),
-      himalayasIngest({ supabase }),
+        })),
+      runSourceImport(() => jobicyIngest({ supabase })),
+      runSourceImport(() => himalayasIngest({ supabase })),
     ]);
 
     const sources = {
-      jooble: joobleResult.status === "fulfilled"
-        ? { ok: true, ...joobleResult.value }
-        : { ok: false, error: "Jooble import failed" },
-      jobicy: jobicyResult.status === "fulfilled"
-        ? { ok: true, ...jobicyResult.value }
-        : { ok: false, error: "Jobicy import failed" },
-      himalayas: himalayasResult.status === "fulfilled"
-        ? { ok: true, ...himalayasResult.value }
-        : { ok: false, error: "Himalayas import failed" },
+      jooble: summarizeSourceOutcome(joobleResult, "Jooble import failed"),
+      jobicy: summarizeSourceOutcome(jobicyResult, "Jobicy import failed"),
+      himalayas: summarizeSourceOutcome(himalayasResult, "Himalayas import failed"),
     };
-    const successfulSources = Object.values(sources).filter(({ ok, skipped }) => ok && !skipped).length;
-    const failedSources = Object.values(sources).filter(({ ok }) => !ok).length;
-
-    if (joobleResult.status === "rejected") {
-      console.error(`Jooble cron failed: ${joobleResult.reason?.message || "Unknown error"}`);
-    }
-    if (jobicyResult.status === "rejected") {
-      console.error(`Jobicy companion import failed: ${jobicyResult.reason?.message || "Unknown error"}`);
-    }
-    if (himalayasResult.status === "rejected") {
-      console.error(`Himalayas companion import failed: ${himalayasResult.reason?.message || "Unknown error"}`);
-    }
-    if (successfulSources === 0) {
-      return res.status(502).json({ ok: false, error: "Scheduled imports failed", country: "CA", sources });
+    const health = summarizeCronHealth(sources);
+    logCronHealth(console.info, "scheduled_feed_refresh", health, sources);
+    if (health.succeeded === 0) {
+      return res.status(502).json({ ok: false, error: "Scheduled imports failed", country: "CA", health, sources });
     }
 
     return res.status(200).json({
       ok: true,
-      partial: failedSources > 0,
+      partial: health.state === "partial",
       country: "CA",
+      health,
       sources,
     });
   };

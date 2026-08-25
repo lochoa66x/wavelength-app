@@ -1,14 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   categoriesForField,
-  classifyListingTitle,
-  formatWorkArrangement,
   inferKeywordIntent,
-  normalizeListingReason,
-  normalizeWorkArrangement,
   scoreListingRelevance,
 } from "./listingCategories.js";
-import { formatListingLocation, locationMatches, normalizeListingLocation } from "./listingLocations.js";
+import { clusterDuplicateListings } from "./listingIdentity.js";
+import { mapListingRow } from "./listingMapping.js";
+import { locationMatches } from "./listingLocations.js";
 import {
   INITIAL_LISTING_PAGE_LIMIT,
   LISTINGS_PAGE_SIZE,
@@ -22,46 +20,6 @@ import {
   shouldAutoContinueListingSearch,
 } from "./listingQuery.js";
 import { supabase } from "./supabase.js";
-
-const SOURCE_DISPLAY_NAMES = {
-  wwr: "We Work Remotely",
-  adzuna: "Jobs by Adzuna",
-  jooble: "Jooble",
-  jobicy: "Jobicy",
-  himalayas: "Himalayas",
-  greenhouse: "Greenhouse",
-  lever: "Lever",
-  ashby: "Ashby",
-  craigslist: "Craigslist",
-};
-
-export function mapListingRow(row) {
-  const classification = classifyListingTitle(row.title, row.category);
-  const workArrangement = normalizeWorkArrangement(row.job_type, row.title);
-  const locationData = normalizeListingLocation(row);
-
-  return {
-    id: row.id,
-    category: classification.category,
-    subcategory: classification.subcategory,
-    classificationConfidence: classification.confidence,
-    tier: row.tier,
-    title: row.title,
-    company: row.company || "Unknown",
-    location: formatListingLocation(locationData, row.location),
-    locationData,
-    locationQuality: locationData.source,
-    type: formatWorkArrangement(workArrangement),
-    workArrangement,
-    source: SOURCE_DISPLAY_NAMES[row.source] || row.source,
-    city: row.city,
-    reason: normalizeListingReason(row.reason, row.category, classification.category),
-    description: null,
-    descriptionSnippet: row.description_snippet || null,
-    descriptionSourceUrl: row.url || "",
-    url: row.url,
-  };
-}
 
 export function hasDisplayableListings(rows = [], criteria = {}) {
   if (rows.length === 0) return false;
@@ -124,6 +82,8 @@ export function useLiveListings(criteria = {}, { resetKey = "", pageSize = LISTI
       let result;
       let usedLegacyFallback = false;
       let nextPageAvailable = false;
+      const searchIntent = inferKeywordIntent(keyword || "");
+      const collectCandidateWindow = Boolean(String(keyword || "").trim() && searchIntent.recognized);
 
       do {
         result = await createListingsQuery(supabase, filters, {
@@ -157,7 +117,7 @@ export function useLiveListings(criteria = {}, { resetKey = "", pageSize = LISTI
         if (activeVersion !== requestVersion.current) return;
 
         const mapped = (result.data || []).map(mapListingRow);
-        combinedRows = mergeListingPages(combinedRows, mapped);
+        combinedRows = [...combinedRows, ...mapped];
         attempts += 1;
         nextPageAvailable = hasNextListingPage({
           count: result.count,
@@ -172,13 +132,15 @@ export function useLiveListings(criteria = {}, { resetKey = "", pageSize = LISTI
           attempts,
           hasMore: nextPageAvailable,
           hasRelevantListings: hasDisplayableListings(combinedRows, filters),
+          collectCandidateWindow,
           maxAttempts: INITIAL_LISTING_PAGE_LIMIT,
         })) break;
 
         currentPage += 1;
       } while (true);
 
-      setListings((current) => replace ? combinedRows : mergeListingPages(current, combinedRows));
+      const deduplicatedRows = clusterDuplicateListings(combinedRows);
+      setListings((current) => replace ? deduplicatedRows : mergeListingPages(current, deduplicatedRows));
       setPage(currentPage);
       setTotal(Number.isInteger(result.count) ? result.count : null);
       setHasMore(nextPageAvailable);
@@ -219,6 +181,7 @@ export function useLiveListings(criteria = {}, { resetKey = "", pageSize = LISTI
     error,
     lastFetched,
     total,
+    candidateCount: listings.length,
     hasMore,
     loadMore,
     refetch,

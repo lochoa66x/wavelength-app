@@ -3,6 +3,7 @@ import {
   isMissingStructuredLocationColumn,
   normalizeLocationCriteria,
 } from "./listingLocations.js";
+import { clusterDuplicateListings } from "./listingIdentity.js";
 import { inferKeywordIntent, normalizeSearchText } from "./listingCategories.js";
 
 export const LISTINGS_PAGE_SIZE = 100;
@@ -185,12 +186,9 @@ export function canUseLegacyLocationFallback(error, criteria = {}) {
 }
 
 export function mergeListingPages(existing = [], incoming = []) {
-  const merged = new Map();
-  for (const row of [...existing, ...incoming]) {
-    const key = row?.id || row?.url || `${row?.company || ""}::${row?.title || ""}`;
-    if (key) merged.set(key, row);
-  }
-  return [...merged.values()];
+  return clusterDuplicateListings([...existing, ...incoming], {
+    preserveIds: existing.map(({ id }) => id).filter(Boolean),
+  });
 }
 
 export function hasNextListingPage({ count, page = 0, pageSize = LISTINGS_PAGE_SIZE, received = 0 }) {
@@ -204,11 +202,12 @@ export function shouldAutoContinueListingSearch({
   attempts = 0,
   hasMore = false,
   hasRelevantListings = false,
+  collectCandidateWindow = false,
   maxAttempts = INITIAL_LISTING_PAGE_LIMIT,
 } = {}) {
   return replace
     && startingPage === 0
     && attempts < maxAttempts
     && hasMore
-    && !hasRelevantListings;
+    && (collectCandidateWindow || !hasRelevantListings);
 }
