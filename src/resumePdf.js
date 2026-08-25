@@ -47,9 +47,9 @@ function resolveRenderPlan(input, template, options) {
   return buildResumeRenderPlan(createResumePackage(input), template, options);
 }
 
-export async function createResumePdfBytes(input, template = "professional", options = {}) {
+async function createResumePdfDocument(input, template = "professional", options = {}, { allowMissingIdentity = false } = {}) {
   const renderPlan = resolveRenderPlan(input, template, options);
-  assertResumePackageIdentity(createResumePackage({ name: renderPlan.header.fullName }));
+  if (!allowMissingIdentity) assertResumePackageIdentity(createResumePackage({ name: renderPlan.header.fullName }));
   const { jsPDF } = await import("jspdf");
   const doc = new jsPDF({ unit: "pt", format: "letter", orientation: "portrait", compress: true, putOnlyUsedFonts: true });
   const tokens = renderPlan.visualTokens;
@@ -207,6 +207,16 @@ export async function createResumePdfBytes(input, template = "professional", opt
     subject: "ATS-readable résumé generated from verified candidate content",
     creator: "Gigscapes",
   });
+  return doc;
+}
+
+export async function getResumePdfPageCount(input, template = "professional", options = {}) {
+  const doc = await createResumePdfDocument(input, template, options, { allowMissingIdentity: true });
+  return doc.getNumberOfPages();
+}
+
+export async function createResumePdfBytes(input, template = "professional", options = {}) {
+  const doc = await createResumePdfDocument(input, template, options);
   return new Uint8Array(doc.output("arraybuffer"));
 }
 

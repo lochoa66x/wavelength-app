@@ -78,7 +78,7 @@ test("generated DOCX is a valid package with complete ordered visible text", asy
   assert.ok(zip.file("word/document.xml"));
   for (const expected of [
     "Luis Example", "SAP Functional Consultant", "luis@example.com", "Professional Summary", "Skills",
-    "Projects", "Training & Certifications", "Professional Experience", "Solution Architect", "Led integration testing.",
+    "Projects", "Professional Training", "Professional Experience", "Solution Architect", "Led integration testing.",
     "Education", "BCom", "Languages", "English",
   ]) assert.match(visibleText, new RegExp(expected.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"));
   assert.ok(visibleText.indexOf("Professional Summary") < visibleText.indexOf("Professional Experience"));

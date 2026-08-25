@@ -72,9 +72,14 @@ function FocusReview({ focusReview, C }) {
   return (
     <details style={{ marginTop: 10, borderTop: `1px solid ${C.border}`, paddingTop: 9 }}>
       <summary style={{ color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>
-        Résumé focus · about {focusReview.estimated_pages || 1} page{focusReview.estimated_pages === 1 ? "" : "s"}
+        Résumé focus · {focusReview.estimated_pages || 1} page{focusReview.estimated_pages === 1 ? "" : "s"}
       </summary>
       <p style={{ color: C.textSub, fontSize: 11.75, lineHeight: 1.45, margin: "7px 0 0" }}>{focusReview.rationale}</p>
+      {focusReview.estimation_method === "direct_pdf_layout" ? (
+        <p style={{ color: C.textSub, fontSize: 11.25, lineHeight: 1.45, margin: "5px 0 0" }}>
+          Measured with the same layout engine as the direct PDF{focusReview.estimated_template_name ? ` using the ${focusReview.estimated_template_name} template` : ""}.
+        </p>
+      ) : null}
       <p style={{ color: C.textFaint, fontSize: 11.25, lineHeight: 1.45, margin: "5px 0 0" }}>
         {condensedCount} role{condensedCount === 1 ? "" : "s"} condensed · {omittedCount} lower-signal bullet{omittedCount === 1 ? "" : "s"} omitted · {duplicateCount} repetition{duplicateCount === 1 ? "" : "s"} removed. Canonical résumé history is unchanged.
       </p>
@@ -89,11 +94,13 @@ function RequirementEvidence({ requirements, C }) {
     result[key] = (result[key] || 0) + 1;
     return result;
   }, {});
+  const supportedCount = (counts.direct || 0) + (counts.adjacent || 0) + (counts.transferable || 0);
+  const coveragePercent = Math.round((supportedCount / requirements.length) * 100);
 
   return (
     <details style={{ marginTop: 10, borderTop: `1px solid ${C.border}`, paddingTop: 9 }}>
       <summary style={{ color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>
-        Requirement evidence ({counts.direct || 0} direct · {counts.adjacent || 0} adjacent · {counts.transferable || 0} transferable · {counts.missing || 0} missing)
+        Atomic requirement evidence · {coveragePercent}% supported ({counts.direct || 0} direct · {counts.adjacent || 0} adjacent · {counts.transferable || 0} transferable · {counts.missing || 0} missing)
       </summary>
       <div style={{ display: "grid", gap: 8, marginTop: 9 }}>
         {requirements.map((requirement) => {
@@ -117,6 +124,7 @@ function RequirementEvidence({ requirements, C }) {
               ) : (
                 <p style={{ margin: "6px 0 0", color: C.textFaint, fontSize: 11.5 }}>No supporting résumé evidence found.</p>
               )}
+              {requirement.match_basis ? <p style={{ margin: "5px 0 0", color: C.textFaint, fontSize: 10.75, lineHeight: 1.4 }}>{requirement.match_basis}</p> : null}
             </div>
           );
         })}
@@ -195,10 +203,10 @@ export function AtsReview({ review, C }) {
       ) : null}
       <StatusRow label="Posting readiness" value={postingComplete ? "Reviewed complete" : postingReadiness.status === "preliminary" ? "Preliminary" : "Needs full posting"} detail={postingReadiness.reason} ok={postingComplete} C={C} />
       <StatusRow label="Candidate fit" value={FIT_LABELS[candidateFit.status] || "Review required"} detail={postingComplete ? `${candidateFit.confidence || "low"} confidence · ${candidateFit.reason || "Evidence comparison completed."}` : "Unavailable until responsibilities and qualifications are present"} ok={postingComplete && !["gap", "not_assessed", "not_available"].includes(candidateFit.status)} C={C} />
-      <StatusRow label="Requirement coverage" value={coverage.total ? `${coverage.total} requirements analyzed` : "Limited by posting data"} detail={`${coverage.direct || 0} direct · ${coverage.adjacent || 0} adjacent · ${coverage.transferable || 0} transferable · ${coverage.missing || 0} missing`} ok={Boolean(coverage.total) && (coverage.missing || 0) === 0} C={C} />
+      <StatusRow label="Requirement coverage" value={coverage.total ? `${coverage.total} atomic requirements analyzed` : "Limited by posting data"} detail={`${coverage.direct || 0} direct · ${coverage.adjacent || 0} adjacent · ${coverage.transferable || 0} transferable · ${coverage.missing || 0} missing`} ok={Boolean(coverage.total) && (coverage.missing || 0) === 0} C={C} />
       <StatusRow label="ATS-readable structure" value={parseability.status === "pass" ? "Pass" : "Review"} detail="Single column, standard headings, chronological history" ok={parseability.status === "pass"} C={C} />
       <StatusRow label="Writing quality" value={writing.status === "pass" ? "Pass" : writing.status === "blocked" ? "Blocked" : "Review"} detail={writing.issue_count ? `${writing.issue_count} exact writing item${writing.issue_count === 1 ? "" : "s"}` : "Occupation-aware action verbs and consistent tense"} ok={writing.status === "pass"} C={C} />
-      <StatusRow label="Résumé focus" value={focusReview?.status === "focused" ? "Focused" : "Review"} detail={focusReview?.estimated_pages ? `Estimated ${focusReview.estimated_pages} page${focusReview.estimated_pages === 1 ? "" : "s"}; recent and requirement-aligned evidence prioritized` : "Focus estimate unavailable"} ok={focusReview?.status === "focused"} C={C} />
+      <StatusRow label="Résumé focus" value={focusReview?.status === "focused" ? "Focused" : "Review"} detail={focusReview?.estimated_pages ? `${focusReview.estimation_method === "direct_pdf_layout" ? "Direct PDF measures" : "Estimated"} ${focusReview.estimated_pages} page${focusReview.estimated_pages === 1 ? "" : "s"}; recent and requirement-aligned evidence prioritized` : "Focus estimate unavailable"} ok={focusReview?.status === "focused"} C={C} />
       <StatusRow label="Application-ready export" value={exportReadiness?.status === "ready" || review.application_ready ? "Enabled" : "Preliminary only"} detail={exportReadiness?.blockers?.length ? `Waiting on: ${exportReadiness.blockers.join(", ").replaceAll("_", " ")}` : "Posting, identity, writing, and truth checks passed"} ok={review.application_ready === true} C={C} />
 
       <RequirementEvidence requirements={review.requirements} C={C} />

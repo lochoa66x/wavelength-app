@@ -1,11 +1,13 @@
 import { isTradesLikeCategory, normalizeListingCategory } from "../src/listingCategories.js";
+import { buildResumeRenderPlan, createResumePackage } from "../src/resumeModel.js";
+import { getResumePdfPageCount } from "../src/resumePdf.js";
 import { buildAtsReview, enforceReverseChronology } from "./_lib/atsValidation.js";
 import { jobBriefToText, normalizeCustomJobBrief } from "./_lib/jobBrief.js";
 import { authenticateSupabaseRequest, bearerToken } from "./_lib/requestAuth.js";
 import { createServerSupabaseClient } from "./_lib/serverSupabase.js";
 import { createSafeResumeFallback } from "./_lib/safeResumeFallback.js";
 import { formatCandidateEvidence, validateCandidateEvidence } from "./_lib/candidateEvidence.js";
-import { shapeTailoredResumeWithReview } from "./_lib/resumeQuality.js";
+import { applyPdfLayoutToFocusReview, shapeTailoredResumeWithReview } from "./_lib/resumeQuality.js";
 import {
   assessPostingCompleteness,
   extractPostingKeywords,
@@ -435,6 +437,27 @@ async function callAnthropicToolWithRetry({
   throw lastError;
 }
 
+async function layoutAwareFocusReview(resumeData, analysis, item, focusReview) {
+  const assessment = {
+    posting_readiness: analysis.posting_readiness,
+    candidate_fit: analysis.candidate_fit,
+    requirements: analysis.requirements,
+    coverage: analysis.coverage,
+    readiness: analysis.readiness,
+  };
+  const resumePackage = createResumePackage(resumeData, { item, atsReview: assessment });
+  const templateId = resumePackage.presentation.recommendedTemplateId;
+  const renderPlan = buildResumeRenderPlan(resumePackage, templateId, {
+    preliminary: analysis.posting_readiness?.application_ready_allowed !== true,
+  });
+  const pages = await getResumePdfPageCount(renderPlan);
+  return applyPdfLayoutToFocusReview(focusReview, {
+    pages,
+    templateId,
+    templateName: renderPlan.templateName,
+  });
+}
+
 export function createTailorHandler({
   authenticate = authenticateSupabaseRequest,
   loadListing = loadTrustedListing,
@@ -571,12 +594,14 @@ ${verifiedCandidateEvidenceBlock}
 
 ANALYSIS RULES
 - Extract only requirements explicitly stated or unambiguously described in the supplied posting. A job title is context, not proof of an unstated technology stack.
+- Return atomic requirements. Split compound posting lines into separately assessable capabilities, tools, credentials, languages, and work conditions. For example, unit testing, integration testing, and UAT are three requirements; English proficiency and stakeholder collaboration are separate requirements. Do not hide a partial match inside a single compound classification.
 - Respect the deterministic posting assessment. If it says partial or insufficient, explain that the result is preliminary and do not invent missing requirements.
 - The deterministic posting assessment is the fit gate. When fit_allowed is false, do not produce a definitive candidate-fit judgment: use fit_assessment only as a provisional content strategy, set readiness to needs_full_posting, and treat confidence as unavailable.
 - Never expose internal field names such as fit_allowed, application_ready_allowed, output_mode, or "deterministic posting assessment" in candidate-facing notes. Explain the same limitation in plain language.
 - For each requirement, classify the candidate evidence as direct, adjacent, transferable, or missing.
 - Every direct, adjacent, or transferable match MUST include a short exact excerpt copied from BASE RÉSUMÉ EVIDENCE or VERIFIED CANDIDATE NOTES. If no exact excerpt supports it, classify it as missing.
 - Direct means the candidate has performed the target capability in the target context. Adjacent means substantially similar work in a neighboring context. Transferable means a broader capability is useful but not equivalent. Do not promote transferable evidence to adjacent or direct merely to improve fit.
+- Exact domain terms are not interchangeable: generic SAP evidence does not prove SAP SD, LE, EDI, JIT/JIS, RF, shipping, logistics, or security/compliance work. Language proficiency, degrees, testing types, and ABAP evidence may be matched only to the atomic requirement they actually support.
 - When the candidate has no verified hands-on evidence for the target occupation, classify the path as career_change and recommend an honest entry or transitional level. Do not use the target title as their existing professional identity.
 - Verified transferable skills must each include an exact supporting excerpt. Do not assume generic traits such as reliability, learning agility, communication, leadership, safety, or problem solving.
 - Target keywords come from the posting. Missing target technologies remain missing; list misleading target-role or target-technology claims in prohibited_claims.
@@ -668,13 +693,14 @@ INSTRUCTIONS
         ...rawResumeData,
         fit_assessment: analysis.fit_assessment,
         content_strategy: analysis.content_strategy,
-      }), analysis);
+      }), analysis, cappedResume);
       const resumeData = shaped.resume;
       if (!resumeData.profile || !Array.isArray(resumeData.experience) || resumeData.experience.length === 0) {
         console.error(`Incomplete structured resume for gig "${item.title}": ${JSON.stringify(resumeData)}`);
         return res.status(502).json({ error: "Model returned incomplete resume data" });
       }
 
+      const focusReview = await layoutAwareFocusReview(resumeData, analysis, item, shaped.focusReview);
       const atsReview = buildAtsReview(
         resumeData,
         candidateEvidence,
@@ -685,7 +711,7 @@ INSTRUCTIONS
           targetTitle: item.title,
           isTrades: isTradesGig,
           category: item.category,
-          focusReview: shaped.focusReview,
+          focusReview,
         },
       );
       if (atsReview.status !== "blocked") {
@@ -725,8 +751,9 @@ INSTRUCTIONS
       }
 
       const { resume: fallbackResume, report: safetyReport } = createSafeResumeFallback(resumeData, atsReview, analysis);
-      const safeShaped = shapeTailoredResumeWithReview(fallbackResume, analysis);
+      const safeShaped = shapeTailoredResumeWithReview(fallbackResume, analysis, cappedResume);
       const safeResume = safeShaped.resume;
+      const safeFocusReview = await layoutAwareFocusReview(safeResume, analysis, item, safeShaped.focusReview);
       const safeReview = buildAtsReview(
         safeResume,
         candidateEvidence,
@@ -737,7 +764,7 @@ INSTRUCTIONS
           targetTitle: item.title,
           isTrades: isTradesGig,
           category: item.category,
-          focusReview: safeShaped.focusReview,
+          focusReview: safeFocusReview,
         },
       );
       if (safeReview.status !== "blocked" && safeResume.profile && safeResume.experience.length) {

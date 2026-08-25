@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { createResumePdfBytes, createResumePrintDocument } from "./resumePdf.js";
+import { createResumePdfBytes, createResumePrintDocument, getResumePdfPageCount } from "./resumePdf.js";
 import { marketingCommunicationsResumeFixture } from "../tests/fixtures/resumePhaseBFixtures.js";
 
 const fixture = {
@@ -57,7 +57,7 @@ test("direct PDF contains ordered selectable ATS text and no object artifacts", 
   assert.ok(extracted.items.length > 15, "expected many independent text items, not a raster-only page");
   for (const expected of [
     "Luis Example", "SAP Functional Consultant", "luis@example.com", "Professional Summary", "Skills", "Projects",
-    "Training & Certifications", "Professional Experience", "Solution Architect", "Led integration testing.", "Education", "Languages",
+    "Professional Training", "Professional Experience", "Solution Architect", "Led integration testing.", "Education", "Languages",
   ]) assert.match(extracted.text, new RegExp(expected.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"));
   assert.ok(extracted.text.indexOf("Professional Summary") < extracted.text.indexOf("Professional Experience"));
   assert.doesNotMatch(extracted.text, /PRIVATE_|\[object Object\]|undefined|null/i);
@@ -81,7 +81,9 @@ test("direct PDF paginates long resumes without losing first or last experience 
     })),
   };
   const extracted = await extractPdf(await createResumePdfBytes(longFixture, "professional"));
+  const measuredPages = await getResumePdfPageCount(longFixture, "professional");
   assert.ok(extracted.pages >= 2);
+  assert.equal(measuredPages, extracted.pages);
   assert.match(extracted.text, /Verified delivery bullet 1\.1/);
   assert.match(extracted.text, /Verified delivery bullet 10\.5/);
   assert.doesNotMatch(extracted.text, /\[object Object\]/);

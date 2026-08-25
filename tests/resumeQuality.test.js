@@ -201,3 +201,33 @@ test("a stale ready flag cannot bypass verified-posting export gating", () => {
   assert.equal(stale.applicationReady, false);
   assert.equal(stale.preliminary, true);
 });
+
+test("a verified required degree is restored when the draft model omits education", () => {
+  const result = shapeTailoredResumeWithReview({
+    name: "Luis Example",
+    title: "SAP Integration Professional | SD Transition",
+    profile: "SAP integration professional with verified functional delivery experience.",
+    skills: ["SAP S/4HANA integration"],
+    experience: [{ role: "Solution Architect", company: "Example", dates: "2022 - 2024", bullets: ["Integrated SAP S/4HANA with master data systems."] }],
+    education: [],
+  }, {
+    fit_assessment: { path: "career_change" },
+    coverage: { direct: 1, adjacent: 1, transferable: 0, missing: 2 },
+    verified_transferable_skills: [{ skill: "SAP S/4HANA integration", resume_evidence: "Integrated SAP S/4HANA with master data systems." }],
+    requirements: [{
+      requirement: "Bachelor's degree in Business Administration or a related field",
+      priority: "required",
+      evidence_match: "direct",
+      safe_language: "Bachelor's degree",
+      resume_evidence: "Bachelor of Business Finance Administration & Management, Monterrey Institute of Technology",
+      keywords: ["Bachelor's degree"],
+    }],
+  }, [
+    "EDUCATION",
+    "Bachelor of Business Finance Administration & Management, Monterrey Institute of Technology",
+  ].join("\n"));
+
+  assert.equal(result.resume.education.length, 1);
+  assert.match(result.resume.education[0].degree, /Bachelor of Business Finance Administration/);
+  assert.equal(result.resume.education[0].restored_from_verified_evidence, true);
+});

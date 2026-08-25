@@ -12,6 +12,133 @@ const HIGH_SIGNAL_PHRASES = [
   "technical delivery", "user acceptance testing", "web applications", "web development",
 ];
 
+const STRICT_EVIDENCE_CONCEPTS = Object.freeze([
+  {
+    id: "unit_testing",
+    requirement: /\bunit test(?:ing|s)?\b/i,
+    evidence: /\bunit test(?:ing|s|ed)?\b/i,
+    direct: true,
+  },
+  {
+    id: "integration_testing",
+    requirement: /\bintegration test(?:ing|s)?\b/i,
+    evidence: /\bintegration test(?:ing|s|ed)?\b/i,
+    direct: true,
+  },
+  {
+    id: "uat",
+    requirement: /\b(?:uat|user acceptance test(?:ing|s)?)\b/i,
+    evidence: /\b(?:uat|user acceptance test(?:ing|s|ed)?)\b/i,
+    direct: true,
+  },
+  {
+    id: "regression_testing",
+    requirement: /\bregression test(?:ing|s)?\b/i,
+    evidence: /\bregression test(?:ing|s|ed)?\b/i,
+    direct: true,
+  },
+  {
+    id: "english",
+    requirement: /\benglish\b/i,
+    evidence: /\benglish\b[^\n]{0,45}\b(?:fluent|fluency|native|professional|advanced|proficient|bilingual)\b|\b(?:fluent|fluency|native|professional|advanced|proficient|bilingual)\b[^\n]{0,45}\benglish\b/i,
+    direct: true,
+  },
+  {
+    id: "stakeholder_collaboration",
+    requirement: /\b(?:interpersonal|stakeholders?|diverse teams?|cross-functional|collaborat)\b/i,
+    evidence: /\b(?:stakeholders?|cross-functional|multidisciplinary|collaborat(?:e|ed|ion)|coordinat(?:e|ed|ion)[^\n]{0,70}teams?|teams?[^\n]{0,70}coordinat(?:e|ed|ion))\b/i,
+  },
+  {
+    id: "bachelor_degree",
+    requirement: /\b(?:bachelor(?:'s)?|undergraduate)\s+(?:degree|education)|\b(?:ba|bs|bsc|bba)\b/i,
+    evidence: /\b(?:bachelor(?:'s)?(?:\s+of|\s+degree)?|baccalaureate|ba|bs|bsc|bba)\b/i,
+    direct: true,
+  },
+  {
+    id: "abap",
+    requirement: /\babap\b/i,
+    evidence: /\babap\b/i,
+    directEvidence: /\b(?:developed|coded|programmed|implemented|debugged|enhanced|wrote|built)\b[^\n]{0,80}\babap\b|\babap\b[^\n]{0,80}\b(?:development|developer|coding|programming|implementation)\b/i,
+  },
+  {
+    id: "security_compliance",
+    requirement: /\b(?:security polic(?:y|ies)|security controls?|access controls?|cybersecurity|information security|sap security|compliance requirements?|regulatory compliance|sox)\b/i,
+    evidence: /\b(?:security polic(?:y|ies)|security controls?|access controls?|cybersecurity|information security|sap security|regulatory compliance|sox|governance,? risk,? and compliance|grc)\b/i,
+    direct: true,
+  },
+  { id: "sap_sd", requirement: /\bsap\s+sd\b|\bsales and distribution\b/i, evidence: /\bsap\s+sd\b|\bsales and distribution\b/i, direct: true },
+  { id: "sap_le", requirement: /\bsap\s+le\b|\blogistics execution\b/i, evidence: /\bsap\s+le\b|\blogistics execution\b/i, direct: true },
+  { id: "edi", requirement: /\b(?:edi|edifact|ansi\s*x12|idocs?)\b/i, evidence: /\b(?:edi|edifact|ansi\s*x12|idocs?)\b/i, direct: true },
+  { id: "jit_jis", requirement: /\b(?:jit|jis|just.in.time|just.in.sequence)\b/i, evidence: /\b(?:jit|jis|just.in.time|just.in.sequence)\b/i, direct: true },
+  { id: "rf", requirement: /\brf solutions?\b|\bradio frequency\b/i, evidence: /\brf solutions?\b|\bradio frequency\b/i, direct: true },
+  { id: "cmir", requirement: /\bcmir\b/i, evidence: /\bcmir\b/i, direct: true },
+  { id: "backflush", requirement: /\bbackflush\b/i, evidence: /\bbackflush\b/i, direct: true },
+  { id: "mrp", requirement: /\bmrp\b|\bmaterial requirements planning\b/i, evidence: /\bmrp\b|\bmaterial requirements planning\b/i, direct: true },
+]);
+
+const LIST_INTRODUCTION_PATTERN = /^(.*?)(?:\bincluding\b|\bsuch as\b)\s+(.+?)(\s+to\s+(?:ensure|support|meet|deliver|provide)\b.*)?$/i;
+
+function listItems(value) {
+  const source = String(value || "").replace(/[().]/g, " ").replace(/\s+/g, " ").trim();
+  if (!source.includes(",") && !/\s+and\s+/i.test(source)) return [];
+  return source
+    .split(/\s*,\s*|\s+and\s+/i)
+    .map((item) => item.replace(/^(?:or|and)\s+/i, "").trim())
+    .filter((item) => item && item.split(/\s+/).length <= 10);
+}
+
+function atomicRequirementValues(value, index) {
+  const requirement = String(value?.requirement || "").replace(/\s+/g, " ").trim().slice(0, 500);
+  if (!requirement) return [];
+  if ((/\bsap\s+sd\b/i.test(requirement) || /\bsales and distribution\b/i.test(requirement))
+    && (/\bsap\s+le\b/i.test(requirement) || /\blogistics execution\b/i.test(requirement))) {
+    return ["SAP SD / Sales and Distribution capability", "SAP LE / Logistics Execution capability"].map((requirementText, atomicIndex) => ({
+      ...value,
+      id: `${String(value?.id || `R${index + 1}`).slice(0, 14)}.${atomicIndex + 1}`,
+      requirement: requirementText,
+      parent_requirement: requirement,
+      atomic_index: atomicIndex,
+    }));
+  }
+  const englishAndCollaboration = /\benglish\b/i.test(requirement)
+    && /\b(?:interpersonal|stakeholders?|diverse teams?|cross-functional)\b/i.test(requirement);
+  if (englishAndCollaboration) {
+    const collaborationText = requirement.match(/\b(?:interpersonal|ability to work|work effectively|collaborat)[^.;]*/i)?.[0]
+      || "Interpersonal and stakeholder collaboration";
+    return ["English language proficiency", collaborationText].map((requirementText, atomicIndex) => ({
+      ...value,
+      id: `${String(value?.id || `R${index + 1}`).slice(0, 14)}.${atomicIndex + 1}`,
+      requirement: requirementText,
+      parent_requirement: requirement,
+      atomic_index: atomicIndex,
+    }));
+  }
+  const explicitParts = requirement.split(/\s*;\s*|\s*\n\s*/).filter(Boolean);
+  const parts = explicitParts.length > 1 ? explicitParts : [requirement];
+  const atomic = [];
+  for (const part of parts) {
+    const listMatch = part.match(LIST_INTRODUCTION_PATTERN);
+    const prefixedListMatch = part.match(/^(.*?\b(?:proficiency|knowledge|experience|expertise|familiarity)\s+(?:in|of|with)\s+)(.+)$/i);
+    const activeMatch = listMatch || prefixedListMatch;
+    const items = activeMatch ? listItems(activeMatch[2]) : [];
+    if (items.length >= 2) {
+      for (const item of items) {
+        const prefix = prefixedListMatch ? prefixedListMatch[1] : "";
+        atomic.push(`${prefix}${item}${listMatch?.[3] || ""}`.trim());
+      }
+    } else {
+      atomic.push(part);
+    }
+  }
+  return atomic.slice(0, 12).map((requirementText, atomicIndex) => ({
+    ...value,
+    id: atomic.length > 1 ? `${String(value?.id || `R${index + 1}`).slice(0, 14)}.${atomicIndex + 1}` : value?.id,
+    requirement: requirementText,
+    parent_requirement: atomic.length > 1 ? requirement : "",
+    atomic_index: atomicIndex,
+  }));
+}
+
 export function normalizeEvidenceText(value) {
   return String(value || "")
     .normalize("NFKD")
@@ -183,6 +310,47 @@ function evidenceCitation(excerpt, baseResume, candidateNotes = []) {
   };
 }
 
+function strictConceptsForRequirement(requirement) {
+  return STRICT_EVIDENCE_CONCEPTS.filter((concept) => concept.requirement.test(requirement));
+}
+
+function semanticEvidenceMatch(requirement, excerpt) {
+  const concepts = strictConceptsForRequirement(requirement);
+  if (!concepts.length) return { valid: true, classification: null, concepts: [] };
+  const valid = concepts.every((concept) => concept.evidence.test(excerpt));
+  if (!valid) return { valid: false, classification: "missing", concepts: concepts.map((concept) => concept.id) };
+  const classification = concepts.some((concept) => concept.id === "abap" && !concept.directEvidence?.test(excerpt))
+    ? "adjacent"
+    : concepts.every((concept) => concept.direct === true)
+      ? "direct"
+      : null;
+  return { valid: true, classification, concepts: concepts.map((concept) => concept.id) };
+}
+
+function lineScore(requirement, line) {
+  const requirementTerms = new Set(normalizeEvidenceText(requirement).split(" ").filter((term) => term.length > 3 && !STOPWORDS.has(term)));
+  const lineTerms = new Set(normalizeEvidenceText(line).split(" ").filter(Boolean));
+  return [...requirementTerms].reduce((score, term) => score + (lineTerms.has(term) ? 1 : 0), 0);
+}
+
+function deterministicEvidence(requirement, baseResume) {
+  const concepts = strictConceptsForRequirement(requirement);
+  if (!concepts.length) return null;
+  const lines = String(baseResume || "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  const candidates = lines
+    .filter((line) => concepts.every((concept) => concept.evidence.test(line)))
+    .map((line) => ({ line, score: lineScore(requirement, line) }))
+    .sort((left, right) => right.score - left.score || right.line.length - left.line.length);
+  if (!candidates.length) return null;
+  const excerpt = candidates[0].line;
+  const semantic = semanticEvidenceMatch(requirement, excerpt);
+  return {
+    excerpt,
+    classification: semantic.classification || "adjacent",
+    concepts: semantic.concepts,
+  };
+}
+
 function cleanRequirement(value, index, baseResume, candidateNotes = []) {
   const requirement = String(value?.requirement || "").replace(/\s+/g, " ").trim().slice(0, 500);
   if (!requirement) return null;
@@ -190,23 +358,36 @@ function cleanRequirement(value, index, baseResume, candidateNotes = []) {
     ? value.evidence_match
     : "missing";
   const resumeEvidence = String(value?.resume_evidence || "").replace(/\s+/g, " ").trim().slice(0, 700);
-  const supported = requestedMatch === "missing"
-    || excerptSupported(resumeEvidence, baseResume)
+  const excerptIsSupported = excerptSupported(resumeEvidence, baseResume)
     || Boolean(supportingCandidateNote(resumeEvidence, candidateNotes));
-  const citation = supported && requestedMatch !== "missing"
-    ? evidenceCitation(resumeEvidence, baseResume, candidateNotes)
+  const semantic = semanticEvidenceMatch(requirement, resumeEvidence);
+  const deterministic = deterministicEvidence(requirement, baseResume);
+  const requestedSupported = requestedMatch !== "missing" && excerptIsSupported && semantic.valid;
+  const evidenceMatch = requestedSupported
+    ? semantic.classification || requestedMatch
+    : deterministic?.classification || "missing";
+  const supportedEvidence = requestedSupported ? resumeEvidence : deterministic?.excerpt || "";
+  const citation = evidenceMatch !== "missing"
+    ? evidenceCitation(supportedEvidence, baseResume, candidateNotes)
     : null;
   return {
     id: String(value?.id || `R${index + 1}`).slice(0, 20),
     requirement,
+    parent_requirement: String(value?.parent_requirement || "").replace(/\s+/g, " ").trim().slice(0, 500),
+    atomic_index: Number.isInteger(value?.atomic_index) ? value.atomic_index : 0,
     priority: ["required", "preferred", "responsibility", "context"].includes(value?.priority)
       ? value.priority
       : "context",
-    evidence_match: supported ? requestedMatch : "missing",
-    resume_evidence: supported && requestedMatch !== "missing" ? resumeEvidence : "",
+    evidence_match: evidenceMatch,
+    resume_evidence: evidenceMatch !== "missing" ? supportedEvidence : "",
     evidence: citation ? [citation] : [],
-    safe_language: supported && requestedMatch !== "missing"
-      ? String(value?.safe_language || "").replace(/\s+/g, " ").trim().slice(0, 500)
+    match_basis: evidenceMatch === "missing"
+      ? "No exact candidate evidence satisfies this atomic requirement."
+      : deterministic && !requestedSupported
+        ? `Verified from an exact résumé line using ${deterministic.concepts.join(", ").replaceAll("_", " ")} evidence.`
+        : "Verified from the exact evidence excerpt supplied for this requirement.",
+    safe_language: evidenceMatch !== "missing"
+      ? String(value?.safe_language || requirement).replace(/\s+/g, " ").trim().slice(0, 500)
       : "",
     keywords: uniqueStrings(value?.keywords, 8),
   };
@@ -229,10 +410,48 @@ function candidateFacingText(value, fallback, limit = 700) {
     .slice(0, limit);
 }
 
+function calibrateFit(requirements, requestedPath) {
+  const core = requirements.filter((requirement) => ["required", "responsibility"].includes(requirement.priority));
+  const assessed = core.length ? core : requirements;
+  const counts = coverageCounts(assessed);
+  const total = assessed.length;
+  const supported = counts.direct + counts.adjacent + counts.transferable;
+  const directRate = total ? counts.direct / total : 0;
+  const missingRate = total ? counts.missing / total : 1;
+  const weightedRate = total
+    ? (counts.direct + counts.adjacent * 0.72 + counts.transferable * 0.32) / total
+    : 0;
+  let path = requestedPath;
+  if (directRate >= 0.6 && weightedRate >= 0.72 && missingRate <= 0.2) path = "direct";
+  else if (weightedRate >= 0.45 && missingRate <= 0.45) path = "adjacent";
+  else path = "career_change";
+  const readinessStatus = path === "direct" && counts.missing === 0
+    ? "strong_fit"
+    : path !== "career_change" && missingRate <= 0.35
+      ? "credible_stretch"
+      : "significant_gap";
+  return { path, readinessStatus, counts, total, supported, missingRate };
+}
+
+function calibratedFitReason(calibration) {
+  if (!calibration.total) return "The posting did not yield enough atomic requirements for a dependable candidate-fit judgment.";
+  const { counts, total, supported } = calibration;
+  return `Verified résumé evidence supports ${supported} of ${total} core requirements: ${counts.direct} direct, ${counts.adjacent} adjacent, ${counts.transferable} transferable, and ${counts.missing} unsupported.`;
+}
+
+function calibratedLevel(rawLevel, path) {
+  const level = String(rawLevel || "").replace(/\s+/g, " ").trim().slice(0, 160);
+  if (path !== "career_change") return level || "Role-aligned";
+  if (!level || /\b(?:senior|lead|principal|director|manager|expert)\b/i.test(level)) return "Transitional or entry-level positioning";
+  return level;
+}
+
 export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministicPostingAssessment, fallbackKeywords = [], candidateNotes = []) {
   const raw = rawAnalysis && typeof rawAnalysis === "object" ? rawAnalysis : {};
   const requirements = (Array.isArray(raw.requirements) ? raw.requirements : [])
     .slice(0, 24)
+    .flatMap((value, index) => atomicRequirementValues(value, index))
+    .slice(0, 40)
     .map((value, index) => cleanRequirement(value, index, baseResume, candidateNotes))
     .filter(Boolean);
   const coverage = coverageCounts(requirements);
@@ -248,16 +467,11 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
       || Boolean(supportingCandidateNote(value.resume_evidence, candidateNotes))
     ));
 
-  let path = ["direct", "adjacent", "career_change"].includes(raw.fit_assessment?.path)
+  const requestedPath = ["direct", "adjacent", "career_change"].includes(raw.fit_assessment?.path)
     ? raw.fit_assessment.path
     : "career_change";
-  if (requirements.length && coverage.direct === 0) {
-    path = coverage.adjacent > 0 && coverage.transferable === 0 && coverage.missing === 0
-      ? "adjacent"
-      : "career_change";
-  } else if (path === "direct" && coverage.missing > coverage.direct) {
-    path = "adjacent";
-  }
+  const calibration = calibrateFit(requirements, requestedPath);
+  const path = calibration.path;
 
   const postingAssessment = {
     ...deterministicPostingAssessment,
@@ -265,19 +479,19 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
   };
 
   const fitAllowed = postingAssessment.fit_allowed === true;
-  const missingRequired = requirements.some((requirement) => requirement.priority === "required" && requirement.evidence_match === "missing");
   let readinessStatus = "needs_full_posting";
   if (fitAllowed) {
-    readinessStatus = path === "direct" ? "strong_fit" : path === "adjacent" ? "credible_stretch" : "significant_gap";
-    if (missingRequired) readinessStatus = path === "direct" ? "credible_stretch" : "significant_gap";
+    readinessStatus = calibration.readinessStatus;
   }
+
+  const fitReason = calibratedFitReason(calibration);
 
   const candidateFit = fitAllowed
     ? {
       status: readinessStatus === "strong_fit" ? "strong" : readinessStatus === "credible_stretch" ? "adjacent" : "gap",
       path,
-      confidence: requirements.length >= 5 ? "high" : "medium",
-      reason: candidateFacingText(raw.readiness?.reason || raw.fit_assessment?.note, postingAssessment.reason),
+      confidence: calibration.total >= 5 ? "high" : "medium",
+      reason: fitReason,
     }
     : {
       status: "not_assessed",
@@ -322,8 +536,10 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
     candidate_fit: candidateFit,
     fit_assessment: {
       path,
-      recommended_level: String(raw.fit_assessment?.recommended_level || (path === "career_change" ? "Entry-level or transitional" : "Role-aligned")).replace(/\s+/g, " ").trim().slice(0, 160),
-      note: candidateFacingText(raw.fit_assessment?.note, "Position the candidate using only verified evidence from the base résumé.", 600),
+      recommended_level: calibratedLevel(raw.fit_assessment?.recommended_level, path),
+      note: path === requestedPath
+        ? candidateFacingText(raw.fit_assessment?.note, fitReason, 600)
+        : fitReason,
     },
     content_strategy: path,
     readiness: {
@@ -334,7 +550,10 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
     coverage,
     verified_transferable_skills: transferableSkills,
     target_keywords: verifiedKeywords,
-    missing_evidence: uniqueStrings(raw.missing_evidence, 12),
+    missing_evidence: uniqueStrings([
+      ...requirements.filter((requirement) => requirement.evidence_match === "missing").map((requirement) => requirement.requirement),
+      ...(Array.isArray(raw.missing_evidence) ? raw.missing_evidence : []),
+    ], 12),
     prohibited_claims: uniqueStrings(raw.prohibited_claims, 12),
     candidate_questions: candidateQuestions,
     evidence_questions: evidenceQuestions,

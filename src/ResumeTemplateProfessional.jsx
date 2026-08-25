@@ -106,7 +106,7 @@ export function ResumeTemplateProfessional({ resumeData, item, hasLink, atsRevie
 
         {r.training?.length > 0 && (
           <>
-            <SectionHeader>Training & Certifications</SectionHeader>
+            <SectionHeader>Professional Training</SectionHeader>
             {r.training.map((training, index) => (
               <div key={`${training.name}-${index}`} style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 4, fontFamily: SERIF, fontSize: 13 }}>
                 <span><strong>{training.name}</strong>{training.provider ? ` — ${training.provider}` : ""}</span>

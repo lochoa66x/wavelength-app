@@ -126,6 +126,24 @@ function entryId(entry, index) {
   return normalized([entry?.role, entry?.company, entry?.dates].filter(Boolean).join("-")) || `experience-${index + 1}`;
 }
 
+const DEGREE_REQUIREMENT_PATTERN = /\b(?:bachelor(?:'s)?|undergraduate)\s+(?:degree|education)|\b(?:ba|bs|bsc|bba)\b/i;
+const DEGREE_EVIDENCE_PATTERN = /\b(?:bachelor(?:'s)?(?:\s+of|\s+degree)?|baccalaureate|ba|bs|bsc|bba)\b/i;
+
+function restoreRequiredEducation(resumeData, analysis, baseResume) {
+  if (Array.isArray(resumeData?.education) && resumeData.education.length) return resumeData;
+  const requiresDegree = (analysis?.requirements || []).some((requirement) => DEGREE_REQUIREMENT_PATTERN.test(requirement?.requirement));
+  if (!requiresDegree) return resumeData;
+  const line = String(baseResume || "")
+    .split(/\r?\n/)
+    .map((value) => value.replace(/^[\s•*-]+/, "").replace(/\s+/g, " ").trim())
+    .find((value) => DEGREE_EVIDENCE_PATTERN.test(value));
+  if (!line) return resumeData;
+  return {
+    ...resumeData,
+    education: [{ degree: line, institution: "", dates: "", restored_from_verified_evidence: true }],
+  };
+}
+
 function focusResume(resumeData, analysis) {
   const weights = weightedEvidenceTokens(analysis);
   const careerChange = analysis?.fit_assessment?.path === "career_change";
@@ -180,7 +198,13 @@ function focusResume(resumeData, analysis) {
   const profileWords = String(resumeData?.profile || "").split(/\s+/).filter(Boolean).length;
   const bulletWords = experience.flatMap((entry) => entry.bullets || []).join(" ").split(/\s+/).filter(Boolean).length;
   const skillWords = (resumeData?.skills || []).join(" ").split(/\s+/).filter(Boolean).length;
-  const estimatedWords = profileWords + bulletWords + skillWords + experience.length * 8;
+  const supportingWords = [
+    ...(resumeData?.projects || []).flatMap((project) => [project?.name, project?.description, ...(project?.bullets || [])]),
+    ...(resumeData?.training || []).flatMap((item) => [item?.name, item?.provider, item?.dates]),
+    ...(resumeData?.education || []).flatMap((item) => [item?.degree, item?.institution, item?.dates]),
+    ...(resumeData?.languages || []),
+  ].filter(Boolean).join(" ").split(/\s+/).filter(Boolean).length;
+  const estimatedWords = profileWords + bulletWords + skillWords + supportingWords + experience.length * 8;
   const estimatedPages = Math.max(1, Math.ceil(estimatedWords / 475));
 
   return {
@@ -189,6 +213,8 @@ function focusResume(resumeData, analysis) {
       status: estimatedPages <= 2 ? "focused" : "review",
       target_length: "one_to_two_pages",
       estimated_pages: estimatedPages,
+      estimation_method: "content_density_fallback",
+      estimated_template_id: "",
       estimated_words: estimatedWords,
       included_experience_ids: includedExperienceIds,
       condensed_experience: condensed,
@@ -249,10 +275,23 @@ export function shapeTailoredResume(resumeData, analysis) {
   return shapeTailoredResumeWithReview(resumeData, analysis).resume;
 }
 
-export function shapeTailoredResumeWithReview(resumeData, analysis) {
+export function shapeTailoredResumeWithReview(resumeData, analysis, baseResume = "") {
   const sanitized = sanitizeIdentity(resumeData && typeof resumeData === "object" ? resumeData : {});
   const strategyShaped = analysis?.fit_assessment?.path === "career_change"
     ? shapeCareerChangeResume(sanitized, analysis)
     : sanitized;
-  return focusResume(strategyShaped, analysis);
+  const evidenceComplete = restoreRequiredEducation(strategyShaped, analysis, baseResume);
+  return focusResume(evidenceComplete, analysis);
+}
+
+export function applyPdfLayoutToFocusReview(focusReview, { pages, templateId, templateName } = {}) {
+  const estimatedPages = Number.isInteger(pages) && pages > 0 ? pages : focusReview?.estimated_pages || 1;
+  return {
+    ...(focusReview || {}),
+    status: estimatedPages <= 2 ? "focused" : "review",
+    estimated_pages: estimatedPages,
+    estimation_method: "direct_pdf_layout",
+    estimated_template_id: String(templateId || ""),
+    estimated_template_name: String(templateName || ""),
+  };
 }

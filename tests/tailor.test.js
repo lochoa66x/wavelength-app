@@ -170,6 +170,9 @@ test("tailoring loads the trusted listing by id and ignores a caller URL", async
   assert.match(prompt, /Trusted stored description/);
   assert.doesNotMatch(prompt, /127\.0\.0\.1|Untrusted description/);
   assert.equal(res.statusCode, 200);
+  assert.equal(res.body.focus_review.estimation_method, "direct_pdf_layout");
+  assert.ok(res.body.focus_review.estimated_pages >= 1);
+  assert.ok(res.body.focus_review.estimated_template_id);
 });
 
 test("tailoring accepts a reviewed custom job without loading a database listing", async () => {

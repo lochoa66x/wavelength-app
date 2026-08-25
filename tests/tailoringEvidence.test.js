@@ -359,3 +359,85 @@ test("invented projects and training are blocked even without unsupported number
   assert.deepEqual(issues.unsupported_projects, [{ name: "React Portfolio" }]);
   assert.deepEqual(issues.unsupported_training, [{ name: "Full Stack Bootcamp" }]);
 });
+
+test("compound testing requirements become atomic and preserve partial verified coverage", () => {
+  const assessment = assessPostingCompleteness(completeSapPosting, null, {
+    source: "employer_page",
+    descriptionStatus: "full_description",
+  });
+  const baseResume = [
+    "EXPERIENCE",
+    "Led the full User Acceptance Testing cycle and coordinated regression tests.",
+    "Prepared and executed integration testing for new interfaces.",
+  ].join("\n");
+  const result = sanitizeTailoringAnalysis({
+    fit_assessment: { path: "direct", recommended_level: "Senior", note: "Testing experience aligns." },
+    requirements: [{
+      id: "R1",
+      requirement: "Conduct system testing including unit testing, integration testing, and UAT to ensure quality and reliability",
+      priority: "required",
+      evidence_match: "direct",
+      resume_evidence: "Led the full User Acceptance Testing cycle and coordinated regression tests.",
+      safe_language: "System testing",
+      keywords: ["unit testing", "integration testing", "UAT"],
+    }],
+  }, baseResume, assessment);
+
+  assert.equal(result.requirements.length, 3);
+  assert.equal(result.requirements.find((item) => /unit testing/i.test(item.requirement))?.evidence_match, "missing");
+  assert.equal(result.requirements.find((item) => /integration testing/i.test(item.requirement))?.evidence_match, "direct");
+  assert.equal(result.requirements.find((item) => /\bUAT\b/i.test(item.requirement))?.evidence_match, "direct");
+  assert.deepEqual(result.coverage, { direct: 2, adjacent: 0, transferable: 0, missing: 1 });
+});
+
+test("strict concepts block false positives while recovering exact language, education, ABAP, and collaboration evidence", () => {
+  const assessment = assessPostingCompleteness(completeSapPosting, null, {
+    source: "employer_page",
+    descriptionStatus: "full_description",
+  });
+  const baseResume = [
+    "TRAINING",
+    "Secret Level",
+    "EXPERIENCE",
+    "Authored functional specifications for ABAP and technical teams.",
+    "Collaborated with cross-functional teams and business stakeholders across regions.",
+    "EDUCATION",
+    "Bachelor of Business Finance Administration & Management, Monterrey Institute of Technology",
+    "LANGUAGES",
+    "English (fluent), Spanish (native), French (basic)",
+  ].join("\n");
+  const rawRequirements = [
+    ["R1", "Ensure SAP systems comply with security policies and compliance requirements", "Secret Level", "transferable"],
+    ["R2", "Ability to understand ABAP", "", "missing"],
+    ["R3", "Bachelor's degree in Business Administration or a related field", "", "missing"],
+    ["R4", "Strong English communication and interpersonal skills; ability to work with diverse teams and stakeholders", "English (fluent), Spanish (native), French (basic)", "direct"],
+    ["R5", "Strong SAP SD experience", "", "missing"],
+    ["R6", "Strong SAP LE experience", "", "missing"],
+    ["R7", "EDI partner configuration", "", "missing"],
+  ].map(([id, requirement, resume_evidence, evidence_match]) => ({
+    id,
+    requirement,
+    priority: "required",
+    evidence_match,
+    resume_evidence,
+    safe_language: requirement,
+    keywords: [],
+  }));
+  const result = sanitizeTailoringAnalysis({
+    fit_assessment: { path: "direct", recommended_level: "Senior", note: "Direct fit." },
+    requirements: rawRequirements,
+  }, baseResume, assessment);
+  const byText = (pattern) => result.requirements.find((item) => pattern.test(item.requirement));
+
+  assert.equal(byText(/security policies/i).evidence_match, "missing");
+  assert.equal(byText(/ABAP/i).evidence_match, "adjacent");
+  assert.equal(byText(/Bachelor/i).evidence_match, "direct");
+  assert.equal(byText(/English language/i).evidence_match, "direct");
+  assert.equal(byText(/interpersonal|diverse teams|stakeholders/i).evidence_match, "adjacent");
+  assert.equal(byText(/SAP SD/i).evidence_match, "missing");
+  assert.equal(byText(/SAP LE/i).evidence_match, "missing");
+  assert.equal(byText(/EDI/i).evidence_match, "missing");
+  assert.equal(result.fit_assessment.path, "career_change");
+  assert.equal(result.readiness.status, "significant_gap");
+  assert.doesNotMatch(result.candidate_fit.reason, /fit_allowed|deterministic/i);
+});

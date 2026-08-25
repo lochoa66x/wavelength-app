@@ -1225,7 +1225,7 @@ function safeSectionHeading(section, templateId, classification) {
               : templateId === TEMPLATE_IDS.CREATIVE_DESIGN && isCreativeAdjacent
                 ? "Selected Visual Content Projects"
         : "Verified Projects",
-    training: templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade ? "Training & Apprenticeship" : "Training & Certifications",
+    training: templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade ? "Training & Apprenticeship" : "Professional Training",
     certifications: templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade ? "Licences & Trade Credentials" : "Certifications",
     safety: templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade ? "Verified Safety Training" : "Safety Training",
     education: "Education",
