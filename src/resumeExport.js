@@ -1,5 +1,4 @@
 import {
-  PRELIMINARY_EXPORT_NOTICE,
   assertResumePackageIdentity,
   cleanScalar,
   createResumePackage,
@@ -7,8 +6,6 @@ import {
   safeResumeFilenameFromPackage,
   serializeApprovedValue,
 } from "./resumeModel.js";
-
-export { PRELIMINARY_EXPORT_NOTICE };
 
 /**
  * Compatibility wrapper for the previously public safe serializer. New code

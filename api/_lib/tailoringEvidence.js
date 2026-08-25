@@ -40,8 +40,16 @@ export function assessPostingCompleteness(postingText, structuredBrief = null, p
   const text = String(postingText || "").trim();
   const words = text.match(/[\p{L}\p{N}+#.%/-]+/gu) || [];
   const wordCount = words.length;
-  const abruptEnding = /(?:\.{3}|…|\b[a-z]{1,5}…?)$/i.test(text)
+  const sourceReview = structuredBrief?.source_review;
+  const responsibilityCount = structuredBrief?.responsibilities?.length || 0;
+  const qualificationCount = (structuredBrief?.required_qualifications?.length || 0)
+    + (structuredBrief?.preferred_qualifications?.length || 0);
+  const structuredSectionsComplete = responsibilityCount >= 2 && qualificationCount >= 2;
+  const structuredEndingConfirmed = structuredSectionsComplete
+    && (sourceReview?.user_confirmed_complete === true || sourceReview?.appears_complete === true);
+  const rawAbruptEnding = /(?:\.{3}|…|\b[a-z]{1,5}…?)$/i.test(text)
     || (text.length > 0 && !/[.!?)\]"']$/.test(text));
+  const abruptEnding = rawAbruptEnding && !structuredEndingConfirmed;
   const hasResponsibilities = Boolean(structuredBrief?.responsibilities?.length)
     || /\b(responsibilit(?:y|ies)|what you(?:'|’)ll do|duties|day.to.day|you will)\b/i.test(text);
   const hasQualifications = Boolean(structuredBrief?.required_qualifications?.length)
@@ -53,14 +61,13 @@ export function assessPostingCompleteness(postingText, structuredBrief = null, p
   if (!text || wordCount < 35) {
     status = "insufficient";
     reason = "Only a title or very short summary is available; important responsibilities and qualifications may be missing.";
-  } else if (wordCount < 140 || abruptEnding || (!hasResponsibilities && !hasQualifications && wordCount < 260)) {
+  } else if ((wordCount < 140 && !structuredEndingConfirmed) || abruptEnding || (!hasResponsibilities && !hasQualifications && wordCount < 260)) {
     status = "partial";
     reason = abruptEnding
       ? "The saved posting appears to end abruptly, so the technology stack or qualifications may be incomplete."
       : "The saved posting looks like an aggregator summary rather than a complete job description.";
   }
 
-  const sourceReview = structuredBrief?.source_review;
   const screenshotSetUnconfirmed = sourceReview?.mode === "screenshots"
     && sourceReview.user_confirmed_complete !== true;
   const unresolvedSourceConflicts = Boolean(sourceReview?.conflicts?.length)
@@ -211,6 +218,17 @@ function coverageCounts(requirements) {
   return counts;
 }
 
+function candidateFacingText(value, fallback, limit = 700) {
+  return String(value || fallback || "")
+    .replace(/because\s+fit_allowed\s+is\s+false\s+per\s+the\s+deterministic\s+posting\s+assessment,?\s*/gi, "Because the posting is not yet verified as complete, ")
+    .replace(/\bfit_allowed\b/gi, "posting readiness")
+    .replace(/\bapplication_ready_allowed\b/gi, "application readiness")
+    .replace(/\bdeterministic posting assessment\b/gi, "posting-readiness check")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, limit);
+}
+
 export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministicPostingAssessment, fallbackKeywords = [], candidateNotes = []) {
   const raw = rawAnalysis && typeof rawAnalysis === "object" ? rawAnalysis : {};
   const requirements = (Array.isArray(raw.requirements) ? raw.requirements : [])
@@ -259,7 +277,7 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
       status: readinessStatus === "strong_fit" ? "strong" : readinessStatus === "credible_stretch" ? "adjacent" : "gap",
       path,
       confidence: requirements.length >= 5 ? "high" : "medium",
-      reason: String(raw.readiness?.reason || raw.fit_assessment?.note || postingAssessment.reason).replace(/\s+/g, " ").trim().slice(0, 700),
+      reason: candidateFacingText(raw.readiness?.reason || raw.fit_assessment?.note, postingAssessment.reason),
     }
     : {
       status: "not_assessed",
@@ -305,7 +323,7 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
     fit_assessment: {
       path,
       recommended_level: String(raw.fit_assessment?.recommended_level || (path === "career_change" ? "Entry-level or transitional" : "Role-aligned")).replace(/\s+/g, " ").trim().slice(0, 160),
-      note: String(raw.fit_assessment?.note || "Position the candidate using only verified evidence from the base résumé.").replace(/\s+/g, " ").trim().slice(0, 600),
+      note: candidateFacingText(raw.fit_assessment?.note, "Position the candidate using only verified evidence from the base résumé.", 600),
     },
     content_strategy: path,
     readiness: {

@@ -111,12 +111,6 @@ export const ResumeDocumentPreview = forwardRef(function ResumeDocumentPreview({
         {renderPlan.header.contactLine ? <p style={{ margin: "5px 0 0", color: tokens.muted, fontFamily: tokens.fontFamily, fontSize: "9.2pt", lineHeight: 1.3 }}>{renderPlan.header.contactLine}</p> : null}
       </header>
 
-      {renderPlan.preliminaryNotice ? (
-        <p role="note" style={{ margin: "12px 0 0", padding: "7px 10px", background: "#fff2cc", color: "#784108", fontFamily: tokens.fontFamily, fontSize: "9pt", fontWeight: 700, lineHeight: 1.3, textAlign: "center" }}>
-          {renderPlan.preliminaryNotice}
-        </p>
-      ) : null}
-
       {renderPlan.sections.map((section) => (
         <section key={section.id} data-resume-section={section.id}>
           <SectionHeading tokens={tokens}>{section.heading}</SectionHeading>

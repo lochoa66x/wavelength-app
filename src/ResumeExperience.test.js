@@ -36,3 +36,20 @@ test("browser preview is single-column semantic text with print-friendly markers
   assert.match(source, /maxWidth: `\$\{tokens\.pageWidthIn\}in`/);
   assert.doesNotMatch(source, /<table|<canvas|<img|gridTemplateColumns/);
 });
+
+test("preliminary guidance stays outside the résumé while DOCX dependencies warm in advance", async () => {
+  const [experienceSource, previewSource, actionsSource] = await Promise.all([
+    readFile(new URL("./ResumeExperience.jsx", import.meta.url), "utf8"),
+    readFile(new URL("./ResumeDocumentPreview.jsx", import.meta.url), "utf8"),
+    readFile(new URL("./ResumeActions.jsx", import.meta.url), "utf8"),
+  ]);
+  const guidanceIndex = experienceSource.indexOf("Preliminary résumé");
+  const previewIndex = experienceSource.indexOf("<ResumeDocumentPreview");
+
+  assert.ok(guidanceIndex >= 0 && guidanceIndex < previewIndex);
+  assert.match(experienceSource, /import\("\.\/resumeDocx\.js"\)/);
+  assert.match(experienceSource, /prepareResumeDocxExport/);
+  assert.match(experienceSource, /guidance is not included in the résumé file/i);
+  assert.doesNotMatch(previewSource, /preliminaryNotice|PRELIMINARY DRAFT/);
+  assert.match(actionsSource, /updated while this draft was open/i);
+});

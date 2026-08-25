@@ -6,7 +6,13 @@ import { EvidenceRefinementPanel } from "./EvidenceRefinementPanel.jsx";
 import { PositioningSummary } from "./PositioningSummary.jsx";
 import { ResumeExperience } from "./ResumeExperience.jsx";
 import { extractCustomJob, tailorResume } from "./tailorClient.js";
-import { appendScreenshotFiles, MAX_SCREENSHOTS, mergeExtractedJobBriefs, screenshotBatches } from "./customJobIntake.js";
+import {
+  appendScreenshotFiles,
+  customJobSourceReviewState,
+  MAX_SCREENSHOTS,
+  mergeExtractedJobBriefs,
+  screenshotBatches,
+} from "./customJobIntake.js";
 import {
   candidateEvidenceForRequest,
   customEvidenceTargetKey,
@@ -87,10 +93,14 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
   const [evidenceRecords, setEvidenceRecords] = useState([]);
   const [evidenceStorageError, setEvidenceStorageError] = useState("");
   const sourceReview = brief?.source_review;
-  const sourceConflicts = sourceReview?.conflicts || [];
-  const screenshotSetUnconfirmed = sourceReview?.mode === "screenshots" && !sourceReview.user_confirmed_complete;
-  const unresolvedSourceConflicts = sourceConflicts.length > 0 && !sourceReview?.conflicts_resolved;
-  const sourceReviewBlocked = screenshotSetUnconfirmed || unresolvedSourceConflicts;
+  const {
+    conflicts: sourceConflicts,
+    isScreenshotReview,
+    needsScreenshotConfirmation,
+    showSourceReviewPanel,
+    blocked: sourceReviewBlocked,
+    blockingMessage: sourceReviewBlockingMessage,
+  } = customJobSourceReviewState(sourceReview);
 
   const fieldStyle = {
     width: "100%", border: `1px solid ${C.border}`, borderRadius: 11, padding: "10px 12px",
@@ -312,14 +322,16 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
             </div>
             <button type="button" onClick={() => { setBrief(null); setTailored(null); setEvidenceTargetKey(null); setEvidenceRecords([]); setEvidenceStorageError(""); setStatus("idle"); }} className="wl-btn" style={{ ...glassBtnStyle(), padding: "7px 10px", border: `1px solid ${C.border}` }}><Pencil size={12} /> Change source</button>
           </div>
-          {sourceReview?.mode === "screenshots" && (
+          {showSourceReviewPanel && (
             <div style={{ border: `1px solid ${sourceReviewBlocked ? "#E5B567" : C.border}`, borderRadius: 13, background: sourceReviewBlocked ? "#FFF8EC" : C.bgCard, padding: 13, marginBottom: 14 }}>
               <div style={{ display: "flex", gap: 9, alignItems: "flex-start" }}>
                 <AlertTriangle size={17} color={sourceReviewBlocked ? "#B86A00" : C.green} style={{ flex: "0 0 auto", marginTop: 1 }} />
                 <div style={{ minWidth: 0 }}>
-                  <strong style={{ color: C.text, fontSize: 13 }}>Verify screenshot coverage</strong>
+                  <strong style={{ color: C.text, fontSize: 13 }}>{isScreenshotReview ? "Verify screenshot coverage" : "Review conflicting source details"}</strong>
                   <p style={{ color: C.textSub, fontSize: 12, lineHeight: 1.45, margin: "4px 0 0" }}>
-                    {sourceReview.page_count || files.length} pages were reviewed. {sourceReview.completeness_notes || "Confirm that the final posting page was included before tailoring."}
+                    {isScreenshotReview
+                      ? <>{sourceReview.page_count || files.length} pages were reviewed. {sourceReview.completeness_notes || "Confirm that the final posting page was included before tailoring."}</>
+                      : "The page reader found conflicting posting details. Correct the editable fields below, then confirm your choices."}
                   </p>
                 </div>
               </div>
@@ -328,10 +340,12 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
                   {sourceConflicts.map((conflict) => <div key={conflict.field}><strong style={{ color: C.text }}>{conflict.field}:</strong> {conflict.values.join(" / ")}</div>)}
                 </div>
               )}
-              <label style={{ display: "flex", gap: 8, alignItems: "flex-start", color: C.text, fontSize: 12.5, lineHeight: 1.45, margin: "11px 0 0 26px", cursor: "pointer" }}>
-                <input type="checkbox" checked={Boolean(sourceReview.user_confirmed_complete)} onChange={(event) => updateSourceReview({ user_confirmed_complete: event.target.checked })} style={{ marginTop: 2 }} />
-                I included the final page and reviewed the responsibilities and qualifications below.
-              </label>
+              {isScreenshotReview && (
+                <label style={{ display: "flex", gap: 8, alignItems: "flex-start", color: C.text, fontSize: 12.5, lineHeight: 1.45, margin: "11px 0 0 26px", cursor: "pointer" }}>
+                  <input type="checkbox" checked={!needsScreenshotConfirmation} onChange={(event) => updateSourceReview({ user_confirmed_complete: event.target.checked })} style={{ marginTop: 2 }} />
+                  I included the final page and reviewed the responsibilities and qualifications below.
+                </label>
+              )}
               {sourceConflicts.length > 0 && (
                 <label style={{ display: "flex", gap: 8, alignItems: "flex-start", color: C.text, fontSize: 12.5, lineHeight: 1.45, margin: "8px 0 0 26px", cursor: "pointer" }}>
                   <input type="checkbox" checked={Boolean(sourceReview.conflicts_resolved)} onChange={(event) => updateSourceReview({ conflicts_resolved: event.target.checked })} style={{ marginTop: 2 }} />
@@ -358,7 +372,7 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
           </div>
 
           {error && <p role="alert" style={{ color: C.red, fontSize: 13, margin: "12px 0 0" }}>{error}</p>}
-          {sourceReviewBlocked && <p style={{ color: "#9A5B00", fontSize: 12, lineHeight: 1.45, margin: "12px 0 0" }}>Complete the screenshot review above to unlock evidence-first tailoring.</p>}
+          {sourceReviewBlocked && <p style={{ color: "#9A5B00", fontSize: 12, lineHeight: 1.45, margin: "12px 0 0" }}>{sourceReviewBlockingMessage}</p>}
           <button type="button" onClick={() => handleTailor()} disabled={status === "tailoring" || sourceReviewBlocked || !brief.title.trim() || !brief.description.trim()} className="wl-btn" style={{ ...primaryBtnStyle(status === "tailoring" || sourceReviewBlocked), marginTop: 16 }}>
             {status === "tailoring" ? <Loader2 size={15} className="wl-spin" /> : <Sparkles size={15} />}
             {status === "tailoring" ? "Tailoring and checking evidence…" : "Tailor my résumé"}

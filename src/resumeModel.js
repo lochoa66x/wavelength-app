@@ -1,7 +1,5 @@
 export const RESUME_SCHEMA_VERSION = 2;
 
-export const PRELIMINARY_EXPORT_NOTICE = "PRELIMINARY DRAFT - Verify the complete posting and every resume detail before applying.";
-
 export const TEMPLATE_IDS = Object.freeze({
   ATS_CORE: "ats-core-v1",
   SAP_FUNCTIONAL: "sap-functional-v1",
@@ -1278,7 +1276,9 @@ export function buildResumeRenderPlan(resumePackage, templateId, { preliminary =
     templateName: template.displayName,
     contentHash: pkg.contentHash,
     preliminary,
-    preliminaryNotice: preliminary ? PRELIMINARY_EXPORT_NOTICE : "",
+    // Preliminary state belongs to the surrounding product UI and filename,
+    // never to the résumé content an employer or ATS receives.
+    preliminaryNotice: "",
     header: {
       fullName: pkg.document.candidate.fullName,
       headline: pkg.document.headline,
@@ -1339,7 +1339,6 @@ function flattenManifestItem(item) {
 
 export function manifestVisibleText(manifest) {
   const lines = [manifest.header.fullName, manifest.header.headline, manifest.header.contactLine];
-  if (manifest.preliminary) lines.push(PRELIMINARY_EXPORT_NOTICE);
   for (const section of manifest.sections) {
     lines.push(section.heading);
     for (const item of section.items) lines.push(...flattenManifestItem(item));

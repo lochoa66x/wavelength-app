@@ -14,6 +14,16 @@ const DOCX_TEXT_KEYS = [
   "dates", "date", "period", "year", "provider", "issuer", "institution", "school", "company", "employer",
 ];
 
+let docxModulePromise;
+
+export function prepareResumeDocxExport() {
+  docxModulePromise ||= import("docx").catch((error) => {
+    docxModulePromise = undefined;
+    throw error;
+  });
+  return docxModulePromise;
+}
+
 export function serializeDocxText(value, seen = new Set()) {
   return serializeApprovedValue(value, { keys: ["text", ...DOCX_TEXT_KEYS], seen });
 }
@@ -52,9 +62,8 @@ export async function createResumeDocxBlob(input, template = "professional", opt
     HeadingLevel,
     Packer,
     Paragraph,
-    ShadingType,
     TextRun,
-  } = await import("docx");
+  } = await prepareResumeDocxExport();
 
   const children = [];
   const addParagraph = (content, paragraphOptions = {}) => {
@@ -80,15 +89,6 @@ export async function createResumeDocxBlob(input, template = "professional", opt
   addParagraph(text(renderPlan.header.fullName, { bold: true, size: 32 }), { alignment: AlignmentType.CENTER, spacing: { after: 50 }, keepNext: true });
   if (renderPlan.header.headline) addParagraph(text(renderPlan.header.headline, { bold: true, size: 22 }), { alignment: AlignmentType.CENTER, keepNext: true });
   if (renderPlan.header.contactLine) addParagraph(renderPlan.header.contactLine, { alignment: AlignmentType.CENTER, spacing: { after: 100 }, keepNext: true });
-  if (renderPlan.preliminaryNotice) {
-    addParagraph(text(renderPlan.preliminaryNotice, { bold: true, color: "8A4B08", size: 18 }), {
-      alignment: AlignmentType.CENTER,
-      spacing: { before: 70, after: 120 },
-      shading: { type: ShadingType.CLEAR, color: "auto", fill: "FFF2CC" },
-      keepNext: true,
-    });
-  }
-
   for (const section of renderPlan.sections) {
     addHeading(section.heading);
     if (section.type === "paragraph") {
@@ -178,6 +178,8 @@ export async function downloadResumeDocx(input, template = "professional", optio
   const anchor = document.createElement("a");
   anchor.href = url;
   anchor.download = safeResumeFilenameFromPackage(resumePackage, "docx", { preliminary });
+  document.body.appendChild(anchor);
   anchor.click();
+  anchor.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

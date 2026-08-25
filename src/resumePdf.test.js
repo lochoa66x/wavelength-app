@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { PRELIMINARY_EXPORT_NOTICE } from "./resumeExport.js";
 import { createResumePdfBytes, createResumePrintDocument } from "./resumePdf.js";
 import { marketingCommunicationsResumeFixture } from "../tests/fixtures/resumePhaseBFixtures.js";
 
@@ -64,11 +63,10 @@ test("direct PDF contains ordered selectable ATS text and no object artifacts", 
   assert.doesNotMatch(extracted.text, /PRIVATE_|\[object Object\]|undefined|null/i);
 });
 
-test("preliminary PDF is visibly labeled while final PDF is not", async () => {
+test("preliminary state stays outside both preliminary and final PDF content", async () => {
   const preliminary = await extractPdf(await createResumePdfBytes(fixture, "professional", { preliminary: true }));
   const final = await extractPdf(await createResumePdfBytes(fixture, "professional", { preliminary: false }));
-  assert.match(preliminary.text, /PRELIMINARY DRAFT/);
-  assert.match(preliminary.text, new RegExp(PRELIMINARY_EXPORT_NOTICE.split(" - ")[0]));
+  assert.doesNotMatch(preliminary.text, /PRELIMINARY DRAFT/);
   assert.doesNotMatch(final.text, /PRELIMINARY DRAFT/);
 });
 

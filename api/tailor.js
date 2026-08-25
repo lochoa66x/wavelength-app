@@ -573,6 +573,7 @@ ANALYSIS RULES
 - Extract only requirements explicitly stated or unambiguously described in the supplied posting. A job title is context, not proof of an unstated technology stack.
 - Respect the deterministic posting assessment. If it says partial or insufficient, explain that the result is preliminary and do not invent missing requirements.
 - The deterministic posting assessment is the fit gate. When fit_allowed is false, do not produce a definitive candidate-fit judgment: use fit_assessment only as a provisional content strategy, set readiness to needs_full_posting, and treat confidence as unavailable.
+- Never expose internal field names such as fit_allowed, application_ready_allowed, output_mode, or "deterministic posting assessment" in candidate-facing notes. Explain the same limitation in plain language.
 - For each requirement, classify the candidate evidence as direct, adjacent, transferable, or missing.
 - Every direct, adjacent, or transferable match MUST include a short exact excerpt copied from BASE RÉSUMÉ EVIDENCE or VERIFIED CANDIDATE NOTES. If no exact excerpt supports it, classify it as missing.
 - Direct means the candidate has performed the target capability in the target context. Adjacent means substantially similar work in a neighboring context. Transferable means a broader capability is useful but not equivalent. Do not promote transferable evidence to adjacent or direct merely to improve fit.

@@ -33,6 +33,12 @@ export function ResumeExperience({ resumeData, item, hasLink, atsReview, onEditR
     setSelectedTemplateId(storedSelection || recommendationPackage.presentation.recommendedTemplateId);
   }, [storedSelection, recommendationPackage.presentation.recommendedTemplateId]);
 
+  useEffect(() => {
+    void import("./resumeDocx.js")
+      .then(({ prepareResumeDocxExport }) => prepareResumeDocxExport())
+      .catch(() => {});
+  }, []);
+
   const resumePackage = useMemo(() => createResumePackage(resumeData, { item, atsReview, selectedTemplateId }), [resumeData, item, atsReview, selectedTemplateId]);
   const readiness = useMemo(() => getResumeExportReadiness(resumePackage, atsReview), [resumePackage, atsReview]);
   const renderPlan = useMemo(
@@ -62,6 +68,11 @@ export function ResumeExperience({ resumeData, item, hasLink, atsReview, onEditR
         C={C}
       />
 
+      {readiness.preliminary ? (
+        <p role="status" style={{ margin: "0 0 12px", padding: "10px 12px", border: `1px solid ${C.amberBorder || C.amber}`, borderRadius: 10, background: C.amberBg || "#fff8eb", color: C.amber, fontSize: 12.5, lineHeight: 1.5 }}>
+          Preliminary résumé — downloading is available, but resolve the posting or evidence gaps above before treating it as application-ready. This guidance is not included in the résumé file.
+        </p>
+      ) : null}
       <ResumeDocumentPreview ref={previewRef} renderPlan={renderPlan} />
       <ResumeActions
         resumeData={resumeData}

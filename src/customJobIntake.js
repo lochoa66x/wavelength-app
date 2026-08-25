@@ -33,6 +33,32 @@ function uniqueValues(values, limit = 40) {
   return result;
 }
 
+export function customJobSourceReviewState(sourceReview) {
+  const review = sourceReview && typeof sourceReview === "object" ? sourceReview : {};
+  const conflicts = Array.isArray(review.conflicts) ? review.conflicts : [];
+  const isScreenshotReview = review.mode === "screenshots";
+  const needsScreenshotConfirmation = isScreenshotReview && review.user_confirmed_complete !== true;
+  const needsConflictResolution = conflicts.length > 0 && review.conflicts_resolved !== true;
+  const blocked = needsScreenshotConfirmation || needsConflictResolution;
+  const blockingMessage = needsScreenshotConfirmation && needsConflictResolution
+    ? "Confirm screenshot coverage and resolve the conflicting source details above to unlock evidence-first tailoring."
+    : needsScreenshotConfirmation
+      ? "Confirm the screenshot coverage above to unlock evidence-first tailoring."
+      : needsConflictResolution
+        ? "Resolve the conflicting source details above to unlock evidence-first tailoring."
+        : "";
+
+  return {
+    conflicts,
+    isScreenshotReview,
+    needsScreenshotConfirmation,
+    needsConflictResolution,
+    showSourceReviewPanel: isScreenshotReview || conflicts.length > 0,
+    blocked,
+    blockingMessage,
+  };
+}
+
 export function appendScreenshotFiles(currentFiles, incomingFiles, limit = MAX_SCREENSHOTS) {
   const seen = new Set();
   const result = [];

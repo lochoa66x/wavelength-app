@@ -19,7 +19,6 @@ function itemLines(section, item) {
 
 export function resumeRenderPlanToPlainText(renderPlan) {
   const lines = [renderPlan.header.fullName, renderPlan.header.headline, renderPlan.header.contactLine].filter(Boolean);
-  if (renderPlan.preliminaryNotice) lines.push("", renderPlan.preliminaryNotice);
   for (const section of renderPlan.sections) {
     lines.push("", section.heading.toUpperCase());
     if (section.type === "inline-list") {

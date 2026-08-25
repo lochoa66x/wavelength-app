@@ -391,7 +391,7 @@ test("incomplete postings cap direct B3 recommendations and produce preliminary-
   });
   assert.equal(context.authorization.mode, "preliminary");
   assert.equal(context.renderPlan.preliminary, true);
-  assert.match(resumeDataToPlainText(context), /PRELIMINARY DRAFT/);
+  assert.doesNotMatch(resumeDataToPlainText(context), /PRELIMINARY DRAFT/);
   assert.equal(validateResumeExportContext(context), context);
 });
 

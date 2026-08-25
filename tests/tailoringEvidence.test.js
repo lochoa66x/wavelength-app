@@ -7,6 +7,7 @@ import {
   findSemanticIntegrityIssues,
   sanitizeTailoringAnalysis,
 } from "../api/_lib/tailoringEvidence.js";
+import { jobBriefToText } from "../api/_lib/jobBrief.js";
 
 const completeSapPosting = [
   "Responsibilities: Lead SAP S/4HANA functional delivery for finance workstreams and facilitate requirements workshops with business stakeholders.",
@@ -25,6 +26,41 @@ test("short and abruptly truncated aggregator descriptions are not treated as co
   assert.equal(assessment.appears_truncated, true);
   assert.equal(assessment.fit_allowed, false);
   assert.equal(assessment.readiness_status, "needs_full_posting");
+});
+
+test("a complete reviewed paste is not marked truncated when its final keyword is a short word", () => {
+  const structuredBrief = {
+    title: "Senior SAP SD-LE Analyst",
+    description: "Support a global SAP landscape and improve order-to-cash execution across regional plants with business and technical stakeholders.",
+    responsibilities: [
+      "Configure SAP SD and LE capabilities for sales orders, deliveries, and shipments.",
+      "Analyze requirements, author functional specifications, and support integration testing and UAT.",
+      "Troubleshoot EDI messages and collaborate with the B2B team.",
+    ],
+    required_qualifications: [
+      "Extensive SAP SD and LE implementation experience.",
+      "Hands-on SAP ECC and S/4HANA delivery experience.",
+      "Strong communication and cross-functional collaboration skills.",
+    ],
+    preferred_qualifications: ["Relevant SAP certification."],
+    keywords: ["SAP SD", "SAP LE", "SAP S/4HANA", "SAP Fiori"],
+    source_review: {
+      mode: "paste",
+      appears_complete: true,
+      user_confirmed_complete: true,
+      conflicts: [],
+      conflicts_resolved: true,
+    },
+  };
+  const assessment = assessPostingCompleteness(jobBriefToText(structuredBrief), structuredBrief, {
+    source: "candidate_reviewed",
+    descriptionStatus: "candidate_reviewed",
+  });
+
+  assert.equal(assessment.status, "complete");
+  assert.equal(assessment.appears_truncated, false);
+  assert.equal(assessment.fit_allowed, true);
+  assert.equal(assessment.readiness_status, "reviewed_complete");
 });
 
 test("a short provider snippet cannot produce a definitive fit or application-ready output", () => {
@@ -51,6 +87,21 @@ test("a short provider snippet cannot produce a definitive fit or application-re
   assert.equal(analysis.candidate_fit.status, "not_assessed");
   assert.equal(analysis.candidate_fit.confidence, "unavailable");
   assert.equal(analysis.readiness.status, "needs_full_posting");
+});
+
+test("candidate-facing positioning removes internal posting-gate field names", () => {
+  const assessment = assessPostingCompleteness("Short posting summary that ends before responsibilities or qualifications…");
+  const analysis = sanitizeTailoringAnalysis({
+    fit_assessment: {
+      path: "career_change",
+      recommended_level: "Entry to mid-level",
+      note: "Because fit_allowed is false per the deterministic posting assessment, this fit assessment is provisional only.",
+    },
+    requirements: [],
+  }, "SAP integration experience", assessment);
+
+  assert.match(analysis.fit_assessment.note, /posting is not yet verified as complete/i);
+  assert.doesNotMatch(analysis.fit_assessment.note, /fit_allowed|deterministic posting assessment/i);
 });
 
 test("a reviewed complete posting permits evidence-backed fit and exact résumé citations", () => {

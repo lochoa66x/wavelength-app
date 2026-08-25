@@ -250,13 +250,9 @@ try {
     verifyPdfSectionStarts(pdfInspection, output.context, `${output.prefix} PDF`);
     verifyCompactProjectsStayTogether(pdfInspection, output.context, `${output.prefix} PDF`);
     verifyAgainstManifest(plainText, output.context, `${output.prefix} plain text`);
-    if (output.context.renderPlan.preliminary) {
-      assert.match(docxText, /PRELIMINARY DRAFT/);
-      assert.match(pdfInspection.text, /PRELIMINARY DRAFT/);
-    } else {
-      assert.doesNotMatch(docxText, /PRELIMINARY DRAFT/);
-      assert.doesNotMatch(pdfInspection.text, /PRELIMINARY DRAFT/);
-    }
+    assert.doesNotMatch(docxText, /PRELIMINARY DRAFT/);
+    assert.doesNotMatch(pdfInspection.text, /PRELIMINARY DRAFT/);
+    assert.doesNotMatch(plainText, /PRELIMINARY DRAFT/);
     assert.ok(pdfInspection.items.length > 15, `${output.prefix} PDF did not expose enough selectable text items`);
     if ([
       TEMPLATE_IDS.TECHNICAL_SOFTWARE,

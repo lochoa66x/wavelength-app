@@ -162,16 +162,6 @@ export async function createResumePdfBytes(input, template = "professional", opt
   writeLines(renderPlan.header.fullName, { size: tokens.nameFontSizePt, style: "bold", leading: 20, after: 4, align: "center" });
   if (renderPlan.header.headline) writeLines(renderPlan.header.headline, { size: tokens.headlineFontSizePt, style: "bold", color: [55, 55, 60], leading: 14, after: 3, align: "center" });
   if (renderPlan.header.contactLine) writeLines(renderPlan.header.contactLine, { size: 9.2, color: [65, 65, 70], leading: 11.5, after: 8, align: "center" });
-  if (renderPlan.preliminaryNotice) {
-    const noticeLines = wrappedLines(renderPlan.preliminaryNotice, contentWidth - 20, 9);
-    const noticeHeight = noticeLines.length * 11.5 + 12;
-    ensureSpace(noticeHeight + 5);
-    doc.setFillColor(255, 242, 204);
-    doc.roundedRect(page.left, y, contentWidth, noticeHeight, 2, 2, "F");
-    y += 6;
-    writeLines(renderPlan.preliminaryNotice, { x: page.left + 10, width: contentWidth - 20, size: 9, style: "bold", color: [120, 65, 8], leading: 11.5, after: 6, align: "center", ensure: false });
-  }
-
   for (const section of renderPlan.sections) {
     ensureSpace(34 + firstSectionBlockHeight(section));
     heading(section.heading);

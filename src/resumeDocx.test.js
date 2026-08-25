@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { PRELIMINARY_EXPORT_NOTICE, normalizeResumeForExport } from "./resumeExport.js";
+import { normalizeResumeForExport } from "./resumeExport.js";
 import { createResumeDocxBlob, normalizeDocxRuns, serializeDocxText } from "./resumeDocx.js";
 
 async function inspectDocx(blob) {
@@ -98,10 +98,10 @@ test("DOCX keeps compact project paragraphs together when Word paginates", async
   assert.match(finalBulletParagraph || "", /<w:keepNext w:val="false"\/>/);
 });
 
-test("preliminary DOCX is visibly labeled while final DOCX is not", async () => {
+test("preliminary state stays outside both preliminary and final DOCX content", async () => {
   const preliminary = await inspectDocx(await createResumeDocxBlob(structuredFixture(), "professional", { preliminary: true }));
   const final = await inspectDocx(await createResumeDocxBlob(structuredFixture(), "professional", { preliminary: false }));
-  assert.match(preliminary.visibleText, new RegExp(PRELIMINARY_EXPORT_NOTICE.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  assert.doesNotMatch(preliminary.visibleText, /PRELIMINARY DRAFT/);
   assert.doesNotMatch(final.visibleText, /PRELIMINARY DRAFT/);
 });
 

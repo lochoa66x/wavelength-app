@@ -1,8 +1,10 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
   appendScreenshotFiles,
+  customJobSourceReviewState,
   MAX_SCREENSHOTS,
   mergeExtractedJobBriefs,
   screenshotBatches,
@@ -70,4 +72,33 @@ test("screenshot extraction merges repeated content and exposes source conflicts
     "Support user acceptance testing",
   ]);
   assert.deepEqual(merged.keywords, ["SAP MM", "SAP SD", "UAT"]);
+});
+
+test("paste or URL conflicts expose a resolvable source review instead of a hidden screenshot gate", async () => {
+  const unresolved = customJobSourceReviewState({
+    mode: "paste",
+    user_confirmed_complete: true,
+    conflicts: [{ field: "company", values: ["Architecture In Motion Inc.", "Manufacturing client"] }],
+    conflicts_resolved: false,
+  });
+  assert.equal(unresolved.isScreenshotReview, false);
+  assert.equal(unresolved.needsScreenshotConfirmation, false);
+  assert.equal(unresolved.needsConflictResolution, true);
+  assert.equal(unresolved.showSourceReviewPanel, true);
+  assert.equal(unresolved.blocked, true);
+  assert.match(unresolved.blockingMessage, /conflicting source details/i);
+  assert.doesNotMatch(unresolved.blockingMessage, /screenshot review/i);
+
+  const resolved = customJobSourceReviewState({
+    mode: "paste",
+    conflicts: unresolved.conflicts,
+    conflicts_resolved: true,
+  });
+  assert.equal(resolved.blocked, false);
+
+  const flowSource = await readFile(new URL("./CustomJobFlow.jsx", import.meta.url), "utf8");
+  assert.match(flowSource, /showSourceReviewPanel &&/);
+  assert.match(flowSource, /Review conflicting source details/);
+  assert.match(flowSource, /sourceReviewBlockingMessage/);
+  assert.doesNotMatch(flowSource, /Complete the screenshot review above/);
 });

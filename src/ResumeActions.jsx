@@ -5,6 +5,14 @@ import { resumeDataToPlainText } from "./resumeText.js";
 import { createResumeExportContext, getResumeExportReadiness, validateResumeExportContext } from "./resumeReadiness.js";
 import { useAuth } from "./auth.jsx";
 
+export function docxExportErrorMessage(error) {
+  const detail = String(error?.message || error || "");
+  if (/dynamically imported module|importing a module script failed|chunkload|loading chunk|failed to fetch/i.test(detail)) {
+    return "Gigscapes was updated while this draft was open, so its DOCX exporter is stale. Refresh the page, regenerate the draft, and download it again.";
+  }
+  return "The DOCX could not be created. Try again, or copy the tailored text while this draft remains open.";
+}
+
 export function ResumeActions({ resumeData, resumePackage, renderPlan, template, previewRef, item, hasLink, atsReview, onEditResume, C, primaryBtnStyle }) {
   const { requestAccountAction } = useAuth();
   const [docxState, setDocxState] = useState("idle");
@@ -25,7 +33,7 @@ export function ResumeActions({ resumeData, resumePackage, renderPlan, template,
     } catch (error) {
       console.error("DOCX export failed:", error);
       setDocxState("error");
-      setMessage({ type: "error", text: "The DOCX could not be created. Copy the tailored text instead." });
+      setMessage({ type: "error", text: docxExportErrorMessage(error) });
     }
   };
 
@@ -77,12 +85,10 @@ export function ResumeActions({ resumeData, resumePackage, renderPlan, template,
 
   return (
     <>
-      <p role={readiness.missingIdentity ? "alert" : undefined} style={{ fontSize: 12, color: readiness.missingIdentity ? C.red : readiness.preliminary ? C.amber : C.textFaint, margin: "0 0 12px", lineHeight: 1.5 }}>
+      <p role={readiness.missingIdentity ? "alert" : undefined} style={{ fontSize: 12, color: readiness.missingIdentity ? C.red : C.textFaint, margin: "0 0 12px", lineHeight: 1.5 }}>
         {readiness.missingIdentity
           ? "Add your real name to the saved résumé before exporting. Gigscapes will never insert an identity placeholder."
-          : readiness.preliminary
-            ? "Preliminary draft — resolve the evidence or posting gaps above before treating it as application-ready."
-            : "Review every detail before applying — nothing is submitted automatically."}
+          : "Review every detail before applying — nothing is submitted automatically."}
         {readiness.missingIdentity && onEditResume ? (
           <> <button type="button" onClick={onEditResume} className="wl-btn" style={{ border: 0, padding: 0, background: "transparent", color: C.red, font: "inherit", fontWeight: 700, textDecoration: "underline", cursor: "pointer" }}>Edit saved résumé</button></>
         ) : null}
