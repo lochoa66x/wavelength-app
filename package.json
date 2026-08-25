@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "test": "node --test",
     "audit:locations": "node scripts/auditListingLocations.mjs",
+    "audit:sources": "node scripts/auditPublicListingQuality.mjs",
     "verify:exports": "node scripts/verifyResumeExports.mjs"
   },
   "dependencies": {

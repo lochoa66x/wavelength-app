@@ -142,6 +142,7 @@ export function mapAtsResult(config, job, { now = new Date() } = {}) {
   if (!isCanadaRelevant(location, structuredLocation)) return null;
 
   const explicitType = jobType !== "unlabeled";
+  const description = cleanFeedHtml(normalized.description).slice(0, 12_000) || null;
   return {
     source: config.provider,
     external_id: `${config.board}:${rawId}`,
@@ -155,7 +156,8 @@ export function mapAtsResult(config, job, { now = new Date() } = {}) {
       ? `Explicitly ${jobType}, employer-direct via ${config.provider}`
       : `Employer-direct listing via ${config.provider}`,
     url,
-    description: cleanFeedHtml(normalized.description).slice(0, 12_000) || null,
+    description,
+    description_snippet: description?.slice(0, 1_200) || null,
     posted_at: feedIsoDate(normalized.postedAt),
     fetched_at: now.toISOString(),
     ...structuredLocation,

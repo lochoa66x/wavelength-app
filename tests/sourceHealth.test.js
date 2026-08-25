@@ -52,6 +52,20 @@ test("cron health distinguishes success, partial failure, complete failure, and 
   assert.equal(categorizeSourceError(new Error("No valid fresh listings")), "invalid_batch");
 });
 
+test("skipped source summaries reduce arbitrary reasons to a safe category", async () => {
+  const outcome = await runSourceImport(async () => ({
+    skipped: true,
+    skipCategory: "disabled_by_policy",
+    reason: "secret board and environment detail",
+    saved: 0,
+  }));
+  const summary = summarizeSourceOutcome(outcome, "Import failed");
+
+  assert.equal(summary.skipCategory, "disabled_by_policy");
+  assert.equal("reason" in summary, false);
+  assert.doesNotMatch(JSON.stringify(summary), /secret board/);
+});
+
 test("structured health logging emits one sanitized JSON record", () => {
   const entries = [];
   const sources = { source: { ok: false, state: "failed", error: "Import failed", errorCategory: "upstream" } };

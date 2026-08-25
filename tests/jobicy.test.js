@@ -74,6 +74,7 @@ test("Jobicy mapping preserves canonical attribution and structured Canada-remot
   assert.equal(row.country_code, "CA");
   assert.equal(row.url, sampleJob.url);
   assert.equal(row.description, "Help Canadian customers & teams.");
+  assert.equal(row.description_snippet, "Help Canadian customers & teams.");
   assert.match(row.reason, /from Jobicy$/);
   assert.equal(row.tier, "HIGH");
 });

@@ -287,6 +287,7 @@ export function mapAdzunaResult(result, sourceCategory, { now = new Date() } = {
     country_code: "CA",
   });
   const explicitType = jobType !== "unlabeled";
+  const description = clean(result?.description).slice(0, 12_000) || null;
 
   return {
     source: "adzuna",
@@ -301,7 +302,8 @@ export function mapAdzunaResult(result, sourceCategory, { now = new Date() } = {
       ? `Explicitly ${jobType}, matched ${classification.category} from Adzuna`
       : `Matched ${classification.category} from Adzuna`,
     url,
-    description: clean(result?.description).slice(0, 12_000) || null,
+    description,
+    description_snippet: description?.slice(0, 1_200) || null,
     posted_at: postedAt,
     fetched_at: now.toISOString(),
     ...structuredLocation,

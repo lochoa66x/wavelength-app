@@ -345,6 +345,30 @@ test("free public feeds still run when Jooble credentials are absent", async () 
   assert.equal(joobleCalled, false);
 });
 
+test("source policy disables one public feed without blocking its companions", async () => {
+  let jobicyCalled = false;
+  const handler = createJoobleCronHandler({
+    getConfig: () => ({ ...config, disabledSources: new Set(["jobicy"]) }),
+    createClientImpl: () => ({ from: () => ({}) }),
+    ingest: async () => ({ requests: 1, saved: 5 }),
+    jobicyIngest: async () => {
+      jobicyCalled = true;
+      return { saved: 1 };
+    },
+    ...publicFeedStubs,
+  });
+  const res = responseRecorder();
+
+  await handler({ method: "GET", headers: { authorization: "Bearer cron-secret" } }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.partial, false);
+  assert.equal(res.body.sources.jobicy.skipped, true);
+  assert.equal(res.body.sources.jobicy.skipCategory, "disabled_by_policy");
+  assert.equal(res.body.sources.himalayas.saved, 60);
+  assert.equal(jobicyCalled, false);
+});
+
 test("Jooble cron isolates a Jobicy outage and reports a partial success", async () => {
   const handler = createJoobleCronHandler({
     getConfig: () => config,
@@ -401,4 +425,5 @@ test("Jooble API credentials are optional when secure shared cron configuration 
 
   assert.equal(parsed.joobleApiKey, undefined);
   assert.equal(parsed.supabaseSecretKey, "sb_secret_test");
+  assert.deepEqual(parsed.disabledSources, new Set());
 });

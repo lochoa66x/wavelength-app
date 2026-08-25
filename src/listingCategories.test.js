@@ -9,6 +9,7 @@ import {
   guessCategoryFromKeyword,
   inferHighConfidenceTitleCategory,
   inferKeywordIntent,
+  isListingFreshForDiscovery,
   normalizeFieldLabel,
   normalizeListingCategory,
   normalizeListingReason,
@@ -125,6 +126,16 @@ test("discovery ordering uses relevance, then valid freshness, then stable id", 
   ].sort(compareListingDiscoveryOrder);
 
   assert.deepEqual(listings.map(({ id }) => id), ["c", "a", "d", "b"]);
+});
+
+test("discovery excludes stale and materially future-dated rows but retains unknown dates", () => {
+  const now = new Date("2026-08-25T12:00:00Z");
+
+  assert.equal(isListingFreshForDiscovery({ postedAt: "2026-08-24T00:00:00Z" }, { now }), true);
+  assert.equal(isListingFreshForDiscovery({ postedAt: "2026-05-01T00:00:00Z" }, { now }), false);
+  assert.equal(isListingFreshForDiscovery({ postedAt: "2026-08-27T00:00:00Z" }, { now }), false);
+  assert.equal(isListingFreshForDiscovery({ postedAt: "invalid" }, { now }), true);
+  assert.equal(isListingFreshForDiscovery({}, { now }), true);
 });
 
 test("treats SaaS as a cross-functional domain while respecting role context", () => {

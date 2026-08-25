@@ -11,6 +11,11 @@ const SAFE_NUMERIC_METRICS = [
   "failed",
 ];
 
+const SAFE_SKIP_CATEGORIES = new Set([
+  "configuration",
+  "disabled_by_policy",
+]);
+
 function safeMetric(value) {
   const number = Number(value);
   return Number.isFinite(number) && number >= 0 ? number : undefined;
@@ -54,7 +59,11 @@ export function summarizeSourceOutcome(outcome, failureMessage) {
     skipped: Boolean(value.skipped),
     durationMs,
   };
-  if (value.skipped && typeof value.reason === "string") summary.reason = value.reason;
+  if (value.skipped) {
+    summary.skipCategory = SAFE_SKIP_CATEGORIES.has(value.skipCategory)
+      ? value.skipCategory
+      : "configuration";
+  }
   for (const metric of SAFE_NUMERIC_METRICS) {
     const safe = safeMetric(value[metric]);
     if (safe !== undefined) summary[metric] = safe;

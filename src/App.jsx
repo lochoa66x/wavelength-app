@@ -44,6 +44,7 @@ import {
   categoriesForField,
   compareListingDiscoveryOrder,
   inferKeywordIntent,
+  isListingFreshForDiscovery,
   isTradesLikeCategory,
   normalizeFieldLabel,
   scoreListingRelevance,
@@ -593,7 +594,7 @@ function ScanningTransition({ onDone }) {
         <div style={{ position: "absolute", inset: 14, borderRadius: "50%", background: C.green }} />
       </div>
       <div style={{ fontFamily: SYS_FONT, fontSize: 14, color: C.textSub, fontWeight: 500 }}>
-        Scanning We Work Remotely, Adzuna, Jooble, and Jobicy…
+        Searching available Canadian and remote sources…
       </div>
     </div>
   );
@@ -1055,7 +1056,12 @@ export default function Gigscapes() {
   const selectedWorkTypes = criteria.workTypes || [];
   const filterByWorkType = selectedWorkTypes.length > 0 && !selectedWorkTypes.includes("any");
 
-  const keywordRelevantListings = liveListings
+  const discoveryNow = new Date();
+  const discoveryListings = liveListings.filter((item) =>
+    isListingFreshForDiscovery(item, { now: discoveryNow }),
+  );
+
+  const keywordRelevantListings = discoveryListings
     .map((item) => ({
       ...item,
       relevance: !keywordInput && selectedCategories.length === 0
@@ -1081,7 +1087,7 @@ export default function Gigscapes() {
     ? diagnoseSearchResults({
       keyword: keywordInput,
       intent: keywordIntent,
-      availableCount: liveListings.length,
+      availableCount: discoveryListings.length,
       keywordMatchCount: keywordRelevantListings.length,
       workTypeMatchCount: relevantListings.length,
       filteredCount: filtered.length,
@@ -2014,7 +2020,7 @@ export default function Gigscapes() {
       <footer style={{ marginTop: 28, paddingTop: 18, borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", gap: 16 }}>
         <div style={{ color: C.textFaint, display: "flex", flexDirection: "column", gap: 6 }}>
           <span style={{ fontSize: 12, fontWeight: 500, display: "flex", alignItems: "center", flexWrap: "wrap" }}>
-            Live feeds: We Work Remotely&nbsp;•&nbsp;<SourceAttribution source="Jobs by Adzuna" />&nbsp;•&nbsp;<SourceAttribution source="Jooble" />&nbsp;•&nbsp;<SourceAttribution source="Jobicy" />&nbsp;•&nbsp;<SourceAttribution source="Himalayas" />
+            Sources may include: We Work Remotely&nbsp;•&nbsp;<SourceAttribution source="Jobs by Adzuna" />&nbsp;•&nbsp;<SourceAttribution source="Jooble" />&nbsp;•&nbsp;<SourceAttribution source="Jobicy" />&nbsp;•&nbsp;<SourceAttribution source="Himalayas" />
           </span>
           <a href="https://www.craigslist.org/about/sites#CA" target="_blank" rel="noreferrer" style={MANUAL_SOURCE_LINK_STYLE}>
             Browse Craigslist Canada directly (not imported) <ExternalLink size={11} aria-hidden="true" />

@@ -121,6 +121,7 @@ export function mapHimalayasResult(job, { now = new Date() } = {}) {
     country_code: HIMALAYAS_COUNTRY,
   });
   const explicitType = jobType !== "unlabeled";
+  const description = cleanFeedHtml(job?.description || job?.excerpt).slice(0, 12_000) || null;
 
   return {
     source: "himalayas",
@@ -135,7 +136,8 @@ export function mapHimalayasResult(job, { now = new Date() } = {}) {
       ? `Explicitly ${jobType}, matched ${classification.category} from Himalayas`
       : `Matched ${classification.category} from Himalayas`,
     url,
-    description: cleanFeedHtml(job?.description || job?.excerpt).slice(0, 12_000) || null,
+    description,
+    description_snippet: description?.slice(0, 1_200) || null,
     posted_at: postedAt,
     fetched_at: now.toISOString(),
     ...structuredLocation,

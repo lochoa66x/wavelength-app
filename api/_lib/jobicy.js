@@ -176,6 +176,7 @@ export function mapJobicyResult(job, { now = new Date() } = {}) {
       : `Matched ${classification.category} from Jobicy`,
     url,
     description: description || null,
+    description_snippet: description.slice(0, 1_200) || null,
     posted_at: postedAt,
     fetched_at: now.toISOString(),
     ...structuredLocation,

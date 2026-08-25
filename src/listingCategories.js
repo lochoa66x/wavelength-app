@@ -414,6 +414,19 @@ export function compareListingDiscoveryOrder(left, right) {
     || String(left?.id || "").localeCompare(String(right?.id || ""));
 }
 
+export function isListingFreshForDiscovery(listing, {
+  now = new Date(),
+  maxAgeDays = 60,
+} = {}) {
+  const postedAt = validListingTime(listing?.postedAt || listing?.posted_at);
+  if (!postedAt) return true;
+  const clock = validListingTime(now);
+  if (!clock) return true;
+  const ageMs = clock - postedAt;
+  return ageMs >= -24 * 60 * 60 * 1000
+    && ageMs <= maxAgeDays * 24 * 60 * 60 * 1000;
+}
+
 export function normalizeWorkArrangement(jobType = "", title = "") {
   const value = `${jobType || ""} ${title || ""}`.toLowerCase();
   if (/part[ -]?time/.test(value)) return "part-time";

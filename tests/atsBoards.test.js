@@ -81,12 +81,15 @@ test("employer-direct mapping preserves each ATS provider's canonical URL", () =
   assert.equal(greenhouse.source, "greenhouse");
   assert.equal(greenhouse.country_code, "CA");
   assert.equal(greenhouse.category, "tech");
+  assert.equal(greenhouse.description_snippet, "Support SAP delivery.");
   assert.equal(lever.source, "lever");
   assert.equal(lever.location_type, "remote");
   assert.equal(lever.country_code, "CA");
+  assert.equal(lever.description_snippet, "Build Java services.");
   assert.equal(ashby.source, "ashby");
   assert.equal(ashby.city, "Montréal");
   assert.equal(ashby.country_code, "CA");
+  assert.equal(ashby.description_snippet, "Build Python services.");
 });
 
 test("employer-direct mapping excludes obvious US-only roles", () => {

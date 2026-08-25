@@ -4,6 +4,11 @@ import { runHimalayasIngestion } from "../_lib/himalayas.js";
 import { runJobicyIngestion } from "../_lib/jobicy.js";
 import { runJoobleIngestion } from "../_lib/jooble.js";
 import {
+  parseDisabledJobSources,
+  skippedSourceImport,
+  sourceImportDecision,
+} from "../_lib/sourcePolicy.js";
+import {
   logCronHealth,
   runSourceImport,
   summarizeCronHealth,
@@ -16,6 +21,7 @@ export function getJoobleCronConfig(env = process.env) {
     cronSecret: env.CRON_SECRET?.trim(),
     supabaseUrl: (env.SUPABASE_URL || env.VITE_SUPABASE_URL)?.trim(),
     supabaseSecretKey: env.SUPABASE_SECRET_KEY?.trim(),
+    disabledSources: parseDisabledJobSources(env.JOB_SOURCE_DISABLED),
   };
   const required = {
     cronSecret: config.cronSecret,
@@ -65,22 +71,29 @@ export function createJoobleCronHandler({
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
-    const joobleConfigured = Boolean(config.joobleApiKey);
+    const disabledSources = config.disabledSources || new Set();
+    const decisions = {
+      jooble: sourceImportDecision({
+        source: "jooble",
+        configured: Boolean(config.joobleApiKey),
+        disabledSources,
+      }),
+      jobicy: sourceImportDecision({ source: "jobicy", disabledSources }),
+      himalayas: sourceImportDecision({ source: "himalayas", disabledSources }),
+    };
     const [joobleResult, jobicyResult, himalayasResult] = await Promise.all([
-      runSourceImport(() => joobleConfigured
+      runSourceImport(() => decisions.jooble.enabled
         ? ingest({
           supabase,
           apiKey: config.joobleApiKey,
         })
-        : Promise.resolve({
-          skipped: true,
-          reason: "JOOBLE_API_KEY is not configured",
-          requests: 0,
-          received: 0,
-          saved: 0,
-        })),
-      runSourceImport(() => jobicyIngest({ supabase })),
-      runSourceImport(() => himalayasIngest({ supabase })),
+        : Promise.resolve(skippedSourceImport(decisions.jooble))),
+      runSourceImport(() => decisions.jobicy.enabled
+        ? jobicyIngest({ supabase })
+        : Promise.resolve(skippedSourceImport(decisions.jobicy))),
+      runSourceImport(() => decisions.himalayas.enabled
+        ? himalayasIngest({ supabase })
+        : Promise.resolve(skippedSourceImport(decisions.himalayas))),
     ]);
 
     const sources = {

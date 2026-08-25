@@ -3,6 +3,12 @@ import { createClient } from "@supabase/supabase-js";
 import { runAdzunaIngestion } from "../_lib/adzuna.js";
 import { parseAtsBoardConfig, runAtsBoardIngestion } from "../_lib/atsBoards.js";
 import {
+  filterEligibleAtsBoards,
+  parseDisabledJobSources,
+  skippedSourceImport,
+  sourceImportDecision,
+} from "../_lib/sourcePolicy.js";
+import {
   logCronHealth,
   runSourceImport,
   summarizeCronHealth,
@@ -17,6 +23,7 @@ export function getAdzunaCronConfig(env = process.env) {
     supabaseUrl: (env.SUPABASE_URL || env.VITE_SUPABASE_URL)?.trim(),
     supabaseSecretKey: env.SUPABASE_SECRET_KEY?.trim(),
     atsBoards: parseAtsBoardConfig(env.ATS_JOB_BOARDS),
+    disabledSources: parseDisabledJobSources(env.JOB_SOURCE_DISABLED),
   };
   const required = {
     cronSecret: config.cronSecret,
@@ -65,10 +72,21 @@ export function createAdzunaCronHandler({
       auth: { autoRefreshToken: false, persistSession: false },
     });
 
+    const disabledSources = config.disabledSources || new Set();
     const adzunaConfigured = Boolean(config.adzunaAppId && config.adzunaAppKey);
-    const atsConfigured = Boolean(config.atsBoards?.length);
+    const adzunaDecision = sourceImportDecision({
+      source: "adzuna",
+      configured: adzunaConfigured,
+      disabledSources,
+    });
+    const configuredAtsBoards = config.atsBoards || [];
+    const eligibleAtsBoards = filterEligibleAtsBoards(configuredAtsBoards, disabledSources);
+    const atsDecision = {
+      enabled: eligibleAtsBoards.length > 0,
+      skipCategory: configuredAtsBoards.length > 0 ? "disabled_by_policy" : "configuration",
+    };
     const [adzunaResult, atsResult] = await Promise.all([
-      runSourceImport(() => adzunaConfigured
+      runSourceImport(() => adzunaDecision.enabled
         ? ingest({
           supabase,
           credentials: {
@@ -76,16 +94,10 @@ export function createAdzunaCronHandler({
             appKey: config.adzunaAppKey,
           },
         })
-        : Promise.resolve({
-          skipped: true,
-          reason: "ADZUNA_APP_ID and ADZUNA_APP_KEY are not configured",
-          requests: 0,
-          received: 0,
-          saved: 0,
-        })),
-      runSourceImport(() => atsConfigured
-        ? atsIngest({ supabase, boards: config.atsBoards })
-        : Promise.resolve({ skipped: true, reason: "ATS_JOB_BOARDS is not configured", boards: 0, received: 0, saved: 0 })),
+        : Promise.resolve(skippedSourceImport(adzunaDecision))),
+      runSourceImport(() => atsDecision.enabled
+        ? atsIngest({ supabase, boards: eligibleAtsBoards })
+        : Promise.resolve(skippedSourceImport(atsDecision, { boards: configuredAtsBoards.length }))),
     ]);
 
     const sources = {

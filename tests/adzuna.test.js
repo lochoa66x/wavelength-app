@@ -123,6 +123,7 @@ test("Adzuna mapping produces a structured Canadian trades listing", () => {
   assert.equal(row.region, "ontario");
   assert.equal(row.country_code, "CA");
   assert.equal(row.url, "https://www.adzuna.ca/details/12345");
+  assert.equal(row.description_snippet, "Install and repair plumbing systems.");
   assert.equal(row.tier, "HIGH");
 });
 
@@ -298,6 +299,41 @@ test("cron skips optional paid feeds cleanly when none are configured", async ()
   assert.equal(atsCalled, false);
 });
 
+test("source policy disables Adzuna while an eligible employer board still runs", async () => {
+  let adzunaCalled = false;
+  let receivedBoards;
+  const handler = createAdzunaCronHandler({
+    getConfig: () => ({
+      ...config,
+      disabledSources: new Set(["adzuna", "lever"]),
+      atsBoards: [
+        { provider: "lever", board: "disabled", company: "Disabled" },
+        { provider: "greenhouse", board: "enabled", company: "Enabled" },
+      ],
+    }),
+    createClientImpl: () => ({ from: () => ({}) }),
+    ingest: async () => {
+      adzunaCalled = true;
+      return { saved: 1 };
+    },
+    atsIngest: async ({ boards }) => {
+      receivedBoards = boards;
+      return { boards: 1, received: 8, saved: 5 };
+    },
+  });
+  const res = responseRecorder();
+
+  await handler({ method: "GET", headers: { authorization: "Bearer cron-secret" } }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.sources.adzuna.skipCategory, "disabled_by_policy");
+  assert.equal(res.body.sources.employerDirect.saved, 5);
+  assert.deepEqual(receivedBoards, [
+    { provider: "greenhouse", board: "enabled", company: "Enabled" },
+  ]);
+  assert.equal(adzunaCalled, false);
+});
+
 test("cron isolates an employer-board outage from a successful Adzuna import", async () => {
   const handler = createAdzunaCronHandler({
     getConfig: () => ({
@@ -360,4 +396,5 @@ test("Adzuna credentials are optional when secure shared cron configuration exis
   assert.equal(parsed.adzunaAppId, undefined);
   assert.equal(parsed.adzunaAppKey, undefined);
   assert.deepEqual(parsed.atsBoards, []);
+  assert.deepEqual(parsed.disabledSources, new Set());
 });

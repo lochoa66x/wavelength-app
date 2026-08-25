@@ -212,6 +212,16 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 - The release gate covers 130 focused tests, the full 340-test suite, all 26 persistent DOCX/PDF fixtures, visual inspection of 18 LibreOffice-converted pages and 18 direct-PDF pages, selectable text/artifact checks, desktop/mobile browser checks, and the production sourcemapped build.
 - Microsoft Word, Google Docs, a fresh authenticated production two-posting run, and live production downloads remain explicitly unclaimed when no approved authenticated test session or local application is available.
 
+**Phase C status:** Implemented locally on 2026-08-25; release evidence belongs to the commit containing this record.
+
+- Active and configurable importers now share a reviewed, allowlisted source-policy boundary. A server-only `JOB_SOURCE_DISABLED` control can stop a known importer without requesting it or disrupting successful companion sources; arbitrary source IDs fail configuration generically.
+- Scheduled responses reduce policy/configuration skips to bounded categories and continue to exclude upstream bodies, raw exception messages, credentials, board configuration, and posting content.
+- `npm run audit:sources` queries only `public.public_listings` with the publishable client and emits a redacted aggregate report covering provider counts, HTTPS validity, canonical duplicates, freshness, and snippet presence. It emits no listing title, employer, raw URL, description, résumé, user, or Auth value.
+- Discovery copy now refers to available sources and possible providers instead of claiming an unconfigured feed is actively being scanned.
+- The dated first-party eligibility matrix and operator obligations live in `docs/job-source-expansion.md`. No new provider, employer board, Supabase object, cron schedule, dependency, client tracker, or secret is introduced.
+- The anonymous production audit covered 3,270 rows: all 3,270 had valid HTTPS URLs, no canonical duplicates or materially future dates were found, 24 WWR rows were older than 60 days, and 1,038 rows lacked a public snippet. Stale dated rows are excluded from discovery without destructive deletion; active-source snippets are populated by normal scheduled refreshes.
+- Phase C passed 159 focused tests and the full 351-test suite, produced 26 verified export files with 18 native-PDF pages, matched all 18 LibreOffice-rendered DOCX pages, passed the production build, and passed signed-out desktop/mobile browser checks with no application warning/error or horizontal overflow.
+
 ## Priority 3 — Native mobile and growth work
 
 ### P3.1 iOS and Android

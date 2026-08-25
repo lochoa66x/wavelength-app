@@ -64,6 +64,7 @@ test("Himalayas mapping preserves attribution and Canadian remote eligibility", 
   assert.equal(row.country_code, "CA");
   assert.equal(row.job_type, "full-time");
   assert.equal(row.description, "Configure & test SAP systems.");
+  assert.equal(row.description_snippet, "Configure & test SAP systems.");
   assert.equal(row.url, "https://himalayas.app/jobs/remote-sap-analyst-1");
 });
 
