@@ -233,10 +233,11 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 
 ### P3.2 Evaluation and analytics
 
-- Build a redacted regression corpus by job family and candidate path.
-- Track posting completeness, requirement coverage, correction rate, user edits, export completion, and retry rate.
-- Compare model cost and quality using the same evidence fixtures before changing providers.
-- Add user feedback on fit labels and suggested bullets without collecting unnecessary resume content.
+- **Phase A implemented and locally verified on 2026-08-25:** a deterministic, synthetic, redacted regression corpus now covers five job families, direct/adjacent/transferable/career-transition/apprentice/credential-gap paths, complete and incomplete postings, and unsupported-number rejection.
+- The evaluator reuses the production tailoring, readiness, integrity, and template contracts. It fails closed unless every expected contract, export-readiness result, evidence-integrity result, template selection, and privacy gate passes.
+- Reports contain only safe case IDs, enums, booleans, counts, durations, token totals, and cost estimates. Candidate text, contact details, résumé content, posting content, prompts, model responses, evidence excerpts, and export bytes are prohibited.
+- Posting completeness, requirement coverage, correction rate, user edits, export completion, retry rate, latency, token use, and estimated cost are aggregated from synthetic fixture inputs only. These values are evaluation signals, not production-user telemetry.
+- Provider/model comparisons must use this same versioned corpus and thresholds before any provider change. Production analytics, persisted event schemas, consent/retention policy, and user-feedback collection remain deferred until a separate privacy review explicitly defines them.
 
 ## Recommended execution order
 
@@ -250,7 +251,9 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 8. P2.1 resume families plus DOCX/PDF compatibility
 9. P2.2 landing page — released and production-verified
 10. P2.3 Phase A discovery integrity and source-health release, then terms-approved feed expansion
-11. P3 native mobile and evaluation expansion
+11. P3.2 Phase A redacted evaluation gate — implemented and locally verified
+12. P3.2 privacy-reviewed, opt-in aggregate production signals and feedback design
+13. P3.1 native mobile after the web contracts and privacy boundary remain stable
 
 ## Source constraints behind P0.1
 
