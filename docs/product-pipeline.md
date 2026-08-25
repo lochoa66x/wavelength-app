@@ -177,10 +177,16 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 
 ### P2.2 Landing page
 
-- Lead with the two product paths: **Find opportunities** and **Tailor a job I found**.
-- Demonstrate evidence-first tailoring, truthful career changes, posting import, and private resume handling.
-- Use a lighter, faster brand presentation than traditional resume-builder sites.
-- Use restrained glass effects only for navigation or small controls. Do not use heavy translucency in forms, search results, or resume documents; readability, contrast, mobile performance, and ATS exports take priority.
+**Status:** Implemented and locally verified on 2026-08-24. The feature commit is the commit containing the P2.2 verification record; push, Vercel deployment, and production smoke are separate release steps.
+
+- `/` is the public marketing surface and `/app` remains the anonymously browseable workspace. Existing sign-in, callback, deep-link fallback, and account-gate behavior is preserved.
+- The two primary paths are **Browse jobs & gigs** and **Tailor a posting I found**. URL, screenshot, and pasted-text intake reuse the existing allowlisted account actions through React Router history state; no sensitive posting or résumé content is placed in a URL.
+- The page explains evidence-first tailoring, verified/missing evidence boundaries, preliminary versus application-ready output, selectable DOCX/PDF exports, Canada-first discovery, source variability, and private-work controls without fabricated outcomes or counts.
+- All nine template families come from the canonical résumé registry. Switching the generic sample preview is local, immediate, and network-free.
+- Landing and workspace UI are separate lazy route chunks. DOCX, PDF, `docx`, and `jspdf` remain reachable only from the workspace/export path.
+- SEO includes truthful title/description, canonical URL, robots metadata, Open Graph/Twitter metadata, a lightweight 1200×630 brand asset, favicon, and basic `WebSite` JSON-LD.
+- Accessibility includes semantic landmarks and headings, one H1, visible focus, approximately 44-pixel primary touch targets, reduced-motion CSS, modal mobile navigation with a focus loop/Escape/restoration, descriptive controls, and AA key-color contrast.
+- Local browser QA covers the complete page at 390×844, 360×800, 768×1024, and 1440×900 with no horizontal overflow. Production verification, signed-in navigation when a safe retained session exists, and social-crawler preview validation remain part of the separate P2.2 release step.
 
 ### P2.3 Search and feed quality
 
@@ -216,8 +222,8 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 6. P1.2 ATS writing feedback and P1.3 resume focus
 7. P1.4 guest-first access and action-gated magic links
 8. P2.1 resume families plus DOCX/PDF compatibility
-9. P2.2 landing page
-10. P2.3 ongoing source/feed work
+9. P2.2 landing page — local implementation complete; production release next
+10. P2.3 ongoing source/feed work after the P2.2 production release
 11. P3 native mobile and evaluation expansion
 
 ## Source constraints behind P0.1

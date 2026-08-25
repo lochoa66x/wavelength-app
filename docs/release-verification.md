@@ -23,6 +23,22 @@ For a guest/Auth release, also run:
 3. Confirm the production build contains separate `resumeDocx` and `resumePdf` chunks and contains no `sb_secret_`, service-role key, résumé fixture, or pending-action private content.
 4. Run `git diff --check` and record exact focused/full counts.
 
+## Public landing-page checks
+
+For P2.2 and later landing changes:
+
+1. Run the focused landing suite: `node --test src/landing/landingPage.test.js`.
+2. Run the combined route/account-boundary slice: `node --test src/landing/landingPage.test.js tests/guestAuthArchitecture.test.js src/authRoutes.test.js src/accountActions.test.js`.
+3. Re-run the documented 84-test résumé/export/tailoring suite, the 91-test guest/Auth/security suite, `npm test`, `npm run verify:exports`, and `npm run build -- --sourcemap`. Counts may grow, but no established test may regress.
+4. Inspect the production chunk graph. `/` and `/app` must remain lazy route chunks; the landing route must not reference `resumeDocx`, `resumePdf`, `docx`, `jspdf`, tailoring, job-intake, or private profile calls.
+5. Scan the production bundle for secret values and private candidate fixtures. A literal `sb_secret_` detector inside the upstream Supabase SDK is not a credential; inspect the surrounding text before classifying a match. Export-artifact strings such as `[object Object]` inside third-party runtime code are not a substitute for the real export verifier.
+6. At 390×844, 360×800, 768×1024, and 1440×900, inspect the entire page and record viewport/client geometry, document width, H1 count, template count, internal hash targets, and the first CTA position. Do not accept a sample-only screenshot.
+7. Walk the signed-out interactions: browse stays public; URL, screenshot, and pasted-text intake show their existing contextual account gate; template switching stays local; FAQ details open; mobile navigation traps focus, wraps in both directions, closes with Escape and selection, and restores focus.
+8. Inspect console errors and failed 4xx/5xx requests. If the connected browser cannot expose a request list, record that limitation and provide separate source/chunk evidence; do not call it an automated network pass.
+9. Run a semantic accessibility scan and manually check key default/hover/focus/selected color pairs. Verify one H1, logical heading order, landmarks, named controls, valid ARIA references, no positive tabindex, visible focus, reduced-motion CSS, and mobile touch targets.
+10. Validate title, description, canonical, robots, Open Graph, Twitter, favicon, image dimensions, and truthful basic structured data. Test the deployed social preview with real crawlers during the release step.
+11. Record native 200% zoom, signed-in navigation, and reduced-motion emulation when the available browser supports them. If it does not, name the missing capability and do not report it as passed.
+
 ## Guest/Auth manual checks
 
 Follow `docs/guest-auth-smoke-test.md` on desktop and a mobile viewport. Required outcomes include public search before Auth initializes, contextual account dialogs for every private action, consume-once magic-link continuation, invalid/expired-link recovery, sign-out returning to discovery, and controlled 401 responses for protected endpoints.

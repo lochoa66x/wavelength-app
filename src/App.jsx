@@ -1,4 +1,5 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { useLocation, useNavigate } from "react-router";
 import { MapPin, Clock, ExternalLink, Check, ArrowRight, ArrowLeft, Pencil, Sparkles, Loader2, CheckCircle2, Circle, Search, Bookmark, X, RotateCcw, LogOut, ChevronDown, Link2, FileImage, Text, Building2 } from "lucide-react";
 import { BrandMark } from "./BrandMark.jsx";
 import { AtsReview } from "./AtsReview.jsx";
@@ -48,6 +49,7 @@ import {
   titleMatchesSearchQuery,
 } from "./listingCategories.js";
 import { diagnoseSearchResults } from "./searchDiagnostics.js";
+import { landingAccountActionFromState } from "./landing/landingIntents.js";
 
 const SYS_FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, sans-serif";
 const ADZUNA_ATTRIBUTION_STYLE = {
@@ -576,8 +578,11 @@ function ScanningTransition({ onDone }) {
 // ============================================================================
 
 export default function Gigscapes() {
+  const location = useLocation();
+  const navigate = useNavigate();
   const {
     session,
+    loading: authLoading,
     signOut,
     error: authError,
     requestAccountAction,
@@ -645,6 +650,8 @@ export default function Gigscapes() {
   const [continuationNotice, setContinuationNotice] = useState("");
   const injected = useRef(false);
   const resumeMigrationStarted = useRef(new Set());
+  const handledLandingAction = useRef(null);
+  const landingAccountAction = landingAccountActionFromState(location.state);
 
   const resume = localResume;
   const dismissed = session?.user?.id ? profile?.dismissed_listings || [] : guestDismissed;
@@ -718,7 +725,7 @@ export default function Gigscapes() {
     });
   };
 
-  const openCustomJob = (mode, url = "") => {
+  const openCustomJob = useCallback((mode, url = "") => {
     const action = mode === "screenshots"
       ? "upload_posting_screenshots"
       : mode === "paste"
@@ -731,7 +738,7 @@ export default function Gigscapes() {
         setStep("custom_job");
       },
     });
-  };
+  }, [requestAccountAction]);
   const openResumeEditor = (returnStep = "digest") => {
     requestAccountAction("edit_resume", {
       continuation: () => {
@@ -908,6 +915,21 @@ export default function Gigscapes() {
       setStep("digest");
     }
   }, [session?.user?.id, step]);
+
+  // Landing-page intake CTAs carry only an existing allowlisted account action
+  // in React Router history state. Clear it immediately after routing so Back,
+  // Forward, and refresh cannot replay a private workflow.
+  useEffect(() => {
+    if (!landingAccountAction || authLoading || handledLandingAction.current === landingAccountAction) return;
+    handledLandingAction.current = landingAccountAction;
+    const mode = landingAccountAction === "upload_posting_screenshots"
+      ? "screenshots"
+      : landingAccountAction === "paste_posting"
+        ? "paste"
+        : "url";
+    openCustomJob(mode);
+    navigate(`${location.pathname}${location.search}${location.hash}`, { replace: true, state: null });
+  }, [landingAccountAction, authLoading, location.hash, location.pathname, location.search, navigate, openCustomJob]);
 
   // A pending instruction contains only an allowlisted action, an optional
   // public listing id, and an internal path. Consume it exactly once after a

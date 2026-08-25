@@ -153,9 +153,35 @@ Do not reapply the P1.4 migration or change production Auth/database settings du
 - Production diagnostics: the one-hour Vercel runtime-error query returned no clusters; the deployed-SHA 5xx grouping was empty; error/fatal runtime logs were empty; and the signed-out browser console was empty.
 - Final release-record SHA: the commit containing this section. The final report and Vercel deployment metadata provide its immutable Git SHA after this documentation-only commit is created.
 
+## P2.2 public landing-page implementation
+
+- [x] `/` renders the public landing page; `/app` remains the existing guest-first workspace.
+- [x] Browse, URL, screenshot, and pasted-text CTAs reuse verified app routes and allowlisted account actions.
+- [x] Router state contains only the action name, is consumed through the centralized account gate, and is cleared with `replace` to prevent replay.
+- [x] The landing page contains no AI/private-profile/export request and no private candidate fixture.
+- [x] All nine template families are read from the canonical registry and switch locally without AI.
+- [x] Landing and app routes are separate lazy chunks; DOCX/PDF libraries remain export-only chunks.
+- [x] Responsive layouts, semantic structure, modal mobile navigation, focus behavior, contrast, metadata, and internal links are verified.
+- [x] No Supabase schema, RLS, grant, migration, Auth-provider, dependency, pricing, analytics, or tracking change is included.
+
+## P2.2 local verification record — 2026-08-24
+
+- Preflight: clean `main` at `22127f4b6e06a79c3a625dddf9df4236c7ab9df6`, matching `origin/main`. The prompt's deployed-SHA line omitted one `d`; the repository value was treated as authoritative and no divergence was silently accepted.
+- Focused landing tests: 16 passed, 0 failed. Combined landing/routing/account-action/Auth-architecture slice: 53 passed, 0 failed.
+- Existing regressions: résumé/export/tailoring 84 passed, 0 failed; guest/Auth/security 91 passed, 0 failed; full suite 315 passed, 0 failed (299 baseline plus 16 landing tests).
+- Export verifier: 26 files, all nine templates, 18 direct-PDF pages, 545 selectable text items, manifest parity, verified-final gating, and stale-readiness rejection passed.
+- Production build: 1,977 modules transformed. The route-shared entry is 423.89 kB/124.68 kB gzip, the landing route is 23.06 kB/6.71 kB gzip, landing CSS is 20.71 kB/4.69 kB gzip, and the canonical landing-intent/template chunk is 64.21 kB/18.78 kB gzip. The pre-change main bundle was 648.16 kB/187.74 kB gzip. `resumeDocx` (5.07 kB), `resumePdf` (8.66 kB), and `jspdf` (390.46 kB) remain separate lazy chunks and are not referenced by the landing route.
+- Browser/responsive QA: the complete signed-out page was inspected at 390×844, 360×800, 768×1024, and 1440×900. Each surface had one H1, eight main sections, nine template controls, no duplicate IDs, no missing hash targets, and no horizontal overflow. The first browse CTA ended at 648 px and 587 px at the two mobile sizes, respectively.
+- Interaction QA: browse opened the public workspace without a dialog. URL, screenshot, and pasted-text CTAs opened the correct contextual private-account dialog. Template pointer switching, FAQ expansion, visible focus, mobile-menu open/select, forward/reverse focus wrapping, Escape dismissal, and focus restoration passed on the real components.
+- Accessibility: the semantic scan found named controls/links, valid heading order, header/nav/main/footer landmarks, no missing image alternatives, no positive tabindex, no empty links, and no invalid ARIA references after correction. Key text/background contrast ranged from 4.65:1 to 17.49:1.
+- Browser console inspection showed Vite/React development information only and no application error. The landing production modules contain no `fetch`, Supabase table query, AI endpoint, tailoring endpoint, private fixture, or export-library import; browser request-list inspection was unavailable in the connected in-app browser, so that narrower source/build evidence is recorded instead of claiming an automated network pass.
+- Dependency audit remains the known non-blocking baseline: 0 critical, 1 high Vite finding, and 1 moderate esbuild finding; remediation requires a Vite 8 major upgrade and is outside P2.2.
+- Tooling limitations: the connected browser ignored browser-zoom shortcuts, so an exact native 200% zoom result is not claimed. The stricter 360/390 responsive reflow, long headline/copy wrapping, and zero-overflow checks passed. Signed-in landing navigation was not exercised because no safe local signed-in session was available. Production/social-crawler checks remain release work.
+- Release state: one local commit only after the recorded gates pass. Nothing is pushed or deployed in this P2.2 implementation phase.
+
 Do not commit while a required check is failing. Do not push or deploy without separate authorization.
 
 ## Next pipeline step
 
-- Continue with P2.2 landing-page work, unless product priorities change.
+- Release the verified P2.2 commit through the normal GitHub/Vercel path, then smoke `/`, `/app`, all four CTA destinations, metadata/social assets, console/network behavior, mobile navigation, and the deployed SHA in production.
 - When an existing post-release tailored draft is safely available, complete the deferred authenticated nine-template switch and DOCX/PDF production-export smoke without creating an otherwise unnecessary AI request.

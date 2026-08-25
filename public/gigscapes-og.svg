@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title description">
+  <title id="title">Gigscapes</title>
+  <desc id="description">Find the work. Build the résumé that fits without inventing experience.</desc>
+  <rect width="1200" height="630" fill="#FBF8F3"/>
+  <circle cx="1065" cy="86" r="250" fill="#FFD8BE"/>
+  <circle cx="1114" cy="560" r="170" fill="#E8EFF3"/>
+  <g transform="translate(78 72) scale(.24)">
+    <path fill="#FE5E03" d="M263 0h-90C94 0 30 49 30 111c0 31 15 58 39 77l84-17c20-4 29-9 26-15-2-4-11-8-26-14-13-5-18-10-17-15 1-5 8-10 20-14 27-10 62-15 107-15V0Z"/>
+    <path fill="#1C1917" d="M195 144c30 7 52 23 62 44 4 9 6 20 6 33v95H0v-21c0-45 27-73 72-84l81-18c30-7 55-20 63-34 4-7-3-12-21-15Z"/>
+  </g>
+  <text x="158" y="126" fill="#1C1917" font-family="Arial, Helvetica, sans-serif" font-size="40" font-weight="700">Gigscapes</text>
+  <text x="78" y="286" fill="#1C1917" font-family="Arial, Helvetica, sans-serif" font-size="70" font-weight="800">Find the work.</text>
+  <text x="78" y="372" fill="#1C1917" font-family="Arial, Helvetica, sans-serif" font-size="70" font-weight="800">Build the résumé that fits.</text>
+  <text x="78" y="435" fill="#8F3200" font-family="Arial, Helvetica, sans-serif" font-size="32" font-weight="700">Without inventing experience.</text>
+  <rect x="78" y="493" width="412" height="68" rx="34" fill="#1C1917"/>
+  <text x="284" y="537" fill="#FFFFFF" font-family="Arial, Helvetica, sans-serif" font-size="25" font-weight="700" text-anchor="middle">Search or bring your own posting</text>
+</svg>
