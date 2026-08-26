@@ -52,6 +52,9 @@ import {
 } from "./listingCategories.js";
 import { diagnoseSearchResults } from "./searchDiagnostics.js";
 import { landingAccountActionFromState } from "./landing/landingIntents.js";
+import { QualitySignalSettings } from "./QualitySignalSettings.jsx";
+import { buildQualitySignal } from "./qualitySignalContract.js";
+import { durationBand, emitQualitySignal, emitResumeQualitySignal } from "./qualitySignals.js";
 
 const SYS_FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, sans-serif";
 const ADZUNA_ATTRIBUTION_STYLE = {
@@ -799,6 +802,7 @@ export default function Gigscapes() {
       return;
     }
     const previous = tailored[stateKey];
+    const startedAt = Date.now();
     const applicationEvidence = candidateEvidenceOverride
       ?? candidateEvidenceByTarget[stateKey]
       ?? loadCandidateEvidence(session?.user?.id, stateKey);
@@ -817,6 +821,13 @@ export default function Gigscapes() {
             message: enrichment.message,
             errorCode: enrichment.errorCode,
           } }));
+          void emitQualitySignal(buildQualitySignal("tailoring_blocked", {
+            route: "app",
+            postingSource: "public_listing",
+            postingReadiness: "needs_full_posting",
+            outcome: "blocked",
+            durationBand: durationBand(Date.now() - startedAt),
+          }));
           return;
         }
         setTailored((t) => ({ ...t, [stateKey]: { status: "loading", phase: "tailoring", enrichment: enrichment.listing } }));
@@ -836,8 +847,24 @@ export default function Gigscapes() {
         previousCoverage: previous?.atsReview?.coverage || null,
         enrichment: enrichment?.listing || null,
       } }));
+      void emitResumeQualitySignal("tailoring_completed", {
+        resumeData: result.resume,
+        item,
+        atsReview: result.atsReview,
+        route: "app",
+        postingSource: "public_listing",
+        outcome: "completed",
+        durationMs: Date.now() - startedAt,
+      });
     } catch (err) {
       setTailored((t) => ({ ...t, [stateKey]: { status: "error", message: err.message } }));
+      void emitQualitySignal(buildQualitySignal("tailoring_blocked", {
+        route: "app",
+        postingSource: "public_listing",
+        outcome: "failed",
+        errorCategory: "unknown",
+        durationBand: durationBand(Date.now() - startedAt),
+      }));
     }
   };
 
@@ -1128,6 +1155,7 @@ export default function Gigscapes() {
             <button
               type="button"
               onClick={openSignIn}
+              data-account-action-fallback
               className="wl-btn"
               style={{ display: "flex", alignItems: "center", gap: 5, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 980, padding: "7px 14px", color: C.text, fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: SYS_FONT }}
             >
@@ -1791,7 +1819,15 @@ export default function Gigscapes() {
                     <button onClick={() => toggleSave(item)} className="wl-btn" aria-label={isSaved ? `Unsave ${item.title}` : `Save ${item.title}`} title={isSaved ? "Unsave" : "Save"} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: isSaved ? C.green : C.textFaint }}>
                       <Bookmark size={15} fill={isSaved ? C.green : "none"} />
                     </button>
-                    <button onClick={() => toggleDismiss(key)} className="wl-btn" title={isDismissed ? "Restore" : "Dismiss"} style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: C.textFaint }}>
+                    <button
+                      onClick={() => {
+                        toggleDismiss(key);
+                        if (!isDismissed && isExpanded) setExpandedApply(null);
+                      }}
+                      className="wl-btn"
+                      title={isDismissed ? "Restore" : "Dismiss"}
+                      style={{ background: "none", border: "none", cursor: "pointer", padding: 4, color: C.textFaint }}
+                    >
                       {isDismissed ? <RotateCcw size={15} /> : <X size={15} />}
                     </button>
                   </div>
@@ -1846,18 +1882,33 @@ export default function Gigscapes() {
                   )}
                   {t?.status === "needs_posting" && (
                     <div>
-                      <p style={{ fontSize: 13, color: C.textSub, marginBottom: 10 }}>
-                        {t.message || "We need more of the original posting for a reliable tailored résumé."}
-                      </p>
+                      <div
+                        role="status"
+                        style={{
+                          background: C.blueTint,
+                          border: `1px solid ${C.blueBorder}`,
+                          borderRadius: 12,
+                          color: C.textSub,
+                          fontSize: 13,
+                          lineHeight: 1.5,
+                          marginBottom: 12,
+                          padding: "11px 13px",
+                        }}
+                      >
+                        <strong style={{ color: C.text, display: "block", marginBottom: 2 }}>
+                          This source shared only a job summary
+                        </strong>
+                        Add the full posting for application-ready tailoring, or keep going now with a clearly marked preliminary draft.
+                      </div>
                       <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
                         <button onClick={() => openCustomJob("paste")} className="wl-btn" style={{ ...primaryBtnStyle(false), fontSize: 12.5, padding: "9px 14px" }}>
-                          <Text size={13} /> Paste full posting
+                          <Text size={13} /> Paste posting
                         </button>
                         <button onClick={() => openCustomJob("screenshots")} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, fontSize: 12.5, padding: "9px 14px" }}>
                           <FileImage size={13} /> Upload screenshots
                         </button>
                         <button onClick={() => handleTailor(item, stateKey, { skipEnrichment: true })} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, fontSize: 12.5, padding: "9px 14px" }}>
-                          Continue preliminary
+                          Tailor from summary
                         </button>
                       </div>
                     </div>
@@ -1901,6 +1952,8 @@ export default function Gigscapes() {
                         hasLink={hasLink}
                         atsReview={t.atsReview}
                         onEditResume={() => openResumeEditor("digest")}
+                        qualityRoute="app"
+                        qualityPostingSource="public_listing"
                         C={C}
                         primaryBtnStyle={primaryBtnStyle}
                       />
@@ -2009,11 +2062,12 @@ export default function Gigscapes() {
             <section style={{ padding: 18, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 16 }}>
               <h2 style={{ margin: "0 0 7px", color: C.text, fontSize: 14.5 }}>Keep your work private</h2>
               <p style={{ margin: "0 0 12px", color: C.textSub, fontSize: 12.5, lineHeight: 1.5 }}>Sign in only when you want to save jobs, add a résumé, tailor, or export.</p>
-              <button type="button" onClick={openSignIn} className="wl-btn" style={{ ...primaryBtnStyle(false), width: "100%", justifyContent: "center", padding: "9px 13px", fontSize: 12.5 }}>
+              <button type="button" onClick={openSignIn} data-account-action-fallback className="wl-btn" style={{ ...primaryBtnStyle(false), width: "100%", justifyContent: "center", padding: "9px 13px", fontSize: 12.5 }}>
                 Sign in to your workspace
               </button>
             </section>
           )}
+          <QualitySignalSettings C={C} />
         </aside>
       </div>
 

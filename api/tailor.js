@@ -12,6 +12,7 @@ import {
   assessPostingCompleteness,
   extractPostingKeywords,
   sanitizeTailoringAnalysis,
+  structuredPostingRequirementInventory,
 } from "./_lib/tailoringEvidence.js";
 
 const DEFAULT_TAILOR_TIMING = Object.freeze({
@@ -550,6 +551,7 @@ export function createTailorHandler({
     descriptionStatus: normalizedCustomJob ? "candidate_reviewed" : item.description_status,
   });
   const fallbackKeywords = extractPostingKeywords(storedPosting, item.title);
+  const reviewedRequirementInventory = structuredPostingRequirementInventory(normalizedCustomJob);
 
   // Pick the right tool + prompt appendix based on listing category.
   const isTradesGig = isTradesLikeCategory(item.category);
@@ -592,8 +594,14 @@ ${cappedResume}
 VERIFIED CANDIDATE NOTES
 ${verifiedCandidateEvidenceBlock}
 
+${reviewedRequirementInventory.length ? `REVIEWED REQUIREMENT INVENTORY
+The candidate reviewed these requirements in the posting form. Analyze every item, preserve each id and priority, and do not omit an item even when no supporting evidence exists:
+${JSON.stringify(reviewedRequirementInventory.map(({ id, requirement, priority }) => ({ id, requirement, priority })), null, 2)}
+` : ""}
+
 ANALYSIS RULES
 - Extract only requirements explicitly stated or unambiguously described in the supplied posting. A job title is context, not proof of an unstated technology stack.
+- When a REVIEWED REQUIREMENT INVENTORY is supplied, return every inventory item in \`requirements\` with the same id, requirement text, and priority. Classify unsupported items as missing instead of dropping them.
 - Return atomic requirements. Split compound posting lines into separately assessable capabilities, tools, credentials, languages, and work conditions. For example, unit testing, integration testing, and UAT are three requirements; English proficiency and stakeholder collaboration are separate requirements. Do not hide a partial match inside a single compound classification.
 - Respect the deterministic posting assessment. If it says partial or insufficient, explain that the result is preliminary and do not invent missing requirements.
 - The deterministic posting assessment is the fit gate. When fit_allowed is false, do not produce a definitive candidate-fit judgment: use fit_assessment only as a provisional content strategy, set readiness to needs_full_posting, and treat confidence as unavailable.
@@ -630,9 +638,10 @@ INSTRUCTIONS
 - Use the analysis content strategy: direct for a conventional targeted resume, adjacent for a verified neighboring-role pivot, and career_change for a hybrid transition resume.
 - For a non-trades career change, the top title must identify the proven professional foundation plus an honest transition, such as "Enterprise Integration Professional | Web Development Transition". Never use the exact target title alone or imply the candidate already holds it. For trades, use Entry-Level or Helper Candidate unless registration or credentials are proven.
 - When the gap is large, position the candidate for the nearest realistic entry or transitional path rather than pretending they meet a senior posting. In regulated work, do not call someone licensed, certified, journeyperson, or registered apprentice unless the evidence proves it.
+- An adjacent SAP functional-module pivot is not an entry-level career change. Preserve seniority only in the candidate's proven modules and delivery scope, while stating the target-module gap outside the résumé. The headline must lead with verified modules or capabilities and must not insert a missing target module merely as a "transition" keyword.
 - Treat every historical employer, official job title, and date as an IMMUTABLE EVIDENCE FIELD: copy it from the base résumé rather than paraphrasing it. The target identity belongs in the top-level title and profile, never in a historical role. Work experience MUST remain in reverse chronological order. You may reorder and rewrite bullets within a role, but never reorder roles, rename history, or create a composite role.
 - Identify the skills/requirements this specific posting cares about most and make the bullets within each role lead with the most relevant supported evidence. Compress genuinely irrelevant older detail, but do not move an older role above a newer one.
-- Transferable framing must state relevance without equivalence. Never say experience "translates directly", is "directly analogous", or proves hands-on target-domain implementation when the analysis classifies it only as adjacent or transferable.
+- Transferable framing must state relevance without equivalence. Never say experience "translates directly", is "directly analogous", is "comparable to", is "equivalent to", "parallels" the target, "shares the same foundation/engine/discipline" as the target, or proves hands-on target-domain implementation when the analysis classifies it only as adjacent or transferable.
 - For a career change, lead with the proven prior foundation, state the transition honestly, map only verified transferable skills, and include proof-of-transition only when a real project, course, portfolio, or certification appears in CANDIDATE EVIDENCE.
 - For a career change, keep the profile to 60-90 words. Do not claim the candidate is "actively building", "currently learning", studying, training, or pursuing a credential unless CANDIDATE EVIDENCE explicitly proves that activity.
 - For a career change with no direct or adjacent requirement evidence, the skills section may contain only skills listed under \`verified_transferable_skills\`. Use at most 10 high-value items; never dump the candidate's unrelated software or domain inventory merely because it is truthful.
@@ -643,7 +652,7 @@ INSTRUCTIONS
 - If the candidate's real career is long (many roles, decades), use real editorial judgment: keep the roles and bullets most relevant to THIS gig in full detail, and compress the least relevant older/unrelated roles to one or two bullets each — the way a human resume writer would for a 1-2 page document. Don't just cut off the oldest roles entirely unless truly irrelevant.
 - For a career change, use no more than three bullets for each of the two most recent roles and no more than two bullets for each older role. Rank bullets by verified relevance to the target; do not use volume to disguise a weak match.
 - Keep \`role\` to the exact official job title and \`company\` to the exact employer when the source distinguishes an employer from a client or project. Do not synthesize labels such as "Role at Client — Employer". A client or project may be mentioned in a supported bullet instead.
-- Populate projects and training only from explicit CANDIDATE EVIDENCE. Return empty arrays when there is no verified proof-of-transition.
+- Populate projects and training only from explicit CANDIDATE EVIDENCE. Include training only when it supports at least one analyzed requirement or the candidate's verified professional foundation; omit unrelated courses rather than using them as filler. Return empty arrays when there is no verified proof-of-transition.
 - Only include the education/languages fields if the base resume actually contains that information — omit them entirely rather than guessing.
 - ATS-READABLE WRITING:
   * Every experience bullet must START with a precise action verb. Use past tense for completed work in prior roles. In a current role, use present tense for ongoing responsibilities and past tense for completed achievements.
@@ -673,6 +682,7 @@ INSTRUCTIONS
       postingAssessment,
       fallbackKeywords,
       verifiedCandidateEvidence,
+      reviewedRequirementInventory,
     );
     const baseDraftPrompt = prompt.replace("__TAILORING_ANALYSIS__", JSON.stringify(analysis, null, 2));
     let requestPrompt = baseDraftPrompt;

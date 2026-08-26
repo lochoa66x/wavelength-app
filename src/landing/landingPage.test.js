@@ -66,9 +66,9 @@ test("the app consumes the landing intent through the centralized gate and clear
   assert.match(appSource, /if \(!landingAccountAction \|\| authLoading/);
 });
 
-test("the landing template experience uses the canonical nine-family registry", () => {
+test("the landing template experience uses all role-aware and universal registry choices", () => {
   const templates = availableResumeTemplates();
-  assert.equal(templates.length, 9);
+  assert.equal(templates.length, 14);
   assert.match(templateSource, /availableResumeTemplates\(\)/);
   assert.doesNotMatch(templateSource, /ats-core-v1|sap-functional-v1|creative-design-v1/);
   assert.match(templateSource, /aria-pressed=\{isSelected\}/);

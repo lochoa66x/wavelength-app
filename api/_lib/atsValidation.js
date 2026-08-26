@@ -264,10 +264,11 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
     status: integrityBlocked ? "significant_gap" : "credible_stretch",
     reason: "Application readiness requires a complete requirement-to-evidence analysis.",
   };
+  const fitReady = !["significant_gap", "needs_full_posting"].includes(readiness.status);
   const writingBlocked = writingReview.blocking_issue_count > 0;
   const status = integrityBlocked || writingBlocked
     ? "blocked"
-    : writingStatus === "review" || !postingVerified
+    : writingStatus === "review" || !postingVerified || !fitReady
       ? "review"
       : "ready";
   const applicationReady = Boolean(
@@ -276,6 +277,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
       && !identityMissing
       && reverse_chronological
       && !writingBlocked
+      && fitReady
   );
 
   const focusReview = options.focusReview || {
@@ -295,6 +297,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
     application_ready: applicationReady,
     blockers: [
       ...(postingVerified ? [] : ["posting_readiness"]),
+      ...(fitReady ? [] : ["candidate_fit"]),
       ...(integrityBlocked ? ["evidence_integrity"] : []),
       ...(writingBlocked ? ["contribution_language"] : []),
       ...(identityMissing ? ["candidate_identity"] : []),

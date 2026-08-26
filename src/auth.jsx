@@ -35,6 +35,7 @@ import {
   safeNextPath,
   SIGN_IN_PATH,
 } from "./authRoutes.js";
+import { captureAccountActionOpener, restoreAccountActionFocus } from "./authFocus.js";
 
 const AuthContext = createContext(null);
 
@@ -43,6 +44,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [signInRequest, setSignInRequest] = useState(null);
+  const signInOpenerRef = useRef(null);
 
   useEffect(() => {
     let active = true;
@@ -97,11 +99,13 @@ export function AuthProvider({ children }) {
     }
 
     const continuationStored = persistPendingAccountAction(decision.pending);
+    signInOpenerRef.current = captureAccountActionOpener();
     setSignInRequest({ action, pending: decision.pending, continuationStored });
     return false;
   }, [session]);
 
   const openSignIn = useCallback(() => {
+    signInOpenerRef.current = captureAccountActionOpener();
     setSignInRequest({ action: null, pending: null, continuationStored: true });
   }, []);
 
@@ -134,7 +138,7 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider value={value}>
       {children}
-      {signInRequest ? <AccountActionDialog request={signInRequest} onClose={closeSignIn} /> : null}
+      {signInRequest ? <AccountActionDialog request={signInRequest} onClose={closeSignIn} returnFocusTarget={signInOpenerRef.current} /> : null}
     </AuthContext.Provider>
   );
 }
@@ -286,7 +290,7 @@ function MagicLinkForm({ nextPath = APP_PATH, pending, onCancel }) {
         type="email"
         autoComplete="email"
         required
-        autoFocus={Boolean(onCancel)}
+        data-account-action-initial-focus={onCancel ? "true" : undefined}
         value={email}
         onChange={(event) => setEmail(event.target.value)}
         placeholder="you@example.com"
@@ -307,10 +311,12 @@ function MagicLinkForm({ nextPath = APP_PATH, pending, onCancel }) {
   );
 }
 
-function AccountActionDialog({ request, onClose }) {
+function AccountActionDialog({ request, onClose, returnFocusTarget }) {
   const dialogRef = useRef(null);
   useEffect(() => {
-    const previouslyFocused = document.activeElement;
+    const focusFrame = window.requestAnimationFrame(() => {
+      dialogRef.current?.querySelector?.("[data-account-action-initial-focus]")?.focus?.();
+    });
     function handleKeyDown(event) {
       if (event.key === "Escape") onClose();
       if (event.key !== "Tab") return;
@@ -330,10 +336,11 @@ function AccountActionDialog({ request, onClose }) {
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => {
+      window.cancelAnimationFrame(focusFrame);
       window.removeEventListener("keydown", handleKeyDown);
-      previouslyFocused?.focus?.();
+      restoreAccountActionFocus(returnFocusTarget);
     };
-  }, [onClose]);
+  }, [onClose, returnFocusTarget]);
 
   const description = request.action
     ? accountActionMessage(request.action)

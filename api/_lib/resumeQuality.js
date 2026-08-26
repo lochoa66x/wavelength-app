@@ -144,6 +144,32 @@ function restoreRequiredEducation(resumeData, analysis, baseResume) {
   };
 }
 
+const SAP_TRAINING_PATTERN = /\b(?:sap|fi[- ]?ca|pscd|s\/?4hana|asap)\b/i;
+
+function focusRelevantTraining(resumeData, analysis) {
+  const training = Array.isArray(resumeData?.training) ? resumeData.training : [];
+  if (!training.length) return { resume: resumeData, omittedTraining: [] };
+  const requirementCorpus = (analysis?.requirements || [])
+    .flatMap((requirement) => [requirement?.requirement, ...(requirement?.keywords || [])])
+    .filter(Boolean)
+    .join(" ");
+  if (!SAP_TRAINING_PATTERN.test(requirementCorpus)) return { resume: resumeData, omittedTraining: [] };
+  const targetTokens = new Set(normalized(requirementCorpus)
+    .split(" ")
+    .filter((token) => token.length > 3 && !TOKEN_STOPWORDS.has(token)));
+  const kept = [];
+  const omittedTraining = [];
+  for (const entry of training) {
+    const text = [entry?.name, entry?.provider, entry?.dates].filter(Boolean).join(" ");
+    if (SAP_TRAINING_PATTERN.test(text) || relevanceScore(text, targetTokens) >= 3) {
+      kept.push(entry);
+    } else {
+      omittedTraining.push({ name: String(entry?.name || "").trim(), reason: "lower_target_relevance" });
+    }
+  }
+  return { resume: { ...resumeData, training: kept }, omittedTraining };
+}
+
 function focusResume(resumeData, analysis) {
   const weights = weightedEvidenceTokens(analysis);
   const careerChange = analysis?.fit_assessment?.path === "career_change";
@@ -281,7 +307,15 @@ export function shapeTailoredResumeWithReview(resumeData, analysis, baseResume =
     ? shapeCareerChangeResume(sanitized, analysis)
     : sanitized;
   const evidenceComplete = restoreRequiredEducation(strategyShaped, analysis, baseResume);
-  return focusResume(evidenceComplete, analysis);
+  const trainingFocused = focusRelevantTraining(evidenceComplete, analysis);
+  const focused = focusResume(trainingFocused.resume, analysis);
+  return {
+    ...focused,
+    focusReview: {
+      ...focused.focusReview,
+      omitted_training: trainingFocused.omittedTraining,
+    },
+  };
 }
 
 export function applyPdfLayoutToFocusReview(focusReview, { pages, templateId, templateName } = {}) {

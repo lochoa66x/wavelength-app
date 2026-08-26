@@ -225,6 +225,30 @@ test("candidate-confirmed contribution level blocks an ownership escalation", ()
   assert.equal(escalation?.evidence_citations[0]?.source, "candidate_note");
 });
 
+test("defined and applied are recognized as valid SAP functional action verbs", () => {
+  const baseResume = [
+    "SAP Functional Consultant — Real Corp — 2020–2023",
+    "Defined GAP analysis and created blueprint documentation.",
+    "Applied ASAP methodology to map existing processes.",
+  ].join("\n");
+  const review = buildAtsReview({
+    name: "Luis Example",
+    title: "SAP Functional Consultant",
+    profile: "SAP functional delivery professional.",
+    experience: [{
+      role: "SAP Functional Consultant",
+      company: "Real Corp",
+      dates: "2020–2023",
+      bullets: [
+        "Defined GAP analysis and created blueprint documentation.",
+        "Applied ASAP methodology to map existing processes.",
+      ],
+    }],
+  }, baseResume, { keywords: [] }, { targetTitle: "SAP Functional Consultant" });
+
+  assert.deepEqual(review.writing_review.issues.filter((issue) => issue.issue_type === "unrecognized_opener"), []);
+});
+
 test("ATS review reports a missing placeholder identity separately from evidence integrity", () => {
   const review = buildAtsReview({
     name: "<UNKNOWN>",
@@ -266,4 +290,25 @@ test("application-ready export requires independently verified posting readiness
   });
   assert.equal(verified.application_ready, true);
   assert.deepEqual(verified.export_readiness.blockers, []);
+
+  const significantGap = buildAtsReview(resume, baseResume, { keywords: [] }, {
+    analysis: {
+      posting_assessment: {
+        status: "complete",
+        reason: "Reviewed full posting.",
+        fit_allowed: true,
+        application_ready_allowed: true,
+      },
+      posting_readiness: {
+        status: "reviewed_complete",
+        reason: "Responsibilities and qualifications reviewed.",
+        fit_allowed: true,
+        application_ready_allowed: true,
+      },
+      readiness: { status: "significant_gap", reason: "Mandatory target-domain evidence is missing." },
+    },
+  });
+  assert.equal(significantGap.application_ready, false);
+  assert.equal(significantGap.export_readiness.status, "preliminary");
+  assert.deepEqual(significantGap.export_readiness.blockers, ["candidate_fit"]);
 });

@@ -60,10 +60,20 @@ Do not reapply the P1.4 migration or change production Auth/database settings du
 - [x] Shared nine-card selector, account/target persistence, alias migration, and factual content-hash parity across all nine templates.
 - [x] Two-page direct Marketing/Creative fixtures plus one-page Marketing-transition and Creative-adjacent fixtures.
 
+## P2.1 universal design expansion
+
+- [x] Five original universal styles: Classic Ledger, Modern Signal, Compact Focus, Bold Impact, and Studio Editorial.
+- [x] Universal styles inherit occupation-aware section order and headings without changing canonical facts, evidence, or readiness.
+- [x] Application-safe and networking-forward choices are labeled honestly in the selector and landing preview.
+- [x] Browser preview, DOCX, direct PDF, plain text, persistence, and export verification use the same 14-choice registry.
+- [x] Healthcare, education, finance, logistics, hospitality, community services, engineering, and plumbing fixtures preserve factual parity across all five styles.
+- [x] All styles remain single-column, searchable/selectable, photo-free, sidebar-free, table-free, and skill-meter-free.
+- [x] New-template text contrast meets or exceeds 4.5:1 and the five generated DOCX fixtures report zero accessibility-audit findings.
+
 ## Required local verification before commit
 
 - [x] Focused canonical/template/export/tailoring tests pass with exact count recorded.
-- [x] `npm run verify:exports` passes for all nine templates, the apprentice fixture, both B3 adjacent fixtures, and preliminary gating.
+- [x] `npm run verify:exports` passes for all 14 choices, the apprentice fixture, both B3 adjacent fixtures, and preliminary gating.
 - [x] Full `npm test` passes with exact count recorded.
 - [x] Production build passes and keeps DOCX/PDF libraries lazy.
 - [x] `npm audit --json` is reviewed without forced upgrades.
@@ -74,6 +84,17 @@ Do not reapply the P1.4 migration or change production Auth/database settings du
 - [x] `git diff --check` passes.
 - [x] No files from `tmp`, `dist`, screenshots, or rendered QA directories are staged.
 - [x] Only task-owned files/hunks are staged.
+
+## P2.1 universal design expansion local verification record
+
+- Focused template/export/landing suite: 78 passed, 0 failed.
+- Full suite: 395 passed, 0 failed.
+- Export verifier: 36 files across all 14 choices plus the concise and preliminary fixtures; 23 direct-PDF pages, 667 selectable text items, canonical-manifest parity, verified-final gating, and stale-ready-flag rejection passed.
+- New-style visual QA: five direct PDFs and five LibreOffice-rendered DOCX files were inspected at full-page size. No clipping, overlap, missing text, orphaned heading, warning banner, or blank trailing page was observed.
+- Accessibility: the five new DOCX fixtures reported 0 high-, 0 medium-, and 0 low-severity findings; automated color checks confirmed at least 4.5:1 for styled text/background pairs.
+- Production build: 1,985 modules transformed; `resumeDocx`, `resumePdf`, `jspdf`, and route chunks remained lazy. Build completed successfully.
+- Browser QA: the landing selector exposed all 14 choices with exactly one `aria-pressed` selection at 1,440×900 and a 390×844 mobile override. Studio Editorial switched locally, exposed the networking-forward explanation, and the page had no horizontal overflow, application console warning/error, or framework error overlay.
+- Source gate: `git diff --check` passed; only existing Windows line-ending notices were emitted.
 
 ## P2.1 Phase A local verification record
 
@@ -270,3 +291,22 @@ Do not commit while a required check is failing. Do not push or deploy without s
 - Privacy gate: the report validator found zero violations and allows only case IDs, safe enums, booleans, numeric measurements, and aggregate counts. The evaluation fixtures and CLI are outside the application import graph.
 - Known limitations: Microsoft Word, Google Docs, and an external ATS parser were unavailable. LibreOffice supplied Word-compatible rendering. PDF extraction emitted standard-font-data warnings while still returning complete, matching text; visual inspection found no corresponding glyph or layout defect.
 - Release state: implementation passed every local gate, and production release authorization was received on 2026-08-25. The exact commit SHA, GitHub push, Vercel deployment, aliases, and post-deploy checks are recorded in the release handoff.
+
+## P3.2 Phase B1 opt-in aggregate quality-signal record — 2026-08-25
+
+- Preflight: clean `main` at `fd13fdc`, matching `origin/main`. No interrupted or user-owned uncommitted work was present; all changes in this record belong to this bounded Phase B1 pass.
+- Consent: anonymous quality sharing is off by default, explicitly enabled in local browser storage, immediately disabled on request, fail-closed when storage is blocked or malformed, and never required by search, tailoring, feedback, or export.
+- Contract: browser and server enforce one schema-versioned exact-field enum allowlist and a 4,096-byte cap. Extra fields, arbitrary strings, nested data, Unicode lookalikes, malformed consent, unapproved origins/types/markers, and raw private source strings are rejected or omitted.
+- Transport/logging: the browser uses a same-origin best-effort request with `credentials: "omit"`, no retry queue, and a 2.5-second abort. The endpoint never echoes a signal and logs only accepted/failed state, safe storage category, and duration—never the payload or dimension values.
+- Storage: the migration defines a service-role-only `SECURITY INVOKER` RPC and one private daily aggregate table with RLS, no browser policies, explicit browser-role revocations, exact enum checks, atomic increments, and 180-day retention. There is no raw-event or identifier table. The operator applied the production SQL successfully on 2026-08-25. A publishable-client production check denied the private schema and returned PostgreSQL `42501` for RPC execution before reaching an invalid test constraint, so no synthetic row was written. Service-role, RLS, and policy-count SQL evidence remains an operator gate.
+- Feedback: optional fit and export feedback appears only after consent, uses fixed answers/reasons with no free text, stays outside the résumé preview/export, guards repeated clicks, and reports delivery failure without affecting the product action.
+- Focus fix: the account-action provider captures the opener before modal autofocus. Escape/close restores the connected opener without scrolling or chooses an explicit global sign-in fallback when the original listing control has disappeared.
+- Focused tests: 18/18 consent, privacy-contract, API, aggregate migration, evaluator suppression, and focus-restoration tests passed.
+- Full tests: 375/375 passed.
+- Synthetic evaluator: 35 synthetic events were accepted; 32 events across two cohorts were publishable, while one three-event cohort was suppressed without exposing its label. The minimum publishable cohort is 10.
+- Export verification: 26 files across all nine templates, 18 PDF pages, 544 selectable PDF text items, canonical manifest parity, final-readiness authorization, and stale-ready-flag rejection passed.
+- Production build: Vite 5.4.21 transformed 1,985 modules successfully. DOCX/PDF exporters remain lazy chunks; the landing and app remain route-level chunks.
+- Browser QA: local signed-out `/app` loaded with no console errors or Vite overlay. Consent passed off/on/off behavior. The modal initially focused `account-action-email`; Escape restored the original `Sign in`; a removed opener restored the marked `Sign in to your workspace` fallback. Mobile width was 390/390 with no horizontal overflow.
+- React review: consent storage is versioned and minimal; event work short-circuits before résumé derivation while disabled; global listeners are cleaned up; static reason lists are hoisted; feedback failure is non-blocking; and heavy export modules remain dynamically imported.
+- Known limitations/blockers: Docker/Postgres is unavailable locally, so local migration verification remains static. Production application and anonymous denial are complete; the operator must still run the documented service-role/RLS/policy-count checks and add/review an endpoint firewall/rate limit before release. Microsoft Word, Google Docs, and an external ATS parser remain unavailable as in Phase A.
+- Release state: no commit, push, deployment, production migration, or runtime data collection was performed in this pass. Current HEAD remains `fd13fdc` until separately authorized release work.

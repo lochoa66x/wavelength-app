@@ -68,6 +68,26 @@ test("non-career-change shaping preserves content while still removing identity 
   assert.deepEqual(resume.skills, ["React"]);
 });
 
+test("SAP tailoring keeps relevant SAP training and omits unrelated training filler", () => {
+  const result = shapeTailoredResumeWithReview({
+    name: "Luis Example",
+    training: [
+      { name: "SAP Accounts Management", provider: "SAP" },
+      { name: "SAP Loans Management", provider: "SAP" },
+      { name: "Big Data Analytics", provider: "Example University" },
+    ],
+  }, {
+    fit_assessment: { path: "adjacent" },
+    requirements: [
+      { requirement: "In-depth knowledge of SAP ISU FICA", evidence_match: "adjacent", keywords: ["SAP ISU FICA"] },
+      { requirement: "Experience supporting SAP ISU data migration", evidence_match: "direct", keywords: ["Data migration"] },
+    ],
+  });
+
+  assert.deepEqual(result.resume.training.map((entry) => entry.name), ["SAP Accounts Management", "SAP Loans Management"]);
+  assert.deepEqual(result.focusReview.omitted_training, [{ name: "Big Data Analytics", reason: "lower_target_relevance" }]);
+});
+
 test("focus review prioritizes relevant evidence, removes repetition, and leaves canonical input unchanged", () => {
   const canonical = {
     name: "Luis Example",

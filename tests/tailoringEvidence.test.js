@@ -6,6 +6,7 @@ import {
   extractPostingKeywords,
   findSemanticIntegrityIssues,
   sanitizeTailoringAnalysis,
+  structuredPostingRequirementInventory,
 } from "../api/_lib/tailoringEvidence.js";
 import { jobBriefToText } from "../api/_lib/jobBrief.js";
 
@@ -61,6 +62,119 @@ test("a complete reviewed paste is not marked truncated when its final keyword i
   assert.equal(assessment.appears_truncated, false);
   assert.equal(assessment.fit_allowed, true);
   assert.equal(assessment.readiness_status, "reviewed_complete");
+});
+
+test("reviewed structured qualifications remain authoritative when model analysis omits them", () => {
+  const structuredBrief = {
+    title: "SAP ISU FICA Functional Consultant",
+    description: "Configure and support SAP ISU FICA for a utilities implementation.",
+    responsibilities: [
+      "Configure SAP ISU FICA and integrate it with other SAP ISU modules.",
+      "Prepare functional specifications and support data migration.",
+    ],
+    required_qualifications: [
+      "In-depth knowledge of SAP ISU FICA configuration and integration with other SAP ISU modules.",
+      "Good understanding of the Meter to Cash process in SAP ISU.",
+      "Expertise in preparing Functional Specification documents.",
+      "Experience in Data migration between non-SAP and SAP ISU systems.",
+    ],
+    preferred_qualifications: [],
+    source_review: { mode: "paste", appears_complete: true, user_confirmed_complete: true },
+  };
+  const postingText = jobBriefToText(structuredBrief);
+  const inventory = structuredPostingRequirementInventory(structuredBrief);
+  const assessment = assessPostingCompleteness(postingText, structuredBrief, {
+    source: "candidate_reviewed",
+    descriptionStatus: "candidate_reviewed",
+  });
+  const result = sanitizeTailoringAnalysis({
+    fit_assessment: { path: "career_change", recommended_level: "Entry-level", note: "No requirements returned." },
+    requirements: [],
+  }, [
+    "SAP FI-CA / PSCD Functional Consultant",
+    "Coordinated data migration for SAP FI-CA solutions.",
+  ].join("\n"), assessment, [], [], inventory);
+
+  assert.ok(inventory.length >= 4);
+  assert.equal(result.requirements.length, inventory.length);
+  assert.equal(result.coverage.direct + result.coverage.adjacent + result.coverage.transferable + result.coverage.missing, inventory.length);
+  assert.ok(result.coverage.missing > 0);
+  assert.doesNotMatch(result.candidate_fit.reason, /did not yield enough atomic requirements/i);
+});
+
+test("a complete IS-U FI-CA mandatory list survives intake as an atomic reviewed inventory", () => {
+  const inventory = structuredPostingRequirementInventory({
+    required_qualifications: [
+      "Good Understanding for Meter to cash Process in SAP ISU",
+      "In-depth knowledge of SAP ISU FICA Module, its functionalities, configurations, and its integration with other SAP ISU modules",
+      "Good knowledge of Business Master Data, Technical Master Data",
+      "Experience in setting up the Org structure, GL setup & Integration",
+      "Experience in Cash journal, clearing control, Account Assignment, and setting up direct debit",
+      "Strong understanding of Dunning, Collection, and Installment Plan processes",
+      "Setting up Main and Sub Transaction",
+      "Knowledge of Integration with Billing & FICO",
+      "Expertise in preparing the Functional Specification documents",
+      "Good understanding of C4C integration with SAP ISU",
+      "Basic understanding of SAP ISU Device Management and SAP ISU Billing modules",
+      "Working experience in at least one end-to-end Greenfield or brownfield SAP ISU or SAP S/4HANA for Utilities implementation",
+      "Experience in Data migration between non-SAP and SAP ISU systems",
+      "Experience in AS-IS To-BE Analysis and preparing Business Blueprint documents",
+    ],
+  });
+  const text = inventory.map((item) => item.requirement).join("\n");
+
+  assert.ok(inventory.length >= 20);
+  assert.match(text, /Meter to cash/i);
+  assert.match(text, /Cash journal/i);
+  assert.match(text, /clearing control/i);
+  assert.match(text, /direct debit/i);
+  assert.match(text, /C4C/i);
+  assert.match(text, /Device Management/i);
+  assert.match(text, /Business Blueprint/i);
+  assert.ok(inventory.every((item) => item.priority === "required" && item.evidence_match === "missing"));
+});
+
+test("three verified neighboring SAP requirements produce adjacent positioning without hiding the material gap", () => {
+  const structuredBrief = {
+    responsibilities: ["Prepare functional specifications for SAP delivery."],
+    required_qualifications: [
+      "In-depth knowledge of SAP ISU FICA configuration.",
+      "Experience supporting SAP data migration.",
+      "Experience preparing Functional Specification documents.",
+      "Good understanding of Meter to Cash in SAP ISU.",
+      "Good understanding of SAP ISU Device Management.",
+      "Good understanding of C4C integration with SAP ISU.",
+    ],
+    preferred_qualifications: [],
+  };
+  const inventory = structuredPostingRequirementInventory(structuredBrief);
+  const baseResume = [
+    "SAP FI-CA / PSCD Functional Consultant",
+    "Configured SAP FI-CA contract accounts.",
+    "Coordinated SAP data migration for finance solutions.",
+    "Authored functional specifications for SAP delivery.",
+  ].join("\n");
+  const rawRequirements = inventory.map((seed) => {
+    if (/ISU FICA/i.test(seed.requirement)) return { ...seed, evidence_match: "adjacent", resume_evidence: "Configured SAP FI-CA contract accounts.", safe_language: "SAP FI-CA configuration" };
+    if (/data migration/i.test(seed.requirement)) return { ...seed, evidence_match: "adjacent", resume_evidence: "Coordinated SAP data migration for finance solutions.", safe_language: "SAP data migration" };
+    if (/Functional Specification/i.test(seed.requirement)) return { ...seed, evidence_match: "direct", resume_evidence: "Authored functional specifications for SAP delivery.", safe_language: "Functional specification authoring" };
+    return seed;
+  });
+  const result = sanitizeTailoringAnalysis({
+    fit_assessment: { path: "career_change", recommended_level: "Entry-level", note: "Large domain gap." },
+    requirements: rawRequirements,
+  }, baseResume, {
+    status: "complete",
+    reason: "Complete posting.",
+    readiness_status: "reviewed_complete",
+    readiness_reason: "Complete posting.",
+    fit_allowed: true,
+    application_ready_allowed: true,
+  }, [], [], inventory);
+
+  assert.equal(result.fit_assessment.path, "adjacent");
+  assert.equal(result.readiness.status, "significant_gap");
+  assert.notEqual(result.fit_assessment.recommended_level, "Transitional or entry-level positioning");
 });
 
 test("a short provider snippet cannot produce a definitive fit or application-ready output", () => {
@@ -186,6 +300,45 @@ test("a confirmed complete screenshot posting can support fit assessment", () =>
   assert.equal(assessment.fit_allowed, true);
 });
 
+test("confirmed screenshots keep their reviewed requirements when model analysis returns none", () => {
+  const brief = {
+    title: "SAP ISU FICA Consultant",
+    description: "Support a utilities implementation with SAP ISU FICA configuration and data migration.",
+    responsibilities: [
+      "Prepare Functional Specification documents and Business Blueprint documents.",
+      "Support the Data Migration phase in SAP ISU or SAP S/4HANA for Utilities projects.",
+    ],
+    required_qualifications: [
+      "Good understanding of Meter to Cash in SAP ISU.",
+      "In-depth knowledge of SAP ISU FICA configuration.",
+      "Experience with Cash Journal, Clearing Control, and Direct Debit.",
+      "Good understanding of SAP ISU Device Management and Billing.",
+    ],
+    preferred_qualifications: ["Clear written communication."],
+    source_review: {
+      mode: "screenshots",
+      page_count: 2,
+      appears_complete: true,
+      user_confirmed_complete: true,
+      conflicts: [{ field: "type", values: ["Full-time", "Contract"] }],
+      conflicts_resolved: true,
+    },
+  };
+  const inventory = structuredPostingRequirementInventory(brief);
+  const assessment = assessPostingCompleteness(jobBriefToText(brief), brief, { source: "user_screenshot" });
+  const result = sanitizeTailoringAnalysis({
+    fit_assessment: { path: "career_change", recommended_level: "Entry-level", note: "No requirements returned." },
+    requirements: [],
+  }, "SAP FI-CA and PSCD functional consultant with data migration experience.", assessment, [], [], inventory);
+
+  assert.equal(assessment.status, "complete");
+  assert.equal(assessment.unresolved_source_conflicts, false);
+  assert.ok(inventory.length >= 8);
+  assert.equal(result.requirements.length, inventory.length);
+  assert.equal(result.coverage.direct + result.coverage.adjacent + result.coverage.transferable + result.coverage.missing, inventory.length);
+  assert.doesNotMatch(result.candidate_fit.reason, /did not yield enough atomic requirements/i);
+});
+
 test("unresolved screenshot identity conflicts block application-ready tailoring", () => {
   const assessment = assessPostingCompleteness(completeSapPosting, {
     responsibilities: ["Lead SAP S/4HANA functional delivery"],
@@ -281,6 +434,32 @@ test("career-change target identity, unsupported skills, and equivalence languag
   assert.equal(issues.unsupported_positioning.length, 1);
   assert.equal(issues.unsupported_target_terms.length, 1);
   assert.deepEqual(issues.risky_claims, [{ claim: "translates directly" }]);
+});
+
+test("adjacent-domain equivalence language is blocked for automatic repair", () => {
+  const issues = findSemanticIntegrityIssues({
+    title: "SAP FI-CA / PSCD Functional Consultant",
+    profile: "SAP functional professional.",
+    skills: ["SAP FI-CA"],
+    experience: [{
+      role: "SAP Functional Consultant",
+      bullets: [
+        "Configured contract accounts in PSCD, comparable to SAP ISU FICA configuration.",
+        "Applied the same Functional Specification discipline required by SAP ISU FICA engagements.",
+        "Worked in modules that share the Contract Accounts engine at the core of SAP ISU FICA.",
+      ],
+    }],
+  }, "Configured contract accounts in PSCD.", {
+    fit_assessment: { path: "adjacent" },
+    verified_transferable_skills: [{ skill: "SAP FI-CA" }],
+    requirements: [],
+    prohibited_claims: [],
+  }, "SAP ISU FICA Functional Consultant");
+
+  assert.equal(issues.risky_claims.length, 3);
+  assert.ok(issues.risky_claims.some(({ claim }) => /comparable to/i.test(claim)));
+  assert.ok(issues.risky_claims.some(({ claim }) => /same Functional Specification discipline/i.test(claim)));
+  assert.ok(issues.risky_claims.some(({ claim }) => /share the Contract Accounts engine/i.test(claim)));
 });
 
 test("supported transferable career-change positioning passes semantic checks", () => {

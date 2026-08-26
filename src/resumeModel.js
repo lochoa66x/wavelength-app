@@ -10,6 +10,11 @@ export const TEMPLATE_IDS = Object.freeze({
   SKILLED_TRADES_FIELD_SERVICES: "skilled-trades-field-services-v1",
   MARKETING_COMMUNICATIONS: "marketing-communications-v1",
   CREATIVE_DESIGN: "creative-design-v1",
+  CLASSIC_LEDGER: "classic-ledger-v1",
+  MODERN_SIGNAL: "modern-signal-v1",
+  COMPACT_FOCUS: "compact-focus-v1",
+  BOLD_IMPACT: "bold-impact-v1",
+  STUDIO_EDITORIAL: "studio-editorial-v1",
 });
 
 const LEGACY_TRADES_TEMPLATE_ID = "trades-legacy-v1";
@@ -39,6 +44,16 @@ const TEMPLATE_ALIASES = Object.freeze({
   marketing: TEMPLATE_IDS.MARKETING_COMMUNICATIONS,
   "creative-design": TEMPLATE_IDS.CREATIVE_DESIGN,
   creative: TEMPLATE_IDS.CREATIVE_DESIGN,
+  "classic-ledger": TEMPLATE_IDS.CLASSIC_LEDGER,
+  classic: TEMPLATE_IDS.CLASSIC_LEDGER,
+  "modern-signal": TEMPLATE_IDS.MODERN_SIGNAL,
+  modern: TEMPLATE_IDS.MODERN_SIGNAL,
+  "compact-focus": TEMPLATE_IDS.COMPACT_FOCUS,
+  compact: TEMPLATE_IDS.COMPACT_FOCUS,
+  "bold-impact": TEMPLATE_IDS.BOLD_IMPACT,
+  bold: TEMPLATE_IDS.BOLD_IMPACT,
+  "studio-editorial": TEMPLATE_IDS.STUDIO_EDITORIAL,
+  editorial: TEMPLATE_IDS.STUDIO_EDITORIAL,
 });
 
 const BASE_SECTIONS = Object.freeze([
@@ -61,6 +76,8 @@ const BASE_VISUAL_TOKENS = Object.freeze({
   marginBottomIn: 0.65,
   marginLeftIn: 0.68,
   fontFamily: "Arial, Helvetica, sans-serif",
+  docxFontFamily: "Arial",
+  pdfFontFamily: "helvetica",
   bodyFontSizePt: 10,
   bodyLineHeight: 1.35,
   nameFontSizePt: 18,
@@ -70,6 +87,14 @@ const BASE_VISUAL_TOKENS = Object.freeze({
   muted: "#515861",
   rule: "#c9cdd1",
   paper: "#ffffff",
+  accentSoft: "#edf4f7",
+  headerBackground: "#ffffff",
+  headerText: "#17191c",
+  headerAlignment: "center",
+  headerTreatment: "rule",
+  sectionTreatment: "underline",
+  sectionTextTransform: "uppercase",
+  sectionLetterSpacingEm: 0.04,
 });
 
 function templateDefinition({
@@ -78,9 +103,15 @@ function templateDefinition({
   description,
   intendedUse,
   accent,
+  accentSoft,
   sectionOrder,
   visualTokens = {},
   visible = true,
+  group = "role-aware",
+  tone = "Conservative",
+  atsSafetyLevel = "high",
+  compatibilityNotes = "Single-column semantic text; no skill bars, icons, graphics, or layout tables.",
+  contentProfile = "fixed",
   contentStrategy = "Evidence-first single-column presentation of canonical resume facts.",
   recommendationMetadata = {},
 }) {
@@ -90,14 +121,22 @@ function templateDefinition({
     displayName,
     description,
     intendedUse,
-    atsSafetyLevel: "high",
+    atsSafetyLevel,
+    group,
+    tone,
+    contentProfile,
     supportedSections: BASE_SECTIONS,
     pageTarget: 2,
     visible,
-    visualTokens: Object.freeze({ ...BASE_VISUAL_TOKENS, accent, ...visualTokens }),
+    visualTokens: Object.freeze({
+      ...BASE_VISUAL_TOKENS,
+      accent,
+      accentSoft: accentSoft || BASE_VISUAL_TOKENS.accentSoft,
+      ...visualTokens,
+    }),
     sectionOrder: Object.freeze(sectionOrder),
     previewMetadata: Object.freeze({ columnCount: 1, hasSidebar: false, usesGraphics: false }),
-    compatibilityNotes: "Single-column semantic text; no skill bars, icons, graphics, or layout tables.",
+    compatibilityNotes,
     contentStrategy,
     recommendationMetadata: Object.freeze({ evidenceRequired: true, categoryAloneAllowed: false, ...recommendationMetadata }),
   });
@@ -212,6 +251,142 @@ export const RESUME_TEMPLATE_REGISTRY = Object.freeze({
     },
     contentStrategy: "Prioritize verified creative capabilities, experience, projects, tools, and an explicitly identified safe portfolio link while keeping essential facts selectable and ATS-readable.",
     recommendationMetadata: { occupationFamily: "creative-design", adjacentFitAllowed: true },
+    sectionOrder: ["summary", "skills", "experience", "projects", "education", "certifications", "training", "languages", "safety"],
+  }),
+  [TEMPLATE_IDS.CLASSIC_LEDGER]: templateDefinition({
+    id: TEMPLATE_IDS.CLASSIC_LEDGER,
+    displayName: "Classic Ledger",
+    description: "A timeless serif-led résumé with restrained rules and a left-aligned identity block.",
+    intendedUse: "Law, finance, education, public service, healthcare, research, and traditional employers",
+    accent: "#4b5563",
+    accentSoft: "#f3f4f6",
+    group: "design-style",
+    tone: "Classic",
+    contentProfile: "adaptive",
+    visualTokens: {
+      fontFamily: "Georgia, 'Times New Roman', serif",
+      docxFontFamily: "Georgia",
+      pdfFontFamily: "times",
+      headerAlignment: "left",
+      headerTreatment: "classic-rule",
+      sectionTreatment: "underline",
+      sectionTextTransform: "uppercase",
+      sectionLetterSpacingEm: 0.08,
+      bodyFontSizePt: 10.1,
+      bodyLineHeight: 1.38,
+      nameFontSizePt: 19,
+      headlineFontSizePt: 10.8,
+      sectionFontSizePt: 10.2,
+    },
+    sectionOrder: ["summary", "skills", "experience", "projects", "certifications", "training", "education", "languages", "safety"],
+  }),
+  [TEMPLATE_IDS.MODERN_SIGNAL]: templateDefinition({
+    id: TEMPLATE_IDS.MODERN_SIGNAL,
+    displayName: "Modern Signal",
+    description: "A crisp left-aligned layout with strong hierarchy and a controlled accent signal.",
+    intendedUse: "Business, technology, operations, consulting, sales, logistics, and cross-functional roles",
+    accent: "#0f5f66",
+    accentSoft: "#e9f5f4",
+    group: "design-style",
+    tone: "Modern",
+    contentProfile: "adaptive",
+    visualTokens: {
+      headerAlignment: "left",
+      headerTreatment: "accent-edge",
+      sectionTreatment: "accent-edge",
+      sectionTextTransform: "uppercase",
+      sectionLetterSpacingEm: 0.05,
+      bodyFontSizePt: 10,
+      bodyLineHeight: 1.36,
+      nameFontSizePt: 20,
+      headlineFontSizePt: 11,
+      sectionFontSizePt: 10.3,
+    },
+    sectionOrder: ["summary", "skills", "experience", "projects", "certifications", "training", "education", "languages", "safety"],
+  }),
+  [TEMPLATE_IDS.COMPACT_FOCUS]: templateDefinition({
+    id: TEMPLATE_IDS.COMPACT_FOCUS,
+    displayName: "Compact Focus",
+    description: "A dense but readable layout that gives experienced candidates more room for evidence.",
+    intendedUse: "Long work histories, technical specialists, field service, trades, project delivery, and detailed careers",
+    accent: "#334155",
+    accentSoft: "#eef2f6",
+    group: "design-style",
+    tone: "Compact",
+    contentProfile: "adaptive",
+    visualTokens: {
+      marginTopIn: 0.52,
+      marginRightIn: 0.58,
+      marginBottomIn: 0.52,
+      marginLeftIn: 0.58,
+      headerAlignment: "center",
+      headerTreatment: "compact-rule",
+      sectionTreatment: "compact-rule",
+      sectionTextTransform: "uppercase",
+      sectionLetterSpacingEm: 0.03,
+      bodyFontSizePt: 9.45,
+      bodyLineHeight: 1.25,
+      nameFontSizePt: 17.5,
+      headlineFontSizePt: 10.2,
+      sectionFontSizePt: 9.8,
+    },
+    sectionOrder: ["summary", "skills", "experience", "projects", "certifications", "training", "education", "languages", "safety"],
+  }),
+  [TEMPLATE_IDS.BOLD_IMPACT]: templateDefinition({
+    id: TEMPLATE_IDS.BOLD_IMPACT,
+    displayName: "Bold Impact",
+    description: "A confident accent-band identity treatment with a clean single-column body.",
+    intendedUse: "Leadership, customer-facing work, hospitality, sales, marketing, events, and networking copies",
+    accent: "#9a3412",
+    accentSoft: "#fff1e8",
+    group: "design-style",
+    tone: "Bold",
+    atsSafetyLevel: "moderate",
+    contentProfile: "adaptive",
+    compatibilityNotes: "Searchable single-column text with no photos or layout tables; the accent-band treatment is best when the employer accepts designed résumés.",
+    visualTokens: {
+      headerBackground: "#9a3412",
+      headerText: "#ffffff",
+      headerAlignment: "left",
+      headerTreatment: "accent-band",
+      sectionTreatment: "soft-band",
+      sectionTextTransform: "uppercase",
+      sectionLetterSpacingEm: 0.04,
+      bodyFontSizePt: 10,
+      bodyLineHeight: 1.36,
+      nameFontSizePt: 20.5,
+      headlineFontSizePt: 11,
+      sectionFontSizePt: 10.4,
+    },
+    sectionOrder: ["summary", "skills", "experience", "projects", "certifications", "training", "education", "languages", "safety"],
+  }),
+  [TEMPLATE_IDS.STUDIO_EDITORIAL]: templateDefinition({
+    id: TEMPLATE_IDS.STUDIO_EDITORIAL,
+    displayName: "Studio Editorial",
+    description: "An expressive editorial hierarchy with warm typography and restrained color blocks.",
+    intendedUse: "Creative, communications, media, design-adjacent, teaching, community, and portfolio-supporting work",
+    accent: "#6d3f5b",
+    accentSoft: "#f7edf3",
+    group: "design-style",
+    tone: "Editorial",
+    atsSafetyLevel: "moderate",
+    contentProfile: "adaptive",
+    compatibilityNotes: "Searchable single-column text with no photos, skill ratings, or layout tables; use ATS Core when a portal explicitly requests plain formatting.",
+    visualTokens: {
+      fontFamily: "Georgia, 'Times New Roman', serif",
+      docxFontFamily: "Georgia",
+      pdfFontFamily: "times",
+      headerAlignment: "left",
+      headerTreatment: "editorial",
+      sectionTreatment: "editorial",
+      sectionTextTransform: "none",
+      sectionLetterSpacingEm: 0.015,
+      bodyFontSizePt: 10.1,
+      bodyLineHeight: 1.42,
+      nameFontSizePt: 21,
+      headlineFontSizePt: 11,
+      sectionFontSizePt: 11,
+    },
     sectionOrder: ["summary", "skills", "experience", "projects", "education", "certifications", "training", "languages", "safety"],
   }),
 });
@@ -1234,8 +1409,23 @@ function safeSectionHeading(section, templateId, classification) {
   return headings[section.id] || "Additional Information";
 }
 
+function adaptiveContentTemplateId(classification) {
+  if (classification.careerStrategy === "major-transition") return TEMPLATE_IDS.CAREER_TRANSITION;
+  if (classification.occupationFamily === "sap-functional") return TEMPLATE_IDS.SAP_FUNCTIONAL;
+  if (classification.occupationFamily === "project-leadership" && classification.verifiedLeadershipEvidence) return TEMPLATE_IDS.PROJECT_LEADERSHIP;
+  if (classification.occupationFamily === "technical" && classification.verifiedTechnicalEvidence) return TEMPLATE_IDS.TECHNICAL_SOFTWARE;
+  if (classification.occupationFamily === "admin-customer-operations" && classification.verifiedAdminCustomerEvidence) return TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS;
+  if (classification.occupationFamily === "skilled-trades-field-services" && classification.verifiedTradeEvidence) return TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES;
+  if (classification.occupationFamily === "marketing-communications" && (classification.verifiedMarketingEvidence || classification.adjacentMarketingEvidence)) return TEMPLATE_IDS.MARKETING_COMMUNICATIONS;
+  if (classification.occupationFamily === "creative-design" && (classification.verifiedCreativeEvidence || classification.adjacentCreativeEvidence)) return TEMPLATE_IDS.CREATIVE_DESIGN;
+  return TEMPLATE_IDS.ATS_CORE;
+}
+
 function sectionOrderForTemplate(template, classification) {
-  if (template.id !== TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES || !classification.verifiedTradeEvidence) return template.sectionOrder;
+  const contentTemplate = template.contentProfile === "adaptive"
+    ? RESUME_TEMPLATE_REGISTRY[adaptiveContentTemplateId(classification)]
+    : template;
+  if (contentTemplate.id !== TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES || !classification.verifiedTradeEvidence) return contentTemplate.sectionOrder;
   if (classification.tradeProfileType === "regulated-trade-professional") {
     return ["summary", "certifications", "safety", "skills", "experience", "projects", "training", "education", "languages"];
   }
@@ -1263,17 +1453,23 @@ export function buildResumeRenderPlan(resumePackage, templateId, { preliminary =
   const pkg = createResumePackage(resumePackage);
   const resolvedTemplateId = resolveTemplateId(templateId ?? pkg.presentation.selectedTemplateId, pkg.presentation.recommendedTemplateId);
   const template = RESUME_TEMPLATE_REGISTRY[resolvedTemplateId];
+  const contentTemplateId = template.contentProfile === "adaptive"
+    ? adaptiveContentTemplateId(pkg.classification)
+    : resolvedTemplateId;
   const contentPlan = buildResumeContentPlan(pkg);
   const sectionOrder = sectionOrderForTemplate(template, pkg.classification);
   const order = new Map(sectionOrder.map((id, index) => [id, index]));
   const sections = [...contentPlan.sections]
     .sort((left, right) => (order.get(left.id) ?? 10_000) - (order.get(right.id) ?? 10_000))
-    .map((section) => ({ ...section, heading: safeSectionHeading(section, resolvedTemplateId, pkg.classification) }));
+    .map((section) => ({ ...section, heading: safeSectionHeading(section, contentTemplateId, pkg.classification) }));
   const plan = {
     kind: "resume-render-plan",
     schemaVersion: pkg.schemaVersion,
     templateId: resolvedTemplateId,
     templateName: template.displayName,
+    contentTemplateId,
+    atsSafetyLevel: template.atsSafetyLevel,
+    templateGroup: template.group,
     contentHash: pkg.contentHash,
     preliminary,
     // Preliminary state belongs to the surrounding product UI and filename,

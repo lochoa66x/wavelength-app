@@ -4,7 +4,7 @@ Updated: 2026-08-25
 
 ## Scope
 
-P2.1 Phase A establishes one versioned résumé-content pipeline for browser preview, DOCX, direct PDF, and plain text. Phase B1 adds Technical / Software and Admin / Customer Operations. Phase B2 replaces the hidden legacy trades presentation with the canonical Skilled Trades / Field Services family. Phase B3 adds Marketing & Communications and Creative & Design. All nine selectable families share one factual content plan, render manifest, persistence boundary, and export-authorization path.
+P2.1 Phase A establishes one versioned résumé-content pipeline for browser preview, DOCX, direct PDF, and plain text. Phase B1 adds Technical / Software and Admin / Customer Operations. Phase B2 replaces the hidden legacy trades presentation with the canonical Skilled Trades / Field Services family. Phase B3 adds Marketing & Communications and Creative & Design. The registry now exposes nine occupation-aware structures plus five universal visual styles. All 14 choices share one factual content plan, render manifest, persistence boundary, and export-authorization path.
 
 ## Contract
 
@@ -88,6 +88,11 @@ Selectable IDs:
 - `skilled-trades-field-services-v1`
 - `marketing-communications-v1`
 - `creative-design-v1`
+- `classic-ledger-v1`
+- `modern-signal-v1`
+- `compact-focus-v1`
+- `bold-impact-v1`
+- `studio-editorial-v1`
 
 Legacy `trades`, `skilled-trades`, and `trades-legacy-v1` stored values resolve to `skilled-trades-field-services-v1` on read. No second trades family or persisted-data backfill is created.
 
@@ -96,6 +101,8 @@ Unversioned `marketing-communications`/`marketing` and `creative-design`/`creati
 The B2 render plan is compact, single-column, and credential-aware. It deterministically moves verified licences, safety training, apprenticeship/training, capabilities, experience, and projects according to the classified trade profile. Short apprentice/helper evidence targets one page; experienced trade and field-service evidence may use two pages. Missing or unverified credentials are review-only gaps and never become résumé content.
 
 The B3 Marketing plan uses a restrained editorial/business treatment and prioritizes verified capabilities, experience, and supported campaigns or communications projects. The Creative plan uses slightly more expressive but reproducible type/spacing tokens and prioritizes verified capabilities, experience, projects, tools, and visible safe professional links. Both remain single-column selectable text with no sidebars, text boxes, skill bars, charts, photos, canvas text, or essential header/footer-only facts.
+
+The five universal visual styles are presentation overlays, not new evidence models. They inherit the deterministic occupation-aware section order and headings from the same classification used by the recommended family. Classic Ledger, Modern Signal, and Compact Focus are application-safe choices. Bold Impact and Studio Editorial are explicitly labeled networking-forward because their accent treatment is more expressive. All five remain searchable, selectable, single-column, table-free, photo-free, and free of skill meters or essential header/footer-only content.
 
 To add a template:
 
@@ -150,7 +157,7 @@ Exact DOCX pagination is not expected to match the PDF because Word-compatible l
 3. Render every direct PDF page to PNG and inspect it at full size.
 4. Convert every DOCX fixture with LibreOffice when installed, render every converted PDF page, and inspect it.
 5. Extract text independently from direct and converted PDFs and confirm identity, headings, section order, bullet order, labels, and artifact absence.
-6. Run desktop and 390 × 844 browser checks. Change all nine templates, verify immediate rerender, content-hash stability, keyboard focus, `aria-pressed` state, and mobile touch targets.
+6. Run desktop and 390 × 844 browser checks. Change all 14 templates, verify immediate rerender, content-hash stability, keyboard focus, `aria-pressed` state, mobile touch targets, and the application-safe/networking-forward labels.
 7. Test verified, partial, stale-readiness, and missing-identity cases.
 8. Remove `tmp/export-verification` and all screenshots/renders before staging.
 

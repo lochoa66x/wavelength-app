@@ -1,18 +1,27 @@
 import { forwardRef } from "react";
 
 function SectionHeading({ children, tokens }) {
+  const treatment = tokens.sectionTreatment || "underline";
+  const treatmentStyle = treatment === "accent-edge"
+    ? { padding: "2px 0 2px 9px", borderLeft: `4px solid ${tokens.accent}`, borderBottom: 0 }
+    : treatment === "soft-band"
+      ? { padding: "5px 8px", borderBottom: 0, background: tokens.accentSoft }
+      : treatment === "compact-rule"
+        ? { paddingBottom: 3, borderBottom: `2px solid ${tokens.accent}` }
+        : treatment === "editorial"
+          ? { paddingBottom: 3, borderBottom: `1px solid ${tokens.accent}` }
+          : { paddingBottom: 4, borderBottom: `1px solid ${tokens.rule}` };
   return (
     <h2 style={{
-      margin: "18px 0 8px",
-      paddingBottom: 4,
-      borderBottom: `1px solid ${tokens.rule}`,
+      margin: treatment === "compact-rule" ? "13px 0 6px" : "18px 0 8px",
       color: tokens.accent,
       fontFamily: tokens.fontFamily,
       fontSize: `${tokens.sectionFontSizePt}pt`,
       fontWeight: 700,
-      letterSpacing: "0.04em",
+      letterSpacing: `${tokens.sectionLetterSpacingEm ?? 0.04}em`,
       lineHeight: 1.2,
-      textTransform: "uppercase",
+      textTransform: tokens.sectionTextTransform || "uppercase",
+      ...treatmentStyle,
     }}>
       {children}
     </h2>
@@ -31,7 +40,7 @@ function BulletList({ bullets, tokens }) {
   if (!bullets.length) return null;
   return (
     <ul style={{ ...bodyStyle(tokens), margin: "5px 0 0", paddingLeft: 20 }}>
-      {bullets.map((bullet) => <li key={bullet.id} style={{ marginBottom: 3, breakInside: "avoid" }}>{bullet.text}</li>)}
+      {bullets.map((bullet) => <li key={bullet.id} style={{ marginBottom: tokens.sectionTreatment === "compact-rule" ? 2 : 3, breakInside: "avoid" }}>{bullet.text}</li>)}
     </ul>
   );
 }
@@ -45,7 +54,7 @@ function SectionBody({ section, tokens }) {
   }
   if (section.type === "experience") {
     return section.items.map((entry) => (
-      <article key={entry.id} data-resume-entry={entry.id} style={{ marginBottom: 12, breakInside: "avoid-page" }}>
+      <article key={entry.id} data-resume-entry={entry.id} style={{ marginBottom: tokens.sectionTreatment === "compact-rule" ? 9 : 12, breakInside: "avoid-page" }}>
         <p style={{ ...bodyStyle(tokens), fontWeight: 700 }}>
           {[entry.title, entry.employer].filter(Boolean).join(" - ")}
           {entry.location ? <span style={{ color: tokens.muted, fontWeight: 400 }}> | {entry.location}</span> : null}
@@ -85,6 +94,22 @@ function SectionBody({ section, tokens }) {
 
 export const ResumeDocumentPreview = forwardRef(function ResumeDocumentPreview({ renderPlan }, ref) {
   const tokens = renderPlan.visualTokens;
+  const headerBand = tokens.headerTreatment === "accent-band";
+  const leftAligned = tokens.headerAlignment === "left";
+  const headerStyle = {
+    textAlign: leftAligned ? "left" : "center",
+    borderBottom: tokens.headerTreatment === "accent-edge"
+      ? 0
+      : tokens.headerTreatment === "compact-rule"
+        ? `3px double ${tokens.ink}`
+        : tokens.headerTreatment === "editorial"
+          ? `1px solid ${tokens.accent}`
+          : `2px solid ${tokens.ink}`,
+    borderLeft: tokens.headerTreatment === "accent-edge" ? `6px solid ${tokens.accent}` : 0,
+    padding: headerBand ? "14px 16px" : tokens.headerTreatment === "accent-edge" ? "2px 0 10px 14px" : "0 0 10px",
+    background: headerBand ? tokens.headerBackground : "transparent",
+    borderRadius: headerBand ? 4 : 0,
+  };
   return (
     <article
       ref={ref}
@@ -105,10 +130,10 @@ export const ResumeDocumentPreview = forwardRef(function ResumeDocumentPreview({
         fontFamily: tokens.fontFamily,
       }}
     >
-      <header style={{ textAlign: "center", borderBottom: `2px solid ${tokens.ink}`, paddingBottom: 10 }}>
-        <h1 style={{ margin: 0, color: tokens.ink, fontFamily: tokens.fontFamily, fontSize: `${tokens.nameFontSizePt}pt`, lineHeight: 1.15 }}>{renderPlan.header.fullName}</h1>
-        {renderPlan.header.headline ? <p style={{ margin: "5px 0 0", color: tokens.accent, fontFamily: tokens.fontFamily, fontSize: `${tokens.headlineFontSizePt}pt`, fontWeight: 700, lineHeight: 1.25 }}>{renderPlan.header.headline}</p> : null}
-        {renderPlan.header.contactLine ? <p style={{ margin: "5px 0 0", color: tokens.muted, fontFamily: tokens.fontFamily, fontSize: "9.2pt", lineHeight: 1.3 }}>{renderPlan.header.contactLine}</p> : null}
+      <header style={headerStyle}>
+        <h1 style={{ margin: 0, color: headerBand ? tokens.headerText : tokens.ink, fontFamily: tokens.fontFamily, fontSize: `${tokens.nameFontSizePt}pt`, lineHeight: 1.15 }}>{renderPlan.header.fullName}</h1>
+        {renderPlan.header.headline ? <p style={{ margin: "5px 0 0", color: headerBand ? tokens.headerText : tokens.accent, fontFamily: tokens.fontFamily, fontSize: `${tokens.headlineFontSizePt}pt`, fontWeight: 700, lineHeight: 1.25 }}>{renderPlan.header.headline}</p> : null}
+        {renderPlan.header.contactLine ? <p style={{ margin: "5px 0 0", color: headerBand ? tokens.headerText : tokens.muted, fontFamily: tokens.fontFamily, fontSize: "9.2pt", lineHeight: 1.3 }}>{renderPlan.header.contactLine}</p> : null}
       </header>
 
       {renderPlan.sections.map((section) => (

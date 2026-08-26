@@ -225,7 +225,7 @@ test("tailoring accepts a reviewed custom job without loading a database listing
   assert.equal(res.statusCode, 200);
   assert.notEqual(res.body.ats_review.status, "blocked");
   assert.equal(res.body.ats_review.coverage.direct, 1);
-  assert.equal(res.body.ats_review.coverage.missing, 0);
+  assert.equal(res.body.ats_review.coverage.missing, 1);
   assert.ok(res.body.ats_review.coverage.matched_keywords.includes("stakeholder management"));
   assert.deepEqual(res.body.ats_review.coverage.missing_keywords, []);
   assert.match(anthropicRequest.messages[0].content, /Candidate-provided posting reviewed before tailoring|Lead operational programs/);

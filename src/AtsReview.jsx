@@ -170,6 +170,11 @@ export function AtsReview({ review, C }) {
   const exportReadiness = review.export_readiness;
   const identity = review.identity || { status: "complete", reason: "Candidate name is present." };
   const readiness = review.readiness || { status: "credible_stretch", reason: "Review the tailored draft against the complete posting." };
+  const applicationReady = Boolean(
+    review.application_ready === true
+      && exportReadiness?.application_ready !== false
+      && !["significant_gap", "needs_full_posting"].includes(readiness.status),
+  );
   const postingComplete = postingReadiness.fit_allowed === true;
   const integrityPass = integrity.status === "pass";
   const safetyFallback = review.safety_fallback;
@@ -207,7 +212,17 @@ export function AtsReview({ review, C }) {
       <StatusRow label="ATS-readable structure" value={parseability.status === "pass" ? "Pass" : "Review"} detail="Single column, standard headings, chronological history" ok={parseability.status === "pass"} C={C} />
       <StatusRow label="Writing quality" value={writing.status === "pass" ? "Pass" : writing.status === "blocked" ? "Blocked" : "Review"} detail={writing.issue_count ? `${writing.issue_count} exact writing item${writing.issue_count === 1 ? "" : "s"}` : "Occupation-aware action verbs and consistent tense"} ok={writing.status === "pass"} C={C} />
       <StatusRow label="Résumé focus" value={focusReview?.status === "focused" ? "Focused" : "Review"} detail={focusReview?.estimated_pages ? `${focusReview.estimation_method === "direct_pdf_layout" ? "Direct PDF measures" : "Estimated"} ${focusReview.estimated_pages} page${focusReview.estimated_pages === 1 ? "" : "s"}; recent and requirement-aligned evidence prioritized` : "Focus estimate unavailable"} ok={focusReview?.status === "focused"} C={C} />
-      <StatusRow label="Application-ready export" value={exportReadiness?.status === "ready" || review.application_ready ? "Enabled" : "Preliminary only"} detail={exportReadiness?.blockers?.length ? `Waiting on: ${exportReadiness.blockers.join(", ").replaceAll("_", " ")}` : "Posting, identity, writing, and truth checks passed"} ok={review.application_ready === true} C={C} />
+      <StatusRow
+        label="Application-ready export"
+        value={applicationReady ? "Enabled" : "Preliminary only"}
+        detail={exportReadiness?.blockers?.length
+          ? `Waiting on: ${exportReadiness.blockers.join(", ").replaceAll("_", " ")}`
+          : applicationReady
+            ? "Posting, identity, writing, and truth checks passed"
+            : "Review candidate fit and remaining evidence gaps before applying"}
+        ok={applicationReady}
+        C={C}
+      />
 
       <RequirementEvidence requirements={review.requirements} C={C} />
       <WritingReview writingReview={writingReview} C={C} />

@@ -114,6 +114,8 @@ test("returns a usable fallback and records blocked employer pages", async () =>
   assert.equal(res.body.ok, false);
   assert.equal(res.body.fallbackRequired, true);
   assert.equal(res.body.errorCode, "blocked");
+  assert.match(res.body.message, /source shared only a summary/i);
+  assert.doesNotMatch(res.body.message, /could not safely read/i);
   assert.equal(database.row.description, "Short provider summary.");
   assert.equal(database.row.description_enrichment_error_code, "blocked");
 });

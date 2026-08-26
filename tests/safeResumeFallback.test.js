@@ -24,6 +24,7 @@ test("the deterministic fallback omits final unsafe claims instead of failing th
       application_ready_allowed: true,
     },
     coverage: { direct: 0, adjacent: 0, transferable: 1, missing: 1 },
+    readiness: { status: "significant_gap", reason: "Target-domain evidence is missing." },
   };
   const rejected = {
     title: "Full Stack Web Developer",
@@ -46,7 +47,9 @@ test("the deterministic fallback omits final unsafe claims instead of failing th
     targetTitle: "Full Stack Web Developer",
   });
 
-  assert.equal(finalReview.status, "ready");
+  assert.equal(finalReview.status, "review");
+  assert.equal(finalReview.application_ready, false);
+  assert.deepEqual(finalReview.export_readiness.blockers, ["candidate_fit", "candidate_identity"]);
   assert.equal(resume.experience.length, 1);
   assert.equal(resume.experience[0].role, "Operations Manager");
   assert.equal(resume.title, "Operations Manager | Career Transition");

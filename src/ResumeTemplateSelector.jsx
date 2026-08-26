@@ -1,14 +1,19 @@
 import { Check, LayoutTemplate } from "lucide-react";
 
 function TemplateThumbnail({ template, selected }) {
+  const tokens = template.visualTokens;
+  const isBand = tokens.headerTreatment === "accent-band";
+  const isLeft = tokens.headerAlignment === "left";
   return (
-    <span aria-hidden="true" style={{ width: 42, height: 54, padding: 5, border: `1px solid ${selected ? template.visualTokens.accent : "#c9cdd1"}`, borderRadius: 4, background: "#fff", display: "flex", flexDirection: "column", gap: 3, boxSizing: "border-box", flexShrink: 0 }}>
-      <span style={{ width: "64%", height: 3, alignSelf: "center", background: template.visualTokens.ink }} />
-      <span style={{ width: "82%", height: 2, alignSelf: "center", background: template.visualTokens.muted }} />
-      <span style={{ width: "100%", height: 2, marginTop: 2, background: template.visualTokens.accent }} />
+    <span data-template-style={tokens.headerTreatment} aria-hidden="true" style={{ width: 48, height: 62, padding: 5, border: `1px solid ${selected ? tokens.accent : "#c9cdd1"}`, borderRadius: 4, background: "#fff", display: "flex", flexDirection: "column", gap: 3, boxSizing: "border-box", flexShrink: 0 }}>
+      <span style={{ width: "100%", minHeight: isBand ? 13 : 9, padding: isBand ? "3px 2px" : 0, borderLeft: tokens.headerTreatment === "accent-edge" ? `3px solid ${tokens.accent}` : 0, background: isBand ? tokens.accent : "transparent", display: "flex", flexDirection: "column", alignItems: isLeft ? "flex-start" : "center", gap: 2, boxSizing: "border-box" }}>
+        <span style={{ width: "64%", height: 3, background: isBand ? tokens.headerText : tokens.ink }} />
+        <span style={{ width: "82%", height: 2, background: isBand ? tokens.headerText : tokens.muted, opacity: 0.78 }} />
+      </span>
+      <span style={{ width: "100%", height: tokens.sectionTreatment === "soft-band" ? 4 : 2, marginTop: 2, background: tokens.sectionTreatment === "soft-band" ? tokens.accentSoft : tokens.accent }} />
       <span style={{ width: "100%", height: 2, background: "#d9dde0" }} />
       <span style={{ width: "88%", height: 2, background: "#d9dde0" }} />
-      <span style={{ width: "100%", height: 2, marginTop: 2, background: template.visualTokens.accent }} />
+      <span style={{ width: "100%", height: tokens.sectionTreatment === "soft-band" ? 4 : 2, marginTop: 2, background: tokens.sectionTreatment === "soft-band" ? tokens.accentSoft : tokens.accent }} />
       <span style={{ width: "94%", height: 2, background: "#d9dde0" }} />
       <span style={{ width: "78%", height: 2, background: "#d9dde0" }} />
     </span>
@@ -26,6 +31,11 @@ export function ResumeTemplateSelector({
   controlId,
   C,
 }) {
+  const groups = [
+    { id: "role-aware", label: "Role-aware structures", description: "Recommended from verified occupation evidence." },
+    { id: "design-style", label: "Universal design styles", description: "Choose a look without changing facts or occupation-aware section logic." },
+  ].map((group) => ({ ...group, templates: templates.filter((template) => (template.group || "role-aware") === group.id) }))
+    .filter((group) => group.templates.length);
   return (
     <section aria-labelledby={controlId} style={{ margin: "0 0 14px", padding: "13px 14px", border: `1px solid ${C.border}`, borderRadius: 14, background: C.bgCard }}>
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 12, flexWrap: "wrap" }}>
@@ -42,10 +52,17 @@ export function ResumeTemplateSelector({
       </div>
 
       {showOptions ? (
-        <ul aria-label="ATS-safe résumé templates" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(210px, 100%), 1fr))", gap: 9, margin: "12px 0 0", padding: 0, listStyle: "none" }}>
-          {templates.map((template) => {
+        <div style={{ marginTop: 12 }}>
+          {groups.map((group) => <div key={group.id} style={{ marginTop: group.id === "role-aware" ? 0 : 14 }}>
+            <div style={{ marginBottom: 7 }}>
+              <strong style={{ display: "block", color: C.text, fontSize: 12.5 }}>{group.label}</strong>
+              <span style={{ color: C.textFaint, fontSize: 11.5 }}>{group.description}</span>
+            </div>
+            <ul aria-label={`${group.label} résumé templates`} style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(220px, 100%), 1fr))", gap: 9, margin: 0, padding: 0, listStyle: "none" }}>
+          {group.templates.map((template) => {
             const isSelected = template.id === selected.id;
             const isRecommended = template.id === recommended.id;
+            const safetyLabel = template.atsSafetyLevel === "high" ? "Application-safe" : "Networking-forward";
             return (
               <li key={template.id} style={{ display: "flex", minWidth: 0 }}>
                 <button
@@ -62,15 +79,18 @@ export function ResumeTemplateSelector({
                       {template.displayName} {isSelected ? <Check size={13} aria-hidden="true" /> : null}
                     </span>
                     <span style={{ display: "block", marginTop: 3, color: C.textSub, fontSize: 11.5, lineHeight: 1.35 }}>{template.intendedUse}</span>
+                    <span style={{ display: "block", marginTop: 4, color: C.textFaint, fontSize: 11, lineHeight: 1.35 }}>{template.description}</span>
                     <span style={{ display: "inline-block", marginTop: 5, padding: "2px 6px", borderRadius: 99, background: `${template.visualTokens.accent}18`, color: template.visualTokens.accent, fontSize: 10.5, fontWeight: 750 }}>
-                      {isRecommended ? "Recommended · ATS-safe" : "ATS-safe"}
+                      {isRecommended ? `Recommended · ${safetyLabel}` : safetyLabel}
                     </span>
                   </span>
                 </button>
               </li>
             );
           })}
-        </ul>
+            </ul>
+          </div>)}
+        </div>
       ) : null}
     </section>
   );

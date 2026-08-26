@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { createJobIntakeHandler, fetchPublicJobPage, validatePublicHttpsUrl } from "../api/job-intake.js";
+import { createPinnedLookup } from "../api/_lib/publicJobPage.js";
 
 function responseRecorder() {
   return {
@@ -26,6 +27,26 @@ test("job URL validation rejects loopback and private DNS results", async () => 
   );
 });
 
+test("job URL validation fails closed with a clear error for malformed DNS records", async () => {
+  await assert.rejects(
+    () => validatePublicHttpsUrl("https://jobs.example.com/role", async () => [{ family: 4 }]),
+    /could not be resolved to a public network address/i,
+  );
+});
+
+test("pinned DNS lookup supports modern all-address and legacy callback shapes", async () => {
+  const lookup = createPinnedLookup("93.184.216.34", 4);
+  const modern = await new Promise((resolve, reject) => {
+    lookup("jobs.example.com", { all: true }, (error, records) => error ? reject(error) : resolve(records));
+  });
+  const legacy = await new Promise((resolve, reject) => {
+    lookup("jobs.example.com", {}, (error, address, family) => error ? reject(error) : resolve({ address, family }));
+  });
+
+  assert.deepEqual(modern, [{ address: "93.184.216.34", family: 4 }]);
+  assert.deepEqual(legacy, { address: "93.184.216.34", family: 4 });
+});
+
 test("job page redirects are revalidated before another request", async () => {
   let calls = 0;
   await assert.rejects(() => fetchPublicJobPage("https://jobs.example.com/role", {
@@ -40,6 +61,19 @@ test("job page redirects are revalidated before another request", async () => {
     },
   }), /private or reserved/);
   assert.equal(calls, 1);
+});
+
+test("career-site blocking returns an actionable fallback instead of a raw HTTP error", async () => {
+  await assert.rejects(() => fetchPublicJobPage("https://jobs.example.com/role", {
+    resolveHost: async () => [{ address: "93.184.216.34" }],
+    fetchImpl: async () => ({ status: 403, ok: false, headers: headers() }),
+  }), (error) => {
+    assert.equal(error.code, "blocked");
+    assert.equal(error.httpStatus, 403);
+    assert.match(error.message, /blocked automated reading/i);
+    assert.doesNotMatch(error.message, /HTTP 403/i);
+    return true;
+  });
 });
 
 test("job intake authenticates before reading or extracting a posting", async () => {

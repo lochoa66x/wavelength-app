@@ -49,7 +49,7 @@ The page uses generic product examples only. No candidate fixture, employer hist
 
 ## Template and export boundary
 
-The landing template list has no hard-coded IDs. Canonical display metadata, page targets, descriptions, section order, and visual accent tokens come from the nine-family registry. The landing preview changes presentation state only.
+The landing template list has no hard-coded IDs. Canonical display metadata, page targets, descriptions, section order, ATS-safety label, and visual tokens come from the 14-choice registry: nine occupation-aware structures and five universal visual styles. The landing preview changes presentation state only.
 
 DOCX/PDF modules remain dynamic imports of the lazy app chunk. The landing chunk graph does not reference `resumeDocx`, `resumePdf`, `docx`, `jspdf`, or the export verifier. P2.2 does not change `ResumePackage`, render plans, manifests, posting verification, identity validation, preliminary labels, or final export authorization.
 

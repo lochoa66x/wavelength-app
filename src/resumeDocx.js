@@ -62,21 +62,45 @@ export async function createResumeDocxBlob(input, template = "professional", opt
     HeadingLevel,
     Packer,
     Paragraph,
+    ShadingType,
     TextRun,
   } = await prepareResumeDocxExport();
 
+  const tokens = renderPlan.visualTokens;
+  const color = (value, fallback = "111111") => String(value || fallback).replace("#", "").toUpperCase();
+  const headerAlignment = tokens.headerAlignment === "left" ? AlignmentType.LEFT : AlignmentType.CENTER;
+  const headerBand = tokens.headerTreatment === "accent-band";
   const children = [];
   const addParagraph = (content, paragraphOptions = {}) => {
     const runs = normalizeDocxRuns(content);
     children.push(new Paragraph({ ...paragraphOptions, children: runs.map((run) => new TextRun(run)) }));
   };
   const addHeading = (heading) => {
+    const treatment = tokens.sectionTreatment || "underline";
+    const border = treatment === "accent-edge"
+      ? { left: { color: color(tokens.accent), size: 18, space: 8, style: "single" } }
+      : treatment === "compact-rule"
+        ? { bottom: { color: color(tokens.accent), size: 10, space: 4, style: "single" } }
+        : treatment === "editorial"
+          ? { bottom: { color: color(tokens.accent), size: 5, space: 4, style: "single" } }
+          : treatment === "soft-band"
+            ? undefined
+            : { bottom: { color: "B8B8B8", size: 4, space: 4, style: "single" } };
     children.push(new Paragraph({
-      text: serializeDocxText(heading),
       heading: HeadingLevel.HEADING_2,
-      spacing: { before: 220, after: 80 },
+      spacing: { before: treatment === "compact-rule" ? 150 : 220, after: 80 },
       keepNext: true,
-      border: { bottom: { color: "B8B8B8", size: 4, space: 4, style: "single" } },
+      border,
+      shading: treatment === "soft-band" ? { type: ShadingType.CLEAR, color: "auto", fill: color(tokens.accentSoft, "F3F4F6") } : undefined,
+      indent: treatment === "accent-edge" ? { left: 100 } : undefined,
+      children: [new TextRun({
+        text: serializeDocxText(heading),
+        bold: true,
+        font: tokens.docxFontFamily,
+        size: Math.round(tokens.sectionFontSizePt * 2),
+        color: color(tokens.accent),
+        allCaps: tokens.sectionTextTransform !== "none",
+      })],
     }));
   };
   const addBullet = (value, options = {}) => addParagraph(value, {
@@ -86,9 +110,31 @@ export async function createResumeDocxBlob(input, template = "professional", opt
     ...options,
   });
 
-  addParagraph(text(renderPlan.header.fullName, { bold: true, size: 32 }), { alignment: AlignmentType.CENTER, spacing: { after: 50 }, keepNext: true });
-  if (renderPlan.header.headline) addParagraph(text(renderPlan.header.headline, { bold: true, size: 22 }), { alignment: AlignmentType.CENTER, keepNext: true });
-  if (renderPlan.header.contactLine) addParagraph(renderPlan.header.contactLine, { alignment: AlignmentType.CENTER, spacing: { after: 100 }, keepNext: true });
+  const headerRows = [
+    { kind: "name", value: renderPlan.header.fullName, run: { bold: true, size: Math.round(tokens.nameFontSizePt * 2) }, after: 35 },
+    ...(renderPlan.header.headline ? [{ kind: "headline", value: renderPlan.header.headline, run: { bold: true, size: Math.round(tokens.headlineFontSizePt * 2) }, after: 25 }] : []),
+    ...(renderPlan.header.contactLine ? [{ kind: "contact", value: renderPlan.header.contactLine, run: { size: 18 }, after: 100 }] : []),
+  ];
+  headerRows.forEach((row, index) => {
+    const isLast = index === headerRows.length - 1;
+    const border = tokens.headerTreatment === "accent-edge"
+      ? { left: { color: color(tokens.accent), size: 24, space: 10, style: "single" } }
+      : !headerBand && isLast
+        ? { bottom: { color: color(tokens.headerTreatment === "editorial" ? tokens.accent : tokens.ink), size: tokens.headerTreatment === "compact-rule" ? 12 : 8, space: 6, style: "single" } }
+        : undefined;
+    addParagraph(text(row.value, {
+      ...row.run,
+      font: tokens.docxFontFamily,
+      color: color(headerBand ? tokens.headerText : row.kind === "headline" ? tokens.accent : row.kind === "contact" ? tokens.muted : tokens.ink),
+    }), {
+      alignment: headerAlignment,
+      spacing: { after: isLast ? row.after : headerBand ? 15 : row.after },
+      keepNext: !isLast,
+      border,
+      shading: headerBand ? { type: ShadingType.CLEAR, color: "auto", fill: color(tokens.headerBackground, color(tokens.accent)) } : undefined,
+      indent: tokens.headerTreatment === "accent-edge" ? { left: 120 } : undefined,
+    });
+  });
   for (const section of renderPlan.sections) {
     addHeading(section.heading);
     if (section.type === "paragraph") {
@@ -133,21 +179,20 @@ export async function createResumeDocxBlob(input, template = "professional", opt
     }
   }
 
-  const tokens = renderPlan.visualTokens;
   const document = new Document({
     creator: "Gigscapes",
     lastModifiedBy: "Gigscapes",
     title: [renderPlan.header.fullName, renderPlan.header.headline].filter(Boolean).join(" - "),
     description: "ATS-readable résumé generated from verified candidate content.",
     styles: {
-      default: { document: { run: { font: "Arial", size: 20, color: "111111" }, paragraph: { spacing: { line: 260 } } } },
+      default: { document: { run: { font: tokens.docxFontFamily, size: Math.round(tokens.bodyFontSizePt * 2), color: color(tokens.ink) }, paragraph: { spacing: { line: Math.round(tokens.bodyFontSizePt * tokens.bodyLineHeight * 20) } } } },
       paragraphStyles: [{
         id: "Heading2",
         name: "Heading 2",
         basedOn: "Normal",
         next: "Normal",
         quickFormat: true,
-        run: { font: "Arial", size: 21, bold: true, color: tokens.accent.replace("#", "").toUpperCase() },
+        run: { font: tokens.docxFontFamily, size: Math.round(tokens.sectionFontSizePt * 2), bold: true, color: color(tokens.accent) },
       }],
     },
     sections: [{

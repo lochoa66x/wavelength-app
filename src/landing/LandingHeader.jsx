@@ -66,6 +66,7 @@ export function LandingHeader() {
     <button
       type="button"
       className="landing-link-button landing-link-button--quiet"
+      data-account-action-fallback
       onClick={() => {
         closeMenu();
         openSignIn();

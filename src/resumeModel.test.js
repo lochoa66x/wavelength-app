@@ -82,7 +82,7 @@ test("canonical package separates facts, evidence, classification, and presentat
   assert.doesNotMatch(JSON.stringify(resumePackage.document), /sourceReferences|recommendationTrace|posting_readiness/);
 });
 
-test("template registry exposes nine unique stable Phase A through B3 IDs", () => {
+test("template registry exposes role-aware and universal design IDs", () => {
   const templates = availableResumeTemplates();
   const ids = templates.map((template) => template.id);
   assert.deepEqual(ids, [
@@ -95,13 +95,22 @@ test("template registry exposes nine unique stable Phase A through B3 IDs", () =
     TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
     TEMPLATE_IDS.MARKETING_COMMUNICATIONS,
     TEMPLATE_IDS.CREATIVE_DESIGN,
+    TEMPLATE_IDS.CLASSIC_LEDGER,
+    TEMPLATE_IDS.MODERN_SIGNAL,
+    TEMPLATE_IDS.COMPACT_FOCUS,
+    TEMPLATE_IDS.BOLD_IMPACT,
+    TEMPLATE_IDS.STUDIO_EDITORIAL,
   ]);
   assert.equal(new Set(ids).size, ids.length);
   for (const id of ids) {
     assert.equal(RESUME_TEMPLATE_REGISTRY[id].id, id);
     assert.equal(RESUME_TEMPLATE_REGISTRY[id].version, 1);
     assert.equal(RESUME_TEMPLATE_REGISTRY[id].previewMetadata.columnCount, 1);
+    assert.equal(RESUME_TEMPLATE_REGISTRY[id].previewMetadata.hasSidebar, false);
+    assert.equal(RESUME_TEMPLATE_REGISTRY[id].previewMetadata.usesGraphics, false);
   }
+  assert.equal(templates.filter((template) => template.group === "design-style").length, 5);
+  assert.equal(RESUME_TEMPLATE_REGISTRY[TEMPLATE_IDS.BOLD_IMPACT].atsSafetyLevel, "moderate");
 });
 
 test("deterministic recommendation distinguishes functional SAP, technical SAP, leadership, transition, and fallback", () => {
@@ -183,13 +192,20 @@ test("ABAP development evidence qualifies while functional collaboration does no
 });
 
 test("adjacent SAP module pivot remains functional without inserting the target module", () => {
-  const resumePackage = createResumePackage(baseResume({ content_strategy: "adjacent" }), {
+  const resumePackage = createResumePackage(baseResume({
+    content_strategy: "adjacent",
+    training: [{ name: "SAP FI-CA", provider: "SAP" }],
+  }), {
     item: { title: "SAP MM Functional Consultant", category: "tech" },
     atsReview: { ...verifiedPosting, readiness: { status: "credible_stretch" } },
   });
   assert.equal(resumePackage.presentation.recommendedTemplateId, TEMPLATE_IDS.SAP_FUNCTIONAL);
   assert.equal(resumePackage.classification.careerStrategy, "adjacent");
   assert.doesNotMatch(JSON.stringify(resumePackage.document.skills), /SAP MM/i);
+  const plan = buildResumeRenderPlan(resumePackage, resumePackage.presentation.recommendedTemplateId);
+  assert.equal(plan.sections.find((section) => section.id === "summary")?.heading, "SAP Functional Profile");
+  assert.equal(plan.sections.find((section) => section.id === "skills")?.heading, "SAP Modules & Functional Capabilities");
+  assert.ok(plan.sections.findIndex((section) => section.id === "experience") < plan.sections.findIndex((section) => section.id === "training"));
 });
 
 test("template override changes presentation only and preserves factual IDs and content hash", () => {
@@ -202,11 +218,29 @@ test("template override changes presentation only and preserves factual IDs and 
   assert.equal(overridden.presentation.selectedTemplateId, TEMPLATE_IDS.PROJECT_LEADERSHIP);
 });
 
-test("all nine selectable templates keep the same selected factual item IDs", () => {
+test("all selectable templates keep the same selected factual item IDs", () => {
   const resumePackage = createResumePackage(baseResume(), { item: { title: "SAP Functional Consultant", category: "tech" }, atsReview: verifiedPosting });
   const ids = (plan) => plan.manifest.sections.flatMap((section) => section.items.flatMap((item) => [item.id, ...(item.bullets || []).map((bullet) => bullet.id), ...(item.details || []).map((detail) => detail.id)])).sort();
   const plans = Object.values(TEMPLATE_IDS).map((id) => buildResumeRenderPlan(resumePackage, id));
   for (const plan of plans.slice(1)) assert.deepEqual(ids(plan), ids(plans[0]));
+});
+
+test("universal design styles inherit occupation-aware content without changing facts", () => {
+  const tradePackage = createResumePackage(licensedElectricianResumeFixture, { item: electricianTargetItem, atsReview: verifiedPosting });
+  const rolePlan = buildResumeRenderPlan(tradePackage, TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES);
+  for (const templateId of [
+    TEMPLATE_IDS.CLASSIC_LEDGER,
+    TEMPLATE_IDS.MODERN_SIGNAL,
+    TEMPLATE_IDS.COMPACT_FOCUS,
+    TEMPLATE_IDS.BOLD_IMPACT,
+    TEMPLATE_IDS.STUDIO_EDITORIAL,
+  ]) {
+    const plan = buildResumeRenderPlan(tradePackage, templateId);
+    assert.equal(plan.contentTemplateId, TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES);
+    assert.equal(plan.contentHash, rolePlan.contentHash);
+    assert.deepEqual(plan.sections.map((section) => section.id), rolePlan.sections.map((section) => section.id));
+    assert.deepEqual(plan.sections.map((section) => section.heading), rolePlan.sections.map((section) => section.heading));
+  }
 });
 
 test("B3 direct recommendations require verified marketing or creative candidate evidence", () => {

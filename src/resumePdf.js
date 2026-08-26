@@ -62,7 +62,13 @@ async function createResumePdfDocument(input, template = "professional", options
     bottom: tokens.marginBottomIn * 72,
   };
   const contentWidth = page.width - page.left - page.right;
-  const accent = tokens.accent.match(/[a-f\d]{2}/gi)?.map((value) => Number.parseInt(value, 16)) || [29, 95, 122];
+  const rgb = (value, fallback = [23, 25, 28]) => String(value || "").match(/[a-f\d]{2}/gi)?.slice(0, 3).map((entry) => Number.parseInt(entry, 16)) || fallback;
+  const accent = rgb(tokens.accent, [29, 95, 122]);
+  const accentSoft = rgb(tokens.accentSoft, [237, 244, 247]);
+  const headerBackground = rgb(tokens.headerBackground, accent);
+  const headerText = rgb(tokens.headerText, [255, 255, 255]);
+  const pdfFont = tokens.pdfFontFamily || "helvetica";
+  const bodyLeading = tokens.bodyFontSizePt * tokens.bodyLineHeight;
   let y = page.top;
 
   const newPage = () => {
@@ -73,6 +79,7 @@ async function createResumePdfDocument(input, template = "professional", options
     if (y + height > page.height - page.bottom) newPage();
   };
   const wrappedLines = (value, width, size = tokens.bodyFontSizePt) => {
+    doc.setFont(pdfFont, "normal");
     doc.setFontSize(size);
     const safe = pdfSafeText(value);
     return safe ? doc.splitTextToSize(safe, width) : [];
@@ -88,7 +95,7 @@ async function createResumePdfDocument(input, template = "professional", options
     align = "left",
     ensure = true,
   } = {}) => {
-    doc.setFont("helvetica", style);
+    doc.setFont(pdfFont, style);
     doc.setTextColor(...color);
     doc.setFontSize(size);
     const lines = wrappedLines(value, width, size);
@@ -101,69 +108,134 @@ async function createResumePdfDocument(input, template = "professional", options
     return height + after;
   };
   const heading = (value) => {
-    ensureSpace(34);
-    y += 10;
-    writeLines(value, { size: tokens.sectionFontSizePt, style: "bold", color: accent, leading: 13, after: 4, ensure: false });
-    doc.setDrawColor(201, 205, 209);
-    doc.setLineWidth(0.6);
+    const treatment = tokens.sectionTreatment || "underline";
+    // Keep the selectable text identical to the canonical manifest. Browser
+    // and DOCX may apply visual capitalization without rewriting content.
+    const headingText = value;
+    const headingLeading = tokens.sectionFontSizePt * 1.2;
+    const lines = wrappedLines(headingText, treatment === "accent-edge" ? contentWidth - 10 : contentWidth, tokens.sectionFontSizePt);
+    const textHeight = Math.max(headingLeading, lines.length * headingLeading);
+    ensureSpace(textHeight + 26);
+    y += treatment === "compact-rule" ? 7 : 10;
+    if (treatment === "soft-band") {
+      doc.setFillColor(...accentSoft);
+      doc.rect(page.left, y - 3, contentWidth, textHeight + 6, "F");
+      writeLines(headingText, { x: page.left + 7, width: contentWidth - 14, size: tokens.sectionFontSizePt, style: "bold", color: accent, leading: headingLeading, after: 8, ensure: false });
+      return;
+    }
+    if (treatment === "accent-edge") {
+      doc.setDrawColor(...accent);
+      doc.setLineWidth(3);
+      doc.line(page.left + 1.5, y - 1, page.left + 1.5, y + textHeight - 1);
+      writeLines(headingText, { x: page.left + 10, width: contentWidth - 10, size: tokens.sectionFontSizePt, style: "bold", color: accent, leading: headingLeading, after: 7, ensure: false });
+      return;
+    }
+    writeLines(headingText, { size: tokens.sectionFontSizePt, style: "bold", color: accent, leading: headingLeading, after: 4, ensure: false });
+    doc.setDrawColor(...(treatment === "underline" ? [201, 205, 209] : accent));
+    doc.setLineWidth(treatment === "compact-rule" ? 1.15 : 0.6);
     doc.line(page.left, y, page.width - page.right, y);
-    y += 7;
+    y += treatment === "compact-rule" ? 5 : 7;
   };
-  const paragraph = (value, overrides = {}) => writeLines(value, { size: tokens.bodyFontSizePt, leading: 13.2, after: 4, ...overrides });
+  const paragraph = (value, overrides = {}) => writeLines(value, { size: tokens.bodyFontSizePt, leading: bodyLeading, after: 4, ...overrides });
   const bullet = (value) => {
     const bulletX = page.left + 2;
     const textX = page.left + 14;
     const width = page.width - page.right - textX;
     const lines = wrappedLines(value, width, tokens.bodyFontSizePt);
     if (!lines.length) return;
-    const height = lines.length * 13.2;
+    const height = lines.length * bodyLeading;
     ensureSpace(height + 4);
-    doc.setFont("helvetica", "normal");
+    doc.setFont(pdfFont, "normal");
     doc.setFontSize(tokens.bodyFontSizePt);
     doc.setTextColor(23, 25, 28);
     doc.text("-", bulletX, y, { baseline: "top" });
-    doc.text(lines, textX, y, { baseline: "top", lineHeightFactor: 1.32 });
+    doc.text(lines, textX, y, { baseline: "top", lineHeightFactor: tokens.bodyLineHeight });
     y += height + 4;
   };
   const projectBlockHeight = (project) => {
     const projectHeading = [project.name, project.organization].filter(Boolean).join(" - ");
     const dates = [project.startDate, project.endDate].filter(Boolean).join(" - ");
     return [
-      projectHeading ? wrappedLines(projectHeading, contentWidth, 10.2).length * 13.2 + 3 : 0,
-      dates ? wrappedLines(dates, contentWidth).length * 13.2 + 4 : 0,
-      project.description ? wrappedLines(project.description, contentWidth).length * 13.2 + 4 : 0,
-      ...project.bullets.map((value) => wrappedLines(value.text, contentWidth - 14).length * 13.2 + 4),
+      projectHeading ? wrappedLines(projectHeading, contentWidth, 10.2).length * (10.2 * tokens.bodyLineHeight) + 3 : 0,
+      dates ? wrappedLines(dates, contentWidth).length * bodyLeading + 4 : 0,
+      project.description ? wrappedLines(project.description, contentWidth).length * bodyLeading + 4 : 0,
+      ...project.bullets.map((value) => wrappedLines(value.text, contentWidth - 14).length * bodyLeading + 4),
     ].reduce((total, height) => total + height, 0);
   };
   const firstSectionBlockHeight = (section) => {
     const first = section.items[0];
     if (!first) return 0;
-    if (section.type === "paragraph") return wrappedLines(first.text, contentWidth).length * 13.2 + 4;
-    if (section.type === "inline-list") return wrappedLines(section.items.map((item) => item.text).join(" | "), contentWidth).length * 13.2 + 4;
+    if (section.type === "paragraph") return wrappedLines(first.text, contentWidth).length * bodyLeading + 4;
+    if (section.type === "inline-list") return wrappedLines(section.items.map((item) => item.text).join(" | "), contentWidth).length * bodyLeading + 4;
     if (section.type === "experience") {
       const firstBullet = first.bullets[0]?.text || "";
-      return 19 + wrappedLines(firstBullet, contentWidth - 14).length * 13.2;
+      return 19 + wrappedLines(firstBullet, contentWidth - 14).length * bodyLeading;
     }
     if (section.type === "projects") {
-      return projectBlockHeight(first);
+      // Keep a small renderer buffer so the section heading and the first
+      // compact project move together instead of splitting by a few points.
+      return projectBlockHeight(first) + 10;
     }
-    if (section.type === "credentials") return wrappedLines(joined([first.name, first.issuer, first.dateDisplay]), contentWidth).length * 13.2 + 4;
+    if (section.type === "credentials") return wrappedLines(joined([first.name, first.issuer, first.dateDisplay]), contentWidth).length * bodyLeading + 4;
     if (section.type === "education") {
       const educationLine = joined([[first.credential, first.field].filter(Boolean).join(" - "), first.institution, first.location, first.dateDisplay]);
-      return wrappedLines(educationLine, contentWidth).length * 13.2 + 4;
+      return wrappedLines(educationLine, contentWidth).length * bodyLeading + 4;
     }
     if (section.type === "languages") {
       const languages = section.items.map((item) => [item.name, item.proficiency].filter(Boolean).join(" - ")).join(", ");
-      return wrappedLines(languages, contentWidth).length * 13.2 + 4;
+      return wrappedLines(languages, contentWidth).length * bodyLeading + 4;
     }
-    return wrappedLines(first.text, contentWidth).length * 13.2 + 4;
+    return wrappedLines(first.text, contentWidth).length * bodyLeading + 4;
   };
 
-  writeLines(renderPlan.header.fullName, { size: tokens.nameFontSizePt, style: "bold", leading: 20, after: 4, align: "center" });
-  if (renderPlan.header.headline) writeLines(renderPlan.header.headline, { size: tokens.headlineFontSizePt, style: "bold", color: [55, 55, 60], leading: 14, after: 3, align: "center" });
-  if (renderPlan.header.contactLine) writeLines(renderPlan.header.contactLine, { size: 9.2, color: [65, 65, 70], leading: 11.5, after: 8, align: "center" });
+  const headerAlign = tokens.headerAlignment === "left" ? "left" : "center";
+  const headerX = headerAlign === "center" ? page.width / 2 : page.left;
+  const headerBand = tokens.headerTreatment === "accent-band";
+  const headerRows = [
+    { value: renderPlan.header.fullName, size: tokens.nameFontSizePt, style: "bold", leading: tokens.nameFontSizePt * 1.15, after: 4, color: headerBand ? headerText : rgb(tokens.ink) },
+    ...(renderPlan.header.headline ? [{ value: renderPlan.header.headline, size: tokens.headlineFontSizePt, style: "bold", leading: tokens.headlineFontSizePt * 1.25, after: 3, color: headerBand ? headerText : accent }] : []),
+    ...(renderPlan.header.contactLine ? [{ value: renderPlan.header.contactLine, size: 9.2, style: "normal", leading: 11.5, after: 8, color: headerBand ? headerText : rgb(tokens.muted, [65, 65, 70]) }] : []),
+  ];
+  const headerHeight = headerRows.reduce((total, row) => total + Math.max(row.leading, wrappedLines(row.value, contentWidth - (headerBand ? 24 : 0), row.size).length * row.leading) + row.after, 0);
+  if (headerBand) {
+    doc.setFillColor(...headerBackground);
+    doc.rect(page.left, y - 8, contentWidth, headerHeight + 16, "F");
+    y += 4;
+  }
+  if (tokens.headerTreatment === "accent-edge") {
+    doc.setDrawColor(...accent);
+    doc.setLineWidth(4);
+    doc.line(page.left + 2, y, page.left + 2, y + headerHeight - 2);
+  }
+  for (const row of headerRows) {
+    writeLines(row.value, {
+      x: headerX + (tokens.headerTreatment === "accent-edge" ? 12 : headerBand && headerAlign === "left" ? 10 : 0),
+      width: contentWidth - (tokens.headerTreatment === "accent-edge" ? 12 : headerBand ? 20 : 0),
+      size: row.size,
+      style: row.style,
+      color: row.color,
+      leading: row.leading,
+      after: row.after,
+      align: headerAlign,
+      ensure: false,
+    });
+  }
+  if (!headerBand && tokens.headerTreatment !== "accent-edge") {
+    doc.setDrawColor(...(tokens.headerTreatment === "editorial" ? accent : rgb(tokens.ink)));
+    doc.setLineWidth(tokens.headerTreatment === "compact-rule" ? 1.2 : tokens.headerTreatment === "editorial" ? 0.6 : 1.4);
+    doc.line(page.left, y, page.width - page.right, y);
+    y += 7;
+  } else {
+    y += 5;
+  }
   for (const section of renderPlan.sections) {
-    ensureSpace(34 + firstSectionBlockHeight(section));
+    const compactProjectsHeight = section.type === "projects" && section.items.every((project) => project.bullets.length <= 3)
+      ? section.items.reduce((total, project) => total + projectBlockHeight(project), 0) + 10
+      : 0;
+    const leadBlockHeight = compactProjectsHeight > 0 && compactProjectsHeight <= page.height - page.top - page.bottom - 34
+      ? compactProjectsHeight
+      : firstSectionBlockHeight(section);
+    ensureSpace(34 + leadBlockHeight);
     heading(section.heading);
     if (section.type === "paragraph") {
       for (const item of section.items) paragraph(item.text);
@@ -172,8 +244,8 @@ async function createResumePdfDocument(input, template = "professional", options
     } else if (section.type === "experience") {
       for (const entry of section.items) {
         const firstBullet = entry.bullets[0]?.text || "";
-        ensureSpace(19 + wrappedLines(firstBullet, contentWidth - 14).length * 13.2);
-        writeLines(joined([[entry.title, entry.employer].filter(Boolean).join(" - "), entry.location, entry.dateDisplay]), { size: 10.2, style: "bold", leading: 13.2, after: 3, ensure: false });
+        ensureSpace(19 + wrappedLines(firstBullet, contentWidth - 14).length * bodyLeading);
+        writeLines(joined([[entry.title, entry.employer].filter(Boolean).join(" - "), entry.location, entry.dateDisplay]), { size: 10.2, style: "bold", leading: 10.2 * tokens.bodyLineHeight, after: 3, ensure: false });
         for (const value of entry.bullets) bullet(value.text);
         y += 2;
       }
@@ -182,7 +254,7 @@ async function createResumePdfDocument(input, template = "professional", options
         const blockHeight = projectBlockHeight(project);
         if (blockHeight <= page.height - page.top - page.bottom) ensureSpace(blockHeight);
         const projectHeading = [project.name, project.organization].filter(Boolean).join(" - ");
-        if (projectHeading) writeLines(projectHeading, { size: 10.2, style: "bold", leading: 13.2, after: 3, ensure: false });
+        if (projectHeading) writeLines(projectHeading, { size: 10.2, style: "bold", leading: 10.2 * tokens.bodyLineHeight, after: 3, ensure: false });
         const dates = [project.startDate, project.endDate].filter(Boolean).join(" - ");
         if (dates) paragraph(dates, { style: "italic" });
         if (project.description) paragraph(project.description);

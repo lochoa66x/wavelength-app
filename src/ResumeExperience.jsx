@@ -4,6 +4,8 @@ import { useAuth } from "./auth.jsx";
 import { ResumeActions } from "./ResumeActions.jsx";
 import { ResumeDocumentPreview } from "./ResumeDocumentPreview.jsx";
 import { ResumeTemplateSelector } from "./ResumeTemplateSelector.jsx";
+import { QualityFeedback } from "./QualityFeedback.jsx";
+import { emitResumeQualitySignal } from "./qualitySignals.js";
 import {
   RESUME_TEMPLATE_REGISTRY,
   availableResumeTemplates,
@@ -19,7 +21,7 @@ import {
 
 const TEMPLATE_OPTIONS = availableResumeTemplates();
 
-export function ResumeExperience({ resumeData, item, hasLink, atsReview, onEditResume, C, primaryBtnStyle }) {
+export function ResumeExperience({ resumeData, item, hasLink, atsReview, onEditResume, qualityRoute = "app", qualityPostingSource = "not_applicable", C, primaryBtnStyle }) {
   const { session } = useAuth();
   const previewRef = useRef(null);
   const [showOptions, setShowOptions] = useState(false);
@@ -87,6 +89,22 @@ export function ResumeExperience({ resumeData, item, hasLink, atsReview, onEditR
         {exportNotice.state === "preliminary" ? " This guidance is not included in the résumé file." : ""}
       </div>
       <ResumeDocumentPreview ref={previewRef} renderPlan={renderPlan} />
+      <QualityFeedback
+        key={resumePackage.contentHash}
+        kind="fit"
+        C={C}
+        onSubmit={({ feedback, feedbackReason }) => emitResumeQualitySignal("fit_feedback_submitted", {
+          resumeData,
+          resumePackage,
+          item,
+          atsReview,
+          route: qualityRoute,
+          postingSource: qualityPostingSource,
+          outcome: "completed",
+          feedback,
+          feedbackReason,
+        })}
+      />
       <ResumeActions
         resumeData={resumeData}
         resumePackage={resumePackage}
@@ -97,6 +115,8 @@ export function ResumeExperience({ resumeData, item, hasLink, atsReview, onEditR
         hasLink={hasLink}
         atsReview={atsReview}
         onEditResume={onEditResume}
+        qualityRoute={qualityRoute}
+        qualityPostingSource={qualityPostingSource}
         C={C}
         primaryBtnStyle={primaryBtnStyle}
       />

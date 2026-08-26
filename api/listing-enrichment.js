@@ -74,7 +74,7 @@ export function createListingEnrichmentHandler({
       return res.status(200).json(fallbackPayload(
         listing,
         listing.description_enrichment_error_code,
-        "The original page could not be read recently. Bring the full posting or continue with a preliminary version.",
+        "This source shared only a summary. Add the full posting or tailor a preliminary version from the summary.",
         true,
       ));
     }
@@ -153,7 +153,7 @@ export function createListingEnrichmentHandler({
       return res.status(200).json(fallbackPayload(
         failedRow,
         errorCode,
-        "We could not safely read the full original posting. Paste it, upload screenshots, or continue with the provider summary.",
+        "This source shared only a summary. Add the full posting, upload screenshots, or tailor a preliminary version from the summary.",
       ));
     }
   };

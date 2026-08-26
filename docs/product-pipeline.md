@@ -148,6 +148,16 @@ The initial registry provides:
 8. Marketing & Communications (`marketing-communications-v1`)
 9. Creative & Design (`creative-design-v1`)
 
+The universal design expansion adds five selectable visual styles that inherit the correct occupation-aware content structure without changing facts:
+
+1. Classic Ledger (`classic-ledger-v1`) — application-safe, serif-led, traditional.
+2. Modern Signal (`modern-signal-v1`) — application-safe, crisp accent hierarchy.
+3. Compact Focus (`compact-focus-v1`) — application-safe, higher evidence density.
+4. Bold Impact (`bold-impact-v1`) — networking-forward, confident accent band.
+5. Studio Editorial (`studio-editorial-v1`) — networking-forward, expressive editorial typography.
+
+All five remain single-column and searchable with no photos, skill ratings, sidebars, layout tables, or essential header/footer-only content. Cross-career fixtures cover healthcare, education, finance, logistics, hospitality, community services, engineering, and skilled trades so this layer is not tuned only to the SAP reference résumé.
+
 **Phase B1 status:** Implemented and verified on 2026-08-24. Commit `4e278ff1ebd2cb42561c8eb4b7ad74ba9aa47ac2` is present on `origin/main`. The two families use the same selector in feed and bring-your-own-job flows, preserve account/target-scoped overrides, and rerender without AI or a network request. Technical and admin recommendations require a matching target plus verified direct/adjacent family evidence. Programming-heavy SAP roles require real development evidence, and service coordination is never promoted into management ownership.
 
 **Phase B2 status:** Implemented and committed as `4431e27e3803a908da912d6f6fa51af39f9d2fc5`, which is present on `origin/main`. Skilled Trades / Field Services replaces the hidden legacy trades registry entry through an on-read alias. Recommendation requires a matching target and verified physical hands-on evidence. Regulated credentials must be explicit candidate evidence; a posting requirement cannot satisfy itself, and a required credential gap blocks strong positioning. SAP Plant Maintenance, software maintenance, IT support, and maintenance-planning language are excluded from direct trade matching. Production deployment was not re-verified during the local B3 pass.
@@ -182,7 +192,7 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 - `/` is the public marketing surface and `/app` remains the anonymously browseable workspace. Existing sign-in, callback, deep-link fallback, and account-gate behavior is preserved.
 - The two primary paths are **Browse jobs & gigs** and **Tailor a posting I found**. URL, screenshot, and pasted-text intake reuse the existing allowlisted account actions through React Router history state; no sensitive posting or résumé content is placed in a URL.
 - The page explains evidence-first tailoring, verified/missing evidence boundaries, preliminary versus application-ready output, selectable DOCX/PDF exports, Canada-first discovery, source variability, and private-work controls without fabricated outcomes or counts.
-- All nine template families come from the canonical résumé registry. Switching the generic sample preview is local, immediate, and network-free.
+- All 14 choices come from the canonical résumé registry. Switching the generic sample preview is local, immediate, and network-free.
 - Landing and workspace UI are separate lazy route chunks. DOCX, PDF, `docx`, and `jspdf` remain reachable only from the workspace/export path.
 - SEO includes truthful title/description, canonical URL, robots metadata, Open Graph/Twitter metadata, a lightweight 1200×630 brand asset, favicon, and basic `WebSite` JSON-LD.
 - Accessibility includes semantic landmarks and headings, one H1, visible focus, approximately 44-pixel primary touch targets, reduced-motion CSS, modal mobile navigation with a focus loop/Escape/restoration, descriptive controls, and AA key-color contrast.
@@ -237,7 +247,9 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 - The evaluator reuses the production tailoring, readiness, integrity, and template contracts. It fails closed unless every expected contract, export-readiness result, evidence-integrity result, template selection, and privacy gate passes.
 - Reports contain only safe case IDs, enums, booleans, counts, durations, token totals, and cost estimates. Candidate text, contact details, résumé content, posting content, prompts, model responses, evidence excerpts, and export bytes are prohibited.
 - Posting completeness, requirement coverage, correction rate, user edits, export completion, retry rate, latency, token use, and estimated cost are aggregated from synthetic fixture inputs only. These values are evaluation signals, not production-user telemetry.
-- Provider/model comparisons must use this same versioned corpus and thresholds before any provider change. Production analytics, persisted event schemas, consent/retention policy, and user-feedback collection remain deferred until a separate privacy review explicitly defines them.
+- Provider/model comparisons must use this same versioned corpus and thresholds before any provider change. Phase A intentionally deferred production analytics, persisted event schemas, consent/retention policy, and user feedback until the Phase B1 privacy contract below defined them.
+- **Phase B1 implemented and locally verified on 2026-08-25; production migration applied, release gates remain:** quality sharing is explicitly opt-in and off by default; the browser and server share one exact enum-only contract; the API omits credentials and validates origin, type, marker, shape, values, and size; and Supabase stores only service-role daily aggregates in `gigscapes_private` with 180-day retention. The publishable production client was denied access to the private schema and the RPC with PostgreSQL `42501`, without writing a synthetic row.
+- No raw production-event store, identifiers, free text, résumé/posting content, client database privilege, or third-party analytics SDK was added. Optional fit/export feedback is structured and stays outside résumé previews and exports. Local reports suppress cohorts below 10.
 
 ## Recommended execution order
 
@@ -252,7 +264,7 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 9. P2.2 landing page — released and production-verified
 10. P2.3 Phase A discovery integrity and source-health release, then terms-approved feed expansion
 11. P3.2 Phase A redacted evaluation gate — implemented and locally verified
-12. P3.2 privacy-reviewed, opt-in aggregate production signals and feedback design
+12. P3.2 Phase B1 opt-in aggregate signals and structured feedback — migration applied and anonymous denial verified; service-role/RLS evidence and release remain
 13. P3.1 native mobile after the web contracts and privacy boundary remain stable
 
 ## Source constraints behind P0.1

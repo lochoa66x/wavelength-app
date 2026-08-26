@@ -20,3 +20,21 @@ test("workspace source copy does not claim unconfigured feeds are live", async (
   assert.doesNotMatch(source, /Scanning We Work Remotely/);
   assert.doesNotMatch(source, /Live feeds:/);
 });
+
+test("blocked source enrichment is presented as a calm preliminary-tailoring choice", async () => {
+  const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
+
+  assert.match(source, /This source shared only a job summary/);
+  assert.match(source, /Add the full posting for application-ready tailoring/);
+  assert.match(source, /Tailor from summary/);
+  assert.doesNotMatch(source, /\{t\.message \|\| "We need more of the original posting/);
+});
+
+test("ATS review uses one canonical readiness gate for significant evidence gaps", async () => {
+  const source = await readFile(new URL("./AtsReview.jsx", import.meta.url), "utf8");
+
+  assert.match(source, /significant_gap/);
+  assert.match(source, /needs_full_posting/);
+  assert.match(source, /review\.application_ready/);
+  assert.doesNotMatch(source, /exportReadiness\?\.status === "ready"\s*\|\|\s*review\.application_ready/);
+});

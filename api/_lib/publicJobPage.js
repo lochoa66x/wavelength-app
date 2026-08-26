@@ -63,6 +63,28 @@ export function isPrivateOrReservedAddress(address) {
   return true;
 }
 
+function resolvedAddresses(records) {
+  const values = Array.isArray(records) ? records : [records];
+  const addresses = values.map((record) => typeof record === "string" ? record : record?.address);
+  if (!values.length || addresses.some((address) => typeof address !== "string" || net.isIP(address) === 0)) {
+    throw new Error("That URL could not be resolved to a public network address.");
+  }
+  if (addresses.some(isPrivateOrReservedAddress)) {
+    throw new Error("That URL resolves to a private or reserved network address.");
+  }
+  return addresses;
+}
+
+export function createPinnedLookup(address, family = net.isIP(address)) {
+  return (_hostname, options, callback) => {
+    if (options?.all) {
+      callback(null, [{ address, family }]);
+      return;
+    }
+    callback(null, address, family);
+  };
+}
+
 export async function validatePublicHttpsUrl(rawUrl, resolveHost = (hostname) => dns.lookup(hostname, { all: true, verbatim: true })) {
   let url;
   try {
@@ -80,10 +102,7 @@ export async function validatePublicHttpsUrl(rawUrl, resolveHost = (hostname) =>
 
   const literalType = net.isIP(hostname);
   const records = literalType ? [{ address: hostname }] : await resolveHost(hostname);
-  const resolved = Array.isArray(records) ? records : [records];
-  if (!resolved.length || resolved.some((record) => isPrivateOrReservedAddress(typeof record === "string" ? record : record.address))) {
-    throw new Error("That URL resolves to a private or reserved network address.");
-  }
+  resolvedAddresses(records);
   return url;
 }
 
@@ -126,10 +145,7 @@ async function readLimitedBody(response) {
 async function requestPinnedHttpsPage(url, resolveHost = (hostname) => dns.lookup(hostname, { all: true, verbatim: true })) {
   const hostname = url.hostname.replace(/^\[|\]$/g, "");
   const records = await resolveHost(hostname);
-  const resolved = (Array.isArray(records) ? records : [records])
-    .map((record) => typeof record === "string" ? record : record.address)
-    .filter(Boolean);
-  if (!resolved.length || resolved.some(isPrivateOrReservedAddress)) throw new Error("That URL resolves to a private or reserved network address.");
+  const resolved = resolvedAddresses(records);
   const address = resolved[0];
   const family = net.isIP(address);
 
@@ -137,7 +153,7 @@ async function requestPinnedHttpsPage(url, resolveHost = (hostname) => dns.looku
     const request = https.request(url, {
       method: "GET",
       headers: { "User-Agent": "Gigscapes job-posting importer/1.0", Accept: "text/html,text/plain;q=0.9" },
-      lookup: (_hostname, _options, callback) => callback(null, address, family),
+      lookup: createPinnedLookup(address, family),
       servername: hostname,
     }, (response) => {
       const declaredLength = Number(response.headers["content-length"] || 0);
@@ -210,7 +226,11 @@ export async function fetchPublicJobPage(rawUrl, {
       continue;
     }
     if (!response.ok) {
-      const error = new Error(`The job page returned HTTP ${response.status}. Try pasting the posting instead.`);
+      const blocked = [401, 403, 429].includes(response.status);
+      const error = new Error(blocked
+        ? "This career site blocked automated reading. Paste the posting or upload screenshots instead."
+        : `The job page returned HTTP ${response.status}. Try pasting the posting instead.`);
+      if (blocked) error.code = "blocked";
       error.httpStatus = response.status;
       throw error;
     }

@@ -66,6 +66,27 @@ const STRICT_EVIDENCE_CONCEPTS = Object.freeze([
     evidence: /\b(?:security polic(?:y|ies)|security controls?|access controls?|cybersecurity|information security|sap security|regulatory compliance|sox|governance,? risk,? and compliance|grc)\b/i,
     direct: true,
   },
+  {
+    id: "sap_isu_fica",
+    requirement: /\b(?:sap\s+)?is[- ]?u\b[^\n]{0,80}\bfi[- ]?ca\b|\b(?:sap\s+)?isu\s+fica\b/i,
+    evidence: /\b(?:sap\s+)?is[- ]?u\b[^\n]{0,80}\bfi[- ]?ca\b|\b(?:sap\s+)?isu\s+fica\b|\bfi[- ]?ca\b|\bpscd\b|\bcontract accounts?\b/i,
+    directEvidence: /\b(?:sap\s+)?is[- ]?u\b[^\n]{0,80}\bfi[- ]?ca\b|\b(?:sap\s+)?isu\s+fica\b/i,
+  },
+  {
+    id: "sap_utilities",
+    requirement: /\b(?:sap\s+)?is[- ]?u\b|\bsap\s+s\/?4hana\s+for\s+utilities\b/i,
+    evidence: /\b(?:sap\s+)?is[- ]?u\b|\bsap\s+s\/?4hana\s+for\s+utilities\b|\bfi[- ]?ca\b|\bpscd\b|\bcontract accounts?\b/i,
+    directEvidence: /\b(?:sap\s+)?is[- ]?u\b|\bsap\s+s\/?4hana\s+for\s+utilities\b/i,
+  },
+  { id: "meter_to_cash", requirement: /\bmeter\s+to\s+cash\b/i, evidence: /\bmeter\s+to\s+cash\b/i, direct: true },
+  { id: "cash_journal", requirement: /\bcash\s+journals?\b/i, evidence: /\bcash\s+journals?\b/i, direct: true },
+  { id: "clearing_control", requirement: /\bclearing\s+control\b/i, evidence: /\bclearing\s+control\b/i, direct: true },
+  { id: "direct_debit", requirement: /\bdirect\s+debit\b/i, evidence: /\bdirect\s+debit\b/i, direct: true },
+  { id: "installment_plan", requirement: /\binstallment\s+plans?\b/i, evidence: /\binstallment\s+plans?\b/i, direct: true },
+  { id: "main_sub_transaction", requirement: /\bmain\s+and\s+sub\s+transactions?\b|\bmain\/sub\s+transactions?\b/i, evidence: /\bmain\s+and\s+sub\s+transactions?\b|\bmain\/sub\s+transactions?\b/i, direct: true },
+  { id: "sap_c4c", requirement: /\b(?:sap\s+)?c4c\b/i, evidence: /\b(?:sap\s+)?c4c\b/i, direct: true },
+  { id: "device_management", requirement: /\bdevice\s+management\b/i, evidence: /\bdevice\s+management\b/i, direct: true },
+  { id: "data_migration", requirement: /\bdata\s+migration\b/i, evidence: /\bdata\s+migration\b/i, direct: true },
   { id: "sap_sd", requirement: /\bsap\s+sd\b|\bsales and distribution\b/i, evidence: /\bsap\s+sd\b|\bsales and distribution\b/i, direct: true },
   { id: "sap_le", requirement: /\bsap\s+le\b|\blogistics execution\b/i, evidence: /\bsap\s+le\b|\blogistics execution\b/i, direct: true },
   { id: "edi", requirement: /\b(?:edi|edifact|ansi\s*x12|idocs?)\b/i, evidence: /\b(?:edi|edifact|ansi\s*x12|idocs?)\b/i, direct: true },
@@ -80,9 +101,9 @@ const LIST_INTRODUCTION_PATTERN = /^(.*?)(?:\bincluding\b|\bsuch as\b)\s+(.+?)(\
 
 function listItems(value) {
   const source = String(value || "").replace(/[().]/g, " ").replace(/\s+/g, " ").trim();
-  if (!source.includes(",") && !/\s+and\s+/i.test(source)) return [];
+  if (!source.includes(",") && !/\s+and\s+/i.test(source) && !/\s*&\s*/.test(source)) return [];
   return source
-    .split(/\s*,\s*|\s+and\s+/i)
+    .split(/\s*,\s*|\s+and\s+|\s*&\s*/i)
     .map((item) => item.replace(/^(?:or|and)\s+/i, "").trim())
     .filter((item) => item && item.split(/\s+/).length <= 10);
 }
@@ -118,7 +139,7 @@ function atomicRequirementValues(value, index) {
   const atomic = [];
   for (const part of parts) {
     const listMatch = part.match(LIST_INTRODUCTION_PATTERN);
-    const prefixedListMatch = part.match(/^(.*?\b(?:proficiency|knowledge|experience|expertise|familiarity)\s+(?:in|of|with)\s+)(.+)$/i);
+    const prefixedListMatch = part.match(/^(.*?\b(?:proficiency|knowledge|experience|expertise|familiarity|understanding)\s+(?:in|of|with)\s+)(.+)$/i);
     const activeMatch = listMatch || prefixedListMatch;
     const items = activeMatch ? listItems(activeMatch[2]) : [];
     if (items.length >= 2) {
@@ -137,6 +158,104 @@ function atomicRequirementValues(value, index) {
     parent_requirement: atomic.length > 1 ? requirement : "",
     atomic_index: atomicIndex,
   }));
+}
+
+function requirementTokens(value) {
+  return new Set(normalizeEvidenceText(value)
+    .split(" ")
+    .filter((token) => token.length > 2 && !STOPWORDS.has(token)));
+}
+
+function requirementSimilarity(left, right) {
+  const leftText = normalizeEvidenceText(left);
+  const rightText = normalizeEvidenceText(right);
+  if (!leftText || !rightText) return 0;
+  if (leftText === rightText) return 1;
+  const leftTokens = requirementTokens(leftText);
+  const rightTokens = requirementTokens(rightText);
+  const smaller = Math.min(leftTokens.size, rightTokens.size);
+  if (smaller < 3) return 0;
+  const overlap = [...leftTokens].filter((token) => rightTokens.has(token)).length;
+  return overlap / smaller;
+}
+
+function defaultRequirementKeywords(requirement) {
+  const normalized = normalizeEvidenceText(requirement);
+  const domainPhrases = [
+    ["SAP ISU FICA", /\bsap\s+is[- ]?u\s+fi[- ]?ca\b|\bsap\s+isu\s+fica\b/i],
+    ["SAP IS-U", /\bsap\s+is[- ]?u\b/i],
+    ["SAP S/4HANA for Utilities", /\bsap\s+s\/?4hana\s+for\s+utilities\b/i],
+    ["Meter to Cash", /\bmeter\s+to\s+cash\b/i],
+    ["Data migration", /\bdata\s+migration\b/i],
+    ["Functional specifications", /\bfunctional\s+specifications?\b/i],
+    ["AS-IS/TO-BE", /\bas\s+is\s+to\s+be\b/i],
+    ["Business Blueprint", /\bbusiness\s+blueprints?\b/i],
+  ].filter(([, pattern]) => pattern.test(normalized)).map(([label]) => label);
+  return uniqueStrings([...domainPhrases, ...extractPostingKeywords(requirement)], 8);
+}
+
+export function structuredPostingRequirementInventory(structuredBrief) {
+  if (!structuredBrief || typeof structuredBrief !== "object") return [];
+  const groups = [
+    ["Q", "required", structuredBrief.required_qualifications],
+    ["D", "responsibility", structuredBrief.responsibilities],
+    ["P", "preferred", structuredBrief.preferred_qualifications],
+  ];
+  const seeds = [];
+  for (const [prefix, priority, values] of groups) {
+    for (const [index, rawValue] of (Array.isArray(values) ? values : []).entries()) {
+      const requirement = String(rawValue || "").replace(/\s+/g, " ").trim().slice(0, 500);
+      if (!requirement) continue;
+      if (seeds.some((seed) => requirementSimilarity(seed.requirement, requirement) >= 0.72)) continue;
+      seeds.push({
+        id: `${prefix}${index + 1}`,
+        requirement,
+        priority,
+        evidence_match: "missing",
+        resume_evidence: "",
+        safe_language: "",
+        keywords: defaultRequirementKeywords(requirement),
+      });
+    }
+  }
+  return seeds
+    .flatMap((seed, index) => atomicRequirementValues(seed, index))
+    .slice(0, 40);
+}
+
+function mergeRequirementInventory(modelRequirements, reviewedInventory) {
+  const raw = Array.isArray(modelRequirements) ? modelRequirements.filter(Boolean) : [];
+  const inventory = Array.isArray(reviewedInventory) ? reviewedInventory.filter(Boolean) : [];
+  if (!inventory.length) return raw;
+  const used = new Set();
+  const merged = inventory.map((seed) => {
+    let bestIndex = -1;
+    let bestScore = 0;
+    raw.forEach((candidate, index) => {
+      if (used.has(index)) return;
+      const score = requirementSimilarity(seed.requirement, candidate?.requirement);
+      if (score > bestScore) {
+        bestIndex = index;
+        bestScore = score;
+      }
+    });
+    if (bestIndex < 0 || bestScore < 0.58) return seed;
+    used.add(bestIndex);
+    const candidate = raw[bestIndex];
+    return {
+      ...candidate,
+      id: seed.id,
+      requirement: seed.requirement,
+      priority: seed.priority,
+      keywords: uniqueStrings([...(seed.keywords || []), ...(candidate.keywords || [])], 8),
+    };
+  });
+  for (const [index, candidate] of raw.entries()) {
+    if (used.has(index) || !candidate?.requirement) continue;
+    if (merged.some((seed) => requirementSimilarity(seed.requirement, candidate.requirement) >= 0.72)) continue;
+    merged.push(candidate);
+  }
+  return merged.slice(0, 40);
 }
 
 export function normalizeEvidenceText(value) {
@@ -319,7 +438,7 @@ function semanticEvidenceMatch(requirement, excerpt) {
   if (!concepts.length) return { valid: true, classification: null, concepts: [] };
   const valid = concepts.every((concept) => concept.evidence.test(excerpt));
   if (!valid) return { valid: false, classification: "missing", concepts: concepts.map((concept) => concept.id) };
-  const classification = concepts.some((concept) => concept.id === "abap" && !concept.directEvidence?.test(excerpt))
+  const classification = concepts.some((concept) => concept.directEvidence && !concept.directEvidence.test(excerpt))
     ? "adjacent"
     : concepts.every((concept) => concept.direct === true)
       ? "direct"
@@ -417,6 +536,12 @@ function calibrateFit(requirements, requestedPath) {
   const total = assessed.length;
   const supported = counts.direct + counts.adjacent + counts.transferable;
   const directRate = total ? counts.direct / total : 0;
+  const adjacentEvidence = counts.direct + counts.adjacent;
+  const adjacentRate = total ? adjacentEvidence / total : 0;
+  const domainAdjacentEvidence = assessed.filter((requirement) => (
+    ["direct", "adjacent"].includes(requirement.evidence_match)
+      && !/\b(?:bachelor|degree|english|communication|interpersonal|stakeholders?|diverse teams?|team player|problem solv|organized|outcomes? driven)\b/i.test(requirement.requirement)
+  )).length;
   const missingRate = total ? counts.missing / total : 1;
   const weightedRate = total
     ? (counts.direct + counts.adjacent * 0.72 + counts.transferable * 0.32) / total
@@ -424,6 +549,7 @@ function calibrateFit(requirements, requestedPath) {
   let path = requestedPath;
   if (directRate >= 0.6 && weightedRate >= 0.72 && missingRate <= 0.2) path = "direct";
   else if (weightedRate >= 0.45 && missingRate <= 0.45) path = "adjacent";
+  else if (adjacentEvidence >= 3 && adjacentRate >= 0.2 && domainAdjacentEvidence >= 2) path = "adjacent";
   else path = "career_change";
   const readinessStatus = path === "direct" && counts.missing === 0
     ? "strong_fit"
@@ -446,10 +572,9 @@ function calibratedLevel(rawLevel, path) {
   return level;
 }
 
-export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministicPostingAssessment, fallbackKeywords = [], candidateNotes = []) {
+export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministicPostingAssessment, fallbackKeywords = [], candidateNotes = [], reviewedRequirementInventory = []) {
   const raw = rawAnalysis && typeof rawAnalysis === "object" ? rawAnalysis : {};
-  const requirements = (Array.isArray(raw.requirements) ? raw.requirements : [])
-    .slice(0, 24)
+  const requirements = mergeRequirementInventory(raw.requirements, reviewedRequirementInventory)
     .flatMap((value, index) => atomicRequirementValues(value, index))
     .slice(0, 40)
     .map((value, index) => cleanRequirement(value, index, baseResume, candidateNotes))
@@ -618,6 +743,12 @@ export function findSemanticIntegrityIssues(resumeData, baseResume, analysis, ta
   for (const pattern of [
     /\btranslat(?:e|es|ed|ing) directly\b/gi,
     /\bdirectly analogous\b/gi,
+    /\bcomparable to\b/gi,
+    /\bequivalent to\b/gi,
+    /\b(?:closely )?parallels?\b/gi,
+    /\banalogous to\b/gi,
+    /\bshare(?:s|d|ing)?\b[^.!?\n]{0,140}\b(?:sap\s+)?is[- ]?u\s+fi[- ]?ca\b/gi,
+    /\b(?:same|shared)\b[^.!?\n]{0,100}\b(?:discipline|foundation|foundational structures?|engine|constructs?)\b[^.!?\n]{0,100}\b(?:sap\s+)?is[- ]?u\s+fi[- ]?ca\b/gi,
   ]) {
     for (const match of rawOutput.matchAll(pattern)) risky_claims.push({ claim: match[0] });
   }

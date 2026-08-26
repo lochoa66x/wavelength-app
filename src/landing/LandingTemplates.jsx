@@ -76,7 +76,10 @@ export function LandingTemplates() {
             ))}
           </div>
           <p className="landing-template-preview-note">
-            Switching this example is local and immediate. It does not call AI or change candidate facts.
+            {selected.atsSafetyLevel === "high"
+              ? "Application-safe: searchable single-column text with restrained presentation."
+              : "Networking-forward: searchable single-column text with a more expressive presentation."}
+            {" "}Switching this example is local and immediate. It does not call AI or change candidate facts.
           </p>
         </div>
       </div>

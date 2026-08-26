@@ -34,11 +34,11 @@ const OCCUPATION_PROFILES = Object.freeze({
 });
 
 const VERB_FORMS = Object.freeze({
-  achieve: "achieved", administer: "administered", align: "aligned", analyze: "analyzed",
+  achieve: "achieved", administer: "administered", align: "aligned", analyze: "analyzed", apply: "applied",
   architect: "architected", assemble: "assembled", author: "authored", automate: "automated",
   build: "built", collaborate: "collaborated", complete: "completed", configure: "configured",
   contribute: "contributed", coordinate: "coordinated", create: "created", debug: "debugged",
-  deliver: "delivered", deploy: "deployed", design: "designed", develop: "developed",
+  define: "defined", deliver: "delivered", deploy: "deployed", design: "designed", develop: "developed",
   direct: "directed", document: "documented", drive: "drove", edit: "edited",
   establish: "established", execute: "executed", facilitate: "facilitated", fabricate: "fabricated",
   grow: "grew", implement: "implemented", improve: "improved", increase: "increased",

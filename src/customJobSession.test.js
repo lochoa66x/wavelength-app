@@ -56,5 +56,8 @@ test("the custom flow binds extraction and tailoring to the active source sessio
   assert.match(source, /signal: request\.signal/);
   assert.match(source, /isCurrent\(request\)/);
   assert.match(source, /resetSourceState\(id\)/);
+  assert.match(source, /Alternative posting inputs/);
+  assert.match(source, /resetSourceState\("paste"\)/);
+  assert.match(source, /resetSourceState\("screenshots"\)/);
   assert.match(source, /Tailor another posting/);
 });

@@ -24,6 +24,8 @@ import {
 } from "./candidateEvidenceStorage.js";
 import { submittableCandidateEvidence } from "./evidenceRefinement.js";
 import { createCustomJobRequestCoordinator } from "./customJobSession.js";
+import { buildQualitySignal } from "./qualitySignalContract.js";
+import { durationBand, emitQualitySignal, emitResumeQualitySignal, postingSourceForMode } from "./qualitySignals.js";
 
 const CATEGORY_OPTIONS = [
   ["tech", "Technology & IT"], ["design", "Design"], ["writing", "Writing & content"],
@@ -151,6 +153,7 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
   };
 
   const handleExtract = async () => {
+    const startedAt = Date.now();
     const request = requestCoordinator.beginRequest("extract");
     setStatus("extracting");
     setError("");
@@ -175,6 +178,12 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
       setEvidenceRecords(loadCandidateEvidence(userId, targetKey));
       setEvidenceStorageError("");
       setStatus("review");
+      void emitQualitySignal(buildQualitySignal("posting_review_completed", {
+        route: "custom_job",
+        postingSource: postingSourceForMode(mode),
+        outcome: "completed",
+        durationBand: durationBand(Date.now() - startedAt),
+      }));
     } catch (extractError) {
       if (!requestCoordinator.isCurrent(request) || request.signal.aborted) return;
       requestCoordinator.finish(request);
@@ -208,6 +217,7 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
       return;
     }
     const request = requestCoordinator.beginRequest("tailor");
+    const startedAt = Date.now();
     const activeBrief = brief;
     setStatus("tailoring");
     setError("");
@@ -227,11 +237,27 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
         previousCoverage: previous?.atsReview?.coverage || null,
       });
       setStatus("done");
+      void emitResumeQualitySignal("tailoring_completed", {
+        resumeData: result.resume,
+        item: customItem,
+        atsReview: result.atsReview,
+        route: "custom_job",
+        postingSource: postingSourceForMode(mode),
+        outcome: "completed",
+        durationMs: Date.now() - startedAt,
+      });
     } catch (tailorError) {
       if (!requestCoordinator.isCurrent(request) || request.signal.aborted) return;
       requestCoordinator.finish(request);
       setError(tailorError.message);
       setStatus("review");
+      void emitQualitySignal(buildQualitySignal("tailoring_blocked", {
+        route: "custom_job",
+        postingSource: postingSourceForMode(mode),
+        outcome: "failed",
+        errorCategory: "unknown",
+        durationBand: durationBand(Date.now() - startedAt),
+      }));
     }
   };
 
@@ -342,7 +368,21 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
             </div>
           )}
 
-          {error && <p role="alert" style={{ color: C.red, fontSize: 13, margin: "12px 0 0" }}>{error}</p>}
+          {error && (
+            <>
+              <p role="alert" style={{ color: C.red, fontSize: 13, margin: "12px 0 0" }}>{error}</p>
+              {mode === "url" && (
+                <div aria-label="Alternative posting inputs" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
+                  <button type="button" onClick={() => resetSourceState("paste")} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, padding: "8px 11px" }}>
+                    <Text size={14} /> Paste posting
+                  </button>
+                  <button type="button" onClick={() => resetSourceState("screenshots")} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, padding: "8px 11px" }}>
+                    <FileImage size={14} /> Upload screenshots
+                  </button>
+                </div>
+              )}
+            </>
+          )}
           <button type="button" onClick={handleExtract} disabled={status === "extracting" || (mode === "paste" ? postingText.trim().length < 80 : mode === "url" ? !jobUrl.trim() : files.length === 0)} className="wl-btn" style={{ ...primaryBtnStyle(status === "extracting"), marginTop: 16 }}>
             {status === "extracting" ? <Loader2 size={15} className="wl-spin" /> : <Sparkles size={15} />}
             {status === "extracting" ? "Reading the posting…" : "Extract posting details"}
@@ -439,7 +479,7 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
             onSaveAndRetailor={handleEvidenceRetailor}
             C={C}
           />
-          <ResumeExperience resumeData={tailored.resume} item={customItem} hasLink={Boolean(brief.source_url)} atsReview={tailored.atsReview} onEditResume={onEditResume} C={C} primaryBtnStyle={primaryBtnStyle} />
+          <ResumeExperience resumeData={tailored.resume} item={customItem} hasLink={Boolean(brief.source_url)} atsReview={tailored.atsReview} onEditResume={onEditResume} qualityRoute="custom_job" qualityPostingSource={postingSourceForMode(mode)} C={C} primaryBtnStyle={primaryBtnStyle} />
         </div>
       )}
     </div>
