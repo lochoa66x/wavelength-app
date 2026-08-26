@@ -396,155 +396,239 @@ html {
   transform: rotate(-4deg);
 }
 
-.landing-demo-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 1px 2px 15px;
-  color: var(--landing-faint);
-  font-size: 12px;
+.landing-product-tour {
+  min-width: 0;
+  overflow: hidden;
+  padding: 0;
+  transform: none;
 }
 
-.landing-demo-toolbar span {
-  width: 8px;
-  height: 8px;
+.landing-product-tour-toolbar {
+  min-height: 48px;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px solid var(--landing-line);
+  padding: 0 14px;
+  background: #fffdfa;
+}
+
+.landing-product-tour-toolbar > span {
+  display: flex;
+  gap: 5px;
+}
+
+.landing-product-tour-toolbar i {
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   background: #d2cbc4;
 }
 
-.landing-demo-toolbar strong {
-  margin-left: auto;
-  font-weight: 720;
-}
-
-.landing-demo-posting,
-.landing-demo-resume {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border: 1px solid var(--landing-line);
-  border-radius: 16px;
-  padding: 14px;
-  background: #fff;
-}
-
-.landing-demo-icon {
-  width: 42px;
-  height: 42px;
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  border-radius: 12px;
-  background: var(--landing-orange-soft);
-  color: var(--landing-orange);
-}
-
-.landing-demo-icon svg {
-  width: 20px;
-}
-
-.landing-demo-posting > div:nth-child(2),
-.landing-demo-resume > div:first-child {
-  min-width: 0;
-  display: grid;
-}
-
-.landing-demo-posting span,
-.landing-demo-resume span {
+.landing-product-tour-toolbar strong {
   color: var(--landing-faint);
   font-size: 11px;
-  font-weight: 700;
+  letter-spacing: 0.035em;
   text-transform: uppercase;
 }
 
-.landing-demo-posting strong,
-.landing-demo-resume strong {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 14px;
+.landing-product-tour-toolbar button,
+.landing-product-tour-dialog header button {
+  width: 36px;
+  height: 36px;
+  display: inline-grid;
+  place-items: center;
+  justify-self: end;
+  border: 1px solid var(--landing-line);
+  border-radius: 50%;
+  background: #fff;
+  color: var(--landing-ink);
+  cursor: pointer;
 }
 
-.landing-demo-posting small {
-  color: var(--landing-muted);
-  font-size: 12px;
+.landing-product-tour-toolbar button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
 }
 
-.landing-demo-status {
-  margin-left: auto;
-  border-radius: 999px;
-  padding: 5px 8px;
-  background: #e4f0ea;
-  color: var(--landing-green) !important;
-  font-size: 10px !important;
+.landing-product-tour-toolbar svg,
+.landing-product-tour-dialog header button svg {
+  width: 16px;
 }
 
-.landing-demo-evidence {
+.landing-product-tour-video,
+.landing-product-tour-dialog video {
+  width: 100%;
+  display: block;
+  aspect-ratio: 16 / 9;
+  background: #f7f3ed;
+  object-fit: cover;
+}
+
+.landing-product-tour-actions {
   display: grid;
-  gap: 8px;
-  padding: 14px 8px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  border-top: 1px solid var(--landing-line);
+  padding: 12px 14px;
+  background: #fffdfa;
 }
 
-.landing-demo-evidence-row {
-  min-height: 43px;
+.landing-product-tour-actions > div {
+  min-width: 0;
   display: flex;
   align-items: center;
-  gap: 10px;
-  border-radius: 12px;
-  padding: 9px 11px;
+  gap: 8px;
   color: var(--landing-muted);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.landing-product-tour-actions > div svg {
+  width: 17px;
+  flex: 0 0 auto;
+  color: var(--landing-green);
+}
+
+.landing-product-tour-actions .landing-button {
+  min-height: 42px;
+  padding: 8px 14px;
   font-size: 12px;
 }
 
-.landing-demo-evidence-row svg {
-  width: 17px;
-  flex: 0 0 auto;
+.landing-product-tour-actions .landing-button svg {
+  width: 15px;
 }
 
-.landing-demo-evidence-row strong {
+.landing-product-tour-fallback {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  background: #f7f3ed;
+}
+
+.landing-product-tour-fallback img {
+  width: 100%;
+  height: 100%;
   display: block;
+  object-fit: cover;
+}
+
+.landing-product-tour-fallback p {
+  position: absolute;
+  inset: auto 12px 12px;
+  margin: 0;
+  border-radius: 10px;
+  padding: 9px 11px;
+  background: rgba(28, 25, 23, 0.88);
+  color: #fff;
+  font-size: 11px;
+}
+
+.landing-product-tour-dialog {
+  width: min(1080px, calc(100% - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  border: 0;
+  border-radius: 26px;
+  padding: 0;
+  background: transparent;
+  color: var(--landing-ink);
+  box-shadow: 0 30px 100px rgba(28, 25, 23, 0.34);
+}
+
+.landing-product-tour-dialog::backdrop {
+  background: rgba(28, 25, 23, 0.72);
+  backdrop-filter: blur(6px);
+}
+
+.landing-product-tour-dialog-card {
+  overflow: hidden;
+  border-radius: inherit;
+  background: #fffdfa;
+}
+
+.landing-product-tour-dialog header,
+.landing-product-tour-dialog footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 18px 22px;
+}
+
+.landing-product-tour-dialog header > div {
+  display: grid;
+  gap: 3px;
+}
+
+.landing-product-tour-dialog header span {
+  color: var(--landing-orange);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.065em;
+  text-transform: uppercase;
+}
+
+.landing-product-tour-dialog h2 {
+  margin: 0;
+  font-size: clamp(24px, 3vw, 36px);
+  letter-spacing: -0.04em;
+}
+
+.landing-product-tour-dialog details {
+  margin: 18px 22px 0;
+  border: 1px solid var(--landing-line);
+  border-radius: 16px;
+  background: #fff;
+}
+
+.landing-product-tour-dialog summary {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 11px 14px;
+  font-size: 14px;
+  font-weight: 760;
+  cursor: pointer;
+}
+
+.landing-product-tour-dialog ol {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 0 34px 18px 48px;
+}
+
+.landing-product-tour-dialog li {
+  padding-left: 4px;
+  color: var(--landing-orange);
+}
+
+.landing-product-tour-dialog li strong {
   color: var(--landing-ink);
 }
 
-.landing-demo-evidence-row--direct { background: #eaf3ee; }
-.landing-demo-evidence-row--adjacent { background: #edf3f7; }
-.landing-demo-evidence-row--missing { background: #fff0e6; }
-.landing-demo-evidence-row--direct svg { color: var(--landing-green); }
-.landing-demo-evidence-row--adjacent svg { color: var(--landing-blue); }
-.landing-demo-evidence-row--missing svg { color: var(--landing-orange); }
-
-.landing-demo-resume {
-  justify-content: space-between;
-}
-
-.landing-demo-lines {
-  width: 34%;
-  display: grid;
-  gap: 5px;
-}
-
-.landing-demo-lines i {
-  height: 4px;
-  border-radius: 999px;
-  background: #d7d1cb;
-}
-
-.landing-demo-lines i:nth-child(2) { width: 78%; }
-.landing-demo-lines i:nth-child(3) { width: 56%; }
-
-.landing-product-demo > p {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin: 14px 4px 0;
+.landing-product-tour-dialog li p {
+  margin: 3px 0 0;
   color: var(--landing-muted);
-  font-size: 11.5px;
-  font-weight: 680;
+  font-size: 13px;
 }
 
-.landing-product-demo > p svg {
-  width: 15px;
-  color: var(--landing-green);
+.landing-product-tour-dialog footer {
+  align-items: center;
+}
+
+.landing-product-tour-dialog footer p {
+  margin: 0;
+  color: var(--landing-muted);
+  font-size: 12px;
+}
+
+.landing-product-tour-dialog footer .landing-button {
+  flex: 0 0 auto;
 }
 
 .landing-section {
@@ -1342,8 +1426,36 @@ html {
     display: grid;
   }
 
-  .landing-demo-status {
-    display: none;
+  .landing-product-tour-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-product-tour-actions .landing-button {
+    width: 100%;
+  }
+
+  .landing-product-tour-dialog {
+    width: calc(100% - 18px);
+    max-height: calc(100dvh - 18px);
+    border-radius: 20px;
+  }
+
+  .landing-product-tour-dialog header,
+  .landing-product-tour-dialog footer {
+    align-items: flex-start;
+    padding: 15px;
+  }
+
+  .landing-product-tour-dialog footer {
+    display: grid;
+  }
+
+  .landing-product-tour-dialog footer .landing-button {
+    width: 100%;
+  }
+
+  .landing-product-tour-dialog details {
+    margin: 14px 15px 0;
   }
 
   .landing-final-cta {
@@ -1404,15 +1516,18 @@ html {
     padding: 12px;
   }
 
-  .landing-demo-posting,
-  .landing-demo-resume {
-    padding: 11px;
+  .landing-product-tour {
+    padding: 0;
   }
 
-  .landing-demo-icon {
-    width: 38px;
-    height: 38px;
+  .landing-product-tour-toolbar {
+    grid-template-columns: 1fr auto;
   }
+
+  .landing-product-tour-toolbar > span {
+    display: none;
+  }
+
 }
 
 @media (prefers-reduced-motion: reduce) {

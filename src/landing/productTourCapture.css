@@ -1,0 +1,173 @@
+:root {
+  color-scheme: light;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+  background: #fbf8f3;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body { margin: 0; overflow: hidden; }
+
+.product-tour-capture {
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 92% 8%, rgba(254, 94, 3, 0.18), transparent 28%),
+    radial-gradient(circle at 6% 90%, rgba(35, 90, 66, 0.11), transparent 26%),
+    #fbf8f3;
+  color: #1c1917;
+}
+
+.product-tour-frame {
+  width: min(100vw, 1280px);
+  aspect-ratio: 16 / 9;
+  max-height: 100vh;
+  display: grid;
+  grid-template-rows: 64px minmax(0, 1fr) 42px;
+  padding: 0 42px;
+}
+
+.product-tour-brand,
+.product-tour-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.product-tour-brand > span { display: inline-flex; align-items: center; gap: 10px; font-size: 19px; }
+.product-tour-brand em { color: #766e66; font-size: 12px; font-style: normal; font-weight: 720; letter-spacing: .06em; text-transform: uppercase; }
+.product-tour-footer { justify-content: flex-start; gap: 7px; color: #235a42; font-size: 12px; font-weight: 760; }
+.product-tour-footer svg { width: 16px; }
+
+.product-tour-stage {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(280px, .72fr) minmax(0, 1.55fr);
+  align-items: center;
+  gap: 34px;
+  animation: tour-stage-in 440ms cubic-bezier(.2,.8,.2,1) both;
+}
+
+.product-tour-caption span { color: #9d3500; font-size: 12px; font-weight: 850; letter-spacing: .08em; text-transform: uppercase; }
+.product-tour-caption h1 { margin: 13px 0 0; font-size: clamp(30px, 3.7vw, 49px); line-height: 1.01; letter-spacing: -.052em; text-wrap: balance; }
+.product-tour-caption p { max-width: 390px; margin: 17px 0 0; color: #5f5953; font-size: 16px; line-height: 1.5; }
+
+.product-tour-progress { display: flex; gap: 6px; margin-top: 26px; }
+.product-tour-progress i { width: 24px; height: 4px; border-radius: 99px; background: #ded7ce; }
+.product-tour-progress i.is-complete { background: #235a42; }
+.product-tour-progress i.is-active { width: 46px; background: #c84300; animation: tour-progress 4.2s linear both; }
+[data-tour-mode="guide"] .product-tour-progress i.is-active { animation-duration: 10.2s; }
+
+.product-tour-window {
+  min-width: 0;
+  height: min(520px, calc(100vh - 122px));
+  display: grid;
+  grid-template-rows: 42px minmax(0, 1fr);
+  overflow: hidden;
+  border: 1px solid rgba(191, 182, 172, .92);
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: 0 26px 70px rgba(55, 41, 28, .14);
+}
+
+.product-tour-window-bar { display: flex; align-items: center; gap: 6px; padding: 0 16px; border-bottom: 1px solid #ded7ce; background: #fffdfa; }
+.product-tour-window-bar > span { width: 8px; height: 8px; border-radius: 50%; background: #d2cbc4; }
+.product-tour-window-bar strong { margin-left: auto; color: #766e66; font-size: 11px; }
+.product-tour-window-body { min-height: 0; overflow: hidden; padding: 22px; background: #f7f7f8; }
+
+.tour-search-scene,
+.tour-review-scene,
+.tour-tailor-scene,
+.tour-design-scene,
+.tour-export-scene,
+.tour-evidence-scene { height: 100%; animation: tour-content-in 520ms 100ms cubic-bezier(.2,.8,.2,1) both; }
+
+.tour-search-scene { display: grid; align-content: center; gap: 18px; }
+.tour-search-box { min-height: 58px; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 11px; border: 1px solid #ded7ce; border-radius: 18px; padding: 8px 9px 8px 16px; background: #fff; }
+.tour-search-box svg { width: 18px; color: #766e66; }
+.tour-search-box span { color: #1c1917; font-size: 14px; }
+.tour-search-box button,
+.tour-primary-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 0; border-radius: 999px; padding: 11px 18px; background: #c84300; color: #fff; font-weight: 780; }
+.tour-search-box button svg,
+.tour-primary-button svg { width: 15px; }
+.tour-job-card { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 13px; border: 1px solid #ded7ce; border-radius: 20px; padding: 19px; background: #fff; }
+.tour-job-card > div:nth-child(2) { display: grid; gap: 3px; }
+.tour-job-card strong { font-size: 16px; }
+.tour-job-card span,
+.tour-job-card small { color: #766e66; font-size: 12px; }
+.tour-job-icon { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 13px; background: #fff0e6; color: #c84300; }
+.tour-job-icon svg { width: 20px; }
+.tour-job-card .tour-badge { align-self: start; border: 1px solid #c8dae5; border-radius: 99px; padding: 5px 9px; background: #edf3f7; color: #174e72; font-weight: 760; }
+.tour-job-card footer { grid-column: 1 / -1; display: flex; justify-content: space-between; border-top: 1px solid #ded7ce; padding-top: 13px; color: #5f5953; font-size: 12px; }
+.tour-job-card footer strong { display: inline-flex; align-items: center; gap: 6px; color: #c84300; font-size: 12px; }
+.tour-job-card footer svg { width: 14px; }
+
+.tour-review-scene { display: grid; align-content: center; gap: 13px; }
+.tour-review-scene header { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; }
+.tour-review-scene header > div { display: grid; }
+.tour-review-scene header span { font-size: 18px; font-weight: 820; }
+.tour-review-scene header small { color: #766e66; font-size: 11px; }
+.tour-review-scene header button { border: 1px solid #ded7ce; border-radius: 99px; padding: 8px 11px; background: #fff; font-weight: 700; }
+.tour-field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.tour-field-grid label,
+.tour-long-field { display: grid; gap: 4px; color: #766e66; font-size: 10px; font-weight: 700; }
+.tour-field-grid strong,
+.tour-long-field > span { min-height: 44px; border: 1px solid #ded7ce; border-radius: 12px; padding: 11px 13px; background: #fff; color: #1c1917; font-size: 12px; font-weight: 500; }
+.tour-long-field > span { display: grid; gap: 5px; }
+.tour-long-field i { font-style: normal; }
+.tour-review-scene .tour-primary-button { justify-self: start; }
+
+.tour-tailor-scene { display: grid; align-content: center; justify-items: center; text-align: center; }
+.tour-tailor-orbit { position: relative; width: 92px; height: 92px; display: grid; place-items: center; border-radius: 50%; background: #fff0e6; color: #c84300; }
+.tour-tailor-orbit > svg { width: 34px; }
+.tour-tailor-orbit > span { position: absolute; inset: -8px; border: 2px solid rgba(200,67,0,.22); border-top-color: #c84300; border-radius: 50%; animation: tour-spin 1.8s linear infinite; }
+.tour-tailor-orbit > span:last-child { inset: -18px; border-color: rgba(35,90,66,.16); border-bottom-color: #235a42; animation-direction: reverse; animation-duration: 2.6s; }
+.tour-tailor-scene > span { margin-top: 24px; color: #9d3500; font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.tour-tailor-scene > strong { margin-top: 7px; font-size: 27px; }
+.tour-tailor-scene > p { max-width: 450px; margin: 8px 0 0; color: #5f5953; font-size: 13px; }
+.tour-tailor-checks { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 20px; }
+.tour-tailor-checks span { display: inline-flex; align-items: center; gap: 5px; border: 1px solid #bcd6c7; border-radius: 99px; padding: 6px 9px; background: #eaf3ee; color: #235a42; font-size: 10px; font-weight: 760; }
+.tour-tailor-checks svg { width: 13px; }
+
+.tour-evidence-scene { position: relative; overflow: hidden; font-size: 12px; }
+.tour-evidence-scene > div:first-child { transform: scale(.84); transform-origin: top left; width: 119%; }
+.tour-evidence-scene details { display: none; }
+.tour-evidence-scene--gap > div:first-child { opacity: .38; filter: saturate(.6); }
+.tour-gap-callout { position: absolute; inset: 50% auto auto 50%; width: min(390px, 80%); display: grid; gap: 8px; transform: translate(-50%, -50%); border: 2px solid #f0bd97; border-radius: 18px; padding: 22px; background: #fffdfa; box-shadow: 0 20px 50px rgba(55,41,28,.18); }
+.tour-gap-callout strong { color: #a85d00; font-size: 12px; letter-spacing: .07em; text-transform: uppercase; }
+.tour-gap-callout span { font-size: 20px; font-weight: 820; line-height: 1.18; }
+.tour-gap-callout small { color: #5f5953; font-size: 12px; }
+
+.tour-design-scene { display: grid; align-content: center; }
+.tour-strategy-note { display: flex; align-items: center; gap: 11px; border: 1px solid #bcd6c7; border-radius: 13px; padding: 11px 13px; background: #eaf3ee; }
+.tour-strategy-note > svg { width: 22px; color: #235a42; }
+.tour-strategy-note > div { display: grid; }
+.tour-strategy-note strong { font-size: 12px; }
+.tour-strategy-note span { color: #5f5953; font-size: 10px; }
+.tour-design-scene h2 { margin: 15px 0 0; font-size: 17px; }
+.tour-design-scene > p { margin: 3px 0 12px; color: #766e66; font-size: 10px; }
+.tour-design-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; }
+.tour-design-grid > div { display: flex; align-items: center; gap: 8px; border: 1px solid #ded7ce; border-radius: 12px; padding: 8px; background: #fff; }
+.tour-design-grid > div.is-selected { border: 2px solid #c84300; background: #fff7f2; }
+.tour-design-grid > div > span:first-child { width: 62px !important; }
+.tour-design-grid strong { font-size: 11px; }
+.tour-design-grid > div > span:last-child { color: #766e66; font-size: 9px; }
+
+.tour-export-scene { display: grid; grid-template-columns: minmax(0, 1fr) 230px; align-items: center; gap: 20px; }
+.tour-resume-scale { height: 100%; overflow: hidden; }
+.tour-resume-scale > article { width: 8.5in !important; transform: scale(.43); transform-origin: top left; }
+.tour-export-panel { display: grid; gap: 9px; }
+.tour-export-panel > span { color: #235a42; font-size: 10px; font-weight: 780; text-transform: uppercase; }
+.tour-export-panel > strong { font-size: 22px; line-height: 1.08; }
+.tour-export-panel button { min-height: 42px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; border: 1px solid #ded7ce; border-radius: 99px; background: #fff; color: #1c1917; font-weight: 740; }
+.tour-export-panel button svg { width: 15px; }
+.tour-export-panel .tour-primary-button { border: 0; background: #c84300; color: #fff; }
+.tour-export-panel small { color: #766e66; font-size: 10px; text-align: center; }
+
+@keyframes tour-stage-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes tour-content-in { from { opacity: 0; transform: translateY(11px) scale(.99); } to { opacity: 1; transform: none; } }
+@keyframes tour-progress { from { transform: scaleX(.05); transform-origin: left; } to { transform: scaleX(1); transform-origin: left; } }
+@keyframes tour-spin { to { transform: rotate(360deg); } }

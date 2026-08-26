@@ -1,8 +1,6 @@
 import {
   ArrowRight,
-  BriefcaseBusiness,
   Check,
-  CircleHelp,
   Download,
   FileImage,
   FileText,
@@ -21,6 +19,7 @@ import { APP_PATH } from "../authRoutes.js";
 import { LandingFaq } from "./LandingFaq.jsx";
 import { LandingHeader } from "./LandingHeader.jsx";
 import { LandingTemplates } from "./LandingTemplates.jsx";
+import { ProductTour } from "./ProductTour.jsx";
 import { buildLandingNavigationState, LANDING_DESTINATIONS } from "./landingIntents.js";
 import "./landing.css";
 
@@ -50,48 +49,6 @@ function IntakeButton({ action, children, className = "landing-button landing-bu
     >
       {children}
     </button>
-  );
-}
-
-function HeroProductDemo() {
-  return (
-    <div className="landing-product-demo" role="region" aria-label="Example of Gigscapes evidence-first tailoring">
-      <div className="landing-demo-toolbar" aria-hidden="true">
-        <span /><span /><span />
-        <strong>Evidence review</strong>
-      </div>
-      <div className="landing-demo-posting">
-        <div className="landing-demo-icon"><BriefcaseBusiness aria-hidden="true" /></div>
-        <div>
-          <span>Sample posting</span>
-          <strong>Field service coordinator</strong>
-          <small>Canada · Hybrid</small>
-        </div>
-        <span className="landing-demo-status">Reviewed</span>
-      </div>
-      <div className="landing-demo-evidence">
-        <div className="landing-demo-evidence-row landing-demo-evidence-row--direct">
-          <Check aria-hidden="true" />
-          <span><strong>Direct</strong> Scheduling and customer updates</span>
-        </div>
-        <div className="landing-demo-evidence-row landing-demo-evidence-row--adjacent">
-          <ArrowRight aria-hidden="true" />
-          <span><strong>Adjacent</strong> Cross-team site coordination</span>
-        </div>
-        <div className="landing-demo-evidence-row landing-demo-evidence-row--missing">
-          <CircleHelp aria-hidden="true" />
-          <span><strong>Missing</strong> Required licence not confirmed</span>
-        </div>
-      </div>
-      <div className="landing-demo-resume">
-        <div>
-          <span>Résumé structure</span>
-          <strong>Admin / Customer Operations</strong>
-        </div>
-        <div className="landing-demo-lines" aria-hidden="true"><i /><i /><i /></div>
-      </div>
-      <p><ShieldCheck aria-hidden="true" /> Posting requirements never become candidate evidence.</p>
-    </div>
   );
 }
 
@@ -267,7 +224,7 @@ export default function LandingPage() {
               <span><FileText aria-hidden="true" /> DOCX + selectable PDF</span>
             </div>
           </div>
-          <HeroProductDemo />
+          <ProductTour />
         </section>
 
         <StartPaths />

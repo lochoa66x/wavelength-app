@@ -11,6 +11,9 @@ import { APP_PATH, AUTH_CALLBACK_PATH, SIGN_IN_PATH } from "./authRoutes.js";
 
 const Gigscapes = lazy(() => import("./App.jsx"));
 const LandingPage = lazy(() => import("./landing/LandingPage.jsx"));
+const ProductTourCapture = import.meta.env.DEV
+  ? lazy(() => import("./landing/ProductTourCapture.jsx"))
+  : null;
 
 function RouteFallback() {
   return (
@@ -31,6 +34,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Suspense fallback={<RouteFallback />}>
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            {ProductTourCapture ? <Route path="/__product-tour-capture" element={<ProductTourCapture />} /> : null}
             <Route
               path={SIGN_IN_PATH}
               element={

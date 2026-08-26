@@ -18,6 +18,7 @@ const pageSource = source("./LandingPage.jsx");
 const headerSource = source("./LandingHeader.jsx");
 const templateSource = source("./LandingTemplates.jsx");
 const faqSource = source("./LandingFaq.jsx");
+const productTourSource = source("./ProductTour.jsx");
 const cssSource = source("./landing.css");
 const htmlSource = source("../../index.html");
 
@@ -85,7 +86,7 @@ test("template examples are explicitly generic and contain no private fixture rÃ
 });
 
 test("landing modules do not import export libraries or call private and AI endpoints", () => {
-  const landingSource = `${pageSource}\n${headerSource}\n${templateSource}\n${faqSource}`;
+  const landingSource = `${pageSource}\n${headerSource}\n${templateSource}\n${faqSource}\n${productTourSource}`;
   assert.doesNotMatch(landingSource, /resumeDocx|resumePdf|jspdf|\bdocx\b.*from|\/api\/tailor|\/api\/job-intake|fetch\s*\(|supabase\.from/);
   assert.doesNotMatch(pageSource, /localStorage|sessionStorage/);
 });
@@ -98,7 +99,7 @@ test("the landing page has one H1 and a logical section hierarchy", () => {
 });
 
 test("named landing groups use supported landmark or group roles", () => {
-  assert.match(pageSource, /landing-product-demo" role="region" aria-label=/);
+  assert.match(productTourSource, /landing-product-demo landing-product-tour" role="region" aria-labelledby=/);
   assert.match(pageSource, /landing-intake-options" role="group" aria-label=/);
   assert.match(pageSource, /landing-evidence-strip" role="group" aria-label=/);
   assert.match(pageSource, /landing-hero-trust" role="group" aria-label=/);
