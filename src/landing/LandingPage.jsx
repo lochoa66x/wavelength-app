@@ -212,7 +212,7 @@ export default function LandingPage() {
           <div className="landing-hero-copy">
             <p className="landing-eyebrow"><Sparkles size={16} aria-hidden="true" /> Job discovery + evidence-first tailoring</p>
             <h1 id="landing-title">
-              Find the work. <span className="landing-hero-title-accent">Build the résumé that fits</span>—without inventing experience.
+              Find the work. <span className="landing-hero-title-accent">Build the résumé that fits</span><span className="landing-hero-title-continuation">—without</span> inventing experience.
             </h1>
             <p className="landing-hero-lede">Search jobs and gigs across Canada, or bring a posting you found elsewhere. Gigscapes helps you position real evidence clearly, choose a job-aware template, and export an ATS-readable résumé.</p>
             <div className="landing-cta-row">

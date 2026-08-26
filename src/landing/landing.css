@@ -334,6 +334,10 @@ html {
   color: var(--landing-orange);
 }
 
+.landing-hero-title-continuation {
+  white-space: nowrap;
+}
+
 .landing-hero-lede {
   max-width: 650px;
   margin: 26px 0 0;
