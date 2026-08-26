@@ -153,11 +153,14 @@ test("export readiness blocks placeholder identity and labels large-gap drafts a
     readiness: { status: "significant_gap" },
   });
   assert.equal(blocked.canExport, false);
+  assert.equal(blocked.state, "blocked_identity");
   assert.equal(blocked.preliminary, true);
   assert.equal(blocked.buttonLabel, "Download preliminary DOCX");
 
   const ready = getResumeExportReadiness({ name: "Luis Example" }, {
     application_ready: true,
+    requirements: [{ id: "R1", evidence_match: "direct" }],
+    coverage: { direct: 1, adjacent: 0, transferable: 0, missing: 0 },
     posting_readiness: {
       status: "reviewed_complete",
       fit_allowed: true,
@@ -166,6 +169,7 @@ test("export readiness blocks placeholder identity and labels large-gap drafts a
     readiness: { status: "strong_fit" },
   });
   assert.equal(ready.canExport, true);
+  assert.equal(ready.state, "application_ready");
   assert.equal(ready.verifiedPosting, true);
   assert.equal(ready.preliminary, false);
   assert.equal(ready.buttonLabel, "Download tailored résumé");
@@ -185,12 +189,15 @@ test("canonical application readiness controls preliminary and final export labe
 
   assert.equal(preliminary.canExport, true);
   assert.equal(preliminary.applicationReady, false);
+  assert.equal(preliminary.state, "needs_posting_review");
   assert.equal(preliminary.preliminary, true);
   assert.equal(preliminary.buttonLabel, "Download preliminary DOCX");
   assert.equal(preliminary.pdfButtonLabel, "Download preliminary PDF");
 
   const final = getResumeExportReadiness({ name: "Luis Example" }, {
     application_ready: true,
+    requirements: [{ id: "R1", evidence_match: "direct" }],
+    coverage: { direct: 1, adjacent: 0, transferable: 0, missing: 0 },
     posting_readiness: {
       status: "reviewed_complete",
       fit_allowed: true,
@@ -200,6 +207,7 @@ test("canonical application readiness controls preliminary and final export labe
   });
 
   assert.equal(final.applicationReady, true);
+  assert.equal(final.state, "application_ready");
   assert.equal(final.preliminary, false);
   assert.equal(final.buttonLabel, "Download tailored résumé");
 });
@@ -218,6 +226,7 @@ test("a stale ready flag cannot bypass verified-posting export gating", () => {
 
   assert.equal(hasVerifiedPosting({ posting_readiness: { status: "reviewed_complete", fit_allowed: true } }), false);
   assert.equal(stale.verifiedPosting, false);
+  assert.equal(stale.state, "needs_posting_review");
   assert.equal(stale.applicationReady, false);
   assert.equal(stale.preliminary, true);
 });

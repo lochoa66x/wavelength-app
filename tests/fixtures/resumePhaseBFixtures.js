@@ -5,6 +5,9 @@ export const verifiedPostingReview = Object.freeze({
   integrity: { status: "pass" },
   writing: { status: "pass" },
   export_readiness: { status: "ready", application_ready: true },
+  requirements: [{ id: "R1", requirement: "Verified role requirement", priority: "required", evidence_match: "direct" }],
+  coverage: { direct: 1, adjacent: 0, transferable: 0, missing: 0 },
+  gap_summary: { application_risk: "low", counts: { supported: 1, verified_blocker: 0, material_gap: 0, development_gap: 0, preference: 0 } },
 });
 
 export const technicalSoftwareResumeFixture = Object.freeze({
@@ -374,12 +377,19 @@ export const verifiedElectricianReview = Object.freeze({
 
 export const missingElectricianCredentialReview = Object.freeze({
   ...verifiedPostingReview,
+  application_ready: false,
+  readiness: { status: "significant_gap" },
+  export_readiness: { status: "preliminary", application_ready: false, blockers: ["candidate_fit"] },
   requirements: [{
+    id: "R1",
     requirement: "Valid 309A electrical licence required",
     classification: "credential-required",
     evidence_match: "missing",
+    gap_severity: "verified_blocker",
     resume_evidence: "",
   }],
+  coverage: { direct: 0, adjacent: 0, transferable: 0, missing: 1 },
+  gap_summary: { application_risk: "high", counts: { supported: 0, verified_blocker: 1, material_gap: 0, development_gap: 0, preference: 0 } },
   missing_evidence: ["Valid 309A electrical licence"],
 });
 

@@ -17,7 +17,7 @@ import {
   saveReusableCandidateEvidence,
 } from "./candidateEvidenceStorage.js";
 import { submittableCandidateEvidence } from "./evidenceRefinement.js";
-import { listingStateKey } from "./listingIdentity.js";
+import { listingLocationSummary, listingStateKey } from "./listingIdentity.js";
 import { getMatchPresentation } from "./matchPresentation.js";
 import { migrateCloudResume } from "./resumeMigration.js";
 import { supabase } from "./supabase.js";
@@ -55,6 +55,7 @@ import { landingAccountActionFromState } from "./landing/landingIntents.js";
 import { QualitySignalSettings } from "./QualitySignalSettings.jsx";
 import { buildQualitySignal } from "./qualitySignalContract.js";
 import { durationBand, emitQualitySignal, emitResumeQualitySignal } from "./qualitySignals.js";
+import { applyTailoringChangeDecision, reviewAfterTailoringChange } from "./tailoringChanges.js";
 
 const SYS_FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, sans-serif";
 const ADZUNA_ATTRIBUTION_STYLE = {
@@ -660,6 +661,7 @@ export default function Gigscapes() {
   const [step, setStep] = useState("digest");
   const [expandedApply, setExpandedApply] = useState(null);
   const [tailored, setTailored] = useState({});
+  const tailoringRequests = useRef(new Map());
   const [candidateEvidenceByTarget, setCandidateEvidenceByTarget] = useState({});
   const [viewFilter, setViewFilter] = useState("all");
   const [showDismissed, setShowDismissed] = useState(false);
@@ -683,6 +685,11 @@ export default function Gigscapes() {
   const resumeMigrationStarted = useRef(new Set());
   const handledLandingAction = useRef(null);
   const landingAccountAction = landingAccountActionFromState(location.state);
+
+  useEffect(() => () => {
+    for (const request of tailoringRequests.current.values()) request.controller.abort();
+    tailoringRequests.current.clear();
+  }, []);
 
   const resume = localResume;
   const dismissed = session?.user?.id ? profile?.dismissed_listings || [] : guestDismissed;
@@ -802,6 +809,9 @@ export default function Gigscapes() {
       return;
     }
     const previous = tailored[stateKey];
+    tailoringRequests.current.get(stateKey)?.controller.abort();
+    const request = { controller: new AbortController(), previous };
+    tailoringRequests.current.set(stateKey, request);
     const startedAt = Date.now();
     const applicationEvidence = candidateEvidenceOverride
       ?? candidateEvidenceByTarget[stateKey]
@@ -814,13 +824,15 @@ export default function Gigscapes() {
     try {
       let enrichment = null;
       if (!skipEnrichment) {
-        enrichment = await enrichListing(item.id);
+        enrichment = await enrichListing(item.id, { signal: request.controller.signal });
+        if (tailoringRequests.current.get(stateKey) !== request) return;
         if (enrichment.fallbackRequired) {
           setTailored((t) => ({ ...t, [stateKey]: {
             status: "needs_posting",
             message: enrichment.message,
             errorCode: enrichment.errorCode,
           } }));
+          tailoringRequests.current.delete(stateKey);
           void emitQualitySignal(buildQualitySignal("tailoring_blocked", {
             route: "app",
             postingSource: "public_listing",
@@ -832,11 +844,13 @@ export default function Gigscapes() {
         }
         setTailored((t) => ({ ...t, [stateKey]: { status: "loading", phase: "tailoring", enrichment: enrichment.listing } }));
       }
-      const result = await tailorResume(resume, { listingId: item.id, candidateEvidence });
+      const result = await tailorResume(resume, { listingId: item.id, candidateEvidence }, { signal: request.controller.signal });
+      if (tailoringRequests.current.get(stateKey) !== request) return;
       setTailored((t) => ({ ...t, [stateKey]: {
         status: "done",
         resumeData: result.resume,
         atsReview: result.atsReview,
+        baselineAtsReview: result.atsReview,
         postingReadiness: result.postingReadiness,
         candidateFit: result.candidateFit,
         applicationReady: result.applicationReady,
@@ -847,6 +861,7 @@ export default function Gigscapes() {
         previousCoverage: previous?.atsReview?.coverage || null,
         enrichment: enrichment?.listing || null,
       } }));
+      tailoringRequests.current.delete(stateKey);
       void emitResumeQualitySignal("tailoring_completed", {
         resumeData: result.resume,
         item,
@@ -857,6 +872,9 @@ export default function Gigscapes() {
         durationMs: Date.now() - startedAt,
       });
     } catch (err) {
+      if (tailoringRequests.current.get(stateKey) !== request) return;
+      tailoringRequests.current.delete(stateKey);
+      if (err.name === "AbortError") return;
       setTailored((t) => ({ ...t, [stateKey]: { status: "error", message: err.message } }));
       void emitQualitySignal(buildQualitySignal("tailoring_blocked", {
         route: "app",
@@ -866,6 +884,24 @@ export default function Gigscapes() {
         durationBand: durationBand(Date.now() - startedAt),
       }));
     }
+  };
+
+  const handleTailoringChangeDecision = (stateKey, change, decision) => {
+    setTailored((current) => {
+      const target = current[stateKey];
+      if (!target?.resumeData) return current;
+      const resumeData = applyTailoringChangeDecision(target.resumeData, change, decision);
+      const baselineAtsReview = target.baselineAtsReview || target.atsReview;
+      return {
+        ...current,
+        [stateKey]: {
+          ...target,
+          resumeData,
+          baselineAtsReview,
+          atsReview: reviewAfterTailoringChange(baselineAtsReview, resumeData),
+        },
+      };
+    });
   };
 
   const handleEvidenceRetailor = async (item, stateKey, { records, candidateEvidence }) => {
@@ -898,6 +934,19 @@ export default function Gigscapes() {
         [stateKey]: { ...current[stateKey], evidenceStorageError },
       }));
     }
+  };
+
+  const cancelListingTailoring = (stateKey) => {
+    const active = tailoringRequests.current.get(stateKey);
+    if (!active) return;
+    active.controller.abort();
+    tailoringRequests.current.delete(stateKey);
+    setTailored((current) => {
+      const next = { ...current };
+      if (active.previous) next[stateKey] = active.previous;
+      else delete next[stateKey];
+      return next;
+    });
   };
 
   const handleSignOut = async () => {
@@ -1801,7 +1850,7 @@ export default function Gigscapes() {
                     <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 3, color: C.text }}>{item.title}</div>
                     <div style={{ fontSize: 13.5, color: C.textSub, marginBottom: 8 }}>{item.company}</div>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 10, fontSize: 12.5, color: C.textFaint }}>
-                      <span style={{ display: "flex", alignItems: "center", gap: 4 }}><MapPin size={12} /> {item.location}</span>
+                      <span style={{ display: "flex", alignItems: "center", gap: 4 }}><MapPin size={12} /> {listingLocationSummary(item)}</span>
                       <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Clock size={12} /> {item.type}</span>
                       <SourceAttribution source={item.source} sources={item.sourceAttributions} />
                     </div>
@@ -1876,9 +1925,14 @@ export default function Gigscapes() {
                     </div>
                   )}
                   {t?.status === "loading" && (
-                    <span style={{ fontSize: 13, color: C.textSub, display: "flex", alignItems: "center", gap: 6 }}>
-                      <Loader2 size={14} className="wl-spin" /> {t.phase === "enriching" ? "Loading and validating the full posting…" : "Analyzing evidence and tailoring safely… (usually 1–2 minutes)"}
-                    </span>
+                    <div style={{ alignItems: "center", display: "flex", flexWrap: "wrap", gap: 10 }}>
+                      <span role="status" style={{ fontSize: 13, color: C.textSub, display: "flex", alignItems: "center", gap: 6 }}>
+                        <Loader2 size={14} className="wl-spin" /> {t.phase === "enriching" ? "Loading and validating the full posting…" : "Analyzing evidence and tailoring safely… (usually 1–2 minutes)"}
+                      </span>
+                      <button type="button" onClick={() => cancelListingTailoring(stateKey)} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, fontSize: 12, padding: "7px 11px" }}>
+                        Cancel
+                      </button>
+                    </div>
                   )}
                   {t?.status === "needs_posting" && (
                     <div>
@@ -1952,6 +2006,7 @@ export default function Gigscapes() {
                         hasLink={hasLink}
                         atsReview={t.atsReview}
                         onEditResume={() => openResumeEditor("digest")}
+                        onTailoringChangeDecision={(change, decision) => handleTailoringChangeDecision(stateKey, change, decision)}
                         qualityRoute="app"
                         qualityPostingSource="public_listing"
                         C={C}

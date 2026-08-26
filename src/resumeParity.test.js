@@ -41,6 +41,8 @@ const finalReview = {
   readiness: { status: "strong_fit" },
   integrity: { status: "passed" },
   application_ready: true,
+  requirements: [{ id: "R1", requirement: "SAP functional delivery", evidence_match: "direct" }],
+  coverage: { direct: 1, adjacent: 0, transferable: 0, missing: 0 },
 };
 
 function normalizeText(value) {

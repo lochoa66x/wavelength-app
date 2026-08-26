@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { buildAtsReview, enforceReverseChronology } from "../api/_lib/atsValidation.js";
+import { buildAtsReview, buildTailoringChangeLedger, enforceReverseChronology } from "../api/_lib/atsValidation.js";
 
 test("experience is deterministically restored to reverse chronological order", () => {
   const result = enforceReverseChronology({
@@ -270,7 +270,7 @@ test("application-ready export requires independently verified posting readiness
 
   const unverified = buildAtsReview(resume, baseResume, { keywords: [] });
   assert.equal(unverified.application_ready, false);
-  assert.deepEqual(unverified.export_readiness.blockers, ["posting_readiness"]);
+  assert.deepEqual(unverified.export_readiness.blockers, ["posting_readiness", "requirement_analysis"]);
 
   const verified = buildAtsReview(resume, baseResume, { keywords: [] }, {
     analysis: {
@@ -286,6 +286,14 @@ test("application-ready export requires independently verified posting readiness
         fit_allowed: true,
         application_ready_allowed: true,
       },
+      requirements: [{
+        id: "R1",
+        requirement: "Lead operations",
+        priority: "required",
+        evidence_match: "direct",
+        resume_evidence: "Led operations.",
+      }],
+      coverage: { direct: 1, adjacent: 0, transferable: 0, missing: 0 },
     },
   });
   assert.equal(verified.application_ready, true);
@@ -305,10 +313,68 @@ test("application-ready export requires independently verified posting readiness
         fit_allowed: true,
         application_ready_allowed: true,
       },
+      requirements: [{
+        id: "R1",
+        requirement: "Mandatory target-domain certification",
+        priority: "required",
+        evidence_match: "missing",
+      }],
+      coverage: { direct: 0, adjacent: 0, transferable: 0, missing: 1 },
       readiness: { status: "significant_gap", reason: "Mandatory target-domain evidence is missing." },
     },
   });
   assert.equal(significantGap.application_ready, false);
   assert.equal(significantGap.export_readiness.status, "preliminary");
   assert.deepEqual(significantGap.export_readiness.blockers, ["candidate_fit"]);
+});
+
+test("a verified posting with zero analyzed requirements remains preliminary", () => {
+  const resume = {
+    name: "Avery Chen",
+    profile: "Licensed electrician.",
+    experience: [{ role: "Electrician", company: "Acme", dates: "2020–2024", bullets: ["Installed branch circuits."] }],
+  };
+  const review = buildAtsReview(
+    resume,
+    "Electrician — Acme — 2020–2024\nInstalled branch circuits.",
+    { keywords: [] },
+    {
+      analysis: {
+        posting_readiness: {
+          status: "reviewed_complete",
+          reason: "Posting reviewed.",
+          fit_allowed: true,
+          application_ready_allowed: true,
+        },
+        requirements: [],
+        coverage: { direct: 0, adjacent: 0, transferable: 0, missing: 0 },
+      },
+    },
+  );
+
+  assert.equal(review.application_ready, false);
+  assert.equal(review.export_readiness.status, "preliminary");
+  assert.deepEqual(review.export_readiness.blockers, ["requirement_analysis"]);
+});
+
+test("tailoring changes map rewritten bullets to exact candidate evidence", () => {
+  const source = "Configured SAP S/4HANA finance workflows and coordinated integration testing with business teams.";
+  const proposed = "Configured SAP S/4HANA finance workflows and coordinated end-to-end integration testing.";
+  const changes = buildTailoringChangeLedger({
+    experience: [{ role: "SAP Functional Consultant", bullets: [proposed] }],
+  }, `SAP Functional Consultant — Acme — 2020–2024\n${source}`, {
+    requirements: [{
+      id: "R1",
+      requirement: "Configure SAP S/4HANA finance and support integration testing",
+      evidence_match: "direct",
+      evidence: [{ source: "base_resume", line_index: 2, excerpt: source }],
+    }],
+  });
+
+  assert.equal(changes.length, 1);
+  assert.equal(changes[0].original, source);
+  assert.equal(changes[0].proposed, proposed);
+  assert.equal(changes[0].requirement_id, "R1");
+  assert.equal(changes[0].evidence_citations[0].line_index, 2);
+  assert.match(changes[0].reason, /without adding a new fact/i);
 });

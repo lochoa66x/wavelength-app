@@ -31,7 +31,10 @@ export const PUBLIC_LISTING_SELECT = [
 ].join(",");
 
 const TECHNOLOGY_SEARCH_ALIASES = {
-  sap: ["sap", "s/4hana", "s4hana", "abap", "fiori", "successfactors", "ariba"],
+  sap: [
+    "sap", "s/4hana", "s4hana", "sap ecc", "abap", "fiori", "successfactors", "ariba",
+    "sap fico", "sap fi-ca", "sap fica", "sap is-u", "sap isu", "sap s/4hana for utilities", "sap fscm",
+  ],
   java: ["java"],
   python: ["python"],
   cpp: ["c++", "cpp"],

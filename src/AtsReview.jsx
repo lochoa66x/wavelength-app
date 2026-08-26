@@ -87,31 +87,43 @@ function FocusReview({ focusReview, C }) {
   );
 }
 
-function RequirementEvidence({ requirements, C }) {
+const GAP_SEVERITY_LABELS = {
+  supported: "Supported",
+  verified_blocker: "Mandatory blocker",
+  material_gap: "Material gap",
+  development_gap: "Development gap",
+  preference: "Preference",
+};
+
+function RequirementEvidence({ requirements, gapSummary, C }) {
   if (!requirements?.length) return null;
   const counts = requirements.reduce((result, requirement) => {
     const key = requirement.evidence_match || "missing";
     result[key] = (result[key] || 0) + 1;
     return result;
   }, {});
-  const supportedCount = (counts.direct || 0) + (counts.adjacent || 0) + (counts.transferable || 0);
-  const coveragePercent = Math.round((supportedCount / requirements.length) * 100);
 
   return (
     <details style={{ marginTop: 10, borderTop: `1px solid ${C.border}`, paddingTop: 9 }}>
       <summary style={{ color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>
-        Atomic requirement evidence · {coveragePercent}% supported ({counts.direct || 0} direct · {counts.adjacent || 0} adjacent · {counts.transferable || 0} transferable · {counts.missing || 0} missing)
+        Requirement evidence and application risk · {counts.direct || 0} direct · {counts.adjacent || 0} adjacent · {counts.transferable || 0} transferable · {counts.missing || 0} missing
       </summary>
+      {gapSummary?.note ? (
+        <div role="status" style={{ color: C.textSub, background: C.amberTint, border: `1px solid ${C.amberBorder}`, borderRadius: 9, fontSize: 11.5, lineHeight: 1.45, marginTop: 9, padding: "8px 9px" }}>
+          <strong style={{ color: C.text, textTransform: "capitalize" }}>{gapSummary.application_risk || "Review"} application risk.</strong> {gapSummary.note}
+        </div>
+      ) : null}
       <div style={{ display: "grid", gap: 8, marginTop: 9 }}>
         {requirements.map((requirement) => {
           const supported = requirement.evidence_match !== "missing";
+          const gapSeverity = requirement.gap_severity || (supported ? "supported" : requirement.priority === "preferred" ? "preference" : "material_gap");
           const citation = requirement.evidence?.[0];
           return (
             <div key={requirement.id || requirement.requirement} style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 10px" }}>
               <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
                 <span style={{ color: C.text, fontSize: 12.25, lineHeight: 1.4, fontWeight: 650 }}>{requirement.requirement}</span>
                 <span style={{ color: supported ? C.blue : C.amber, fontSize: 10.5, fontWeight: 750, whiteSpace: "nowrap", textTransform: "capitalize" }}>
-                  {requirement.evidence_match}
+                  {supported ? requirement.evidence_match : GAP_SEVERITY_LABELS[gapSeverity] || "Missing"}
                 </span>
               </div>
               {citation ? (
@@ -125,6 +137,7 @@ function RequirementEvidence({ requirements, C }) {
                 <p style={{ margin: "6px 0 0", color: C.textFaint, fontSize: 11.5 }}>No supporting résumé evidence found.</p>
               )}
               {requirement.match_basis ? <p style={{ margin: "5px 0 0", color: C.textFaint, fontSize: 10.75, lineHeight: 1.4 }}>{requirement.match_basis}</p> : null}
+              {requirement.application_impact ? <p style={{ margin: "5px 0 0", color: C.textSub, fontSize: 10.75, lineHeight: 1.4 }}><strong style={{ color: C.text }}>Application impact:</strong> {requirement.application_impact}</p> : null}
             </div>
           );
         })}
@@ -208,7 +221,7 @@ export function AtsReview({ review, C }) {
       ) : null}
       <StatusRow label="Posting readiness" value={postingComplete ? "Reviewed complete" : postingReadiness.status === "preliminary" ? "Preliminary" : "Needs full posting"} detail={postingReadiness.reason} ok={postingComplete} C={C} />
       <StatusRow label="Candidate fit" value={FIT_LABELS[candidateFit.status] || "Review required"} detail={postingComplete ? `${candidateFit.confidence || "low"} confidence · ${candidateFit.reason || "Evidence comparison completed."}` : "Unavailable until responsibilities and qualifications are present"} ok={postingComplete && !["gap", "not_assessed", "not_available"].includes(candidateFit.status)} C={C} />
-      <StatusRow label="Requirement coverage" value={coverage.total ? `${coverage.total} atomic requirements analyzed` : "Limited by posting data"} detail={`${coverage.direct || 0} direct · ${coverage.adjacent || 0} adjacent · ${coverage.transferable || 0} transferable · ${coverage.missing || 0} missing`} ok={Boolean(coverage.total) && (coverage.missing || 0) === 0} C={C} />
+      <StatusRow label="Requirement coverage" value={coverage.total ? `${coverage.total} atomic requirements analyzed` : postingComplete ? "Requirement analysis incomplete" : "Limited by posting data"} detail={`${coverage.direct || 0} direct · ${coverage.adjacent || 0} adjacent · ${coverage.transferable || 0} transferable · ${coverage.missing || 0} missing`} ok={Boolean(coverage.total) && (coverage.missing || 0) === 0} C={C} />
       <StatusRow label="ATS-readable structure" value={parseability.status === "pass" ? "Pass" : "Review"} detail="Single column, standard headings, chronological history" ok={parseability.status === "pass"} C={C} />
       <StatusRow label="Writing quality" value={writing.status === "pass" ? "Pass" : writing.status === "blocked" ? "Blocked" : "Review"} detail={writing.issue_count ? `${writing.issue_count} exact writing item${writing.issue_count === 1 ? "" : "s"}` : "Occupation-aware action verbs and consistent tense"} ok={writing.status === "pass"} C={C} />
       <StatusRow label="Résumé focus" value={focusReview?.status === "focused" ? "Focused" : "Review"} detail={focusReview?.estimated_pages ? `${focusReview.estimation_method === "direct_pdf_layout" ? "Direct PDF measures" : "Estimated"} ${focusReview.estimated_pages} page${focusReview.estimated_pages === 1 ? "" : "s"}; recent and requirement-aligned evidence prioritized` : "Focus estimate unavailable"} ok={focusReview?.status === "focused"} C={C} />
@@ -224,7 +237,7 @@ export function AtsReview({ review, C }) {
         C={C}
       />
 
-      <RequirementEvidence requirements={review.requirements} C={C} />
+      <RequirementEvidence requirements={review.requirements} gapSummary={review.gap_summary} C={C} />
       <WritingReview writingReview={writingReview} C={C} />
       <FocusReview focusReview={focusReview} C={C} />
 

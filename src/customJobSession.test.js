@@ -47,6 +47,17 @@ test("disposing a flow invalidates work that resolves after navigation", () => {
   assert.equal(coordinator.isCurrent(extraction), false);
 });
 
+test("explicit cancellation aborts the active request and rejects its late response", () => {
+  const coordinator = createCustomJobRequestCoordinator("url");
+  const extraction = coordinator.beginRequest("extract");
+  const afterCancel = coordinator.cancelActiveRequest();
+
+  assert.equal(extraction.signal.aborted, true);
+  assert.equal(coordinator.isCurrent(extraction), false);
+  assert.ok(afterCancel.requestId > extraction.requestId);
+  assert.equal(afterCancel.mode, "url");
+});
+
 test("the custom flow binds extraction and tailoring to the active source session", async () => {
   const source = await readFile(new URL("./CustomJobFlow.jsx", import.meta.url), "utf8");
 
@@ -60,4 +71,15 @@ test("the custom flow binds extraction and tailoring to the active source sessio
   assert.match(source, /resetSourceState\("paste"\)/);
   assert.match(source, /resetSourceState\("screenshots"\)/);
   assert.match(source, /Tailor another posting/);
+  assert.match(source, /cancelActiveWork/);
+});
+
+test("public-listing tailoring also exposes abortable cancel behavior", async () => {
+  const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
+
+  assert.match(source, /tailoringRequests/);
+  assert.match(source, /new AbortController\(\)/);
+  assert.match(source, /enrichListing\(item\.id, \{ signal: request\.controller\.signal \}\)/);
+  assert.match(source, /tailorResume\(resume, \{ listingId: item\.id, candidateEvidence \}, \{ signal: request\.controller\.signal \}\)/);
+  assert.match(source, /cancelListingTailoring/);
 });

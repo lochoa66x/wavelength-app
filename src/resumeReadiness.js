@@ -20,28 +20,52 @@ export function hasVerifiedPosting(atsReview) {
     && readiness.application_ready_allowed === true;
 }
 
+export function deriveResumeReadinessState({
+  missingIdentity,
+  verifiedPosting,
+  requirementsAnalyzed,
+  significantGap,
+  evidenceReviewBlocked,
+} = {}) {
+  if (missingIdentity) return "blocked_identity";
+  if (!verifiedPosting) return "needs_posting_review";
+  if (!requirementsAnalyzed) return "needs_requirement_analysis";
+  if (significantGap) return "preliminary";
+  if (evidenceReviewBlocked) return "needs_evidence_review";
+  return "application_ready";
+}
+
 export function getResumeExportReadiness(resumeData, atsReview) {
   const resumePackage = createResumePackage(resumeData, { atsReview });
   const missingIdentity = !hasUsableCandidateIdentity(resumePackage);
   const verifiedPosting = hasVerifiedPosting(atsReview);
+  const requirementCount = Array.isArray(atsReview?.requirements) ? atsReview.requirements.length : 0;
+  const coverageTotal = ["direct", "adjacent", "transferable", "missing"]
+    .reduce((total, key) => total + Number(atsReview?.coverage?.[key] || 0), 0);
+  const requirementsAnalyzed = requirementCount > 0
+    && coverageTotal > 0
+    && requirementCount === coverageTotal;
   const significantGap = ["significant_gap", "needs_full_posting"].includes(atsReview?.readiness?.status);
-  const reviewBlocked = atsReview?.integrity?.status === "blocked"
+  const evidenceReviewBlocked = atsReview?.integrity?.status === "blocked"
     || atsReview?.writing?.status === "blocked"
-    || atsReview?.export_readiness?.status === "blocked";
-  const derivedApplicationReady = verifiedPosting && !missingIdentity && !significantGap && !reviewBlocked;
-  const applicationReady = Boolean(
-    derivedApplicationReady
-      && (typeof atsReview?.application_ready === "boolean" ? atsReview.application_ready : true)
-      && (typeof atsReview?.export_readiness?.application_ready === "boolean"
-        ? atsReview.export_readiness.application_ready
-        : true),
-  );
+    || atsReview?.export_readiness?.status === "blocked"
+    || Boolean(atsReview?.export_readiness?.blockers?.length);
+  const state = deriveResumeReadinessState({
+    missingIdentity,
+    verifiedPosting,
+    requirementsAnalyzed,
+    significantGap,
+    evidenceReviewBlocked,
+  });
+  const applicationReady = state === "application_ready";
   const preliminary = !applicationReady;
 
   return {
+    state,
     canExport: !missingIdentity,
     missingIdentity,
     verifiedPosting,
+    requirementsAnalyzed,
     applicationReady,
     preliminary,
     buttonLabel: preliminary ? "Download preliminary DOCX" : "Download tailored résumé",
@@ -52,7 +76,7 @@ export function getResumeExportReadiness(resumeData, atsReview) {
 
 export function getResumeExportNotice(resumeData, atsReview) {
   const readiness = getResumeExportReadiness(resumeData, atsReview);
-  if (readiness.missingIdentity) {
+  if (readiness.state === "blocked_identity") {
     return {
       state: "blocked",
       code: "missing_identity",
@@ -60,7 +84,7 @@ export function getResumeExportNotice(resumeData, atsReview) {
       message: "Add the candidate's real name before creating a résumé file.",
     };
   }
-  if (readiness.applicationReady) {
+  if (readiness.state === "application_ready") {
     return {
       state: "ready",
       code: "application_ready",
@@ -68,7 +92,7 @@ export function getResumeExportNotice(resumeData, atsReview) {
       message: "The current posting and evidence checks authorize a final DOCX or PDF export.",
     };
   }
-  if (!readiness.verifiedPosting) {
+  if (readiness.state === "needs_posting_review") {
     const observedReason = [
       atsReview?.posting_readiness?.reason,
       atsReview?.posting_readiness?.message,
@@ -80,6 +104,14 @@ export function getResumeExportNotice(resumeData, atsReview) {
       title: "Preliminary — posting incomplete",
       message: observedReason?.trim()
         || "The posting is not complete enough to authorize an application-ready export. Downloading a clearly named preliminary file is still available.",
+    };
+  }
+  if (readiness.state === "needs_requirement_analysis") {
+    return {
+      state: "preliminary",
+      code: "requirement_analysis_incomplete",
+      title: "Preliminary — requirement analysis incomplete",
+      message: "The posting was reviewed, but its responsibilities and qualifications did not produce a complete atomic requirement analysis. Review the posting fields and run tailoring again.",
     };
   }
   return {
@@ -98,6 +130,14 @@ function assessmentSnapshot(atsReview = {}) {
     writing: atsReview?.writing || null,
     export_readiness: atsReview?.export_readiness || null,
     application_ready: atsReview?.application_ready,
+    requirements: Array.isArray(atsReview?.requirements) ? structuredClone(atsReview.requirements) : [],
+    coverage: {
+      direct: Number(atsReview?.coverage?.direct || 0),
+      adjacent: Number(atsReview?.coverage?.adjacent || 0),
+      transferable: Number(atsReview?.coverage?.transferable || 0),
+      missing: Number(atsReview?.coverage?.missing || 0),
+    },
+    gap_summary: atsReview?.gap_summary ? structuredClone(atsReview.gap_summary) : null,
   };
 }
 
@@ -119,6 +159,7 @@ function authorizationBindings(resumePackage, assessment, renderPlan) {
     contentHash: resumePackage.contentHash,
     identityHash: stableHash(resumePackage.document.candidate, "identity"),
     postingHash: stableHash({ target: resumePackage.document.target, postingReadiness: assessment.posting_readiness }, "posting"),
+    assessmentHash: stableHash(assessment, "assessment"),
     renderPlanHash: renderBindingHash(renderPlan),
   };
 }

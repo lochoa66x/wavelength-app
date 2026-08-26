@@ -620,3 +620,43 @@ test("strict concepts block false positives while recovering exact language, edu
   assert.equal(result.readiness.status, "significant_gap");
   assert.doesNotMatch(result.candidate_fit.reason, /fit_allowed|deterministic/i);
 });
+
+test("regulated-trade requirements distinguish blockers, material gaps, preferences, and supported evidence", () => {
+  const assessment = assessPostingCompleteness(completeSapPosting, null, {
+    source: "reviewed_paste",
+    descriptionStatus: "full_description",
+  });
+  const baseResume = [
+    "Electrician — Acme Electrical — 2020–2025",
+    "Installed and tested commercial electrical panels and branch circuits.",
+  ].join("\n");
+  const requirements = [
+    ["R1", "Valid Red Seal electrician certification", "required", "missing", ""],
+    ["R2", "Install and test commercial electrical panels", "responsibility", "direct", "Installed and tested commercial electrical panels and branch circuits."],
+    ["R3", "WHMIS certification preferred", "preferred", "missing", ""],
+    ["R4", "PLC programming experience", "required", "missing", ""],
+  ].map(([id, requirement, priority, evidence_match, resume_evidence]) => ({
+    id,
+    requirement,
+    priority,
+    evidence_match,
+    resume_evidence,
+    safe_language: requirement,
+    keywords: [],
+  }));
+
+  const result = sanitizeTailoringAnalysis({
+    fit_assessment: { path: "adjacent", recommended_level: "Electrician", note: "Relevant field experience." },
+    requirements,
+  }, baseResume, assessment);
+  const byId = Object.fromEntries(result.requirements.map((requirement) => [requirement.id, requirement]));
+
+  assert.equal(byId.R1.gap_severity, "verified_blocker");
+  assert.equal(byId.R2.gap_severity, "supported");
+  assert.equal(byId.R3.gap_severity, "preference");
+  assert.equal(byId.R4.gap_severity, "material_gap");
+  assert.equal(result.gap_summary.application_risk, "high");
+  assert.equal(result.gap_summary.counts.verified_blocker, 1);
+  assert.equal(result.readiness.status, "significant_gap");
+  assert.match(result.gap_summary.note, /mandatory credentials/i);
+});

@@ -145,6 +145,110 @@ export function enforceReverseChronology(resumeData) {
   };
 }
 
+const CHANGE_STOPWORDS = new Set([
+  "a", "an", "and", "as", "at", "by", "for", "from", "in", "into", "of", "on", "or", "the", "to", "with",
+  "worked", "work", "responsible", "including", "using", "supported", "provided",
+]);
+
+function changeTokens(value) {
+  return new Set(normalized(value).split(" ").filter((token) => token.length > 2 && !CHANGE_STOPWORDS.has(token)));
+}
+
+function changeSimilarity(left, right) {
+  const leftText = normalized(left);
+  const rightText = normalized(right);
+  if (!leftText || !rightText) return 0;
+  if (leftText === rightText) return 1;
+  if (leftText.includes(rightText) || rightText.includes(leftText)) return 0.92;
+  const leftTokens = changeTokens(leftText);
+  const rightTokens = changeTokens(rightText);
+  const denominator = Math.min(leftTokens.size, rightTokens.size);
+  if (denominator < 3) return 0;
+  const overlap = [...leftTokens].filter((token) => rightTokens.has(token)).length;
+  return overlap / denominator;
+}
+
+function resumeEvidenceLines(baseResume) {
+  return String(baseResume || "").split(/\r?\n/).map((raw, index) => ({
+    line_index: index + 1,
+    excerpt: raw.replace(/^\s*(?:[-*•]|\d+[.)])\s*/, "").replace(/\s+/g, " ").trim(),
+  })).filter(({ excerpt }) => excerpt.length >= 18 && !/^(?:profile|summary|skills|experience|professional experience|employment|projects|education|training|certifications|languages)$/i.test(excerpt));
+}
+
+function bestRequirementForBullet(bullet, requirements = []) {
+  return requirements.map((requirement) => ({
+    requirement,
+    score: Math.max(
+      changeSimilarity(bullet, requirement.requirement),
+      ...((requirement.evidence || []).map((citation) => changeSimilarity(bullet, citation.excerpt))),
+    ),
+  })).filter(({ score }) => score >= 0.28).sort((left, right) => right.score - left.score)[0]?.requirement || null;
+}
+
+export function buildTailoringChangeLedger(resumeData, baseResume, analysis = {}) {
+  const sourceLines = resumeEvidenceLines(baseResume);
+  const requirements = Array.isArray(analysis?.requirements) ? analysis.requirements : [];
+  const changes = [];
+
+  for (const [experienceIndex, experience] of (resumeData?.experience || []).entries()) {
+    for (const [bulletIndex, proposedValue] of (experience?.bullets || []).entries()) {
+      const proposed = String(proposedValue || "").replace(/\s+/g, " ").trim();
+      if (!proposed) continue;
+      const requirement = bestRequirementForBullet(proposed, requirements);
+      const requirementCitation = requirement?.evidence?.find((citation) => citation?.excerpt);
+      const rankedSources = sourceLines.map((source) => ({
+        ...source,
+        score: changeSimilarity(proposed, source.excerpt),
+      })).sort((left, right) => right.score - left.score || left.line_index - right.line_index);
+      const bestSource = requirementCitation && changeSimilarity(proposed, requirementCitation.excerpt) >= 0.24
+        ? {
+          excerpt: requirementCitation.excerpt,
+          line_index: requirementCitation.line_index || null,
+          score: changeSimilarity(proposed, requirementCitation.excerpt),
+          source: requirementCitation.source || "base_resume",
+          section: requirementCitation.section || "base resume",
+        }
+        : rankedSources[0];
+      if (!bestSource || bestSource.score < 0.3) continue;
+
+      const original = bestSource.excerpt;
+      const exact = normalized(original) === normalized(proposed);
+      const changeType = exact
+        ? "retained"
+        : proposed.length < original.length * 0.72
+          ? "condensed"
+          : requirement
+            ? "repositioned"
+            : "rephrased";
+      const reason = exact
+        ? "Kept this verified evidence because it is already clear and relevant."
+        : requirement
+          ? `Rephrased verified evidence to make its connection to “${requirement.requirement}” explicit without adding a new fact.`
+          : "Clarified verified evidence for the target role without adding a new fact.";
+      changes.push({
+        id: `experience-${experienceIndex}-bullet-${bulletIndex}`,
+        section: "experience",
+        role: String(experience?.role || "Experience").slice(0, 160),
+        experience_index: experienceIndex,
+        bullet_index: bulletIndex,
+        original,
+        proposed,
+        change_type: changeType,
+        reason,
+        requirement_id: requirement?.id || null,
+        requirement: requirement?.requirement || "",
+        evidence_citations: [{
+          source: bestSource.source || "base_resume",
+          section: bestSource.section || "base resume",
+          line_index: bestSource.line_index || null,
+          excerpt: original,
+        }],
+      });
+    }
+  }
+  return changes.slice(0, 60);
+}
+
 export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
   const base = String(baseResume || "");
   const allowedNumbers = new Set(numericClaims(base));
@@ -172,6 +276,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
   }
 
   const writingReview = buildWritingReview(resumeData, baseResume, options);
+  const tailoringChanges = buildTailoringChangeLedger(resumeData, baseResume, options.analysis);
   const verb_issues = writingReview.issues
     .filter((issue) => ["weak_opener", "imprecise_verb", "unrecognized_opener", "contribution_level"].includes(issue.issue_type))
     .map((issue) => ({ experienceIndex: issue.experience_index, bulletIndex: issue.bullet_index, opening: issue.original.match(/^[A-Za-z]+/)?.[0]?.toLowerCase() || "missing" }));
@@ -259,22 +364,30 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
     transferable: 0,
     missing: 0,
   };
-  const coverageTotal = Object.values(coverage).reduce((total, value) => total + Number(value || 0), 0);
+  const coverageTotal = ["direct", "adjacent", "transferable", "missing"]
+    .reduce((total, key) => total + Number(coverage[key] || 0), 0);
+  const requirementCount = Array.isArray(options.analysis?.requirements) ? options.analysis.requirements.length : 0;
+  const requirementAnalysisReady = requirementCount > 0
+    && coverageTotal > 0
+    && requirementCount === coverageTotal;
+  const verifiedBlockerCount = Number(options.analysis?.gap_summary?.counts?.verified_blocker || 0);
   const readiness = options.analysis?.readiness || {
     status: integrityBlocked ? "significant_gap" : "credible_stretch",
     reason: "Application readiness requires a complete requirement-to-evidence analysis.",
   };
-  const fitReady = !["significant_gap", "needs_full_posting"].includes(readiness.status);
+  const fitReady = !["significant_gap", "needs_full_posting"].includes(readiness.status)
+    && verifiedBlockerCount === 0;
   const writingBlocked = writingReview.blocking_issue_count > 0;
   const status = integrityBlocked || writingBlocked
     ? "blocked"
-    : writingStatus === "review" || !postingVerified || !fitReady
+    : writingStatus === "review" || !postingVerified || !requirementAnalysisReady || !fitReady
       ? "review"
       : "ready";
   const applicationReady = Boolean(
     postingVerified
       && !integrityBlocked
       && !identityMissing
+      && requirementAnalysisReady
       && reverse_chronological
       && !writingBlocked
       && fitReady
@@ -297,6 +410,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
     application_ready: applicationReady,
     blockers: [
       ...(postingVerified ? [] : ["posting_readiness"]),
+      ...(requirementAnalysisReady ? [] : ["requirement_analysis"]),
       ...(fitReady ? [] : ["candidate_fit"]),
       ...(integrityBlocked ? ["evidence_integrity"] : []),
       ...(writingBlocked ? ["contribution_language"] : []),
@@ -341,6 +455,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
       reason: postingReadiness.reason,
     },
     requirements: options.analysis?.requirements || [],
+    gap_summary: options.analysis?.gap_summary || null,
     coverage: {
       ...coverage,
       total: coverageTotal,
@@ -361,6 +476,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
       issue_count: writingReview.issue_count,
     },
     writing_review: writingReview,
+    tailoring_changes: tailoringChanges,
     focus_review: focusReview,
     export_readiness: exportReadiness,
     identity: {

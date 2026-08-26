@@ -1,7 +1,12 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { createJobIntakeHandler, fetchPublicJobPage, validatePublicHttpsUrl } from "../api/job-intake.js";
+import {
+  createJobIntakeHandler,
+  fetchPublicJobPage,
+  safeJobIntakeReadError,
+  validatePublicHttpsUrl,
+} from "../api/job-intake.js";
 import { createPinnedLookup } from "../api/_lib/publicJobPage.js";
 
 function responseRecorder() {
@@ -74,6 +79,28 @@ test("career-site blocking returns an actionable fallback instead of a raw HTTP 
     assert.doesNotMatch(error.message, /HTTP 403/i);
     return true;
   });
+});
+
+test("job URL failures never expose raw DNS or invalid-IP internals", () => {
+  for (const internalMessage of [
+    "Invalid IP address: undefined",
+    "getaddrinfo ENOTFOUND jobs.example.com",
+    "could not be resolved to a public network address",
+  ]) {
+    const safe = safeJobIntakeReadError(new Error(internalMessage));
+    assert.equal(safe.code, "unresolved_host");
+    assert.match(safe.message, /could not resolve/i);
+    assert.doesNotMatch(safe.message, /undefined|ENOTFOUND|invalid IP/i);
+  }
+});
+
+test("blocked publishers and timeouts produce distinct recovery categories", () => {
+  assert.deepEqual(safeJobIntakeReadError(Object.assign(new Error("request aborted"), { name: "AbortError" })), {
+    status: 504,
+    code: "timeout",
+    message: "The job page took too long to respond. Your URL is still available; try again, paste the posting, or upload screenshots.",
+  });
+  assert.equal(safeJobIntakeReadError(new Error("blocked automated reading")).code, "publisher_blocked");
 });
 
 test("job intake authenticates before reading or extracting a posting", async () => {

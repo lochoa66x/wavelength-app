@@ -39,7 +39,11 @@ const TECHNOLOGY_CONCEPTS = [
     id: "sap",
     label: "SAP",
     subcategory: "enterprise_software",
-    patterns: [/\bsap\b/i, /\bs\/4hana\b/i, /\bs4hana\b/i, /\bhana\b/i, /\babap\b/i, /\bfiori\b/i, /\bfico\b/i, /\bfi\/co\b/i, /\bsuccessfactors\b/i, /\bariba\b/i],
+    patterns: [
+      /\bsap\b/i, /\bs\/4hana\b/i, /\bs4hana\b/i, /\bhana\b/i, /\babap\b/i, /\bfiori\b/i,
+      /\bfico\b/i, /\bfi\/co\b/i, /\bfi[- /]?ca\b/i, /\b(?:is[- /]?u|isu)\b/i,
+      /\bsuccessfactors\b/i, /\bariba\b/i,
+    ],
   },
   { id: "java", label: "Java", subcategory: "software_development", patterns: [/\bjava\b/i] },
   { id: "python", label: "Python", subcategory: "software_development", patterns: [/\bpython\b/i] },
@@ -74,6 +78,7 @@ const SEARCH_CATEGORY_PATTERNS = [
     /full.?stack/i, /front.?end/i, /back.?end/i, /technolog/i, /sysadmin/i,
     /devops/i, /\bcloud\b/i, /\bsre\b/i, /cybersecurity/i, /database/i,
     /\bsap\b/i, /\bs\/4hana\b/i, /\bs4hana\b/i, /\bhana\b/i, /\babap\b/i,
+    /\bfi[- /]?ca\b/i, /\b(?:is[- /]?u|isu)\b/i,
     /\bfiori\b/i, /\bsuccessfactors\b/i, /\bariba\b/i, /\bjava\b/i,
     /\bpython\b/i, /\bc\+\+/i, /\bcpp\b/i, /\bc#/i, /\bcsharp\b/i,
     /(?:^|\s)\.net\b/i, /\bdotnet\b/i, /\bjavascript\b/i, /\btypescript\b/i,
@@ -120,7 +125,7 @@ const HIGH_CONFIDENCE_TITLE_PATTERNS = {
     /\bsystems? administrator\b/i,
     /\bit (?:support|service|systems?|infrastructure|operations|help\s*desk|manager|technician|specialist|analyst|administrator)\b/i,
     /\bhelp\s*desk\b/i, /\btechnical support\b/i,
-    /\b(?:sap|s\/4hana|s4hana|hana|abap|fiori|successfactors|ariba)(?:\s+[\w/+.#-]+){0,4}\s+(?:consultant|analyst|architect|developer|engineer|specialist|administrator|manager)\b/i,
+    /\b(?:sap|s\/4hana|s4hana|hana|abap|fiori|fi[- /]?ca|is[- /]?u|isu|successfactors|ariba)(?:\s+[\w/+.#-]+){0,4}\s+(?:consultant|analyst|architect|developer|engineer|specialist|administrator|manager)\b/i,
     /\b(?:java|python|c\+\+|cpp|c#|csharp|\.net|dotnet|javascript|typescript|react(?:\.js|js)?|node(?:\.js|js)?)(?:\s+[\w/+.#-]+){0,3}\s+(?:developer|engineer|programmer|architect|consultant)\b/i,
   ],
   trades: [
@@ -153,7 +158,7 @@ const HIGH_CONFIDENCE_TITLE_PATTERNS = {
 
 const SUBCATEGORY_PATTERNS = {
   tech: [
-    ["enterprise_software", [/\bsap\b/i, /\bs\/4hana\b/i, /\bs4hana\b/i, /\bhana\b/i, /\babap\b/i, /\bfiori\b/i, /\bsuccessfactors\b/i, /\bariba\b/i]],
+    ["enterprise_software", [/\bsap\b/i, /\bs\/4hana\b/i, /\bs4hana\b/i, /\bhana\b/i, /\babap\b/i, /\bfiori\b/i, /\bfi[- /]?ca\b/i, /\b(?:is[- /]?u|isu)\b/i, /\bsuccessfactors\b/i, /\bariba\b/i]],
     ["software_development", [/developer/i, /software/i, /programmer/i, /full.?stack/i, /front.?end/i, /back.?end/i, /\bjava\b/i, /\bpython\b/i, /\bc\+\+/i, /\bc#/i, /(?:^|\s)\.net\b/i, /\bjavascript\b/i, /\btypescript\b/i, /\breact\b/i, /\bnode\.js\b/i]],
     ["it_support", [/it support/i, /help\s*desk/i, /technical support/i]],
     ["cloud_infrastructure", [/devops/i, /cloud/i, /sre/i, /infrastructure/i]],

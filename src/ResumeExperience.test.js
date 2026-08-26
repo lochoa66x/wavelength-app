@@ -29,6 +29,8 @@ test("feed and bring-your-own-job flows share the canonical selector experience"
   assert.match(experienceSource, /<ResumeTemplateSelector/);
   assert.match(customFlowSource, /<ResumeExperience/);
   assert.doesNotMatch(customFlowSource, /ResumeTemplateProfessional|ResumeTemplateCareerChange|resumeTemplateKind/);
+  assert.match(experienceSource, /<TailoringChangeReview/);
+  assert.match(experienceSource, /onTailoringChangeDecision/);
 });
 
 test("browser preview is single-column semantic text with print-friendly markers", async () => {

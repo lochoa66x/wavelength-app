@@ -20,7 +20,27 @@ import {
 } from "./resumePhaseBFixtures.js";
 
 function reviewWithCoverage(review, coverage, overrides = {}) {
-  return Object.freeze({ ...review, coverage: Object.freeze({ ...coverage }), ...overrides });
+  const total = ["direct", "adjacent", "transferable", "missing"]
+    .reduce((sum, key) => sum + Number(coverage[key] || 0), 0);
+  const preserved = Array.isArray(review.requirements) ? review.requirements.slice(0, total) : [];
+  const requirements = [...preserved];
+  for (const match of ["direct", "adjacent", "transferable", "missing"]) {
+    const existing = requirements.filter((requirement) => requirement.evidence_match === match).length;
+    for (let index = existing; index < Number(coverage[match] || 0); index += 1) {
+      requirements.push(Object.freeze({
+        id: `fixture-${match}-${index + 1}`,
+        requirement: `Redacted ${match} evaluation requirement ${index + 1}`,
+        priority: "required",
+        evidence_match: match,
+      }));
+    }
+  }
+  return Object.freeze({
+    ...review,
+    requirements: Object.freeze(requirements.slice(0, total)),
+    coverage: Object.freeze({ ...coverage }),
+    ...overrides,
+  });
 }
 
 const safeDirectCoverage = Object.freeze({ direct: 5, adjacent: 1, transferable: 1, missing: 1 });

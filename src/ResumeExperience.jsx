@@ -5,6 +5,7 @@ import { ResumeActions } from "./ResumeActions.jsx";
 import { ResumeDocumentPreview } from "./ResumeDocumentPreview.jsx";
 import { ResumeTemplateSelector } from "./ResumeTemplateSelector.jsx";
 import { QualityFeedback } from "./QualityFeedback.jsx";
+import { TailoringChangeReview } from "./TailoringChangeReview.jsx";
 import { emitResumeQualitySignal } from "./qualitySignals.js";
 import {
   RESUME_TEMPLATE_REGISTRY,
@@ -21,7 +22,7 @@ import {
 
 const TEMPLATE_OPTIONS = availableResumeTemplates();
 
-export function ResumeExperience({ resumeData, item, hasLink, atsReview, onEditResume, qualityRoute = "app", qualityPostingSource = "not_applicable", C, primaryBtnStyle }) {
+export function ResumeExperience({ resumeData, item, hasLink, atsReview, onEditResume, onTailoringChangeDecision, qualityRoute = "app", qualityPostingSource = "not_applicable", C, primaryBtnStyle }) {
   const { session } = useAuth();
   const previewRef = useRef(null);
   const [showOptions, setShowOptions] = useState(false);
@@ -68,6 +69,13 @@ export function ResumeExperience({ resumeData, item, hasLink, atsReview, onEditR
         onToggle={() => setShowOptions((value) => !value)}
         onChoose={chooseTemplate}
         controlId={controlId}
+        C={C}
+      />
+
+      <TailoringChangeReview
+        changes={atsReview?.tailoring_changes || []}
+        resumeData={resumeData}
+        onDecision={onTailoringChangeDecision}
         C={C}
       />
 

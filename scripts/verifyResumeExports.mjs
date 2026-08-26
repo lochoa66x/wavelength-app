@@ -70,6 +70,14 @@ const item = { id: "verification-listing", title: "SAP FICO Functional Consultan
 const verifiedReview = {
   application_ready: true,
   posting_readiness: { status: "reviewed_complete", fit_allowed: true, application_ready_allowed: true },
+  requirements: [{
+    id: "R1",
+    requirement: "Lead integration testing",
+    priority: "responsibility",
+    evidence_match: "direct",
+    resume_evidence: "Led integration testing.",
+  }],
+  coverage: { direct: 1, adjacent: 0, transferable: 0, missing: 0 },
   readiness: { status: "strong_fit" },
   integrity: { status: "pass" },
   writing: { status: "pass" },

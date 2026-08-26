@@ -88,6 +88,14 @@ test("recognized technology terms filter at the database before pagination", () 
   assert.deepEqual(calls[rangeIndex], ["range", 0, 99]);
 });
 
+test("SAP search expands into common module and utilities vocabulary", () => {
+  const terms = listingServerSearchTerms({ keyword: "SAP" });
+  assert.ok(terms.includes("sap fi-ca"));
+  assert.ok(terms.includes("sap is-u"));
+  assert.ok(terms.includes("sap s/4hana for utilities"));
+  assert.ok(terms.length <= 16);
+});
+
 test("server search expands broad IT and sanitizes unsafe PostgREST punctuation", () => {
   assert.ok(listingServerSearchTerms({ keyword: "IT" }).includes("software"));
   assert.deepEqual(listingServerSearchTerms({ keyword: "unknown,(term)" }), []);

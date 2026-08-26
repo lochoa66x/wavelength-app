@@ -98,6 +98,38 @@ const STRICT_EVIDENCE_CONCEPTS = Object.freeze([
 ]);
 
 const LIST_INTRODUCTION_PATTERN = /^(.*?)(?:\bincluding\b|\bsuch as\b)\s+(.+?)(\s+to\s+(?:ensure|support|meet|deliver|provide)\b.*)?$/i;
+const EXPLICIT_BLOCKER_REQUIREMENT_PATTERN = /\b(?:licen[cs](?:e|ed|ure)|registered|registration|certified|certification|security clearance|reliability status|work authori[sz]ation|legally (?:eligible|entitled|authorized) to work|red seal|journeyperson|journeyman|first aid|cpr|whmis)\b/i;
+
+function applicationRiskForRequirement(requirement) {
+  if (requirement.evidence_match !== "missing") {
+    return {
+      gap_severity: "supported",
+      application_impact: "Verified candidate evidence is available; review whether the wording reflects the candidate's actual contribution level.",
+    };
+  }
+  if (requirement.priority === "preferred") {
+    return {
+      gap_severity: "preference",
+      application_impact: "This is presented as a preference. It remains visible but does not become candidate experience.",
+    };
+  }
+  if (requirement.priority === "required" && EXPLICIT_BLOCKER_REQUIREMENT_PATTERN.test(requirement.requirement)) {
+    return {
+      gap_severity: "verified_blocker",
+      application_impact: "This appears to be an explicit mandatory credential or eligibility requirement with no supporting candidate evidence. Confirm it before treating the application as ready.",
+    };
+  }
+  if (requirement.priority === "required") {
+    return {
+      gap_severity: "material_gap",
+      application_impact: "This required capability has no supporting candidate evidence. Employers may waive requirements, but Gigscapes will not claim it for the candidate.",
+    };
+  }
+  return {
+    gap_severity: "development_gap",
+    application_impact: "This responsibility is not evidenced in the current résumé. It may be learnable or adjacent, but it should not be presented as completed experience.",
+  };
+}
 
 function listItems(value) {
   const source = String(value || "").replace(/[().]/g, " ").replace(/\s+/g, " ").trim();
@@ -489,7 +521,7 @@ function cleanRequirement(value, index, baseResume, candidateNotes = []) {
   const citation = evidenceMatch !== "missing"
     ? evidenceCitation(supportedEvidence, baseResume, candidateNotes)
     : null;
-  return {
+  const cleaned = {
     id: String(value?.id || `R${index + 1}`).slice(0, 20),
     requirement,
     parent_requirement: String(value?.parent_requirement || "").replace(/\s+/g, " ").trim().slice(0, 500),
@@ -510,6 +542,7 @@ function cleanRequirement(value, index, baseResume, candidateNotes = []) {
       : "",
     keywords: uniqueStrings(value?.keywords, 8),
   };
+  return { ...cleaned, ...applicationRiskForRequirement(cleaned) };
 }
 
 function coverageCounts(requirements) {
@@ -551,12 +584,15 @@ function calibrateFit(requirements, requestedPath) {
   else if (weightedRate >= 0.45 && missingRate <= 0.45) path = "adjacent";
   else if (adjacentEvidence >= 3 && adjacentRate >= 0.2 && domainAdjacentEvidence >= 2) path = "adjacent";
   else path = "career_change";
-  const readinessStatus = path === "direct" && counts.missing === 0
+  const verifiedBlockerCount = assessed.filter((requirement) => requirement.gap_severity === "verified_blocker").length;
+  const readinessStatus = verifiedBlockerCount > 0
+    ? "significant_gap"
+    : path === "direct" && counts.missing === 0
     ? "strong_fit"
     : path !== "career_change" && missingRate <= 0.35
       ? "credible_stretch"
       : "significant_gap";
-  return { path, readinessStatus, counts, total, supported, missingRate };
+  return { path, readinessStatus, counts, total, supported, missingRate, verifiedBlockerCount };
 }
 
 function calibratedFitReason(calibration) {
@@ -633,6 +669,23 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
 
   const candidateQuestions = uniqueStrings(raw.candidate_questions, 5);
   const missingRequirements = requirements.filter((requirement) => requirement.evidence_match === "missing");
+  const gapCounts = requirements.reduce((counts, requirement) => {
+    counts[requirement.gap_severity] = (counts[requirement.gap_severity] || 0) + 1;
+    return counts;
+  }, {
+    supported: 0,
+    verified_blocker: 0,
+    material_gap: 0,
+    development_gap: 0,
+    preference: 0,
+  });
+  const applicationRisk = gapCounts.verified_blocker > 0
+    ? "high"
+    : gapCounts.material_gap > 0
+      ? "elevated"
+      : gapCounts.development_gap > 0 || gapCounts.preference > 0
+        ? "review"
+        : "low";
   const evidenceQuestions = candidateQuestions.map((question, index) => {
     const prefixedId = question.match(/^\s*\[([^\]]+)\]\s*/)?.[1];
     const requirement = requirements.find((item) => item.id === prefixedId)
@@ -673,6 +726,15 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
     },
     requirements,
     coverage,
+    gap_summary: {
+      application_risk: applicationRisk,
+      counts: gapCounts,
+      note: gapCounts.verified_blocker > 0
+        ? "One or more explicit mandatory credentials or eligibility requirements have no supporting evidence. The candidate may still review the opportunity, but Gigscapes will not call the résumé application-ready."
+        : gapCounts.material_gap > 0
+          ? "Required capabilities remain unsupported. Employers may waive requirements, but the résumé must not claim them."
+          : "No explicit mandatory blocker was detected. Review every requirement because an employer may weigh it differently.",
+    },
     verified_transferable_skills: transferableSkills,
     target_keywords: verifiedKeywords,
     missing_evidence: uniqueStrings([

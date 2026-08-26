@@ -1,6 +1,6 @@
 # Gigscapes product pipeline
 
-Updated: 2026-08-25
+Updated: 2026-08-26
 
 This roadmap orders work by the value of the product's core promise: produce a truthful, role-specific, ATS-readable resume from enough candidate and job-posting evidence. Search volume and presentation work follow that foundation.
 
@@ -251,6 +251,21 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 - **Phase B1 implemented and locally verified on 2026-08-25; production migration applied, release gates remain:** quality sharing is explicitly opt-in and off by default; the browser and server share one exact enum-only contract; the API omits credentials and validates origin, type, marker, shape, values, and size; and Supabase stores only service-role daily aggregates in `gigscapes_private` with 180-day retention. The publishable production client was denied access to the private schema and the RPC with PostgreSQL `42501`, without writing a synthetic row.
 - No raw production-event store, identifiers, free text, résumé/posting content, client database privilege, or third-party analytics SDK was added. Optional fit/export feedback is structured and stays outside résumé previews and exports. Local reports suppress cohorts below 10.
 
+### P3.3 Trust, explainability, and application-risk calibration
+
+**Phase A status:** Implemented, locally verified, and release-authorized on 2026-08-26. The feature SHA is the commit containing this record; GitHub/Vercel binding and production smoke belong to the release handoff.
+
+- One canonical readiness state now controls the review UI, DOCX/PDF labels, and fresh export authorization. A reviewed posting with zero or inconsistent atomic requirements can no longer become application-ready, and the authorization hash is bound to the complete assessment snapshot.
+- Missing requirements are classified as verified blockers, material gaps, development gaps, or preferences. Regulated credentials, work authorization, security clearance, and other explicit mandatory conditions cannot be softened into a generic percentage.
+- The résumé review includes an evidence-linked change ledger. Users can compare verified original and tailored wording, see why the wording changed, keep the tailored version, or restore the verified original without mutating the saved base résumé. A wording veto makes the current export preliminary until the tailored wording is restored or the document is rechecked.
+- URL-import failures reduce low-level DNS/IP, redirect, publisher-block, timeout, and unsafe-URL failures to calm actionable categories. Both custom-posting and public-listing flows expose explicit cancellation, abort the active request, preserve the current input or earlier completed result, and discard late responses.
+- SAP discovery expands common ECC, FICO, FI-CA/FICA, IS-U/ISU, S/4HANA Utilities, and FSCM aliases. Conservative content-level clustering may merge an identical same-day employer/title posting across location URLs while retaining every location and source; materially different descriptions remain separate.
+- Landing copy now states the current pricing fact, local-only browser/device résumé storage boundary, lack of multi-device sync, and no automatic application, employer contact, or job submission.
+- The narrow-phone landing hierarchy now caps the hero title at 40 px (34 px on very narrow screens), balances its wrap, restores the high-contrast orange brand phrase and primary action, and keeps the product preview in the first scroll without horizontal overflow.
+- The release contract covers SAP, software, administration, marketing, creative work, electricians, plumbers, and other regulated/skilled work rather than tuning readiness rules to one reference résumé.
+- Local release evidence: 409/409 tests passed. Export verification passed for 36 files, 14 templates, 23 direct-PDF pages, 667 selectable PDF text items, manifest parity, final gating, and stale-ready rejection. The sourcemapped build transformed 1,987 modules and kept DOCX/PDF/jsPDF in lazy chunks. Signed-out browser smoke returned 57 SAP matches, showed a useful zero-result recovery, enforced the private tailoring gate, and passed 390×844 and 320×700 mobile layout checks with no horizontal overflow; the 390 px hero measured 145 px high and the automated WCAG A/AA scan reported no violation.
+- Dependency baseline: 0 critical, 1 high Vite, and 1 moderate esbuild advisory. Both affect the existing development toolchain; npm's offered remediation is a Vite 8 major upgrade and is intentionally separated from this trust release.
+
 ## Recommended execution order
 
 1. P0.1 posting enrichment and provenance
@@ -265,7 +280,8 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 10. P2.3 Phase A discovery integrity and source-health release, then terms-approved feed expansion
 11. P3.2 Phase A redacted evaluation gate — implemented and locally verified
 12. P3.2 Phase B1 opt-in aggregate signals and structured feedback — migration applied and anonymous denial verified; service-role/RLS evidence and release remain
-13. P3.1 native mobile after the web contracts and privacy boundary remain stable
+13. P3.3 trust, explainability, and application-risk calibration — implemented, locally verified, and release-authorized
+14. P3.1 native mobile after the web contracts and privacy boundary remain stable
 
 ## Source constraints behind P0.1
 

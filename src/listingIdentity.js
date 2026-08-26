@@ -81,6 +81,20 @@ export function listingDuplicateKey(item = {}) {
   return fingerprint.every(Boolean) ? `fingerprint:${fingerprint.join("|")}` : item.id ? `id:${item.id}` : "";
 }
 
+export function listingContentDuplicateKey(item = {}) {
+  const postedDay = validPostedDay(item.postedAt || item.posted_at);
+  const company = normalizedIdentityText(item.company);
+  const title = normalizedIdentityText(item.title);
+  const snippet = normalizedIdentityText(item.searchDescription || item.descriptionSnippet || item.description);
+  if (!postedDay || !company || !title || snippet.length < 80) return "";
+
+  // Some providers publish one role once for several cities, each with a
+  // different outbound URL. Exact normalized copy plus the same publish day
+  // is strong enough to collapse that visual duplicate while retaining every
+  // location and source below.
+  return `content:${company}|${title}|${postedDay}|${snippet.slice(0, 500)}`;
+}
+
 function sourcePriority(item = {}) {
   return DIRECT_SOURCE_PRIORITY.get(String(item.sourceId || "").toLowerCase()) ?? 3;
 }
@@ -123,14 +137,37 @@ function mergeAttributions(group) {
   return [...merged.values()];
 }
 
+function mergeLocations(group, representative) {
+  const merged = new Map();
+  for (const location of [representative?.location, ...group.map((item) => item.location)]) {
+    const key = normalizedIdentityText(location);
+    if (key && !merged.has(key)) merged.set(key, String(location).trim());
+  }
+  return [...merged.values()];
+}
+
+export function listingLocationSummary(item = {}) {
+  const locations = Array.isArray(item.locationVariants) && item.locationVariants.length > 0
+    ? item.locationVariants
+    : [item.location].filter(Boolean);
+  if (locations.length <= 1) return locations[0] || "Location not listed";
+
+  const shown = locations.slice(0, 3).join(" · ");
+  const remainder = locations.length - 3;
+  return `${locations.length} locations: ${shown}${remainder > 0 ? ` · +${remainder} more` : ""}`;
+}
+
 export function clusterDuplicateListings(items = [], { preserveIds = [] } = {}) {
   const groups = [];
   for (const item of items) {
     const duplicateKey = listingDuplicateKey(item);
+    const contentDuplicateKey = listingContentDuplicateKey(item);
     const group = groups.find((candidate) => candidate.some((existing) => (
       item.id && existing.id && String(item.id) === String(existing.id)
     ) || (
       duplicateKey && duplicateKey === listingDuplicateKey(existing)
+    ) || (
+      contentDuplicateKey && contentDuplicateKey === listingContentDuplicateKey(existing)
     )));
     if (group) group.push(item);
     else groups.push([item]);
@@ -143,10 +180,13 @@ export function clusterDuplicateListings(items = [], { preserveIds = [] } = {}) 
     const currentRepresentative = group
       .filter((item) => String(item.id) === String(representative.id))
       .reduce((current, item) => ({ ...current, ...item }), representative);
+    const locationVariants = mergeLocations(group, currentRepresentative);
     return {
       ...currentRepresentative,
       duplicateKey: listingDuplicateKey(currentRepresentative),
       duplicateIds: [...new Set(group.map(({ id }) => id).filter(Boolean))],
+      locationVariants,
+      locationCount: locationVariants.length,
       sourceAttributions: mergeAttributions(group),
     };
   });

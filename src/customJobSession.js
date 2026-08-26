@@ -51,6 +51,11 @@ export function createCustomJobRequestCoordinator(initialMode = "url") {
       controller = null;
       return true;
     },
+    cancelActiveRequest() {
+      abortActiveRequest();
+      requestId += 1;
+      return snapshot();
+    },
     dispose() {
       abortActiveRequest();
       sourceId += 1;

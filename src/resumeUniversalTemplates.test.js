@@ -14,6 +14,8 @@ const verifiedPosting = {
   readiness: { status: "strong_fit" },
   integrity: { status: "passed" },
   application_ready: true,
+  requirements: [{ id: "R1", requirement: "Verified role requirement", evidence_match: "direct" }],
+  coverage: { direct: 1, adjacent: 0, transferable: 0, missing: 0 },
 };
 
 const universalTemplateIds = [

@@ -42,6 +42,8 @@ const verifiedPosting = {
   readiness: { status: "strong_fit" },
   integrity: { status: "passed" },
   application_ready: true,
+  requirements: [{ id: "R1", requirement: "SAP functional delivery", evidence_match: "direct" }],
+  coverage: { direct: 1, adjacent: 0, transferable: 0, missing: 0 },
 };
 
 function baseResume(overrides = {}) {
@@ -640,6 +642,12 @@ test("export authorization is bound to content, identity, posting, schema, and m
   };
   assert.throws(() => validateResumeExportContext(stalePosting), /stale|does not match/i);
   assert.throws(() => resumeDataToPlainText(stalePosting), /stale|does not match/i);
+
+  const staleRequirements = {
+    ...context,
+    assessment: { ...context.assessment, requirements: [], coverage: { direct: 0, adjacent: 0, transferable: 0, missing: 0 } },
+  };
+  assert.throws(() => validateResumeExportContext(staleRequirements), /stale|does not match/i);
 
   const contentDrift = {
     ...context,

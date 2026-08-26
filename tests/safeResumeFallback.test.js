@@ -9,7 +9,22 @@ test("the deterministic fallback omits final unsafe claims instead of failing th
   const analysis = {
     fit_assessment: { path: "career_change" },
     verified_transferable_skills: [{ skill: "Systems integration" }],
-    requirements: [],
+    requirements: [
+      {
+        id: "R1",
+        requirement: "Lead systems integration programs",
+        priority: "responsibility",
+        evidence_match: "transferable",
+        resume_evidence: "Led systems integration programs.",
+      },
+      {
+        id: "R2",
+        requirement: "Full stack web development",
+        priority: "required",
+        evidence_match: "missing",
+        resume_evidence: "",
+      },
+    ],
     prohibited_claims: [],
     posting_assessment: {
       status: "complete",

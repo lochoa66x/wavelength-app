@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import {
   canonicalListingUrlForIdentity,
   clusterDuplicateListings,
+  listingLocationSummary,
   listingStateKey,
 } from "./listingIdentity.js";
 
@@ -94,4 +95,52 @@ test("later pages preserve an existing representative and distinct jobs remain d
   assert.equal(clustered.length, 2);
   assert.equal(clustered.find(({ duplicateIds }) => duplicateIds.includes("direct")).id, "existing");
   assert.ok(clustered.some(({ id }) => id === "ottawa"));
+});
+
+test("identical multi-location postings collapse once and retain every location", () => {
+  const shared = {
+    sourceId: "jooble",
+    source: "Jooble",
+    company: "Acme Utilities",
+    title: "SAP IS-U Functional Consultant",
+    descriptionSnippet: "Configure SAP IS-U contract accounts, support meter-to-cash integration, document requirements, and coordinate end-to-end utility testing with business teams.",
+    postedAt: "2026-08-25T10:00:00Z",
+  };
+  const clustered = clusterDuplicateListings([
+    { ...shared, id: "london", location: "London, Ontario", url: "https://jobs.example.com/london" },
+    { ...shared, id: "toronto", location: "Toronto, Ontario", url: "https://jobs.example.com/toronto" },
+  ]);
+
+  assert.equal(clustered.length, 1);
+  assert.deepEqual(clustered[0].duplicateIds.sort(), ["london", "toronto"]);
+  assert.deepEqual(clustered[0].locationVariants, ["London, Ontario", "Toronto, Ontario"]);
+  assert.equal(listingLocationSummary(clustered[0]), "2 locations: London, Ontario · Toronto, Ontario");
+});
+
+test("same employer and title remain separate when the posting copy differs", () => {
+  const shared = {
+    sourceId: "jooble",
+    source: "Jooble",
+    company: "Acme",
+    title: "Electrician",
+    postedAt: "2026-08-25T10:00:00Z",
+  };
+  const clustered = clusterDuplicateListings([
+    {
+      ...shared,
+      id: "industrial",
+      location: "Hamilton, Ontario",
+      url: "https://jobs.example.com/industrial",
+      descriptionSnippet: "Maintain industrial electrical systems, diagnose motor controls, complete lockout procedures, and document preventive maintenance work orders.",
+    },
+    {
+      ...shared,
+      id: "residential",
+      location: "Ottawa, Ontario",
+      url: "https://jobs.example.com/residential",
+      descriptionSnippet: "Install residential wiring, service panels, fixtures, and code-compliant branch circuits while communicating directly with homeowners.",
+    },
+  ]);
+
+  assert.equal(clustered.length, 2);
 });

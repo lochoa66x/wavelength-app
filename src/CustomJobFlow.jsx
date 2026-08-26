@@ -26,6 +26,7 @@ import { submittableCandidateEvidence } from "./evidenceRefinement.js";
 import { createCustomJobRequestCoordinator } from "./customJobSession.js";
 import { buildQualitySignal } from "./qualitySignalContract.js";
 import { durationBand, emitQualitySignal, emitResumeQualitySignal, postingSourceForMode } from "./qualitySignals.js";
+import { applyTailoringChangeDecision, reviewAfterTailoringChange } from "./tailoringChanges.js";
 
 const CATEGORY_OPTIONS = [
   ["tech", "Technology & IT"], ["design", "Design"], ["writing", "Writing & content"],
@@ -222,7 +223,6 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
     setStatus("tailoring");
     setError("");
     const previous = tailored;
-    setTailored(null);
     try {
       const candidateEvidence = candidateEvidenceForRequest(
         submittableCandidateEvidence(evidenceOverride),
@@ -233,6 +233,7 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
       requestCoordinator.finish(request);
       setTailored({
         ...result,
+        baselineAtsReview: result.atsReview,
         baselineCoverage: previous?.baselineCoverage || previous?.atsReview?.coverage || result.atsReview?.coverage,
         previousCoverage: previous?.atsReview?.coverage || null,
       });
@@ -259,6 +260,26 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
         durationBand: durationBand(Date.now() - startedAt),
       }));
     }
+  };
+
+  const cancelActiveWork = () => {
+    setSourceSession(requestCoordinator.cancelActiveRequest());
+    setStatus(brief ? (tailored ? "done" : "review") : "idle");
+    setError("Cancelled. Your current posting input is still available.");
+  };
+
+  const handleTailoringChangeDecision = (change, decision) => {
+    setTailored((current) => {
+      if (!current?.resume) return current;
+      const resumeResult = applyTailoringChangeDecision(current.resume, change, decision);
+      const baselineAtsReview = current.baselineAtsReview || current.atsReview;
+      return {
+        ...current,
+        resume: resumeResult,
+        baselineAtsReview,
+        atsReview: reviewAfterTailoringChange(baselineAtsReview, resumeResult),
+      };
+    });
   };
 
   const handleEvidenceRetailor = async ({ records, candidateEvidence }) => {
@@ -383,10 +404,13 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
               )}
             </>
           )}
-          <button type="button" onClick={handleExtract} disabled={status === "extracting" || (mode === "paste" ? postingText.trim().length < 80 : mode === "url" ? !jobUrl.trim() : files.length === 0)} className="wl-btn" style={{ ...primaryBtnStyle(status === "extracting"), marginTop: 16 }}>
-            {status === "extracting" ? <Loader2 size={15} className="wl-spin" /> : <Sparkles size={15} />}
-            {status === "extracting" ? "Reading the posting…" : "Extract posting details"}
-          </button>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 16 }}>
+            <button type="button" onClick={handleExtract} disabled={status === "extracting" || (mode === "paste" ? postingText.trim().length < 80 : mode === "url" ? !jobUrl.trim() : files.length === 0)} className="wl-btn" style={primaryBtnStyle(status === "extracting")}>
+              {status === "extracting" ? <Loader2 size={15} className="wl-spin" /> : <Sparkles size={15} />}
+              {status === "extracting" ? "Reading the posting…" : "Extract posting details"}
+            </button>
+            {status === "extracting" ? <button type="button" onClick={cancelActiveWork} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, padding: "8px 11px" }}><X size={14} /> Cancel</button> : null}
+          </div>
           <p style={{ color: C.textFaint, fontSize: 11.5, lineHeight: 1.45, margin: "12px 0 0" }}>Posting inputs are processed for this request and are not saved to your Gigscapes profile.</p>
         </div>
       )}
@@ -455,6 +479,7 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
             {status === "tailoring" ? <Loader2 size={15} className="wl-spin" /> : <Sparkles size={15} />}
             {status === "tailoring" ? "Tailoring and checking evidence…" : "Tailor my résumé"}
           </button>
+          {status === "tailoring" ? <button type="button" onClick={cancelActiveWork} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, marginLeft: 8, marginTop: 16, padding: "8px 11px" }}><X size={14} /> Cancel</button> : null}
         </div>
       )}
 
@@ -479,7 +504,7 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
             onSaveAndRetailor={handleEvidenceRetailor}
             C={C}
           />
-          <ResumeExperience resumeData={tailored.resume} item={customItem} hasLink={Boolean(brief.source_url)} atsReview={tailored.atsReview} onEditResume={onEditResume} qualityRoute="custom_job" qualityPostingSource={postingSourceForMode(mode)} C={C} primaryBtnStyle={primaryBtnStyle} />
+          <ResumeExperience resumeData={tailored.resume} item={customItem} hasLink={Boolean(brief.source_url)} atsReview={tailored.atsReview} onEditResume={onEditResume} onTailoringChangeDecision={handleTailoringChangeDecision} qualityRoute="custom_job" qualityPostingSource={postingSourceForMode(mode)} C={C} primaryBtnStyle={primaryBtnStyle} />
         </div>
       )}
     </div>

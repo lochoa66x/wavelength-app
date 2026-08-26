@@ -206,7 +206,8 @@ function DiscoveryAndPrivacy() {
         <p className="landing-card-kicker">Review and control</p>
         <h2>You decide when private work begins.</h2>
         <p>Public browsing does not require an account. Sign-in gates saved work, résumé editing, posting intake, tailoring, and export.</p>
-        <p>Your résumé is stored for your account in this browser. When you request tailoring, the résumé, reviewed posting, and confirmed evidence are sent for that private request. Preliminary and application-ready exports remain distinct.</p>
+        <p>Your résumé is saved only in this browser on this device; it is not currently synced, and clearing site data can remove it. When you request tailoring, the résumé, reviewed posting, and confirmed evidence are sent for that private request.</p>
+        <p>Gigscapes does not auto-apply or contact employers. Preliminary and application-ready exports remain distinct, and you decide what to submit.</p>
       </article>
     </section>
   );
@@ -253,7 +254,9 @@ export default function LandingPage() {
         <section className="landing-hero" aria-labelledby="landing-title">
           <div className="landing-hero-copy">
             <p className="landing-eyebrow"><Sparkles size={16} aria-hidden="true" /> Job discovery + evidence-first tailoring</p>
-            <h1 id="landing-title">Find the work. Build the résumé that fits—without inventing experience.</h1>
+            <h1 id="landing-title">
+              Find the work. <span className="landing-hero-title-accent">Build the résumé that fits</span>—without inventing experience.
+            </h1>
             <p className="landing-hero-lede">Search jobs and gigs across Canada, or bring a posting you found elsewhere. Gigscapes helps you position real evidence clearly, choose a job-aware template, and export an ATS-readable résumé.</p>
             <div className="landing-cta-row">
               <Link className="landing-button landing-button--primary" to={APP_PATH}>Browse jobs &amp; gigs <ArrowRight aria-hidden="true" /></Link>
