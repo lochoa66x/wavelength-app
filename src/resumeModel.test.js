@@ -3,6 +3,8 @@ import test from "node:test";
 
 import {
   RESUME_TEMPLATE_REGISTRY,
+  availableResumeDesigns,
+  availableResumeStrategies,
   TEMPLATE_IDS,
   analyzeResumeWording,
   availableResumeTemplates,
@@ -97,11 +99,13 @@ test("template registry exposes role-aware and universal design IDs", () => {
     TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
     TEMPLATE_IDS.MARKETING_COMMUNICATIONS,
     TEMPLATE_IDS.CREATIVE_DESIGN,
+    TEMPLATE_IDS.ESSENTIAL_ATS,
     TEMPLATE_IDS.CLASSIC_LEDGER,
     TEMPLATE_IDS.MODERN_SIGNAL,
     TEMPLATE_IDS.COMPACT_FOCUS,
     TEMPLATE_IDS.BOLD_IMPACT,
     TEMPLATE_IDS.STUDIO_EDITORIAL,
+    TEMPLATE_IDS.FIELD_READY,
   ]);
   assert.equal(new Set(ids).size, ids.length);
   for (const id of ids) {
@@ -111,7 +115,8 @@ test("template registry exposes role-aware and universal design IDs", () => {
     assert.equal(RESUME_TEMPLATE_REGISTRY[id].previewMetadata.hasSidebar, false);
     assert.equal(RESUME_TEMPLATE_REGISTRY[id].previewMetadata.usesGraphics, false);
   }
-  assert.equal(templates.filter((template) => template.group === "design-style").length, 5);
+  assert.equal(availableResumeStrategies().length, 9);
+  assert.equal(availableResumeDesigns().length, 7);
   assert.equal(RESUME_TEMPLATE_REGISTRY[TEMPLATE_IDS.BOLD_IMPACT].atsSafetyLevel, "moderate");
 });
 
@@ -220,6 +225,51 @@ test("template override changes presentation only and preserves factual IDs and 
   assert.equal(overridden.presentation.selectedTemplateId, TEMPLATE_IDS.PROJECT_LEADERSHIP);
 });
 
+test("visual design switches preserve strategy, canonical content, evidence IDs, and readiness authorization", () => {
+  const resumePackage = createResumePackage(baseResume(), { item: { title: "SAP Functional Consultant", category: "tech" }, atsReview: verifiedPosting });
+  const essential = buildResumeRenderPlan(resumePackage, {
+    strategyId: TEMPLATE_IDS.SAP_FUNCTIONAL,
+    designId: TEMPLATE_IDS.ESSENTIAL_ATS,
+  });
+  const bold = buildResumeRenderPlan(resumePackage, {
+    strategyId: TEMPLATE_IDS.SAP_FUNCTIONAL,
+    designId: TEMPLATE_IDS.BOLD_IMPACT,
+  });
+  assert.equal(essential.strategyId, bold.strategyId);
+  assert.notEqual(essential.designId, bold.designId);
+  assert.equal(essential.contentHash, bold.contentHash);
+  assert.deepEqual(essential.manifest, bold.manifest);
+  assert.notEqual(essential.renderPlanHash, bold.renderPlanHash);
+
+  for (const designId of [TEMPLATE_IDS.ESSENTIAL_ATS, TEMPLATE_IDS.BOLD_IMPACT]) {
+    const context = createResumeExportContext(resumePackage, verifiedPosting, {
+      item: { title: "SAP Functional Consultant", category: "tech" },
+      strategyId: TEMPLATE_IDS.SAP_FUNCTIONAL,
+      designId,
+    });
+    assert.equal(validateResumeExportContext(context).readiness.applicationReady, true);
+  }
+});
+
+test("strategy switches can change section logic without changing canonical facts or selected design", () => {
+  const resumePackage = createResumePackage(baseResume(), { item: { title: "SAP Functional Consultant", category: "tech" }, atsReview: verifiedPosting });
+  const direct = buildResumeRenderPlan(resumePackage, {
+    strategyId: TEMPLATE_IDS.SAP_FUNCTIONAL,
+    designId: TEMPLATE_IDS.MODERN_SIGNAL,
+  });
+  const transition = buildResumeRenderPlan(resumePackage, {
+    strategyId: TEMPLATE_IDS.CAREER_TRANSITION,
+    designId: TEMPLATE_IDS.MODERN_SIGNAL,
+  });
+  assert.notEqual(direct.strategyId, transition.strategyId);
+  assert.equal(direct.designId, transition.designId);
+  assert.equal(direct.contentHash, transition.contentHash);
+  assert.deepEqual(
+    direct.manifest.sections.flatMap((section) => section.items.map((item) => item.id)).sort(),
+    transition.manifest.sections.flatMap((section) => section.items.map((item) => item.id)).sort(),
+  );
+});
+
 test("all selectable templates keep the same selected factual item IDs", () => {
   const resumePackage = createResumePackage(baseResume(), { item: { title: "SAP Functional Consultant", category: "tech" }, atsReview: verifiedPosting });
   const ids = (plan) => plan.manifest.sections.flatMap((section) => section.items.flatMap((item) => [item.id, ...(item.bullets || []).map((bullet) => bullet.id), ...(item.details || []).map((detail) => detail.id)])).sort();
@@ -231,11 +281,13 @@ test("universal design styles inherit occupation-aware content without changing 
   const tradePackage = createResumePackage(licensedElectricianResumeFixture, { item: electricianTargetItem, atsReview: verifiedPosting });
   const rolePlan = buildResumeRenderPlan(tradePackage, TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES);
   for (const templateId of [
+    TEMPLATE_IDS.ESSENTIAL_ATS,
     TEMPLATE_IDS.CLASSIC_LEDGER,
     TEMPLATE_IDS.MODERN_SIGNAL,
     TEMPLATE_IDS.COMPACT_FOCUS,
     TEMPLATE_IDS.BOLD_IMPACT,
     TEMPLATE_IDS.STUDIO_EDITORIAL,
+    TEMPLATE_IDS.FIELD_READY,
   ]) {
     const plan = buildResumeRenderPlan(tradePackage, templateId);
     assert.equal(plan.contentTemplateId, TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES);

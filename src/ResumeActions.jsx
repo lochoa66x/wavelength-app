@@ -8,7 +8,7 @@ import { useAuth } from "./auth.jsx";
 import { QualityFeedback } from "./QualityFeedback.jsx";
 import { emitResumeQualitySignal } from "./qualitySignals.js";
 
-export function ResumeActions({ resumeData, resumePackage, renderPlan, template, previewRef, item, hasLink, atsReview, onEditResume, qualityRoute = "app", qualityPostingSource = "not_applicable", C, primaryBtnStyle }) {
+export function ResumeActions({ resumeData, resumePackage, renderPlan, selection, template, previewRef, item, hasLink, atsReview, onEditResume, qualityRoute = "app", qualityPostingSource = "not_applicable", C, primaryBtnStyle }) {
   const { requestAccountAction } = useAuth();
   const [docxState, setDocxState] = useState("idle");
   const [pdfState, setPdfState] = useState("idle");
@@ -17,7 +17,8 @@ export function ResumeActions({ resumeData, resumePackage, renderPlan, template,
   const canonicalInput = resumePackage || resumeData;
   const readiness = getResumeExportReadiness(canonicalInput, atsReview);
   const exportBusy = docxState === "loading" || pdfState === "loading";
-  const freshExportContext = () => validateResumeExportContext(createResumeExportContext(canonicalInput, atsReview, { item, templateId: template }));
+  const exportSelection = selection || { templateId: template };
+  const freshExportContext = () => validateResumeExportContext(createResumeExportContext(canonicalInput, atsReview, { item, ...exportSelection }));
   const signalInput = (extra = {}) => ({
     resumeData,
     resumePackage,

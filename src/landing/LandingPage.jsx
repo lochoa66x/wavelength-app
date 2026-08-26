@@ -55,7 +55,7 @@ function IntakeButton({ action, children, className = "landing-button landing-bu
 
 function HeroProductDemo() {
   return (
-    <div className="landing-product-demo" aria-label="Example of Gigscapes evidence-first tailoring">
+    <div className="landing-product-demo" role="region" aria-label="Example of Gigscapes evidence-first tailoring">
       <div className="landing-demo-toolbar" aria-hidden="true">
         <span /><span /><span />
         <strong>Evidence review</strong>
@@ -127,7 +127,7 @@ function StartPaths() {
           <p className="landing-card-kicker">Path B</p>
           <h3>Bring your own posting</h3>
           <p>Use the format that preserves the full responsibilities and qualifications. You review the result before tailoring.</p>
-          <div className="landing-intake-options" aria-label="Posting intake choices">
+          <div className="landing-intake-options" role="group" aria-label="Posting intake choices">
             <IntakeButton action={LANDING_DESTINATIONS.postingUrl.action}><Link2 aria-hidden="true" /> Public job link</IntakeButton>
             <IntakeButton action={LANDING_DESTINATIONS.postingScreenshots.action}><FileImage aria-hidden="true" /> Screenshots</IntakeButton>
             <IntakeButton action={LANDING_DESTINATIONS.postingText.action}><FileText aria-hidden="true" /> Pasted text</IntakeButton>
@@ -154,7 +154,7 @@ function HowItWorks() {
           </li>
         ))}
       </ol>
-      <div className="landing-evidence-strip" aria-label="Evidence classifications">
+      <div className="landing-evidence-strip" role="group" aria-label="Evidence classifications">
         {EVIDENCE_TYPES.map(([title, copy]) => (
           <div key={title}><strong>{title}</strong><span>{copy}</span></div>
         ))}
@@ -262,7 +262,7 @@ export default function LandingPage() {
               <Link className="landing-button landing-button--primary" to={APP_PATH}>Browse jobs &amp; gigs <ArrowRight aria-hidden="true" /></Link>
               <IntakeButton action={LANDING_DESTINATIONS.postingUrl.action}>Tailor a posting I found <ArrowRight aria-hidden="true" /></IntakeButton>
             </div>
-            <div className="landing-hero-trust" aria-label="Product safeguards">
+            <div className="landing-hero-trust" role="group" aria-label="Product safeguards">
               <span><ShieldCheck aria-hidden="true" /> No invented qualifications</span>
               <span><FileText aria-hidden="true" /> DOCX + selectable PDF</span>
             </div>

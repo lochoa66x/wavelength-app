@@ -3,9 +3,11 @@ import test from "node:test";
 
 import { TEMPLATE_IDS } from "./resumeModel.js";
 import {
+  loadResumePresentationSelection,
   loadResumeTemplateSelection,
   resumeTemplateStorageKey,
   resumeTemplateTargetKey,
+  saveResumePresentationSelection,
   saveResumeTemplateSelection,
 } from "./resumeTemplateStorage.js";
 
@@ -88,4 +90,32 @@ test("Phase B3 persists both families per account and migrates unversioned alias
   const legacyCreative = resumeTemplateTargetKey({ id: "legacy-creative-listing" });
   storage.setItem(resumeTemplateStorageKey("user-a", legacyCreative), JSON.stringify({ version: 1, templateId: "creative-design" }));
   assert.equal(loadResumeTemplateSelection("user-a", legacyCreative, storage), TEMPLATE_IDS.CREATIVE_DESIGN);
+});
+
+test("visual design and content strategy persist independently and legacy choices migrate deterministically", () => {
+  const storage = memoryStorage();
+  const target = resumeTemplateTargetKey({ id: "presentation-v2" });
+  assert.equal(saveResumePresentationSelection("user-a", target, {
+    strategyId: TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
+    designId: TEMPLATE_IDS.BOLD_IMPACT,
+  }, storage), true);
+  assert.deepEqual(loadResumePresentationSelection("user-a", target, storage), {
+    strategyId: TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
+    designId: TEMPLATE_IDS.BOLD_IMPACT,
+  });
+  assert.equal(loadResumePresentationSelection("user-b", target, storage), null);
+
+  const legacyRoleTarget = resumeTemplateTargetKey({ id: "legacy-role" });
+  storage.setItem(resumeTemplateStorageKey("user-a", legacyRoleTarget), JSON.stringify({ version: 1, templateId: TEMPLATE_IDS.CREATIVE_DESIGN }));
+  assert.deepEqual(loadResumePresentationSelection("user-a", legacyRoleTarget, storage), {
+    strategyId: TEMPLATE_IDS.CREATIVE_DESIGN,
+    designId: TEMPLATE_IDS.STUDIO_EDITORIAL,
+  });
+
+  const legacyDesignTarget = resumeTemplateTargetKey({ id: "legacy-design" });
+  storage.setItem(resumeTemplateStorageKey("user-a", legacyDesignTarget), JSON.stringify({ version: 1, templateId: TEMPLATE_IDS.COMPACT_FOCUS }));
+  assert.deepEqual(loadResumePresentationSelection("user-a", legacyDesignTarget, storage), {
+    strategyId: TEMPLATE_IDS.ATS_CORE,
+    designId: TEMPLATE_IDS.COMPACT_FOCUS,
+  });
 });

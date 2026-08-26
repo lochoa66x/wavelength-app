@@ -38,11 +38,13 @@ const templateIds = [
   TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
   TEMPLATE_IDS.MARKETING_COMMUNICATIONS,
   TEMPLATE_IDS.CREATIVE_DESIGN,
+  TEMPLATE_IDS.ESSENTIAL_ATS,
   TEMPLATE_IDS.CLASSIC_LEDGER,
   TEMPLATE_IDS.MODERN_SIGNAL,
   TEMPLATE_IDS.COMPACT_FOCUS,
   TEMPLATE_IDS.BOLD_IMPACT,
   TEMPLATE_IDS.STUDIO_EDITORIAL,
+  TEMPLATE_IDS.FIELD_READY,
 ];
 
 const resume = {
@@ -235,7 +237,7 @@ try {
   const outputs = [];
   for (const context of finalContexts) {
     const [docx, pdf] = await Promise.all([createResumeDocxBlob(context), createResumePdfBytes(context)]);
-    outputs.push({ prefix: context.renderPlan.templateId, context, docx, pdf });
+    outputs.push({ prefix: `${context.renderPlan.strategyId}--${context.renderPlan.designId}`, context, docx, pdf });
   }
   const [apprenticeDocx, apprenticePdf] = await Promise.all([createResumeDocxBlob(apprenticeContext), createResumePdfBytes(apprenticeContext)]);
   outputs.push({ prefix: "apprentice-skilled-trades-field-services-v1", context: apprenticeContext, docx: apprenticeDocx, pdf: apprenticePdf });
@@ -273,7 +275,7 @@ try {
       TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
       TEMPLATE_IDS.MARKETING_COMMUNICATIONS,
       TEMPLATE_IDS.CREATIVE_DESIGN,
-    ].includes(output.context.renderPlan.templateId)
+    ].includes(output.context.renderPlan.strategyId)
       && ![
         "apprentice-skilled-trades-field-services-v1",
         "marketing-transition-marketing-communications-v1",

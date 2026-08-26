@@ -143,7 +143,8 @@ function assessmentSnapshot(atsReview = {}) {
 
 function renderBindingHash(renderPlan) {
   return stableHash({
-    templateId: renderPlan?.templateId,
+    strategyId: renderPlan?.strategyId,
+    designId: renderPlan?.designId,
     preliminary: renderPlan?.preliminary,
     manifest: createResumeContentManifest(renderPlan),
   }, "render");
@@ -164,11 +165,26 @@ function authorizationBindings(resumePackage, assessment, renderPlan) {
   };
 }
 
-export function createResumeExportContext(resumeData, atsReview, { item = {}, templateId } = {}) {
-  const resumePackage = createResumePackage(resumeData, { item, atsReview, selectedTemplateId: templateId });
+export function createResumeExportContext(resumeData, atsReview, {
+  item = {},
+  templateId,
+  strategyId,
+  designId,
+} = {}) {
+  const resumePackage = createResumePackage(resumeData, {
+    item,
+    atsReview,
+    selectedTemplateId: templateId,
+    selectedStrategyId: strategyId,
+    selectedDesignId: designId,
+  });
   const readiness = getResumeExportReadiness(resumePackage, atsReview);
   const assessment = assessmentSnapshot(atsReview);
-  const renderPlan = buildResumeRenderPlan(resumePackage, templateId, { preliminary: readiness.preliminary });
+  const renderPlan = buildResumeRenderPlan(
+    resumePackage,
+    { strategyId: resumePackage.presentation.selectedStrategyId, designId: resumePackage.presentation.selectedDesignId },
+    { preliminary: readiness.preliminary },
+  );
   const createdAt = Date.now();
   const authorization = {
     ...authorizationBindings(resumePackage, assessment, renderPlan),
@@ -203,7 +219,11 @@ export function validateResumeExportContext(context, now = Date.now()) {
   }
   if (!readiness.canExport) throw new Error("Candidate name is required before export.");
   if (renderPlan?.contentHash !== resumePackage.contentHash) throw new Error("The résumé render plan does not match the authorized content.");
-  const expectedRenderPlan = buildResumeRenderPlan(resumePackage, renderPlan.templateId, { preliminary: readiness.preliminary });
+  const expectedRenderPlan = buildResumeRenderPlan(
+    resumePackage,
+    { strategyId: renderPlan.strategyId, designId: renderPlan.designId },
+    { preliminary: readiness.preliminary },
+  );
   if (renderBindingHash(renderPlan) !== expectedRenderPlan.renderPlanHash) {
     throw new Error("The résumé render plan is stale or does not match the authorized document.");
   }

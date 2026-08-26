@@ -15,6 +15,30 @@ export const TEMPLATE_IDS = Object.freeze({
   COMPACT_FOCUS: "compact-focus-v1",
   BOLD_IMPACT: "bold-impact-v1",
   STUDIO_EDITORIAL: "studio-editorial-v1",
+  ESSENTIAL_ATS: "essential-ats-v1",
+  FIELD_READY: "field-ready-v1",
+});
+
+export const STRATEGY_IDS = Object.freeze({
+  ATS_CORE: TEMPLATE_IDS.ATS_CORE,
+  SAP_FUNCTIONAL: TEMPLATE_IDS.SAP_FUNCTIONAL,
+  PROJECT_LEADERSHIP: TEMPLATE_IDS.PROJECT_LEADERSHIP,
+  CAREER_TRANSITION: TEMPLATE_IDS.CAREER_TRANSITION,
+  TECHNICAL_SOFTWARE: TEMPLATE_IDS.TECHNICAL_SOFTWARE,
+  ADMIN_CUSTOMER_OPERATIONS: TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS,
+  SKILLED_TRADES_FIELD_SERVICES: TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
+  MARKETING_COMMUNICATIONS: TEMPLATE_IDS.MARKETING_COMMUNICATIONS,
+  CREATIVE_DESIGN: TEMPLATE_IDS.CREATIVE_DESIGN,
+});
+
+export const DESIGN_IDS = Object.freeze({
+  ESSENTIAL_ATS: TEMPLATE_IDS.ESSENTIAL_ATS,
+  CLASSIC_LEDGER: TEMPLATE_IDS.CLASSIC_LEDGER,
+  MODERN_SIGNAL: TEMPLATE_IDS.MODERN_SIGNAL,
+  COMPACT_FOCUS: TEMPLATE_IDS.COMPACT_FOCUS,
+  BOLD_IMPACT: TEMPLATE_IDS.BOLD_IMPACT,
+  STUDIO_EDITORIAL: TEMPLATE_IDS.STUDIO_EDITORIAL,
+  FIELD_READY: TEMPLATE_IDS.FIELD_READY,
 });
 
 const LEGACY_TRADES_TEMPLATE_ID = "trades-legacy-v1";
@@ -54,6 +78,10 @@ const TEMPLATE_ALIASES = Object.freeze({
   bold: TEMPLATE_IDS.BOLD_IMPACT,
   "studio-editorial": TEMPLATE_IDS.STUDIO_EDITORIAL,
   editorial: TEMPLATE_IDS.STUDIO_EDITORIAL,
+  "essential-ats": TEMPLATE_IDS.ESSENTIAL_ATS,
+  essential: TEMPLATE_IDS.ESSENTIAL_ATS,
+  "field-ready": TEMPLATE_IDS.FIELD_READY,
+  field: TEMPLATE_IDS.FIELD_READY,
 });
 
 const BASE_SECTIONS = Object.freeze([
@@ -253,6 +281,30 @@ export const RESUME_TEMPLATE_REGISTRY = Object.freeze({
     recommendationMetadata: { occupationFamily: "creative-design", adjacentFitAllowed: true },
     sectionOrder: ["summary", "skills", "experience", "projects", "education", "certifications", "training", "languages", "safety"],
   }),
+  [TEMPLATE_IDS.ESSENTIAL_ATS]: templateDefinition({
+    id: TEMPLATE_IDS.ESSENTIAL_ATS,
+    displayName: "Essential ATS",
+    description: "A disciplined, familiar résumé design with restrained hierarchy and maximum parser confidence.",
+    intendedUse: "Online applications, conservative employers, regulated work, and any portal where clarity comes first",
+    accent: "#1f4f63",
+    accentSoft: "#edf4f7",
+    group: "design-style",
+    tone: "Essential",
+    contentProfile: "adaptive",
+    visualTokens: {
+      headerAlignment: "center",
+      headerTreatment: "rule",
+      sectionTreatment: "underline",
+      sectionTextTransform: "uppercase",
+      sectionLetterSpacingEm: 0.04,
+      bodyFontSizePt: 10,
+      bodyLineHeight: 1.35,
+      nameFontSizePt: 18,
+      headlineFontSizePt: 11,
+      sectionFontSizePt: 10.5,
+    },
+    sectionOrder: ["summary", "skills", "experience", "projects", "certifications", "training", "education", "languages", "safety"],
+  }),
   [TEMPLATE_IDS.CLASSIC_LEDGER]: templateDefinition({
     id: TEMPLATE_IDS.CLASSIC_LEDGER,
     displayName: "Classic Ledger",
@@ -389,16 +441,96 @@ export const RESUME_TEMPLATE_REGISTRY = Object.freeze({
     },
     sectionOrder: ["summary", "skills", "experience", "projects", "education", "certifications", "training", "languages", "safety"],
   }),
+  [TEMPLATE_IDS.FIELD_READY]: templateDefinition({
+    id: TEMPLATE_IDS.FIELD_READY,
+    displayName: "Field Ready",
+    description: "A sturdy, space-efficient design with practical hierarchy for hands-on and mobile work.",
+    intendedUse: "Trades, maintenance, construction, logistics, healthcare support, field service, and operational roles",
+    accent: "#365314",
+    accentSoft: "#f1f7e8",
+    group: "design-style",
+    tone: "Practical",
+    contentProfile: "adaptive",
+    visualTokens: {
+      marginTopIn: 0.56,
+      marginRightIn: 0.62,
+      marginBottomIn: 0.56,
+      marginLeftIn: 0.62,
+      headerAlignment: "left",
+      headerTreatment: "accent-edge",
+      sectionTreatment: "compact-rule",
+      sectionTextTransform: "uppercase",
+      sectionLetterSpacingEm: 0.035,
+      bodyFontSizePt: 9.75,
+      bodyLineHeight: 1.3,
+      nameFontSizePt: 18.5,
+      headlineFontSizePt: 10.6,
+      sectionFontSizePt: 10,
+    },
+    sectionOrder: ["summary", "skills", "experience", "projects", "certifications", "training", "education", "languages", "safety"],
+  }),
 });
 
 export function availableResumeTemplates() {
   return Object.values(RESUME_TEMPLATE_REGISTRY).filter((template) => template.visible);
 }
 
+export const RESUME_STRATEGY_REGISTRY = Object.freeze(Object.fromEntries(
+  Object.values(RESUME_TEMPLATE_REGISTRY)
+    .filter((template) => template.group === "role-aware")
+    .map((template) => [template.id, template]),
+));
+
+export const RESUME_DESIGN_REGISTRY = Object.freeze(Object.fromEntries(
+  Object.values(RESUME_TEMPLATE_REGISTRY)
+    .filter((template) => template.group === "design-style")
+    .map((template) => [template.id, template]),
+));
+
+export function availableResumeStrategies() {
+  return Object.values(RESUME_STRATEGY_REGISTRY).filter((strategy) => strategy.visible);
+}
+
+export function availableResumeDesigns() {
+  return Object.values(RESUME_DESIGN_REGISTRY).filter((design) => design.visible);
+}
+
 export function resolveTemplateId(value, fallback = TEMPLATE_IDS.ATS_CORE) {
   const requested = cleanScalar(value).toLowerCase();
   const resolved = TEMPLATE_ALIASES[requested] || requested;
   return RESUME_TEMPLATE_REGISTRY[resolved] ? resolved : fallback;
+}
+
+export function resolveStrategyId(value, fallback = STRATEGY_IDS.ATS_CORE) {
+  const resolved = resolveTemplateId(value, "");
+  return RESUME_STRATEGY_REGISTRY[resolved] ? resolved : fallback;
+}
+
+export function resolveDesignId(value, fallback = DESIGN_IDS.ESSENTIAL_ATS) {
+  const resolved = resolveTemplateId(value, "");
+  return RESUME_DESIGN_REGISTRY[resolved] ? resolved : fallback;
+}
+
+export function recommendedResumeDesignId(strategyId) {
+  const strategy = resolveStrategyId(strategyId);
+  if (strategy === STRATEGY_IDS.CAREER_TRANSITION) return DESIGN_IDS.CLASSIC_LEDGER;
+  if (strategy === STRATEGY_IDS.PROJECT_LEADERSHIP) return DESIGN_IDS.BOLD_IMPACT;
+  if (strategy === STRATEGY_IDS.TECHNICAL_SOFTWARE) return DESIGN_IDS.MODERN_SIGNAL;
+  if (strategy === STRATEGY_IDS.SKILLED_TRADES_FIELD_SERVICES) return DESIGN_IDS.FIELD_READY;
+  if (strategy === STRATEGY_IDS.MARKETING_COMMUNICATIONS) return DESIGN_IDS.MODERN_SIGNAL;
+  if (strategy === STRATEGY_IDS.CREATIVE_DESIGN) return DESIGN_IDS.STUDIO_EDITORIAL;
+  return DESIGN_IDS.ESSENTIAL_ATS;
+}
+
+export function presentationSelectionFromLegacy(value, fallbackStrategyId = STRATEGY_IDS.ATS_CORE) {
+  const resolved = resolveTemplateId(value, "");
+  const strategyId = RESUME_STRATEGY_REGISTRY[resolved]
+    ? resolved
+    : resolveStrategyId(fallbackStrategyId);
+  const designId = RESUME_DESIGN_REGISTRY[resolved]
+    ? resolved
+    : recommendedResumeDesignId(strategyId);
+  return Object.freeze({ strategyId, designId });
 }
 
 export function cleanScalar(value, maxLength = 12_000) {
@@ -1211,14 +1343,54 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
   };
 }
 
-export function createResumePackage(resumeData = {}, { item = {}, atsReview = {}, selectedTemplateId } = {}) {
+export function createResumePackage(resumeData = {}, {
+  item = {},
+  atsReview = {},
+  selectedTemplateId,
+  selectedStrategyId,
+  selectedDesignId,
+} = {}) {
   if (resumeData?.kind === "resume-package" && resumeData.schemaVersion !== RESUME_SCHEMA_VERSION) {
     throw new Error(`Unsupported ResumePackage schema version: ${cleanScalar(resumeData.schemaVersion) || "missing"}.`);
   }
   if (resumeData?.kind === "resume-package") {
-    if (!selectedTemplateId) return resumeData;
-    const resolved = resolveTemplateId(selectedTemplateId, resumeData.presentation.recommendedTemplateId);
-    return { ...resumeData, presentation: { ...resumeData.presentation, selectedTemplateId: resolved, pageTarget: RESUME_TEMPLATE_REGISTRY[resolved].pageTarget } };
+    const presentation = resumeData.presentation || {};
+    const recommendedStrategyId = resolveStrategyId(presentation.recommendedStrategyId || presentation.recommendedTemplateId);
+    const legacySelection = presentationSelectionFromLegacy(selectedTemplateId || presentation.selectedTemplateId, recommendedStrategyId);
+    const strategyId = resolveStrategyId(
+      selectedStrategyId || (selectedTemplateId ? legacySelection.strategyId : presentation.selectedStrategyId) || legacySelection.strategyId,
+      recommendedStrategyId,
+    );
+    const recommendedDesignId = resolveDesignId(
+      presentation.recommendedDesignId,
+      recommendedResumeDesignId(recommendedStrategyId),
+    );
+    const designId = resolveDesignId(
+      selectedDesignId || (selectedTemplateId ? legacySelection.designId : presentation.selectedDesignId) || legacySelection.designId,
+      recommendedDesignId,
+    );
+    if (
+      !selectedTemplateId
+      && !selectedStrategyId
+      && !selectedDesignId
+      && presentation.version === 2
+      && presentation.selectedStrategyId === strategyId
+      && presentation.selectedDesignId === designId
+    ) return resumeData;
+    return {
+      ...resumeData,
+      presentation: {
+        ...presentation,
+        recommendedStrategyId,
+        selectedStrategyId: strategyId,
+        recommendedDesignId,
+        selectedDesignId: designId,
+        recommendedTemplateId: recommendedStrategyId,
+        selectedTemplateId: strategyId,
+        pageTarget: RESUME_DESIGN_REGISTRY[designId].pageTarget,
+        version: 2,
+      },
+    };
   }
   const source = resumeData && typeof resumeData === "object" && !Array.isArray(resumeData) ? resumeData : {};
   const warnings = [];
@@ -1250,8 +1422,18 @@ export function createResumePackage(resumeData = {}, { item = {}, atsReview = {}
   };
   const classification = classifyResumePackageInput(document, source, atsReview, item);
   const recommendedTemplateId = classification.recommendedTemplateId;
+  const recommendedStrategyId = resolveStrategyId(recommendedTemplateId);
   const requestedTemplateId = selectedTemplateId ?? source.presentation?.selectedTemplateId ?? source.presentation?.selected_template;
-  const selected = resolveTemplateId(requestedTemplateId, recommendedTemplateId);
+  const legacySelection = presentationSelectionFromLegacy(requestedTemplateId, recommendedStrategyId);
+  const selectedStrategy = resolveStrategyId(
+    selectedStrategyId ?? source.presentation?.selectedStrategyId ?? source.presentation?.selected_strategy ?? legacySelection.strategyId,
+    recommendedStrategyId,
+  );
+  const recommendedDesignId = recommendedResumeDesignId(recommendedStrategyId);
+  const selectedDesign = resolveDesignId(
+    selectedDesignId ?? source.presentation?.selectedDesignId ?? source.presentation?.selected_design ?? legacySelection.designId,
+    recommendedDesignId,
+  );
   const errors = [];
   if (!document.candidate.fullName || PLACEHOLDER_IDENTITY.test(document.candidate.fullName)) {
     errors.push({ path: "candidate.fullName", code: "missing_identity", message: "Candidate name is required before final export." });
@@ -1271,14 +1453,18 @@ export function createResumePackage(resumeData = {}, { item = {}, atsReview = {}
     classification,
     presentation: {
       recommendedTemplateId,
-      selectedTemplateId: selected,
+      selectedTemplateId: selectedStrategy,
+      recommendedStrategyId,
+      selectedStrategyId: selectedStrategy,
+      recommendedDesignId,
+      selectedDesignId: selectedDesign,
       recommendationReason: classification.recommendationReason,
       recommendationReasonCode: classification.recommendationReasonCode,
       recommendationStrength: classification.recommendationStrength,
       recommendationDisposition: classification.recommendationDisposition,
-      pageTarget: RESUME_TEMPLATE_REGISTRY[selected].pageTarget,
+      pageTarget: RESUME_DESIGN_REGISTRY[selectedDesign].pageTarget,
       locale: cleanScalar(source.presentation?.locale ?? globalThis.navigator?.language, 40) || "en-CA",
-      version: 1,
+      version: 2,
     },
     validation: { valid: errors.length === 0, errors, warnings },
     contentHash,
@@ -1449,15 +1635,40 @@ function contactLine(candidate) {
   return [candidate.email, candidate.phone, location, ...candidate.professionalLinks.map((link) => link.url)].filter(Boolean).join(" | ");
 }
 
-export function buildResumeRenderPlan(resumePackage, templateId, { preliminary = false } = {}) {
+export function buildResumeRenderPlan(resumePackage, selection, {
+  preliminary = false,
+  strategyId: requestedStrategyId,
+  designId: requestedDesignId,
+} = {}) {
   const pkg = createResumePackage(resumePackage);
-  const resolvedTemplateId = resolveTemplateId(templateId ?? pkg.presentation.selectedTemplateId, pkg.presentation.recommendedTemplateId);
-  const template = RESUME_TEMPLATE_REGISTRY[resolvedTemplateId];
-  const contentTemplateId = template.contentProfile === "adaptive"
-    ? adaptiveContentTemplateId(pkg.classification)
-    : resolvedTemplateId;
+  const objectSelection = selection && typeof selection === "object" && !Array.isArray(selection) ? selection : {};
+  const legacyTemplateId = typeof selection === "string" ? resolveTemplateId(selection, "") : "";
+  const legacySelection = presentationSelectionFromLegacy(
+    legacyTemplateId || pkg.presentation.selectedTemplateId,
+    pkg.presentation.recommendedStrategyId || pkg.presentation.recommendedTemplateId,
+  );
+  const strategyId = resolveStrategyId(
+    objectSelection.strategyId
+      || requestedStrategyId
+      || (RESUME_STRATEGY_REGISTRY[legacyTemplateId] ? legacyTemplateId : "")
+      || pkg.presentation.selectedStrategyId
+      || legacySelection.strategyId,
+    pkg.presentation.recommendedStrategyId || pkg.presentation.recommendedTemplateId,
+  );
+  const designId = resolveDesignId(
+    objectSelection.designId
+      || requestedDesignId
+      || (RESUME_DESIGN_REGISTRY[legacyTemplateId] ? legacyTemplateId : "")
+      || pkg.presentation.selectedDesignId
+      || legacySelection.designId,
+    pkg.presentation.recommendedDesignId || recommendedResumeDesignId(strategyId),
+  );
+  const strategy = RESUME_STRATEGY_REGISTRY[strategyId];
+  const design = RESUME_DESIGN_REGISTRY[designId];
+  const resolvedTemplateId = legacyTemplateId || designId;
+  const contentTemplateId = strategyId;
   const contentPlan = buildResumeContentPlan(pkg);
-  const sectionOrder = sectionOrderForTemplate(template, pkg.classification);
+  const sectionOrder = sectionOrderForTemplate(strategy, pkg.classification);
   const order = new Map(sectionOrder.map((id, index) => [id, index]));
   const sections = [...contentPlan.sections]
     .sort((left, right) => (order.get(left.id) ?? 10_000) - (order.get(right.id) ?? 10_000))
@@ -1466,10 +1677,14 @@ export function buildResumeRenderPlan(resumePackage, templateId, { preliminary =
     kind: "resume-render-plan",
     schemaVersion: pkg.schemaVersion,
     templateId: resolvedTemplateId,
-    templateName: template.displayName,
+    templateName: design.displayName,
+    strategyId,
+    strategyName: strategy.displayName,
+    designId,
+    designName: design.displayName,
     contentTemplateId,
-    atsSafetyLevel: template.atsSafetyLevel,
-    templateGroup: template.group,
+    atsSafetyLevel: design.atsSafetyLevel,
+    templateGroup: design.group,
     contentHash: pkg.contentHash,
     preliminary,
     // Preliminary state belongs to the surrounding product UI and filename,
@@ -1481,11 +1696,11 @@ export function buildResumeRenderPlan(resumePackage, templateId, { preliminary =
       contactLine: contactLine(pkg.document.candidate),
     },
     sections,
-    visualTokens: template.visualTokens,
-    pageTarget: template.pageTarget,
+    visualTokens: design.visualTokens,
+    pageTarget: design.pageTarget,
   };
   plan.manifest = createResumeContentManifest(plan);
-  plan.renderPlanHash = `render-${hashText({ templateId: resolvedTemplateId, preliminary, manifest: plan.manifest })}`;
+  plan.renderPlanHash = `render-${hashText({ strategyId, designId, preliminary, manifest: plan.manifest })}`;
   return deepFreeze(plan);
 }
 
@@ -1513,8 +1728,6 @@ function manifestItem(sectionType, item) {
 export function createResumeContentManifest(renderPlan) {
   return {
     schemaVersion: renderPlan.schemaVersion,
-    templateId: renderPlan.templateId,
-    preliminary: renderPlan.preliminary,
     header: { ...renderPlan.header },
     sections: renderPlan.sections.map((section) => ({
       id: section.id,

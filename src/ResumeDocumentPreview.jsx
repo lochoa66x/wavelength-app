@@ -113,9 +113,11 @@ export const ResumeDocumentPreview = forwardRef(function ResumeDocumentPreview({
   return (
     <article
       ref={ref}
-      data-resume-preview={renderPlan.templateId}
+      data-resume-preview={renderPlan.designId}
+      data-resume-strategy={renderPlan.strategyId}
+      data-resume-design={renderPlan.designId}
       data-resume-content-hash={renderPlan.contentHash}
-      aria-label={`${renderPlan.templateName} résumé preview`}
+      aria-label={`${renderPlan.designName} design résumé preview using the ${renderPlan.strategyName} content strategy`}
       style={{
         width: "100%",
         maxWidth: `${tokens.pageWidthIn}in`,

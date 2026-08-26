@@ -37,7 +37,7 @@ Only those three existing, allowlisted action strings may enter React Router his
 
 - `LandingPage.jsx` owns page composition, two-path explanation, process/evidence copy, discovery/control copy, final CTA, and footer.
 - `LandingHeader.jsx` owns session-aware navigation and the modal mobile menu. It traps focus, supports Escape, restores focus, and prevents background scrolling while open.
-- `LandingTemplates.jsx` reads `availableResumeTemplates()` from the canonical résumé model and owns only a generic, local preview selection. It never reads a candidate résumé or triggers AI.
+- `LandingTemplates.jsx` reads `availableResumeDesigns()` from the canonical résumé model and owns only a generic, local visual-design preview. It never reads a candidate résumé or triggers AI.
 - `LandingFaq.jsx` renders the ten trust/product answers with native `details` and `summary` controls.
 - `landing.css` contains the isolated visual system, responsive behavior, focus treatment, and reduced-motion fallback.
 
@@ -49,7 +49,7 @@ The page uses generic product examples only. No candidate fixture, employer hist
 
 ## Template and export boundary
 
-The landing template list has no hard-coded IDs. Canonical display metadata, page targets, descriptions, section order, ATS-safety label, and visual tokens come from the 14-choice registry: nine occupation-aware structures and five universal visual styles. The landing preview changes presentation state only.
+The landing gallery has no hard-coded IDs. Canonical display metadata, descriptions, ATS-safety labels, and visual tokens come from the seven-entry design registry. It explicitly explains that evidence-aware content strategy is separate from visual design. The gallery uses generic sample content and changes local presentation state only.
 
 DOCX/PDF modules remain dynamic imports of the lazy app chunk. The landing chunk graph does not reference `resumeDocx`, `resumePdf`, `docx`, `jspdf`, or the export verifier. P2.2 does not change `ResumePackage`, render plans, manifests, posting verification, identity validation, preliminary labels, or final export authorization.
 

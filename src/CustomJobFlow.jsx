@@ -393,7 +393,7 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
             <>
               <p role="alert" style={{ color: C.red, fontSize: 13, margin: "12px 0 0" }}>{error}</p>
               {mode === "url" && (
-                <div aria-label="Alternative posting inputs" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
+                <div role="group" aria-label="Alternative posting inputs" style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
                   <button type="button" onClick={() => resetSourceState("paste")} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, padding: "8px 11px" }}>
                     <Text size={14} /> Paste posting
                   </button>

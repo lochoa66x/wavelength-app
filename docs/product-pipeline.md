@@ -192,7 +192,7 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 - `/` is the public marketing surface and `/app` remains the anonymously browseable workspace. Existing sign-in, callback, deep-link fallback, and account-gate behavior is preserved.
 - The two primary paths are **Browse jobs & gigs** and **Tailor a posting I found**. URL, screenshot, and pasted-text intake reuse the existing allowlisted account actions through React Router history state; no sensitive posting or résumé content is placed in a URL.
 - The page explains evidence-first tailoring, verified/missing evidence boundaries, preliminary versus application-ready output, selectable DOCX/PDF exports, Canada-first discovery, source variability, and private-work controls without fabricated outcomes or counts.
-- All 14 choices come from the canonical résumé registry. Switching the generic sample preview is local, immediate, and network-free.
+- The landing gallery exposes the seven canonical visual designs with realistic generic document thumbnails. Switching the sample preview is local, immediate, and network-free; content strategy is explained separately and remains evidence-driven.
 - Landing and workspace UI are separate lazy route chunks. DOCX, PDF, `docx`, and `jspdf` remain reachable only from the workspace/export path.
 - SEO includes truthful title/description, canonical URL, robots metadata, Open Graph/Twitter metadata, a lightweight 1200×630 brand asset, favicon, and basic `WebSite` JSON-LD.
 - Accessibility includes semantic landmarks and headings, one H1, visible focus, approximately 44-pixel primary touch targets, reduced-motion CSS, modal mobile navigation with a focus loop/Escape/restoration, descriptive controls, and AA key-color contrast.
@@ -266,6 +266,18 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 - Local release evidence: 409/409 tests passed. Export verification passed for 36 files, 14 templates, 23 direct-PDF pages, 667 selectable PDF text items, manifest parity, final gating, and stale-ready rejection. The sourcemapped build transformed 1,987 modules and kept DOCX/PDF/jsPDF in lazy chunks. Signed-out browser smoke returned 57 SAP matches, showed a useful zero-result recovery, enforced the private tailoring gate, and passed 390×844 and 320×700 mobile layout checks with no horizontal overflow; the 390 px hero measured 145 px high and the automated WCAG A/AA scan reported no violation.
 - Dependency baseline: 0 critical, 1 high Vite, and 1 moderate esbuild advisory. Both affect the existing development toolchain; npm's offered remediation is a Vite 8 major upgrade and is intentionally separated from this trust release.
 
+### P3.4 Visual résumé gallery and strategy/design separation
+
+**Status:** Implemented, locally verified, and release-authorized on 2026-08-26. The feature SHA is the commit containing this record; GitHub/Vercel binding and production smoke belong to the release handoff.
+
+- Nine evidence-aware content strategies and seven independently selectable visual designs now have separate canonical IDs. Strategy controls evidence emphasis, headings, section order, and content focus; design controls typography, spacing, rules, accents, and header treatment.
+- Legacy version-1 template selections migrate deterministically into a strategy/design pair without crossing the existing account-and-target storage boundary. Old role-template values retain their strategy; old visual-template values retain their design.
+- The private selector recommends and explains the content strategy, then lets the user choose among seven real document-style previews. The public gallery presents those seven designs as visual choices instead of implying that occupation strategies are decorative skins.
+- Browser preview, DOCX, direct PDF, export authorization, persistence, and render hashes all consume the same strategy/design pair. Design-only switching preserves canonical facts, evidence IDs, content manifests, requirement coverage, and readiness authorization.
+- Local release evidence: 415/415 tests passed. Export verification produced 40 files for 16 strategy/design combinations, reported 25 native-PDF verification pages and 715 selectable PDF text items, and passed manifest/final/stale-readiness gates. The 19 persistent native exports and 19 DOCX exports each rasterized to 24 pages; all 48 pages passed visual inspection. Structural extraction found exact per-file pagination parity and no object, undefined/null, or résumé-embedded warning artifacts. The sourcemapped production build transformed 1,987 modules and preserved lazy DOCX/PDF/jsPDF chunks.
+- Signed-out browser QA passed the complete landing gallery on desktop and at 390×844 with no horizontal overflow, selectable design previews, Escape/focus restoration in mobile navigation, no page errors, and 57 relevant SAP matches from 63 deduplicated candidates in `/app`.
+- Production dependencies have zero known vulnerabilities. The existing Vite/esbuild development-only advisories require a Vite 8 major upgrade and remain a separately scoped maintenance item.
+
 ## Recommended execution order
 
 1. P0.1 posting enrichment and provenance
@@ -281,7 +293,8 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 11. P3.2 Phase A redacted evaluation gate — implemented and locally verified
 12. P3.2 Phase B1 opt-in aggregate signals and structured feedback — migration applied and anonymous denial verified; service-role/RLS evidence and release remain
 13. P3.3 trust, explainability, and application-risk calibration — implemented, locally verified, and release-authorized
-14. P3.1 native mobile after the web contracts and privacy boundary remain stable
+14. P3.4 visual résumé gallery and strategy/design separation — implemented, locally verified, and release-authorized
+15. P3.1 native mobile after the web contracts and privacy boundary remain stable
 
 ## Source constraints behind P0.1
 

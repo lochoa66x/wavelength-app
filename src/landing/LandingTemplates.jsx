@@ -1,25 +1,14 @@
 import { useState } from "react";
-import { Check, LayoutTemplate } from "lucide-react";
+import { Check, LayoutTemplate, ShieldCheck } from "lucide-react";
 
-import { availableResumeTemplates } from "../resumeModel.js";
+import { ResumeDesignThumbnail } from "../ResumeDesignSelector.jsx";
+import { availableResumeDesigns } from "../resumeModel.js";
 
-const SECTION_LABELS = Object.freeze({
-  summary: "Targeted summary",
-  skills: "Verified capabilities",
-  experience: "Relevant experience",
-  projects: "Selected projects",
-  certifications: "Credentials",
-  safety: "Safety training",
-  training: "Training",
-  education: "Education",
-  languages: "Languages",
-});
-
-const TEMPLATES = availableResumeTemplates();
+const DESIGNS = availableResumeDesigns();
 
 export function LandingTemplates() {
-  const [selectedId, setSelectedId] = useState(TEMPLATES[0]?.id || "");
-  const selected = TEMPLATES.find(({ id }) => id === selectedId) || TEMPLATES[0];
+  const [selectedId, setSelectedId] = useState(DESIGNS[0]?.id || "");
+  const selected = DESIGNS.find(({ id }) => id === selectedId) || DESIGNS[0];
 
   if (!selected) return null;
 
@@ -27,59 +16,66 @@ export function LandingTemplates() {
     <section id="resume-templates" className="landing-section landing-section--templates" aria-labelledby="templates-title">
       <div className="landing-section-heading landing-section-heading--split">
         <div>
-          <p className="landing-eyebrow"><LayoutTemplate size={16} aria-hidden="true" /> Job-aware résumé templates</p>
-          <h2 id="templates-title">Structure follows the evidence—not a decorative skin.</h2>
+          <p className="landing-eyebrow"><LayoutTemplate size={16} aria-hidden="true" /> Seven visual résumé designs</p>
+          <h2 id="templates-title">Choose the look. Keep the evidence strategy intact.</h2>
         </div>
-        <p>
-          Every family keeps the same verified facts. The hierarchy, section order, evidence emphasis, and page profile adapt to the work.
-        </p>
+        <div>
+          <p>
+            Gigscapes first recommends a content strategy from verified evidence—then lets you choose a genuinely different visual design.
+          </p>
+          <p className="landing-template-strategy-note"><ShieldCheck size={16} aria-hidden="true" /> Design changes never rewrite facts, change requirement coverage, or bypass export readiness.</p>
+        </div>
       </div>
 
       <div className="landing-template-layout">
-        <ul className="landing-template-grid" aria-label="Available ATS-readable résumé template families">
-          {TEMPLATES.map((template) => {
-            const isSelected = template.id === selected.id;
+        <ul className="landing-template-grid" aria-label="Available visual résumé designs">
+          {DESIGNS.map((design) => {
+            const isSelected = design.id === selected.id;
             return (
-              <li key={template.id}>
+              <li key={design.id}>
                 <button
                   type="button"
                   className="landing-template-card"
+                  aria-label={`${design.displayName}. ${design.intendedUse}`}
                   aria-pressed={isSelected}
-                  onClick={() => setSelectedId(template.id)}
-                  style={{ "--template-accent": template.visualTokens.accent }}
+                  onClick={() => setSelectedId(design.id)}
+                  style={{ "--template-accent": design.visualTokens.accent }}
                 >
-                  <span className="landing-template-card-title">
-                    {template.displayName}
-                    {isSelected ? <Check size={16} aria-hidden="true" /> : null}
+                  <ResumeDesignThumbnail design={design} selected={isSelected} compact />
+                  <span className="landing-template-card-copy">
+                    <span className="landing-template-card-title">
+                      {design.displayName}
+                      {isSelected ? <Check size={16} aria-hidden="true" /> : null}
+                    </span>
+                    <span>{design.tone} · {design.atsSafetyLevel === "high" ? "Application-safe" : "Networking-forward"}</span>
                   </span>
-                  <span>{template.intendedUse}</span>
                 </button>
               </li>
             );
           })}
         </ul>
 
-        <div className="landing-template-preview" aria-live="polite" aria-label={`${selected.displayName} example`}>
+        <div className="landing-template-preview" role="region" aria-live="polite" aria-label={`${selected.displayName} design example`}>
           <div className="landing-template-preview-topline">
-            <span>Sample structure</span>
-            <span>ATS-readable · {selected.pageTarget}-page target</span>
+            <span>Visual design preview</span>
+            <span>Searchable · selectable · single column</span>
           </div>
-          <div className="landing-template-preview-name">Sample candidate</div>
-          <div className="landing-template-preview-role">Role-specific positioning</div>
+          <div className="landing-template-preview-document">
+            <ResumeDesignThumbnail design={selected} selected />
+          </div>
+          <div className="landing-template-preview-name">{selected.displayName}</div>
+          <div className="landing-template-preview-role">{selected.tone} visual system</div>
           <p>{selected.description}</p>
-          <div className="landing-template-preview-sections">
-            {selected.sectionOrder.slice(0, 5).map((section, index) => (
-              <div key={section}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <strong>{SECTION_LABELS[section] || section}</strong>
-              </div>
-            ))}
-          </div>
+          <dl className="landing-template-preview-facts">
+            <div><dt>Best for</dt><dd>{selected.intendedUse}</dd></div>
+            <div><dt>Content</dt><dd>Unchanged when you switch designs</dd></div>
+            <div><dt>Exports</dt><dd>Browser preview, DOCX, and PDF share the same design tokens</dd></div>
+          </dl>
           <p className="landing-template-preview-note">
             {selected.atsSafetyLevel === "high"
-              ? "Application-safe: searchable single-column text with restrained presentation."
-              : "Networking-forward: searchable single-column text with a more expressive presentation."}
-            {" "}Switching this example is local and immediate. It does not call AI or change candidate facts.
+              ? "Application-safe: restrained presentation for online portals and direct applications."
+              : "Networking-forward: a more expressive look for direct outreach while preserving ATS-readable text."}
+            {" "}This gallery uses generic sample content and makes no AI request.
           </p>
         </div>
       </div>

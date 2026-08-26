@@ -2,19 +2,19 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-test("template selector is compact, responsive, keyboard-semantic, and network-free", async () => {
-  const source = await readFile(new URL("./ResumeTemplateSelector.jsx", import.meta.url), "utf8");
-  assert.match(source, /Recommended:/);
-  assert.match(source, /Change template/);
+test("design selector separates strategy from visual choice and stays network-free", async () => {
+  const source = await readFile(new URL("./ResumeDesignSelector.jsx", import.meta.url), "utf8");
+  assert.match(source, /Recommended content strategy:/);
+  assert.match(source, /Choose résumé design/);
   assert.match(source, /aria-expanded/);
   assert.match(source, /aria-pressed/);
-  assert.match(source, /Role-aware structures/);
-  assert.match(source, /Universal design styles/);
-  assert.match(source, /aria-label=\{`\$\{group\.label\} résumé templates`\}/);
-  assert.match(source, /<li key=\{template\.id\}/);
+  assert.match(source, /Changing the design below never changes your facts/);
+  assert.match(source, /Available visual résumé designs/);
+  assert.match(source, /ResumeDesignThumbnail/);
+  assert.match(source, /<li key=\{design\.id\}/);
   assert.doesNotMatch(source, /<button[\s\S]{0,160}role="listitem"/);
-  assert.match(source, /repeat\(auto-fit, minmax\(min\(220px, 100%\), 1fr\)\)/);
-  assert.match(source, /minHeight: 40/);
+  assert.match(source, /repeat\(auto-fit, minmax\(min\(250px, 100%\), 1fr\)\)/);
+  assert.match(source, /minHeight: 44/);
   assert.match(source, /Application-safe/);
   assert.match(source, /Networking-forward/);
   assert.match(source, /recommended/);
@@ -26,7 +26,7 @@ test("feed and bring-your-own-job flows share the canonical selector experience"
     readFile(new URL("./ResumeExperience.jsx", import.meta.url), "utf8"),
     readFile(new URL("./CustomJobFlow.jsx", import.meta.url), "utf8"),
   ]);
-  assert.match(experienceSource, /<ResumeTemplateSelector/);
+  assert.match(experienceSource, /<ResumeDesignSelector/);
   assert.match(customFlowSource, /<ResumeExperience/);
   assert.doesNotMatch(customFlowSource, /ResumeTemplateProfessional|ResumeTemplateCareerChange|resumeTemplateKind/);
   assert.match(experienceSource, /<TailoringChangeReview/);

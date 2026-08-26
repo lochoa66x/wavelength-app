@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
-import { availableResumeTemplates } from "../resumeModel.js";
+import { availableResumeDesigns } from "../resumeModel.js";
 import { APP_PATH } from "../authRoutes.js";
 import {
   buildLandingNavigationState,
@@ -66,18 +66,21 @@ test("the app consumes the landing intent through the centralized gate and clear
   assert.match(appSource, /if \(!landingAccountAction \|\| authLoading/);
 });
 
-test("the landing template experience uses all role-aware and universal registry choices", () => {
-  const templates = availableResumeTemplates();
-  assert.equal(templates.length, 14);
-  assert.match(templateSource, /availableResumeTemplates\(\)/);
+test("the landing gallery exposes all seven visual designs without presenting strategies as skins", () => {
+  const designs = availableResumeDesigns();
+  assert.equal(designs.length, 7);
+  assert.match(templateSource, /availableResumeDesigns\(\)/);
+  assert.match(templateSource, /Seven visual résumé designs/);
+  assert.match(templateSource, /content strategy/);
   assert.doesNotMatch(templateSource, /ats-core-v1|sap-functional-v1|creative-design-v1/);
   assert.match(templateSource, /aria-pressed=\{isSelected\}/);
 });
 
 test("template examples are explicitly generic and contain no private fixture résumé", () => {
-  assert.match(templateSource, /Sample candidate/);
+  const thumbnailSource = source("../ResumeDesignSelector.jsx");
+  assert.match(thumbnailSource, /ALEX MORGAN/);
   for (const marker of ["Accomplished and versatile", "Deloitte Canada", "John Deere Financial", "resume-bicg0d"]) {
-    assert.doesNotMatch(`${pageSource}\n${templateSource}`, new RegExp(marker, "i"));
+    assert.doesNotMatch(`${pageSource}\n${templateSource}\n${thumbnailSource}`, new RegExp(marker, "i"));
   }
 });
 
@@ -92,6 +95,14 @@ test("the landing page has one H1 and a logical section hierarchy", () => {
   assert.match(pageSource, /<main id="landing-main">/);
   assert.match(pageSource, /<section className="landing-hero"/);
   assert.match(pageSource, /<footer className="landing-footer">/);
+});
+
+test("named landing groups use supported landmark or group roles", () => {
+  assert.match(pageSource, /landing-product-demo" role="region" aria-label=/);
+  assert.match(pageSource, /landing-intake-options" role="group" aria-label=/);
+  assert.match(pageSource, /landing-evidence-strip" role="group" aria-label=/);
+  assert.match(pageSource, /landing-hero-trust" role="group" aria-label=/);
+  assert.match(templateSource, /landing-template-preview" role="region"/);
 });
 
 test("the mobile hero keeps the brand signal without letting the headline dominate", () => {

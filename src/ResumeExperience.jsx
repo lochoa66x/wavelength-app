@@ -3,24 +3,25 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "./auth.jsx";
 import { ResumeActions } from "./ResumeActions.jsx";
 import { ResumeDocumentPreview } from "./ResumeDocumentPreview.jsx";
-import { ResumeTemplateSelector } from "./ResumeTemplateSelector.jsx";
+import { ResumeDesignSelector } from "./ResumeDesignSelector.jsx";
 import { QualityFeedback } from "./QualityFeedback.jsx";
 import { TailoringChangeReview } from "./TailoringChangeReview.jsx";
 import { emitResumeQualitySignal } from "./qualitySignals.js";
 import {
-  RESUME_TEMPLATE_REGISTRY,
-  availableResumeTemplates,
+  RESUME_DESIGN_REGISTRY,
+  RESUME_STRATEGY_REGISTRY,
+  availableResumeDesigns,
   buildResumeRenderPlan,
   createResumePackage,
 } from "./resumeModel.js";
 import { getResumeExportNotice, getResumeExportReadiness } from "./resumeReadiness.js";
 import {
-  loadResumeTemplateSelection,
+  loadResumePresentationSelection,
   resumeTemplateTargetKey,
-  saveResumeTemplateSelection,
+  saveResumePresentationSelection,
 } from "./resumeTemplateStorage.js";
 
-const TEMPLATE_OPTIONS = availableResumeTemplates();
+const DESIGN_OPTIONS = availableResumeDesigns();
 
 export function ResumeExperience({ resumeData, item, hasLink, atsReview, onEditResume, onTailoringChangeDecision, qualityRoute = "app", qualityPostingSource = "not_applicable", C, primaryBtnStyle }) {
   const { session } = useAuth();
@@ -29,12 +30,14 @@ export function ResumeExperience({ resumeData, item, hasLink, atsReview, onEditR
   const userId = session?.user?.id || "";
   const targetKey = useMemo(() => resumeTemplateTargetKey(item), [item]);
   const recommendationPackage = useMemo(() => createResumePackage(resumeData, { item, atsReview }), [resumeData, item, atsReview]);
-  const storedSelection = useMemo(() => loadResumeTemplateSelection(userId, targetKey), [userId, targetKey]);
-  const [selectedTemplateId, setSelectedTemplateId] = useState(() => storedSelection || recommendationPackage.presentation.recommendedTemplateId);
+  const storedSelection = useMemo(() => loadResumePresentationSelection(userId, targetKey), [userId, targetKey]);
+  const [selectedStrategyId, setSelectedStrategyId] = useState(() => storedSelection?.strategyId || recommendationPackage.presentation.recommendedStrategyId);
+  const [selectedDesignId, setSelectedDesignId] = useState(() => storedSelection?.designId || recommendationPackage.presentation.recommendedDesignId);
 
   useEffect(() => {
-    setSelectedTemplateId(storedSelection || recommendationPackage.presentation.recommendedTemplateId);
-  }, [storedSelection, recommendationPackage.presentation.recommendedTemplateId]);
+    setSelectedStrategyId(storedSelection?.strategyId || recommendationPackage.presentation.recommendedStrategyId);
+    setSelectedDesignId(storedSelection?.designId || recommendationPackage.presentation.recommendedDesignId);
+  }, [storedSelection, recommendationPackage.presentation.recommendedStrategyId, recommendationPackage.presentation.recommendedDesignId]);
 
   useEffect(() => {
     void import("./resumeDocx.js")
@@ -42,32 +45,37 @@ export function ResumeExperience({ resumeData, item, hasLink, atsReview, onEditR
       .catch(() => {});
   }, []);
 
-  const resumePackage = useMemo(() => createResumePackage(resumeData, { item, atsReview, selectedTemplateId }), [resumeData, item, atsReview, selectedTemplateId]);
+  const resumePackage = useMemo(
+    () => createResumePackage(resumeData, { item, atsReview, selectedStrategyId, selectedDesignId }),
+    [resumeData, item, atsReview, selectedStrategyId, selectedDesignId],
+  );
   const readiness = useMemo(() => getResumeExportReadiness(resumePackage, atsReview), [resumePackage, atsReview]);
   const exportNotice = useMemo(() => getResumeExportNotice(resumePackage, atsReview), [resumePackage, atsReview]);
   const renderPlan = useMemo(
-    () => buildResumeRenderPlan(resumePackage, selectedTemplateId, { preliminary: readiness.preliminary }),
-    [resumePackage, selectedTemplateId, readiness.preliminary],
+    () => buildResumeRenderPlan(resumePackage, { strategyId: selectedStrategyId, designId: selectedDesignId }, { preliminary: readiness.preliminary }),
+    [resumePackage, selectedStrategyId, selectedDesignId, readiness.preliminary],
   );
-  const recommended = RESUME_TEMPLATE_REGISTRY[resumePackage.presentation.recommendedTemplateId];
-  const selected = RESUME_TEMPLATE_REGISTRY[renderPlan.templateId];
-  const controlId = `template-control-${targetKey || "resume"}`;
+  const recommendedStrategy = RESUME_STRATEGY_REGISTRY[resumePackage.presentation.recommendedStrategyId];
+  const recommendedDesign = RESUME_DESIGN_REGISTRY[resumePackage.presentation.recommendedDesignId];
+  const selectedDesign = RESUME_DESIGN_REGISTRY[renderPlan.designId];
+  const controlId = `design-control-${targetKey || "resume"}`;
 
-  const chooseTemplate = (templateId) => {
-    setSelectedTemplateId(templateId);
-    saveResumeTemplateSelection(userId, targetKey, templateId);
+  const chooseDesign = (designId) => {
+    setSelectedDesignId(designId);
+    saveResumePresentationSelection(userId, targetKey, { strategyId: selectedStrategyId, designId });
   };
 
   return (
     <div>
-      <ResumeTemplateSelector
-        templates={TEMPLATE_OPTIONS}
-        recommended={recommended}
-        selected={selected}
+      <ResumeDesignSelector
+        designs={DESIGN_OPTIONS}
+        recommendedStrategy={recommendedStrategy}
+        recommendedDesign={recommendedDesign}
+        selectedDesign={selectedDesign}
         recommendationReason={resumePackage.presentation.recommendationReason}
         showOptions={showOptions}
         onToggle={() => setShowOptions((value) => !value)}
-        onChoose={chooseTemplate}
+        onChoose={chooseDesign}
         controlId={controlId}
         C={C}
       />
@@ -117,7 +125,7 @@ export function ResumeExperience({ resumeData, item, hasLink, atsReview, onEditR
         resumeData={resumeData}
         resumePackage={resumePackage}
         renderPlan={renderPlan}
-        template={renderPlan.templateId}
+        selection={{ strategyId: renderPlan.strategyId, designId: renderPlan.designId }}
         previewRef={previewRef}
         item={item}
         hasLink={hasLink}

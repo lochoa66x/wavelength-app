@@ -1,10 +1,10 @@
 # Canonical résumé architecture
 
-Updated: 2026-08-25
+Updated: 2026-08-26
 
 ## Scope
 
-P2.1 Phase A establishes one versioned résumé-content pipeline for browser preview, DOCX, direct PDF, and plain text. Phase B1 adds Technical / Software and Admin / Customer Operations. Phase B2 replaces the hidden legacy trades presentation with the canonical Skilled Trades / Field Services family. Phase B3 adds Marketing & Communications and Creative & Design. The registry now exposes nine occupation-aware structures plus five universal visual styles. All 14 choices share one factual content plan, render manifest, persistence boundary, and export-authorization path.
+P2.1 establishes one versioned résumé-content pipeline for browser preview, DOCX, direct PDF, and plain text. P3.4 separates its nine evidence-aware content strategies from seven independently selectable visual designs. Every strategy/design combination shares one factual content plan, semantic manifest, persistence boundary, and export-authorization path.
 
 ## Contract
 
@@ -13,7 +13,7 @@ P2.1 Phase A establishes one versioned résumé-content pipeline for browser pre
 - `document`: user-visible candidate facts and target context.
 - `evidence`: private source references, relevance, verified metric references, normalization warnings, and posting-completeness evidence.
 - `classification`: occupation family, immutable career strategy, fit level, verified family evidence, SAP functional/technical distinction, recommendation reason code/strength, and deterministic trace.
-- `presentation`: recommended and selected template IDs, human-readable reason, internal reason code/strength, page target, locale, and presentation version.
+- `presentation`: recommended and selected `strategyId`/`designId` pairs, legacy template aliases, human-readable reason, internal reason code/strength, page target, locale, and presentation version.
 
 The package uses `schemaVersion: 2`. New code must not pass raw AI output to an exporter.
 
@@ -23,12 +23,12 @@ The visible document supports candidate identity/contact/links, target title/com
 
 1. `createResumePackage` validates and adapts a legacy tailored result without mutating it.
 2. `buildResumeContentPlan` determines the factual sections and stable item order once.
-3. `buildResumeRenderPlan` applies a selected registry template to the content plan.
+3. `buildResumeRenderPlan` applies content ordering/headings from the selected strategy and visual tokens from the independently selected design.
 4. `createResumeContentManifest` records the exact visible values, stable IDs, headings, and order.
 5. Browser preview, DOCX, PDF, and plain text consume the same frozen render plan.
 6. Export verification compares each generated format to the manifest.
 
-Template switching can change safe headings, section placement, typography, spacing, and grouping. It cannot change the factual content hash, selected item IDs, evidence classification, occupation family, career strategy, or export readiness. It never invokes AI.
+Strategy selection can change safe headings, section placement, and evidence emphasis. Design switching can change only typography, spacing, color, rules, alignment, and density. Neither can change the factual content hash, selected item IDs, evidence classification, occupation family, immutable career path, or export readiness. Switching never invokes AI.
 
 ## Validation and legacy adaptation
 
@@ -71,13 +71,13 @@ Creative matching separates professional design, verified projects/tools, and ex
 
 An adjacent SAP module pivot may use SAP Functional when verified functional lifecycle evidence exists. Missing target modules remain missing and are never inserted into skills or history.
 
-The user may override the recommended template, but not classification or career strategy. Safe section headings are based on both the selected presentation and the verified classification, so a visual override cannot create an unsupported SAP, leadership, marketing, creative, or transition claim.
+The product explains the deterministic recommended content strategy, while the user chooses a visual design. Safe section headings come from strategy plus verified classification; a design override cannot create an unsupported SAP, leadership, marketing, creative, trade, or transition claim.
 
-## Template registry
+## Strategy and design registries
 
-The registry stores stable ID/version, display metadata, ATS safety level, page target, supported sections, section order, preview metadata, compatibility notes, and shared visual tokens.
+The compatibility registry retains stable legacy IDs. `RESUME_STRATEGY_REGISTRY` owns evidence logic, safe headings, and section order. `RESUME_DESIGN_REGISTRY` owns ATS safety labels, preview metadata, page geometry, typography, spacing, color, and rules.
 
-Selectable IDs:
+Content-strategy IDs:
 
 - `ats-core-v1`
 - `sap-functional-v1`
@@ -88,11 +88,16 @@ Selectable IDs:
 - `skilled-trades-field-services-v1`
 - `marketing-communications-v1`
 - `creative-design-v1`
+
+Visual-design IDs:
+
+- `essential-ats-v1`
 - `classic-ledger-v1`
 - `modern-signal-v1`
 - `compact-focus-v1`
 - `bold-impact-v1`
 - `studio-editorial-v1`
+- `field-ready-v1`
 
 Legacy `trades`, `skilled-trades`, and `trades-legacy-v1` stored values resolve to `skilled-trades-field-services-v1` on read. No second trades family or persisted-data backfill is created.
 
@@ -102,21 +107,21 @@ The B2 render plan is compact, single-column, and credential-aware. It determini
 
 The B3 Marketing plan uses a restrained editorial/business treatment and prioritizes verified capabilities, experience, and supported campaigns or communications projects. The Creative plan uses slightly more expressive but reproducible type/spacing tokens and prioritizes verified capabilities, experience, projects, tools, and visible safe professional links. Both remain single-column selectable text with no sidebars, text boxes, skill bars, charts, photos, canvas text, or essential header/footer-only facts.
 
-The five universal visual styles are presentation overlays, not new evidence models. They inherit the deterministic occupation-aware section order and headings from the same classification used by the recommended family. Classic Ledger, Modern Signal, and Compact Focus are application-safe choices. Bold Impact and Studio Editorial are explicitly labeled networking-forward because their accent treatment is more expressive. All five remain searchable, selectable, single-column, table-free, photo-free, and free of skill meters or essential header/footer-only content.
+The seven visual designs are presentation overlays, not evidence models. They inherit deterministic occupation-aware section order and headings from the selected strategy. Essential ATS, Classic Ledger, Modern Signal, Compact Focus, and Field Ready are application-safe. Bold Impact and Studio Editorial are labeled networking-forward because their treatment is more expressive. All seven remain searchable, selectable, single-column, table-free, photo-free, and free of skill meters or essential header/footer-only content.
 
-To add a template:
+To add a content strategy or visual design:
 
-1. Add a versioned registry entry with ATS-safe tokens and a complete section order.
+1. Add a versioned entry to exactly one registry: evidence/section logic belongs to strategy; visual tokens belong to design.
 2. Keep all canonical sections supported through the generic renderer.
 3. Add a deterministic recommendation predicate without changing higher-priority trust rules.
 4. Add recommendation, override, manifest-parity, persistence, PDF extraction, DOCX, and visual fixtures.
 5. Update the release checklist and product pipeline.
 
-Do not put content generation, evidence interpretation, or exporter-specific section selection inside a template.
+Do not put content generation, evidence interpretation, or exporter-specific section selection inside a design.
 
 ## Persistence
 
-Template choice uses a versioned account-and-target-scoped local-storage key. Raw target text is hashed for custom targets; public listing IDs are allowlisted. Invalid/deleted template IDs fall back to the current recommendation. A selection cannot cross accounts or target postings.
+Strategy/design choice uses one version-2 account-and-target-scoped local-storage record. Raw target text is hashed for custom targets; public listing IDs are allowlisted. Version-1 role-template values migrate to that strategy plus its deterministic recommended design; version-1 visual-template values migrate to ATS Core plus the chosen design. Invalid/deleted IDs fail safely. A selection cannot cross accounts or target postings.
 
 ## Export trust
 
@@ -132,9 +137,9 @@ The UI creates a fresh `ExportAuthorization` for each action. It is bound to:
 - final/preliminary mode
 - short expiration time
 
-Download functions validate the context before generating a file. A stored readiness boolean, mutated posting state, mismatched document, expired context, or missing/placeholder identity fails closed. Template changes rebuild the render plan but retain the factual-content hash.
+Download functions validate the context before generating a file. A stored readiness boolean, mutated posting state, mismatched document, expired context, or missing/placeholder identity fails closed. Strategy/design changes rebuild the render plan but retain the factual-content hash; authorization binds both IDs independently.
 
-Preliminary files use the same package and template. They retain preliminary filename treatment and do not imply application readiness. The product displays the reason before the résumé preview and download actions; warning copy is UI-only and is never inserted into browser-preview, DOCX, PDF, or plain-text résumé content.
+Preliminary files use the same package, strategy, and design. They retain preliminary filename treatment and do not imply application readiness. The product displays the reason before the résumé preview and download actions; warning copy is UI-only and is never inserted into browser-preview, DOCX, PDF, or plain-text résumé content.
 
 ## Bring-your-own-posting session boundary
 
@@ -144,7 +149,7 @@ Source reset clears only posting-specific state: source fields/files, extracted 
 
 ## Format parity
 
-Semantic parity requires the same visible identity, values, selected item IDs, selected-template section order, bullet order, headings, and preliminary/final treatment. Line wrapping, document XML, and format-specific pagination may differ.
+Semantic parity requires the same visible identity, values, selected item IDs, selected-strategy section order, bullet order, headings, and preliminary/final treatment. Visual parity requires browser, DOCX, and PDF to consume the same selected-design tokens. Line wrapping, document XML, and format-specific pagination may differ.
 
 The browser preview and direct PDF share Letter geometry, margins, typography/spacing tokens, section order, and page-break intent. PDF uses selectable text, not a screenshot. DOCX uses simple paragraphs and real list numbering without layout tables. Plain text uses parser-safe headings and ASCII separators.
 
@@ -157,7 +162,7 @@ Exact DOCX pagination is not expected to match the PDF because Word-compatible l
 3. Render every direct PDF page to PNG and inspect it at full size.
 4. Convert every DOCX fixture with LibreOffice when installed, render every converted PDF page, and inspect it.
 5. Extract text independently from direct and converted PDFs and confirm identity, headings, section order, bullet order, labels, and artifact absence.
-6. Run desktop and 390 × 844 browser checks. Change all 14 templates, verify immediate rerender, content-hash stability, keyboard focus, `aria-pressed` state, mobile touch targets, and the application-safe/networking-forward labels.
+6. Run desktop and 390 × 844 browser checks. Change all seven visual designs, verify immediate rerender, strategy/content-hash stability, keyboard focus, `aria-pressed` state, mobile touch targets, and the application-safe/networking-forward labels.
 7. Test verified, partial, stale-readiness, and missing-identity cases.
 8. Remove `tmp/export-verification` and all screenshots/renders before staging.
 
