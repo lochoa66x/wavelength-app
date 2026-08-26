@@ -8,8 +8,9 @@ import { useAuth } from "./auth.jsx";
 import { QualityFeedback } from "./QualityFeedback.jsx";
 import { emitResumeQualitySignal } from "./qualitySignals.js";
 
-export function ResumeActions({ resumeData, resumePackage, renderPlan, selection, template, previewRef, item, hasLink, atsReview, onEditResume, qualityRoute = "app", qualityPostingSource = "not_applicable", C, primaryBtnStyle }) {
-  const { requestAccountAction } = useAuth();
+export function ResumeActions({ resumeData, resumePackage, renderPlan, selection, template, previewRef, item, hasLink, atsReview, onEditResume, requestAccountAction: requestAccountActionOverride, qualityRoute = "app", qualityPostingSource = "not_applicable", C, primaryBtnStyle }) {
+  const { requestAccountAction: requestAuthenticatedAction } = useAuth();
+  const requestAccountAction = requestAccountActionOverride || requestAuthenticatedAction;
   const [docxState, setDocxState] = useState("idle");
   const [pdfState, setPdfState] = useState("idle");
   const [message, setMessage] = useState(null);

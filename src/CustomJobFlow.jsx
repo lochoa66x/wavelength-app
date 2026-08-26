@@ -84,7 +84,20 @@ function Field({ label, children }) {
   );
 }
 
-export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyle, onBack, onEditResume, initialMode = "url", initialUrl = "" }) {
+export function CustomJobFlow({
+  resume,
+  userId,
+  C,
+  primaryBtnStyle,
+  glassBtnStyle,
+  onBack,
+  onEditResume,
+  initialMode = "url",
+  initialUrl = "",
+  extractPosting = extractCustomJob,
+  tailorPosting = tailorResume,
+  requestAccountAction,
+}) {
   const requestCoordinatorRef = useRef(null);
   requestCoordinatorRef.current ||= createCustomJobRequestCoordinator(initialMode);
   const requestCoordinator = requestCoordinatorRef.current;
@@ -162,14 +175,14 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
       let extracted;
       if (mode === "screenshots") {
         const batches = screenshotBatches(files);
-        const batchBriefs = await Promise.all(batches.map(async (batch) => extractCustomJob({
+        const batchBriefs = await Promise.all(batches.map(async (batch) => extractPosting({
           mode,
           images: await Promise.all(batch.map(compressScreenshot)),
         }, { signal: request.signal })));
         extracted = mergeExtractedJobBriefs(batchBriefs, { pageCount: files.length });
       } else {
         const payload = mode === "paste" ? { mode, text: postingText } : { mode, url: jobUrl };
-        extracted = await extractCustomJob(payload, { signal: request.signal });
+        extracted = await extractPosting(payload, { signal: request.signal });
       }
       if (!requestCoordinator.isCurrent(request)) return;
       requestCoordinator.finish(request);
@@ -228,7 +241,7 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
         submittableCandidateEvidence(evidenceOverride),
         submittableCandidateEvidence(loadReusableCandidateEvidence(userId)),
       );
-      const result = await tailorResume(resume, { customJob: activeBrief, candidateEvidence }, { signal: request.signal });
+      const result = await tailorPosting(resume, { customJob: activeBrief, candidateEvidence }, { signal: request.signal });
       if (!requestCoordinator.isCurrent(request)) return;
       requestCoordinator.finish(request);
       setTailored({
@@ -325,7 +338,7 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
   }
 
   return (
-    <div data-custom-job-source={sourceSession.sourceId} data-custom-job-mode={sourceSession.mode} style={{ maxWidth: 760, margin: "0 auto" }}>
+    <div data-custom-job-source={sourceSession.sourceId} data-custom-job-mode={sourceSession.mode} data-custom-job-status={status} style={{ maxWidth: 760, margin: "0 auto" }}>
       <button type="button" onClick={leaveFlow} aria-label="Back to job matches" className="wl-btn" style={backButtonStyle}>
         <ArrowLeft size={16} aria-hidden="true" />
         <span>Back to matches</span>
@@ -504,7 +517,7 @@ export function CustomJobFlow({ resume, userId, C, primaryBtnStyle, glassBtnStyl
             onSaveAndRetailor={handleEvidenceRetailor}
             C={C}
           />
-          <ResumeExperience resumeData={tailored.resume} item={customItem} hasLink={Boolean(brief.source_url)} atsReview={tailored.atsReview} onEditResume={onEditResume} onTailoringChangeDecision={handleTailoringChangeDecision} qualityRoute="custom_job" qualityPostingSource={postingSourceForMode(mode)} C={C} primaryBtnStyle={primaryBtnStyle} />
+          <ResumeExperience resumeData={tailored.resume} item={customItem} hasLink={Boolean(brief.source_url)} atsReview={tailored.atsReview} onEditResume={onEditResume} onTailoringChangeDecision={handleTailoringChangeDecision} requestAccountAction={requestAccountAction} qualityRoute="custom_job" qualityPostingSource={postingSourceForMode(mode)} C={C} primaryBtnStyle={primaryBtnStyle} />
         </div>
       )}
     </div>

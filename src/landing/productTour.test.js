@@ -8,6 +8,7 @@ import { PRODUCT_TOUR_VERSION, productTourCandidate, productTourPosting } from "
 const source = (relativePath) => readFileSync(new URL(relativePath, import.meta.url), "utf8");
 const componentSource = source("./ProductTour.jsx");
 const captureSource = source("./ProductTourCapture.jsx");
+const customJobFlowSource = source("../CustomJobFlow.jsx");
 const mainSource = source("../main.jsx");
 
 const publicAsset = (filename) => new URL(`../../public/product-tour/${filename}`, import.meta.url);
@@ -41,6 +42,8 @@ test("the product tour is accessible, bandwidth-aware, and never forces audio", 
 
 test("the complete guide states the trust boundaries and export formats", () => {
   for (const statement of [
+    "Paste the complete posting",
+    "Review the extracted job",
     "Employer requirements never become candidate evidence",
     "Unsupported PLC programming remains visible",
     "Visual design changes appearance without changing facts or readiness",
@@ -52,11 +55,17 @@ test("the complete guide states the trust boundaries and export formats", () => 
 });
 
 test("the capture uses synthetic, non-SAP evidence and is excluded from production routing", () => {
-  assert.equal(PRODUCT_TOUR_VERSION, "2026-08-26");
+  assert.equal(PRODUCT_TOUR_VERSION, "2026-08-26-real-ui-v2");
   assert.equal(productTourCandidate.name, "Jordan Lee");
   assert.match(productTourCandidate.headline, /electrician/i);
   assert.match(productTourPosting.title, /electrician/i);
   assert.doesNotMatch(`${captureSource}\n${JSON.stringify(productTourCandidate)}\n${JSON.stringify(productTourPosting)}`, /Luis Ochoa|Deloitte|SAP FI-CA/i);
+  assert.match(captureSource, /<CustomJobFlow/);
+  assert.match(captureSource, /extractPosting=\{extractDemoPosting\}/);
+  assert.match(captureSource, /tailorPosting=\{tailorDemoResume\}/);
+  assert.doesNotMatch(captureSource, /EvidenceScene|product-tour-caption|product-tour-window/);
+  assert.match(customJobFlowSource, /extractPosting = extractCustomJob/);
+  assert.match(customJobFlowSource, /tailorPosting = tailorResume/);
   assert.match(mainSource, /const ProductTourCapture = import\.meta\.env\.DEV/);
   assert.match(mainSource, /path="\/__product-tour-capture"/);
 });

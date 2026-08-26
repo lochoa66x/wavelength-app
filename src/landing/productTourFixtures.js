@@ -1,5 +1,3 @@
-import { availableResumeDesigns } from "../resumeModel.js";
-
 export { PRODUCT_TOUR_VERSION } from "./productTourConfig.js";
 
 export const productTourCandidate = Object.freeze({
@@ -19,8 +17,57 @@ export const productTourPosting = Object.freeze({
   ],
 });
 
+export const productTourPostingText = `Facilities Electrician
+Northline Manufacturing — Hamilton, Ontario
+Full-time, on-site
+
+Maintain and troubleshoot production electrical systems in a safety-first manufacturing environment. Complete preventive and corrective maintenance, document work accurately, and partner with operations to reduce downtime.
+
+Responsibilities
+- Troubleshoot three-phase electrical equipment, motors, starters, and motor controls.
+- Complete preventive maintenance and document work orders in the CMMS.
+- Apply lockout/tagout procedures and interpret electrical drawings.
+- Support production teams during equipment faults and planned shutdowns.
+
+Required qualifications
+- Current Ontario 309A Construction and Maintenance Electrician licence.
+- Experience with three-phase systems and industrial motor controls.
+- Ability to use electrical drawings and follow lockout/tagout procedures.
+- Hands-on Allen-Bradley PLC programming and logic modification.
+
+Preferred qualifications
+- Experience using Maximo or another CMMS.
+- Manufacturing or facilities-maintenance experience.`;
+
+export const productTourJobBrief = Object.freeze({
+  title: productTourPosting.title,
+  company: productTourPosting.company,
+  location: "Hamilton, Ontario",
+  type: "Full-time · On-site",
+  category: "trades",
+  description: "Maintain and troubleshoot production electrical systems in a safety-first manufacturing environment. Complete preventive and corrective maintenance, document work accurately, and partner with operations to reduce downtime.",
+  responsibilities: productTourPosting.responsibilities,
+  required_qualifications: [
+    "Current Ontario 309A Construction and Maintenance Electrician licence",
+    "Experience with three-phase systems and industrial motor controls",
+    "Ability to use electrical drawings and follow lockout/tagout procedures",
+    "Hands-on Allen-Bradley PLC programming and logic modification",
+  ],
+  preferred_qualifications: ["Experience using Maximo or another CMMS", "Manufacturing or facilities-maintenance experience"],
+  keywords: ["Ontario 309A", "three-phase", "motor controls", "lockout/tagout", "CMMS", "Allen-Bradley PLC"],
+  source_url: "",
+  source_review: {
+    status: "complete",
+    page_count: 1,
+    user_confirmed_complete: true,
+    conflicts: [],
+    conflicts_resolved: true,
+  },
+});
+
 export const productTourReview = Object.freeze({
   application_ready: false,
+  posting: { status: "complete", reason: "The full posting was pasted and reviewed by the user." },
   integrity: { status: "pass" },
   identity: { status: "complete" },
   posting_readiness: {
@@ -33,6 +80,11 @@ export const productTourReview = Object.freeze({
     confidence: "high",
     reason: "The candidate has strong electrical maintenance evidence with one material controls-programming gap.",
   },
+  readiness: {
+    status: "significant_gap",
+    reason: "The electrical foundation is strong, but hands-on Allen-Bradley PLC programming remains a material mandatory gap.",
+  },
+  coverage: { direct: 2, adjacent: 1, transferable: 0, missing: 1, total: 4 },
   parseability: { status: "pass" },
   writing: { status: "pass" },
   export_readiness: { application_ready: false, blockers: ["candidate_fit"] },
@@ -109,59 +161,36 @@ export const productTourReview = Object.freeze({
   ],
 });
 
-export const productTourDesigns = Object.freeze(availableResumeDesigns().slice(0, 3));
-
-export const productTourRenderPlan = Object.freeze({
-  designId: productTourDesigns[0].id,
-  designName: productTourDesigns[0].displayName,
-  strategyId: "skilled-trades-field-services-v1",
-  strategyName: "Skilled Trades / Field Services",
-  contentHash: "synthetic-product-tour",
-  visualTokens: productTourDesigns[0].visualTokens,
-  header: {
-    fullName: productTourCandidate.name,
-    headline: productTourCandidate.headline,
-    contactLine: productTourCandidate.contact,
+export const productTourResume = Object.freeze({
+  name: productTourCandidate.name,
+  title: productTourCandidate.headline,
+  contact: productTourCandidate.contact,
+  profile: "Licensed industrial electrician with verified experience in three-phase troubleshooting, motor controls, preventive maintenance, and safe work practices.",
+  skills: ["Three-phase troubleshooting", "Motor controls", "Lockout/tagout", "Preventive maintenance", "Maximo CMMS", "Electrical drawings"],
+  experience: [{
+    role: "Industrial Electrician",
+    company: "Maple Works",
+    location: "Hamilton, Ontario",
+    dates: "2021–Present",
+    bullets: [
+      { id: "tour-bullet-1", text: "Diagnosed three-phase motors and motor-control faults during scheduled and corrective maintenance.", responsibilityLevel: "performed", relevance: "direct" },
+      { id: "tour-bullet-2", text: "Documented preventive maintenance and closed verified work orders in Maximo.", responsibilityLevel: "performed", relevance: "adjacent" },
+      { id: "tour-bullet-3", text: "Applied lockout/tagout procedures and interpreted electrical drawings during equipment repairs.", responsibilityLevel: "performed", relevance: "direct" },
+    ],
+  }],
+  certifications: [{ name: "Ontario 309A Construction and Maintenance Electrician", issuer: "Skilled Trades Ontario", dates: "Current" }],
+  education: [{ degree: "Electrical Techniques Diploma", institution: "Ontario Technical College", dates: "2020" }],
+  languages: [{ language: "English", proficiency: "Fluent" }],
+  content_strategy: "direct",
+  fit_assessment: {
+    path: "adjacent",
+    recommended_level: "Licensed facilities electrician with a transparent controls-programming gap",
+    note: "Lead with verified industrial electrical maintenance evidence. Keep Allen-Bradley PLC programming visible as unverified rather than adding it to the résumé.",
   },
-  sections: [
-    {
-      id: "summary",
-      type: "paragraph",
-      heading: "Professional Summary",
-      items: [{ id: "summary-1", text: "Licensed industrial electrician with verified experience in electrical troubleshooting, preventive maintenance, motor controls, and safe work practices." }],
-    },
-    {
-      id: "skills",
-      type: "inline-list",
-      heading: "Core Capabilities",
-      items: [
-        { id: "skill-1", text: "Three-phase troubleshooting" },
-        { id: "skill-2", text: "Motor controls" },
-        { id: "skill-3", text: "Lockout/tagout" },
-        { id: "skill-4", text: "Preventive maintenance" },
-      ],
-    },
-    {
-      id: "experience",
-      type: "experience",
-      heading: "Professional Experience",
-      items: [{
-        id: "experience-1",
-        title: "Industrial Electrician",
-        employer: "Maple Works",
-        location: "Hamilton, Ontario",
-        dateDisplay: "2021–Present",
-        bullets: [
-          { id: "bullet-1", text: "Diagnosed three-phase motors and motor-control faults during scheduled and corrective maintenance." },
-          { id: "bullet-2", text: "Documented preventive maintenance and closed verified work orders in Maximo." },
-        ],
-      }],
-    },
-    {
-      id: "certifications",
-      type: "credentials",
-      heading: "Licences & Certifications",
-      items: [{ id: "credential-1", name: "Ontario 309A Construction and Maintenance Electrician", issuer: "Skilled Trades Ontario", dateDisplay: "Current" }],
-    },
-  ],
+});
+
+export const productTourTailoredResult = Object.freeze({
+  resume: productTourResume,
+  atsReview: productTourReview,
+  evidenceQuestions: [],
 });

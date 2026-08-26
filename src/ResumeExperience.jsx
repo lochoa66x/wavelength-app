@@ -23,7 +23,7 @@ import {
 
 const DESIGN_OPTIONS = availableResumeDesigns();
 
-export function ResumeExperience({ resumeData, item, hasLink, atsReview, onEditResume, onTailoringChangeDecision, qualityRoute = "app", qualityPostingSource = "not_applicable", C, primaryBtnStyle }) {
+export function ResumeExperience({ resumeData, item, hasLink, atsReview, onEditResume, onTailoringChangeDecision, requestAccountAction, qualityRoute = "app", qualityPostingSource = "not_applicable", C, primaryBtnStyle }) {
   const { session } = useAuth();
   const previewRef = useRef(null);
   const [showOptions, setShowOptions] = useState(false);
@@ -131,6 +131,7 @@ export function ResumeExperience({ resumeData, item, hasLink, atsReview, onEditR
         hasLink={hasLink}
         atsReview={atsReview}
         onEditResume={onEditResume}
+        requestAccountAction={requestAccountAction}
         qualityRoute={qualityRoute}
         qualityPostingSource={qualityPostingSource}
         C={C}

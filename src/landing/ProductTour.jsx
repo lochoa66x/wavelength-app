@@ -12,8 +12,8 @@ const GUIDE_MP4 = "/product-tour/gigscapes-how-it-works.mp4";
 const GUIDE_WEBM = "/product-tour/gigscapes-how-it-works.webm";
 
 export const PRODUCT_TOUR_TRANSCRIPT = Object.freeze([
-  ["Choose the opportunity", "Find a Canadian job or bring a complete posting you found elsewhere."],
-  ["Review the posting", "Confirm the title, employer, responsibilities, and qualifications before tailoring."],
+  ["Paste the complete posting", "Bring the full job description into Gigscapes. Link and screenshot intake are also available in the app."],
+  ["Review the extracted job", "Confirm the title, employer, responsibilities, qualifications, and high-signal keywords before tailoring."],
   ["Tailor from evidence", "Gigscapes compares the reviewed posting with confirmed candidate history. Employer requirements never become candidate evidence."],
   ["See the Evidence Map", "Direct, adjacent, transferable, and missing evidence remain separate so the user can understand the fit."],
   ["Assess application risk", "A truthful résumé can still have a material gap. Unsupported PLC programming remains visible instead of being added as a skill."],
@@ -169,7 +169,7 @@ export function ProductTour() {
       >
         <div className="landing-product-tour-dialog-card">
           <header>
-            <div><span>About 75 seconds</span><h2 id="product-tour-dialog-title">How Gigscapes works</h2></div>
+            <div><span>About 1 minute</span><h2 id="product-tour-dialog-title">How Gigscapes works</h2></div>
             <button type="button" onClick={closeGuide} aria-label="Close product tour"><X aria-hidden="true" /></button>
           </header>
           <video
