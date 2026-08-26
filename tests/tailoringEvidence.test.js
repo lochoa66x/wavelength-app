@@ -652,11 +652,25 @@ test("regulated-trade requirements distinguish blockers, material gaps, preferen
   const byId = Object.fromEntries(result.requirements.map((requirement) => [requirement.id, requirement]));
 
   assert.equal(byId.R1.gap_severity, "verified_blocker");
+  assert.equal(byId.R1.requirement_origin, "credential");
+  assert.equal(byId.R1.importance, "mandatory");
+  assert.equal(byId.R1.confidence, "medium");
+  assert.equal(byId.R1.reason_code, "missing_mandatory_credential_or_eligibility");
+  assert.match(byId.R1.assessment_explanation, /mandatory credential/i);
+  assert.match(byId.R1.next_action, /candidate-held evidence/i);
   assert.equal(byId.R2.gap_severity, "supported");
+  assert.equal(byId.R2.requirement_origin, "responsibility");
+  assert.equal(byId.R2.confidence, "high");
+  assert.equal(byId.R2.reason_code, "verified_direct_evidence");
   assert.equal(byId.R3.gap_severity, "preference");
+  assert.equal(byId.R3.importance, "preferred");
   assert.equal(byId.R4.gap_severity, "material_gap");
   assert.equal(result.gap_summary.application_risk, "high");
   assert.equal(result.gap_summary.counts.verified_blocker, 1);
+  assert.equal(result.gap_summary.outlook.status, "likely_screening_blocker");
+  assert.equal(result.gap_summary.outlook.counts.verified_strengths, 1);
+  assert.equal(result.gap_summary.outlook.counts.likely_blockers, 1);
+  assert.match(result.gap_summary.outlook.what_would_change, /credential/i);
   assert.equal(result.readiness.status, "significant_gap");
   assert.match(result.gap_summary.note, /mandatory credentials/i);
 });

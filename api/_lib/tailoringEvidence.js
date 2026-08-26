@@ -99,6 +99,8 @@ const STRICT_EVIDENCE_CONCEPTS = Object.freeze([
 
 const LIST_INTRODUCTION_PATTERN = /^(.*?)(?:\bincluding\b|\bsuch as\b)\s+(.+?)(\s+to\s+(?:ensure|support|meet|deliver|provide)\b.*)?$/i;
 const EXPLICIT_BLOCKER_REQUIREMENT_PATTERN = /\b(?:licen[cs](?:e|ed|ure)|registered|registration|certified|certification|security clearance|reliability status|work authori[sz]ation|legally (?:eligible|entitled|authorized) to work|red seal|journeyperson|journeyman|first aid|cpr|whmis)\b/i;
+const SCHEDULE_LOCATION_REQUIREMENT_PATTERN = /\b(?:on[- ]?site|hybrid|remote|shift|weekends?|evenings?|overnight|travel|relocat|location|driver'?s? licen[cs]e)\b/i;
+const LANGUAGE_REQUIREMENT_PATTERN = /\b(?:english|french|spanish|bilingual|language proficiency|fluent|fluency)\b/i;
 
 function applicationRiskForRequirement(requirement) {
   if (requirement.evidence_match !== "missing") {
@@ -128,6 +130,102 @@ function applicationRiskForRequirement(requirement) {
   return {
     gap_severity: "development_gap",
     application_impact: "This responsibility is not evidenced in the current résumé. It may be learnable or adjacent, but it should not be presented as completed experience.",
+  };
+}
+
+function requirementOrigin(requirement) {
+  if (EXPLICIT_BLOCKER_REQUIREMENT_PATTERN.test(requirement.requirement)) return "credential";
+  if (SCHEDULE_LOCATION_REQUIREMENT_PATTERN.test(requirement.requirement)) return "schedule_location_constraint";
+  if (LANGUAGE_REQUIREMENT_PATTERN.test(requirement.requirement)) return "language_requirement";
+  if (requirement.priority === "required") return "mandatory_qualification";
+  if (requirement.priority === "preferred") return "preferred_qualification";
+  if (requirement.priority === "responsibility") return "responsibility";
+  return "other";
+}
+
+function requirementAssessmentMetadata(requirement) {
+  const origin = requirementOrigin(requirement);
+  const supported = requirement.evidence_match !== "missing";
+  const importance = requirement.priority === "required"
+    ? "mandatory"
+    : requirement.priority === "preferred"
+      ? "preferred"
+      : requirement.priority === "responsibility"
+        ? "contextual"
+        : "unknown";
+  const confidence = supported && requirement.evidence?.length
+    ? "high"
+    : requirement.priority === "context"
+      ? "low"
+      : "medium";
+
+  if (requirement.evidence_match === "direct") {
+    return {
+      requirement_origin: origin,
+      importance,
+      confidence,
+      reason_code: "verified_direct_evidence",
+      assessment_explanation: "An exact candidate evidence excerpt directly supports this atomic requirement.",
+      unproven: "",
+      next_action: "Review the wording and contribution level, then keep or edit it without adding a new fact.",
+    };
+  }
+  if (requirement.evidence_match === "adjacent") {
+    return {
+      requirement_origin: origin,
+      importance,
+      confidence,
+      reason_code: "verified_adjacent_evidence",
+      assessment_explanation: "Verified experience is closely related, but it does not establish the target-specific requirement as direct experience.",
+      unproven: "The target-specific scope remains unverified.",
+      next_action: "Keep the boundary visible or add only candidate-confirmed target-specific evidence.",
+    };
+  }
+  if (requirement.evidence_match === "transferable") {
+    return {
+      requirement_origin: origin,
+      importance,
+      confidence,
+      reason_code: "verified_transferable_evidence",
+      assessment_explanation: "Verified experience demonstrates a relevant capability without proving equivalent target-role experience.",
+      unproven: "Direct performance of this target requirement remains unverified.",
+      next_action: "Use transferable positioning and do not present it as direct experience.",
+    };
+  }
+
+  const missingMetadata = requirement.gap_severity === "verified_blocker"
+    ? {
+      reason_code: "missing_mandatory_credential_or_eligibility",
+      assessment_explanation: "The posting presents this as an explicit mandatory credential or eligibility condition, and no supporting candidate evidence was found.",
+      unproven: "The required credential or eligibility condition is not verified.",
+      next_action: "Confirm candidate-held evidence before relying on this requirement, or keep it visible as a likely screening blocker.",
+    }
+    : requirement.gap_severity === "material_gap"
+      ? {
+        reason_code: "missing_required_capability",
+        assessment_explanation: "The posting presents this as required, and no exact supporting candidate evidence was found.",
+        unproven: "The required capability remains unsupported.",
+        next_action: "Add candidate-confirmed evidence if it exists, otherwise keep the material gap visible.",
+      }
+      : requirement.gap_severity === "preference"
+        ? {
+          reason_code: "missing_preferred_qualification",
+          assessment_explanation: "The posting presents this as preferred rather than mandatory, and no supporting candidate evidence was found.",
+          unproven: "The preferred qualification remains unsupported.",
+          next_action: "Keep it visible as a preference gap; never add it merely to improve keyword coverage.",
+        }
+        : {
+          reason_code: "missing_responsibility_evidence",
+          assessment_explanation: "This responsibility is stated in the posting, but the current candidate evidence does not prove it was performed.",
+          unproven: "Performance of this responsibility remains unsupported.",
+          next_action: "Add candidate-confirmed evidence if available, otherwise retain it as a development gap.",
+        };
+
+  return {
+    requirement_origin: origin,
+    importance,
+    confidence,
+    ...missingMetadata,
   };
 }
 
@@ -542,7 +640,8 @@ function cleanRequirement(value, index, baseResume, candidateNotes = []) {
       : "",
     keywords: uniqueStrings(value?.keywords, 8),
   };
-  return { ...cleaned, ...applicationRiskForRequirement(cleaned) };
+  const assessed = { ...cleaned, ...applicationRiskForRequirement(cleaned) };
+  return { ...assessed, ...requirementAssessmentMetadata(assessed) };
 }
 
 function coverageCounts(requirements) {
@@ -606,6 +705,74 @@ function calibratedLevel(rawLevel, path) {
   if (path !== "career_change") return level || "Role-aligned";
   if (!level || /\b(?:senior|lead|principal|director|manager|expert)\b/i.test(level)) return "Transitional or entry-level positioning";
   return level;
+}
+
+function applicationOutlook(requirements, gapCounts, candidateFit, postingAssessment) {
+  const evidenceCounts = coverageCounts(requirements);
+  const counts = {
+    verified_strengths: evidenceCounts.direct,
+    related_evidence: evidenceCounts.adjacent + evidenceCounts.transferable,
+    material_gaps: gapCounts.material_gap,
+    likely_blockers: gapCounts.verified_blocker,
+    preferences: gapCounts.preference,
+    development_gaps: gapCounts.development_gap,
+    total: requirements.length,
+  };
+  const confidence = postingAssessment.fit_allowed === true
+    ? candidateFit.confidence || (requirements.length >= 5 ? "high" : "medium")
+    : "unavailable";
+
+  if (postingAssessment.fit_allowed !== true || requirements.length === 0) {
+    return {
+      status: "assessment_incomplete",
+      label: "Assessment incomplete",
+      confidence,
+      reason: postingAssessment.readiness_reason || postingAssessment.reason || "Review the complete posting before judging candidate fit.",
+      what_would_change: "Provide and review the complete responsibilities and qualifications.",
+      counts,
+    };
+  }
+  if (gapCounts.verified_blocker > 0) {
+    return {
+      status: "likely_screening_blocker",
+      label: "Likely screening blocker",
+      confidence,
+      reason: `${gapCounts.verified_blocker} explicit mandatory credential or eligibility requirement${gapCounts.verified_blocker === 1 ? " has" : "s have"} no supporting evidence.`,
+      what_would_change: "Candidate-confirmed evidence of the required credential or eligibility condition.",
+      counts,
+    };
+  }
+  if (gapCounts.material_gap > 0) {
+    const hasRelevantEvidence = evidenceCounts.direct + evidenceCounts.adjacent + evidenceCounts.transferable > 0;
+    return {
+      status: hasRelevantEvidence ? "viable_transition_material_gaps" : "high_application_risk",
+      label: hasRelevantEvidence ? "Viable transition with material gaps" : "High application risk",
+      confidence,
+      reason: `${gapCounts.material_gap} required capabilit${gapCounts.material_gap === 1 ? "y remains" : "ies remain"} unsupported by exact candidate evidence.`,
+      what_would_change: "Candidate-confirmed evidence that directly or honestly relates to the unsupported required capabilities.",
+      counts,
+    };
+  }
+  if (candidateFit.status === "strong" && evidenceCounts.missing === 0) {
+    return {
+      status: "strong_verified_alignment",
+      label: "Strong verified alignment",
+      confidence,
+      reason: "The analyzed requirements are supported without an explicit mandatory blocker or material gap.",
+      what_would_change: "Continue reviewing wording and contribution level before applying.",
+      counts,
+    };
+  }
+  return {
+    status: "viable_manageable_gaps",
+    label: "Viable with manageable gaps",
+    confidence,
+    reason: gapCounts.development_gap || gapCounts.preference
+      ? "No explicit mandatory blocker was found; development or preference gaps remain visible."
+      : "Verified adjacent or transferable evidence supports a credible application without claiming equivalence.",
+    what_would_change: "Additional candidate-confirmed direct evidence may strengthen the application, but unsupported requirements will remain visible.",
+    counts,
+  };
 }
 
 export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministicPostingAssessment, fallbackKeywords = [], candidateNotes = [], reviewedRequirementInventory = []) {
@@ -686,6 +853,7 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
       : gapCounts.development_gap > 0 || gapCounts.preference > 0
         ? "review"
         : "low";
+  const outlook = applicationOutlook(requirements, gapCounts, candidateFit, postingAssessment);
   const evidenceQuestions = candidateQuestions.map((question, index) => {
     const prefixedId = question.match(/^\s*\[([^\]]+)\]\s*/)?.[1];
     const requirement = requirements.find((item) => item.id === prefixedId)
@@ -729,6 +897,7 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
     gap_summary: {
       application_risk: applicationRisk,
       counts: gapCounts,
+      outlook,
       note: gapCounts.verified_blocker > 0
         ? "One or more explicit mandatory credentials or eligibility requirements have no supporting evidence. The candidate may still review the opportunity, but Gigscapes will not call the résumé application-ready."
         : gapCounts.material_gap > 0

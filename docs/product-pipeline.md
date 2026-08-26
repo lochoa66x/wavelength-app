@@ -278,6 +278,21 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 - Signed-out browser QA passed the complete landing gallery on desktop and at 390×844 with no horizontal overflow, selectable design previews, Escape/focus restoration in mobile navigation, no page errors, and 57 relevant SAP matches from 63 deduplicated candidates in `/app`.
 - Production dependencies have zero known vulnerabilities. The existing Vite/esbuild development-only advisories require a Vite 8 major upgrade and remain a separately scoped maintenance item.
 
+### P3.5 Evidence Map, application outlook, and decision clarity
+
+**Status:** Implemented, locally verified, and release-authorized on 2026-08-26. The feature SHA is the commit containing this record; GitHub/Vercel binding and production smoke belong to the release handoff.
+
+- The tailoring review now opens with a deterministic application outlook instead of a generic match score. It distinguishes strong verified alignment, viable applications with manageable gaps, viable transitions with material gaps, high-risk applications, likely screening blockers, and incomplete assessments.
+- Document truth/readiness and employer-facing application risk are separate axes. A résumé can pass evidence, identity, structure, and writing checks while remaining a preliminary export because an explicit candidate-fit blocker or material gap still exists.
+- The Evidence Map preserves every atomic requirement and classifies its posting origin, importance, assessment confidence, evidence class, gap severity, explanation, exact candidate citation, unproven boundary, application impact, evidence-safe language, and next action.
+- Mandatory credentials, eligibility, schedule/location constraints, and language requirements retain explicit labels. Missing posting requirements never become candidate evidence, and incomplete posting data remains unknown instead of being counted as a candidate gap.
+- Progressive disclosure and filters make blockers and material gaps visible first while retaining direct, adjacent, transferable, preference, and needs-review views. Labels and counts carry meaning independently of colour; no opaque match percentage is introduced.
+- The presentation model accepts legacy requirement payloads conservatively, so older saved results receive safe fallback explanations without changing their evidence classification or export authority.
+- Cross-career regression coverage includes technical, administration, marketing, creative, skilled trades, regulated credentials, incomplete postings, direct/adjacent/transferable evidence, and truthful weak-fit preliminary exports. The implementation is not tuned to the SAP reference résumé.
+- No Supabase schema, RLS/grant, Auth, analytics, payment, model-provider, cron, feed, dependency, résumé renderer, or export-file content change is included.
+- Local release evidence: 422/422 tests passed. The privacy-safe quality evaluator passed 11/11 cases at 100% contract/readiness/export/integrity/template accuracy with zero privacy violations. Export verification passed for 40 files, 16 strategy/design combinations, 25 PDF pages, 715 selectable text items, canonical manifest parity, final gating, and stale-ready rejection. Vite transformed 1,989 modules while retaining lazy DOCX/PDF/jsPDF chunks.
+- Real-browser component QA used a regulated-electrician fixture at desktop and 390×844. Filtering, progressive disclosure, exact citation/boundary text, mobile wrapping, zero horizontal overflow, and absence of `[object Object]` passed. The scoped automated WCAG A/AA audit reported 16 passes, zero violations, and zero incomplete checks after a contrast correction.
+
 ## Recommended execution order
 
 1. P0.1 posting enrichment and provenance
@@ -294,7 +309,8 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 12. P3.2 Phase B1 opt-in aggregate signals and structured feedback — migration applied and anonymous denial verified; service-role/RLS evidence and release remain
 13. P3.3 trust, explainability, and application-risk calibration — implemented, locally verified, and release-authorized
 14. P3.4 visual résumé gallery and strategy/design separation — implemented, locally verified, and release-authorized
-15. P3.1 native mobile after the web contracts and privacy boundary remain stable
+15. P3.5 Evidence Map and application decision clarity — implemented, locally verified, and release-authorized
+16. P3.1 native mobile after the web contracts and privacy boundary remain stable
 
 ## Source constraints behind P0.1
 

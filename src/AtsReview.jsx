@@ -1,4 +1,5 @@
 import { AlertTriangle, CheckCircle2, FileWarning, ShieldCheck } from "lucide-react";
+import { EvidenceMap } from "./EvidenceMap.jsx";
 
 const READINESS_LABELS = {
   strong_fit: "Strong fit",
@@ -87,65 +88,6 @@ function FocusReview({ focusReview, C }) {
   );
 }
 
-const GAP_SEVERITY_LABELS = {
-  supported: "Supported",
-  verified_blocker: "Mandatory blocker",
-  material_gap: "Material gap",
-  development_gap: "Development gap",
-  preference: "Preference",
-};
-
-function RequirementEvidence({ requirements, gapSummary, C }) {
-  if (!requirements?.length) return null;
-  const counts = requirements.reduce((result, requirement) => {
-    const key = requirement.evidence_match || "missing";
-    result[key] = (result[key] || 0) + 1;
-    return result;
-  }, {});
-
-  return (
-    <details style={{ marginTop: 10, borderTop: `1px solid ${C.border}`, paddingTop: 9 }}>
-      <summary style={{ color: C.text, fontSize: 12.5, fontWeight: 700, cursor: "pointer" }}>
-        Requirement evidence and application risk · {counts.direct || 0} direct · {counts.adjacent || 0} adjacent · {counts.transferable || 0} transferable · {counts.missing || 0} missing
-      </summary>
-      {gapSummary?.note ? (
-        <div role="status" style={{ color: C.textSub, background: C.amberTint, border: `1px solid ${C.amberBorder}`, borderRadius: 9, fontSize: 11.5, lineHeight: 1.45, marginTop: 9, padding: "8px 9px" }}>
-          <strong style={{ color: C.text, textTransform: "capitalize" }}>{gapSummary.application_risk || "Review"} application risk.</strong> {gapSummary.note}
-        </div>
-      ) : null}
-      <div style={{ display: "grid", gap: 8, marginTop: 9 }}>
-        {requirements.map((requirement) => {
-          const supported = requirement.evidence_match !== "missing";
-          const gapSeverity = requirement.gap_severity || (supported ? "supported" : requirement.priority === "preferred" ? "preference" : "material_gap");
-          const citation = requirement.evidence?.[0];
-          return (
-            <div key={requirement.id || requirement.requirement} style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 10px" }}>
-              <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: 8 }}>
-                <span style={{ color: C.text, fontSize: 12.25, lineHeight: 1.4, fontWeight: 650 }}>{requirement.requirement}</span>
-                <span style={{ color: supported ? C.blue : C.amber, fontSize: 10.5, fontWeight: 750, whiteSpace: "nowrap", textTransform: "capitalize" }}>
-                  {supported ? requirement.evidence_match : GAP_SEVERITY_LABELS[gapSeverity] || "Missing"}
-                </span>
-              </div>
-              {citation ? (
-                <blockquote style={{ margin: "7px 0 0", paddingLeft: 9, borderLeft: `2px solid ${C.blueBorder}`, color: C.textSub, fontSize: 11.5, lineHeight: 1.45 }}>
-                  “{citation.excerpt}”
-                  <div style={{ color: C.textFaint, marginTop: 3 }}>
-                    {citation.source === "candidate_note" ? "Candidate-confirmed note" : "Base résumé"} · {citation.section}{citation.line_index ? ` · line ${citation.line_index}` : ""}
-                  </div>
-                </blockquote>
-              ) : (
-                <p style={{ margin: "6px 0 0", color: C.textFaint, fontSize: 11.5 }}>No supporting résumé evidence found.</p>
-              )}
-              {requirement.match_basis ? <p style={{ margin: "5px 0 0", color: C.textFaint, fontSize: 10.75, lineHeight: 1.4 }}>{requirement.match_basis}</p> : null}
-              {requirement.application_impact ? <p style={{ margin: "5px 0 0", color: C.textSub, fontSize: 10.75, lineHeight: 1.4 }}><strong style={{ color: C.text }}>Application impact:</strong> {requirement.application_impact}</p> : null}
-            </div>
-          );
-        })}
-      </div>
-    </details>
-  );
-}
-
 function StatusRow({ label, value, detail, ok, C }) {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "minmax(150px, 0.75fr) minmax(0, 1.25fr)", gap: 12, padding: "8px 0", borderTop: `1px solid ${C.border}` }}>
@@ -212,6 +154,8 @@ export function AtsReview({ review, C }) {
         </span>
       </div>
 
+      <EvidenceMap review={review} C={C} />
+
       <StatusRow label="Evidence integrity" value={integrityPass ? "Pass" : "Blocked"} detail={integrity.issue_count ? `${integrity.issue_count} unsupported claim${integrity.issue_count === 1 ? "" : "s"}` : "No unsupported history, numbers, skills, projects, training, or positioning detected"} ok={integrityPass} C={C} />
       <StatusRow label="Candidate identity" value={identity.status === "complete" ? "Complete" : "Missing"} detail={identity.reason} ok={identity.status === "complete"} C={C} />
       {safetyFallback?.applied ? (
@@ -237,7 +181,6 @@ export function AtsReview({ review, C }) {
         C={C}
       />
 
-      <RequirementEvidence requirements={review.requirements} gapSummary={review.gap_summary} C={C} />
       <WritingReview writingReview={writingReview} C={C} />
       <FocusReview focusReview={focusReview} C={C} />
 
