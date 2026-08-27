@@ -36,6 +36,13 @@ const EVIDENCE_TYPES = Object.freeze([
   ["Missing requirements", "Unverified qualifications stay visible as gaps, not résumé claims."],
 ]);
 
+const WARM_GLASS_PREVIEW_PARAM = "warm-glass";
+
+function warmGlassPreviewEnabled() {
+  if (typeof window === "undefined") return false;
+  return new URLSearchParams(window.location.search).get("surface") === WARM_GLASS_PREVIEW_PARAM;
+}
+
 function IntakeButton({ action, children, className = "landing-button landing-button--secondary" }) {
   const navigate = useNavigate();
   const state = buildLandingNavigationState(action);
@@ -203,8 +210,12 @@ function LandingFooter() {
 }
 
 export default function LandingPage() {
+  const landingClassName = warmGlassPreviewEnabled()
+    ? "landing-page landing-page--warm-glass-preview"
+    : "landing-page";
+
   return (
-    <div className="landing-page">
+    <div className={landingClassName}>
       <a className="landing-skip-link" href="#landing-main">Skip to main content</a>
       <LandingHeader />
       <main id="landing-main">

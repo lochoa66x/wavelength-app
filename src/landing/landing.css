@@ -395,6 +395,90 @@ html {
   transform: rotate(-4deg);
 }
 
+/* Optional visual study: /?surface=warm-glass. The default landing design is unchanged. */
+.landing-page--warm-glass-preview {
+  --landing-glass-surface: rgba(255, 253, 250, 0.96);
+  --landing-glass-line: rgba(200, 67, 0, 0.2);
+  background:
+    radial-gradient(circle at 82% 9%, rgba(254, 94, 3, 0.14), transparent 27rem),
+    radial-gradient(circle at 15% 30%, rgba(35, 90, 66, 0.06), transparent 24rem),
+    var(--landing-warm);
+}
+
+.landing-page--warm-glass-preview .landing-header {
+  border-bottom-color: var(--landing-glass-line);
+  background: #fffdfa;
+  box-shadow: 0 10px 30px rgba(55, 41, 28, 0.06);
+}
+
+.landing-page--warm-glass-preview .landing-product-demo {
+  border-color: var(--landing-glass-line);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(255, 245, 237, 0.94));
+  box-shadow:
+    0 28px 80px rgba(55, 41, 28, 0.13),
+    inset 0 1px 0 rgba(255, 255, 255, 0.92);
+}
+
+.landing-page--warm-glass-preview .landing-product-demo::before {
+  background: linear-gradient(145deg, rgba(254, 94, 3, 0.3), rgba(255, 197, 159, 0.62));
+  filter: blur(1px);
+}
+
+.landing-page--warm-glass-preview .landing-product-tour-toolbar,
+.landing-page--warm-glass-preview .landing-product-tour-actions,
+.landing-page--warm-glass-preview .landing-menu-button,
+.landing-page--warm-glass-preview .landing-mobile-panel {
+  background: var(--landing-glass-surface);
+}
+
+@supports ((backdrop-filter: blur(18px)) or (-webkit-backdrop-filter: blur(18px))) {
+  .landing-page--warm-glass-preview {
+    --landing-glass-surface: rgba(255, 253, 250, 0.7);
+  }
+
+  .landing-page--warm-glass-preview .landing-header {
+    background: rgba(255, 253, 250, 0.78);
+  }
+
+  .landing-page--warm-glass-preview .landing-product-demo {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.8), rgba(255, 245, 237, 0.62));
+  }
+
+  .landing-page--warm-glass-preview .landing-header,
+  .landing-page--warm-glass-preview .landing-product-demo,
+  .landing-page--warm-glass-preview .landing-product-tour-toolbar,
+  .landing-page--warm-glass-preview .landing-product-tour-actions,
+  .landing-page--warm-glass-preview .landing-menu-button,
+  .landing-page--warm-glass-preview .landing-mobile-panel {
+    -webkit-backdrop-filter: blur(18px) saturate(138%);
+    backdrop-filter: blur(18px) saturate(138%);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .landing-page--warm-glass-preview {
+    --landing-glass-surface: #fffdfa;
+  }
+
+  .landing-page--warm-glass-preview .landing-header,
+  .landing-page--warm-glass-preview .landing-product-demo,
+  .landing-page--warm-glass-preview .landing-product-tour-toolbar,
+  .landing-page--warm-glass-preview .landing-product-tour-actions,
+  .landing-page--warm-glass-preview .landing-menu-button,
+  .landing-page--warm-glass-preview .landing-mobile-panel {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .landing-page--warm-glass-preview .landing-header {
+    background: #fffdfa;
+  }
+
+  .landing-page--warm-glass-preview .landing-product-demo {
+    background: #fff8f2;
+  }
+}
+
 .landing-product-tour {
   min-width: 0;
   overflow: hidden;

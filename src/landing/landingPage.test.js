@@ -33,6 +33,15 @@ test("landing and app are route-level lazy chunks", () => {
   assert.match(mainSource, /lazy\(\(\) => import\("\.\/App\.jsx"\)\)/);
 });
 
+test("warm glass stays an explicit landing-only visual preview", () => {
+  assert.match(pageSource, /surface/);
+  assert.match(pageSource, /warm-glass/);
+  assert.match(pageSource, /landing-page--warm-glass-preview/);
+  assert.match(cssSource, /The default landing design is unchanged/);
+  assert.match(cssSource, /prefers-reduced-transparency: reduce/);
+  assert.doesNotMatch(appSource, /warm-glass|landing-page--warm-glass-preview/);
+});
+
 test("browse and all intake CTAs map to the real app and existing account actions", () => {
   assert.deepEqual(LANDING_DESTINATIONS, {
     browse: { path: APP_PATH, action: null },
