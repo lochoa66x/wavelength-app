@@ -234,12 +234,17 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 
 ## Priority 3 — Native mobile and growth work
 
-### P3.1 iOS and Android
+### P3.1 Cross-device private document foundation, then iOS and Android
 
-- Reuse the guest-first onboarding and local preferences.
-- Store local resume drafts using platform-secure storage and offer explicit account sync.
-- Require authentication only for cloud save, tailoring, export history, and multi-device sync.
-- Begin after the web tailoring contract, canonical resume schema, and job-family renderers stabilize.
+**Phase A status:** Implemented locally on 2026-08-27; the production database migration is intentionally pending operator application and RLS verification.
+
+- The release is fail-closed behind `VITE_RESUME_SYNC_ENABLED`; an unset or non-`true` value preserves the current browser-only UI and makes no vault request.
+- Browser-only résumé storage remains the default. A signed-in person must explicitly enable one account-synced base-résumé document; no existing local résumé is uploaded automatically.
+- The private vault uses an indexed ownership key, authenticated-only grants, separate own-user RLS policies for SELECT/INSERT/UPDATE/DELETE, bounded versioned JSON, content hashes, and monotonic revisions.
+- New-device restore occurs only after the device has opted in before or the person chooses the available synced copy. Divergent browser and account copies require an explicit keep-local/use-synced decision; no last-write-wins overwrite is permitted.
+- Offline edits remain safe locally and are marked pending. Stopping sync on one browser preserves the account copy. Local cleanup and remote deletion remain separate two-step boundaries.
+- Phase A syncs only the canonical base résumé. Cover letters, evidence, presentation choices, tailored outputs, and export history remain browser-local until their own schemas, retention, and conflict policies are approved.
+- Phase B can reuse this contract for iOS and Android, storing device drafts with platform-secure storage and requiring authentication only for cloud save, tailoring, export history, and multi-device sync.
 
 ### P3.2 Evaluation and analytics
 
@@ -352,7 +357,7 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 15. P3.5 Evidence Map and application decision clarity — implemented, locally verified, and release-authorized
 16. P3.6 privacy and data-transparency foundation — configured, release-verified, and authorized for Git-triggered production promotion
 17. P3.7 evidence-first cover letters and application packages — approved after the privacy release
-18. P3.1 native mobile after the web contracts and privacy boundary remain stable
+18. P3.1 Phase A opt-in web résumé sync and production RLS verification, then native mobile after the web contract remains stable
 
 ## Source constraints behind P0.1
 

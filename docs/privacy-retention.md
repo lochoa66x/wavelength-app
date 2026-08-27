@@ -5,6 +5,7 @@ Last reviewed: 2026-08-27
 | Record | Current retention behavior | User control | Owner verification |
 | --- | --- | --- | --- |
 | Browser résumé | Until overwritten, browser data is cleared, or scoped deletion runs | Edit or clear locally | None |
+| Account-synced base résumé | Only after explicit opt-in; remains until the separate synced-copy deletion control or account deletion | Turn sync off per browser, resolve conflicts, or delete the remote copy while retaining the local copy | Apply and verify `private_documents` migration before enabling production sync |
 | Browser evidence/template choices | Until browser data is cleared or scoped deletion runs | Clear locally | None |
 | Browser cover-letter drafts | Target-scoped local storage until replaced, individually removed, browser data is cleared, or scoped deletion runs | Remove one draft or clear current account's private browser data | None |
 | Processing acknowledgement | Until policy version changes, browser data is cleared, or scoped deletion runs | Clear locally | None |

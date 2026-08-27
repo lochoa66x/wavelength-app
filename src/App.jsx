@@ -8,6 +8,8 @@ import { CustomJobFlow } from "./CustomJobFlow.jsx";
 import { PrivateProcessingDialog } from "./PrivateProcessingDialog.jsx";
 import { PositioningSummary } from "./PositioningSummary.jsx";
 import { ResumeExperience } from "./ResumeExperience.jsx";
+import { ResumeSyncControls } from "./ResumeSyncControls.jsx";
+import { RESUME_SYNC_ENABLED } from "./resumeSyncConfig.js";
 import { loadLocalResume, saveLocalResume } from "./resumeStorage.js";
 import {
   candidateEvidenceForRequest,
@@ -64,6 +66,7 @@ import { durationBand, emitQualitySignal, emitResumeQualitySignal } from "./qual
 import { applyTailoringChangeDecision, reviewAfterTailoringChange } from "./tailoringChanges.js";
 import { usePrivateProcessingGate } from "./privateProcessing.js";
 import { clearPrivateBrowserData } from "./privacyStorage.js";
+import { useResumeVault } from "./useResumeVault.js";
 
 const SYS_FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, sans-serif";
 const ADZUNA_ATTRIBUTION_STYLE = {
@@ -699,6 +702,7 @@ export default function Gigscapes() {
   const [customJobMode, setCustomJobMode] = useState("url");
   const [customJobInitialUrl, setCustomJobInitialUrl] = useState("");
   const [localResume, setLocalResume] = useState("");
+  const [resumeLoadedForUser, setResumeLoadedForUser] = useState("");
   const [resumeStorageError, setResumeStorageError] = useState("");
   const [cloudResumeWarning, setCloudResumeWarning] = useState("");
   const [guestDismissed, setGuestDismissed] = useState([]);
@@ -710,6 +714,24 @@ export default function Gigscapes() {
   const handledLandingAction = useRef(null);
   const landingAccountAction = landingAccountActionFromState(location.state);
   const privateProcessing = usePrivateProcessingGate();
+  const replaceLocalResumeFromSync = useCallback((text) => {
+    const userId = session?.user?.id;
+    if (!userId || !saveLocalResume(userId, text)) {
+      setResumeStorageError("Your browser blocked local storage, so the synced résumé was not activated.");
+      return false;
+    }
+    const normalized = String(text || "").trim();
+    setLocalResume(normalized);
+    setResumeDraft(normalized);
+    setResumeStorageError("");
+    return true;
+  }, [session?.user?.id]);
+  const resumeVault = useResumeVault({
+    userId: session?.user?.id,
+    ready: Boolean(RESUME_SYNC_ENABLED && session?.user?.id && resumeLoadedForUser === session.user.id),
+    localResume,
+    replaceLocalResume: replaceLocalResumeFromSync,
+  });
 
   useEffect(() => () => {
     for (const request of tailoringRequests.current.values()) request.controller.abort();
@@ -794,8 +816,10 @@ export default function Gigscapes() {
       setResumeStorageError("Your browser blocked local storage, so the résumé was not saved.");
       return false;
     }
-    setLocalResume(String(text || "").trim());
+    const normalized = String(text || "").trim();
+    setLocalResume(normalized);
     setResumeStorageError("");
+    void resumeVault.syncAfterLocalSave(normalized);
     return true;
   };
   const clearLocalPrivateData = () => {
@@ -810,6 +834,7 @@ export default function Gigscapes() {
     setResumeDraft("");
     setTailored({});
     setCandidateEvidenceByTarget({});
+    resumeVault.resetAfterLocalClear();
     setClearPrivateDataOpen(false);
     setClearPrivateDataMessage(`Removed ${result.removed} private browser record${result.removed === 1 ? "" : "s"} for this account.`);
   };
@@ -1048,7 +1073,10 @@ export default function Gigscapes() {
   // Load the resume saved for this account in this browser. Including the
   // Supabase user id in the key keeps accounts separate on shared devices.
   useEffect(() => {
-    setLocalResume(loadLocalResume(session?.user?.id));
+    const userId = session?.user?.id || "";
+    setResumeLoadedForUser("");
+    setLocalResume(loadLocalResume(userId));
+    setResumeLoadedForUser(userId);
     setResumeStorageError("");
     setCloudResumeWarning("");
   }, [session?.user?.id]);
@@ -1580,7 +1608,9 @@ export default function Gigscapes() {
           <p role="alert" style={{ fontSize: 13, color: C.red, marginTop: 12 }}>{resumePrivacyWarning}</p>
         ) : (
           <p style={{ fontSize: 12, color: C.textFaint, lineHeight: 1.5, margin: "14px 0 0" }}>
-            Saved only in this browser. It will not sync to another device. Tailoring sends it to our AI provider for that request.
+            {RESUME_SYNC_ENABLED
+              ? "Saved in this browser by default. You can explicitly enable account sync from the résumé editor. Tailoring sends the selected résumé to our AI provider for that request."
+              : "Saved only in this browser on this device. Tailoring sends the selected résumé to our AI provider for that request."}
           </p>
         )}
       </div>,
@@ -1595,7 +1625,7 @@ export default function Gigscapes() {
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
         <h2 style={{ fontSize: 23, fontWeight: 700, margin: "0 0 6px", color: C.text }}>Your résumé</h2>
         <p style={{ fontSize: 14, color: C.textSub, margin: "0 0 16px" }}>
-          Paste your full résumé here — experience, skills, past projects. It is saved only in this browser and used as the base for each tailored version.
+          Paste your full résumé here — experience, skills, past projects. It is saved in this browser by default and used as the base for each tailored version.
         </p>
         <textarea
           value={resumeDraft}
@@ -1621,12 +1651,17 @@ export default function Gigscapes() {
           <p role="alert" style={{ fontSize: 13, color: C.red, marginTop: 12 }}>{resumePrivacyWarning}</p>
         ) : (
           <p style={{ fontSize: 12, color: C.textFaint, lineHeight: 1.5, margin: "14px 0 0" }}>
-            Saved only in this browser. It will not sync to another device. Tailoring sends it to our AI provider for that request.
+            {RESUME_SYNC_ENABLED
+              ? "Browser-only is the default. Cross-device account sync is optional and never uploads a different copy without asking. Tailoring sends the selected résumé to our AI provider for that request."
+              : "Saved only in this browser on this device. Tailoring sends the selected résumé to our AI provider for that request."}
           </p>
         )}
+        <ResumeSyncControls sync={resumeVault} localResume={localResume} />
         <section style={{ marginTop: 22, paddingTop: 18, borderTop: `1px solid ${C.border}` }} aria-labelledby="local-data-controls-heading">
           <h3 id="local-data-controls-heading" style={{ color: C.text, fontSize: 15, margin: "0 0 6px" }}>Private data on this device</h3>
-          <p style={{ color: C.textSub, fontSize: 12.5, lineHeight: 1.55, margin: "0 0 12px" }}>Remove this account’s saved résumé, cover-letter drafts, confirmed evidence, presentation choices, and AI-processing acknowledgement from this browser. This does not delete your account, saved jobs, search preferences, sign-in session, or provider-retained request copies.</p>
+          <p style={{ color: C.textSub, fontSize: 12.5, lineHeight: 1.55, margin: "0 0 12px" }}>{RESUME_SYNC_ENABLED
+            ? "Remove this account’s saved résumé, cover-letter drafts, confirmed evidence, presentation choices, sync preference, and AI-processing acknowledgement from this browser. This does not delete an account-synced résumé, your account, saved jobs, search preferences, sign-in session, or provider-retained request copies."
+            : "Remove this account’s saved résumé, cover-letter drafts, confirmed evidence, presentation choices, and AI-processing acknowledgement from this browser. This does not delete your account, saved jobs, search preferences, sign-in session, or provider-retained request copies."}</p>
           {!clearPrivateDataOpen ? (
             <button type="button" onClick={() => { setClearPrivateDataOpen(true); setClearPrivateDataMessage(""); }} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, color: C.red }}>Clear private document data</button>
           ) : (

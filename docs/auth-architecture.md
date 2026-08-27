@@ -6,7 +6,9 @@
 
 Guests can browse, search, filter, paginate, read summaries and attribution, and follow original provider links. Their versioned local preference record contains only keyword/category and geographic/workplace filters. Dismissed listings are memory-only for guests.
 
-Saved jobs, synchronized preferences, résumé storage/editing, posting intake, screenshots, pasted posting text, tailoring, evidence, exports, copied tailored text, and workspace views require an account. Résumés and evidence remain account-keyed in browser storage; server requests include a current bearer token and the endpoint validates it again.
+Saved jobs, synchronized preferences, résumé storage/editing, posting intake, screenshots, pasted posting text, tailoring, evidence, exports, copied tailored text, and workspace views require an account. Résumés and evidence remain account-keyed in browser storage by default; server requests include a current bearer token and the endpoint validates it again.
+
+P3.1 adds an explicit, reversible base-résumé sync option after the local copy loads. The browser never enables sync silently. `public.private_documents` permits authenticated CRUD only for rows where `auth.uid() = user_id`; separate SELECT, INSERT, UPDATE, and DELETE policies protect the browser path. A revision compare-and-swap contract prevents last-write-wins replacement: divergent local and remote copies require the person to choose. Cover letters, evidence, template choices, and generated target documents remain browser-local in this phase.
 
 ## Central action gate
 
@@ -31,7 +33,7 @@ The browser has only the URL and publishable key. `SUPABASE_SECRET_KEY` is read 
 
 The public browser query names every public field. The migration creates `public.public_listings` with `security_invoker = true`, explicit `anon`/`authenticated` grants, and a public-row SELECT policy. It revokes client access to operational listing columns. During the code/migration rollout window, a missing-view error may fall back to the same explicit columns on the existing anonymous-readable table.
 
-Profiles have RLS enabled, no `anon` grants, and same-user policies using `(select auth.uid()) = id`. The schema uses the profile primary key as its ownership key; this is the equivalent of a separate `user_id` ownership predicate. UPDATE has both `USING` and `WITH CHECK`, with a matching SELECT policy. No `auth.role()`, editable `user_metadata`, or `SECURITY DEFINER` bypass is introduced.
+Profiles have RLS enabled, no `anon` grants, and same-user policies using `(select auth.uid()) = id`. The schema uses the profile primary key as its ownership key; this is the equivalent of a separate `user_id` ownership predicate. `private_documents` uses an indexed `user_id` ownership key, explicit authenticated grants, and four own-user RLS policies; UPDATE has both `USING` and `WITH CHECK`, with a matching SELECT policy. No `auth.role()`, editable `user_metadata`, or `SECURITY DEFINER` bypass is introduced.
 
 ## Manual Supabase configuration
 

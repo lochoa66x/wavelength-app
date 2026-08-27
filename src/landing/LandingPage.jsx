@@ -16,6 +16,7 @@ import { Link, useNavigate } from "react-router";
 
 import { BrandMark } from "../BrandMark.jsx";
 import { APP_PATH } from "../authRoutes.js";
+import { RESUME_SYNC_ENABLED } from "../resumeSyncConfig.js";
 import { LandingFaq } from "./LandingFaq.jsx";
 import { LandingHeader } from "./LandingHeader.jsx";
 import { LandingTemplates } from "./LandingTemplates.jsx";
@@ -170,7 +171,9 @@ function DiscoveryAndPrivacy() {
         <p className="landing-card-kicker">Review and control</p>
         <h2>You decide when private work begins.</h2>
         <p>Public browsing does not require an account. Sign-in gates saved work, résumé editing, posting intake, tailoring, and export.</p>
-        <p>Your résumé is saved only in this browser on this device; it is not currently synced, and clearing site data can remove it. When you request tailoring, the résumé, reviewed posting, and confirmed evidence are sent for that private request.</p>
+        <p>{RESUME_SYNC_ENABLED
+          ? "Your résumé stays in this browser by default. Signed-in users can explicitly enable private account sync for the base résumé; it is never switched on silently. When you request tailoring, the selected résumé, reviewed posting, and confirmed evidence are sent for that private request."
+          : "Your résumé is saved only in this browser on this device. Clearing site data can remove it, so keep your original résumé. When you request tailoring, the selected résumé, reviewed posting, and confirmed evidence are sent for that private request."}</p>
         <p>Gigscapes does not auto-apply or contact employers. Preliminary and application-ready exports remain distinct, and you decide what to submit.</p>
       </article>
     </section>

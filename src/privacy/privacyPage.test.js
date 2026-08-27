@@ -9,7 +9,9 @@ const vercelConfig = JSON.parse(readFileSync(new URL("../../vercel.json", import
 
 test("privacy notice is public, versioned, and covers the real processing boundaries", () => {
   assert.match(main, /path="\/privacy"/);
-  assert.match(page, /browser storage|saved only in this browser/i);
+  assert.match(page, /Browser-only storage is the default/i);
+  assert.match(page, /explicitly turn on cross-device résumé sync/i);
+  assert.match(page, /not end-to-end encrypted/i);
   assert.match(page, /Supabase/);
   assert.match(page, /Anthropic/);
   assert.match(page, /Vercel Web Analytics/);

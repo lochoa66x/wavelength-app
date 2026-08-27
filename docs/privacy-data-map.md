@@ -1,7 +1,7 @@
 # Gigscapes privacy data map
 
 Last reviewed: 2026-08-27
-Policy version: `2026-08-27`
+Policy version: `2026-08-27.2`
 
 This map describes the implementation in this repository. It is not a claim about provider systems beyond their published documentation or the operator's configured accounts.
 
@@ -10,7 +10,7 @@ This map describes the implementation in this repository. It is not a claim abou
 | Public discovery | Search term, location, workplace filters, public listing IDs | Guest preferences may be local | Public listing request | `public.public_listings` exposes an allowlisted discovery projection | No | Page view after URL sanitization |
 | Authentication | Email, Supabase session | Supabase client manages the session | Auth exchange | Auth user and profile | No | `/auth/callback` analytics is suppressed |
 | Account workspace | Search criteria, saved/dismissed listing IDs, onboarding state | UI state | Authenticated profile request | Own `profiles` row | No | Route-only page view |
-| Base résumé | Résumé text | Local storage, keyed by Supabase user ID | Sent only for a requested tailoring operation | Legacy `resume_text` is cleared after guarded local migration | Included in requested tailoring call | Not included in analytics; API response is `no-store` |
+| Base résumé | Résumé text | Local storage, keyed by Supabase user ID; browser-only remains the default | Sent only for a requested tailoring operation | Optional `private_documents` copy only after explicit sync opt-in; own-user RLS and revision checks; legacy profile `resume_text` is cleared | Included in requested tailoring call | Not included in analytics; API response is `no-store` |
 | Candidate evidence | Confirmed answers, target key | Local storage, max five request records/reusable records | Sent only with a requested tailoring call | No intended persistence | Included in requested tailoring call | Not included in analytics |
 | Custom job intake | Pasted text, validated public URL contents, or compressed screenshots | React state for the active workflow | Authenticated `/api/job-intake`; no application database write | Auth verification only | Included in extraction call | Not included in analytics; response is `no-store` |
 | Tailoring | Résumé, reviewed job, verified evidence | Generated draft in React state; export initiated locally | Authenticated `/api/tailor` | Trusted listing read when a listing ID is used | Analysis, draft, and truth-repair calls | Operational metadata only; response is `no-store` |
@@ -21,6 +21,7 @@ This map describes the implementation in this repository. It is not a claim abou
 ## Local storage inventory
 
 - `gigscapes:resume:v1:<user-id>` — résumé text.
+- `gigscapes:resume-sync:v1:<encoded-user-id>` — versioned per-browser opt-in, known revision/hash, and pending flag; no résumé text.
 - `gigscapes:candidate-evidence:v1:<encoded-user-id>:<target>` — application evidence.
 - `gigscapes:reusable-candidate-evidence:v1:<encoded-user-id>` — user-confirmed reusable evidence.
 - `gigscapes:resume-template:v1:<encoded-user-id>:<target>` — presentation choice.
@@ -32,4 +33,4 @@ This map describes the implementation in this repository. It is not a claim abou
 
 ## Deletion boundary
 
-`clearPrivateBrowserData` removes only the signed-in account's résumé, candidate evidence, reusable evidence, template selections, target-specific cover-letter drafts, and the processing acknowledgement. It deliberately does not call `localStorage.clear()` and does not remove auth state, another account's data, guest search preferences, quality-signal consent, saved jobs, or provider-retained request copies.
+`clearPrivateBrowserData` removes only the signed-in account's résumé, candidate evidence, reusable evidence, template selections, target-specific cover-letter drafts, sync preference, and processing acknowledgement. It deliberately does not call `localStorage.clear()` and does not remove auth state, another account's data, guest search preferences, quality-signal consent, saved jobs, an account-synced résumé, or provider-retained request copies. Remote deletion is a separate two-step control; stopping sync on one browser leaves the remote row intact.

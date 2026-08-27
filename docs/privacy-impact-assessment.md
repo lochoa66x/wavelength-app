@@ -15,6 +15,7 @@ Gigscapes finds public jobs and creates editable résumé and cover-letter draft
 | Résumé leaks into analytics or logs | High | No custom résumé events; `beforeSend` strips query/hash and suppresses auth callback; APIs log only stage/status/counts; private responses are `no-store` | Verify Vercel project log retention and drain configuration |
 | Shared-device exposure | High | User-ID-scoped local keys, honest browser-only copy, scoped deletion control | Browser profile itself remains a security boundary |
 | Unauthorized profile access | High | RLS, own-row authenticated policies, anon revocation, server-only secret key | Run Supabase advisors after every schema change |
+| Unauthorized synced-résumé access or silent overwrite | High | Sync is opt-in; authenticated-only grants; own-user RLS for every operation; bounded payload/hash validation; revision compare-and-swap; explicit conflict choice; separate local and remote deletion | Apply the vault migration and complete anonymous/User A/User B production verification before calling sync operational |
 | AI fabricates claims | High | Evidence-first prompt, deterministic validation/repair/fallback, user review before export | Model behavior remains probabilistic; exports need user review |
 | Cover letter silently overstates motivation or fit | High | Every substantive paragraph carries exact résumé/posting citations; generic flattery, unsupported motivation, placeholders, and unsupported numbers are rejected; paragraph edits must be rechecked before export | Candidate still owns final review and submission |
 | Excessive retention | Medium | No app database write for intake/tailoring payloads, local deletion, 180-day quality aggregate cleanup | Provider/hosting retention must be verified against contracted plan |
@@ -24,7 +25,7 @@ Gigscapes finds public jobs and creates editable résumé and cover-letter draft
 ## PIPEDA-oriented principles
 
 - Accountability: a verified operator and reachable privacy contact are mandatory release facts.
-- Identifying purposes: discovery, account workspace, job extraction, résumé and cover-letter generation, local editing/export, optional aggregate quality evaluation.
+- Identifying purposes: discovery, account workspace, job extraction, résumé and cover-letter generation, local editing/export, optional user-enabled cross-device base-résumé sync, optional aggregate quality evaluation.
 - Consent: account action is explicit; AI processing has just-in-time acknowledgement; optional quality signals are off by default.
 - Limiting collection/use/disclosure: request payloads are purpose-bound and analytics are route-only after sanitization.
 - Safeguards: RLS, server-only credentials, authorization headers, input caps, SSRF protection, no-store responses, minimized logs.

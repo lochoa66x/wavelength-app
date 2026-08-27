@@ -8,6 +8,7 @@ import {
   PRIVACY_POLICY_VERSION,
   readPrivacyConfig,
 } from "../privacyConfig.js";
+import { RESUME_SYNC_ENABLED } from "../resumeSyncConfig.js";
 import "./privacy.css";
 
 const ANTHROPIC_PRIVACY_URL = "https://privacy.anthropic.com/en/articles/7996868-how-long-do-you-store-personal-data";
@@ -38,7 +39,9 @@ export default function PrivacyPage() {
         <div className="privacy-hero">
           <div className="privacy-eyebrow"><ShieldCheck size={18} /> Privacy & data transparency</div>
           <h1>Know where your résumé goes.</h1>
-          <p>Gigscapes is designed to keep your base résumé on your device, explain when private content leaves the browser, and avoid using résumé details for advertising.</p>
+          <p>{RESUME_SYNC_ENABLED
+            ? "Gigscapes keeps your base résumé in this browser by default, offers optional account sync only when you enable it, explains when private content leaves your device, and avoids using résumé details for advertising."
+            : "Gigscapes keeps your base résumé in this browser on this device, explains when private content leaves your device, and avoids using résumé details for advertising."}</p>
           <dl><div><dt>Effective</dt><dd>{PRIVACY_EFFECTIVE_DATE}</dd></div><div><dt>Policy version</dt><dd>{PRIVACY_POLICY_VERSION}</dd></div></dl>
         </div>
 
@@ -61,19 +64,20 @@ export default function PrivacyPage() {
           <ul>
             <li><strong>Public discovery:</strong> search terms, location and workplace preferences, listing identifiers, and public job-posting information.</li>
             <li><strong>Account workspace:</strong> email-based authentication, saved and dismissed listing identifiers, and account search criteria.</li>
-            <li><strong>Résumé and cover-letter workspace:</strong> résumé text, confirmed candidate evidence, presentation choices, and target-specific cover-letter drafts saved in this browser for the signed-in account.</li>
-            <li><strong>Tailoring input:</strong> the reviewed posting, browser-saved résumé, and evidence the person explicitly confirms for a tailoring request.</li>
+            <li><strong>Résumé and cover-letter workspace:</strong> résumé text, confirmed candidate evidence, presentation choices, and target-specific cover-letter drafts saved in this browser for the signed-in account. {RESUME_SYNC_ENABLED ? "If you explicitly enable résumé sync, an account-owned copy of the base résumé is also stored in Supabase." : null}</li>
+            <li><strong>Tailoring input:</strong> the reviewed posting, selected résumé, and evidence the person explicitly confirms for a tailoring request.</li>
             <li><strong>Optional quality signals:</strong> a fixed set of coarse product outcomes only when the user enables the setting. Résumé text, names, emails, employers, and free-form posting content are excluded.</li>
           </ul>
         </PolicySection>
 
         <PolicySection title="3. Where data is stored">
-          <p>Your base résumé and target-specific cover-letter drafts are saved in local browser storage on the device where you entered or generated them. They are not currently synced to another device. Clearing browser data, using a different browser profile, or choosing the local deletion control can remove them.</p>
-          <p>Supabase stores authentication and account-workspace records such as search criteria and saved listing identifiers. Gigscapes does not intentionally store the current résumé text in the profile database; an earlier profile field is cleared through a guarded migration after a safe local copy succeeds.</p>
+          <p>Your base résumé and target-specific cover-letter drafts are saved in local browser storage on the device where you entered or generated them. Browser-only storage is the default. Clearing browser data, using a different browser profile, or choosing the local deletion control can remove that device copy.</p>
+          {RESUME_SYNC_ENABLED ? <p>If you explicitly turn on cross-device résumé sync, Supabase stores one private base-résumé document for your signed-in account. Per-user database rules restrict browser access to the owning account, and conflicting copies require your choice before either is replaced. Sync traffic is encrypted in transit but the stored document is not end-to-end encrypted. Cover letters, confirmed evidence, and presentation choices remain browser-local in this phase.</p> : <p>Cross-device résumé sync is not enabled in this release.</p>}
+          <p>Supabase also stores authentication and account-workspace records such as search criteria and saved listing identifiers. Gigscapes does not store the current résumé text in the profile row; an earlier profile field is cleared through a guarded migration after a safe local copy succeeds.</p>
         </PolicySection>
 
         <PolicySection title="4. When content is sent to an AI provider">
-          <p>Job-intake, résumé-tailoring, and cover-letter requests pass through Gigscapes server functions to Anthropic. Job intake sends the posting material supplied for extraction. Tailoring sends the browser-saved résumé, the reviewed posting, and confirmed evidence needed to generate and truth-check the draft. Cover-letter generation sends those same verified sources, the current application assessment, and a minimized existing paragraph or draft only when the person asks to regenerate wording.</p>
+          <p>Job-intake, résumé-tailoring, and cover-letter requests pass through Gigscapes server functions to Anthropic. Job intake sends the posting material supplied for extraction. Tailoring sends the selected résumé, the reviewed posting, and confirmed evidence needed to generate and truth-check the draft. Cover-letter generation sends those same verified sources, the current application assessment, and a minimized existing paragraph or draft only when the person asks to regenerate wording.</p>
           <p>Gigscapes shows a just-in-time notice before each kind of processing. Generated content is returned for review and is not submitted to an employer. Anthropic describes its current commercial/API retention practices and exceptions in its <a href={ANTHROPIC_PRIVACY_URL} target="_blank" rel="noreferrer">data-retention documentation <ExternalLink size={13} /></a>.</p>
         </PolicySection>
 
@@ -84,14 +88,15 @@ export default function PrivacyPage() {
 
         <PolicySection title="6. Providers and purposes">
           <ul>
-            <li><a href={SUPABASE_PRIVACY_URL} target="_blank" rel="noreferrer">Supabase <ExternalLink size={13} /></a> — authentication, account workspace, and public listing database.</li>
+            <li><a href={SUPABASE_PRIVACY_URL} target="_blank" rel="noreferrer">Supabase <ExternalLink size={13} /></a> — authentication, account workspace, public listing database{RESUME_SYNC_ENABLED ? ", and the optional private base-résumé sync you enable" : ""}.</li>
             <li><a href="https://www.anthropic.com/legal/privacy" target="_blank" rel="noreferrer">Anthropic <ExternalLink size={13} /></a> — posting extraction, résumé tailoring, cover-letter generation, and evidence/truth review.</li>
             <li><a href="https://vercel.com/legal/privacy-notice" target="_blank" rel="noreferrer">Vercel <ExternalLink size={13} /></a> — hosting, server functions, operational logs, and privacy-filtered aggregate analytics.</li>
           </ul>
         </PolicySection>
 
         <PolicySection title="7. Retention and deletion">
-          <p>Local résumé and cover-letter data remains until the browser or user removes it. The in-app deletion control removes the current account’s résumé, target-specific cover-letter drafts, confirmed evidence, presentation choices, and processing acknowledgement from that browser only. It does not delete the Supabase account, saved jobs, search preferences, authentication session, or copies a provider must temporarily retain for security or legal obligations.</p>
+          <p>Local résumé and cover-letter data remains until the browser or user removes it. The local deletion control removes the current account’s résumé, target-specific cover-letter drafts, confirmed evidence, presentation choices, sync preference, and processing acknowledgement from that browser only. It does not delete an account-synced résumé, the Supabase account, saved jobs, search preferences, authentication session, or copies a provider must temporarily retain for security or legal obligations.</p>
+          {RESUME_SYNC_ENABLED ? <p>An account-synced résumé remains until you use the separate “Delete synced copy” control or request account deletion. Stopping sync on one device leaves the account copy intact; deleting the synced copy leaves the current browser copy intact. These separate controls prevent a local cleanup from silently erasing every copy.</p> : null}
           <p>Optional quality events are aggregated by day and the database migration removes aggregate buckets older than 180 days. Provider and hosting retention periods can vary by plan, request type, and legally required exceptions; Gigscapes reviews these settings and documents unresolved owner decisions in its internal retention register.</p>
         </PolicySection>
 
@@ -102,6 +107,7 @@ export default function PrivacyPage() {
             <li>Cancel a processing disclosure without losing the input already entered.</li>
             <li>Disable optional quality signals at any time.</li>
             <li>Clear private résumé and cover-letter data from the current browser.</li>
+            {RESUME_SYNC_ENABLED ? <li>Turn cross-device résumé sync on or off per browser, choose between conflicting copies, and separately delete the account-synced résumé.</li> : null}
             <li>Contact the privacy address above for account access, correction, or deletion requests.</li>
           </ul>
         </PolicySection>

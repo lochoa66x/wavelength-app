@@ -16,5 +16,5 @@ test("privacy release configuration requires verified public facts", () => {
   });
   assert.equal(ready.releaseReady, true);
   assert.equal(ready.minimumAge, 16);
-  assert.match(PRIVACY_POLICY_VERSION, /^\d{4}-\d{2}-\d{2}$/);
+  assert.match(PRIVACY_POLICY_VERSION, /^\d{4}-\d{2}-\d{2}(?:\.\d+)?$/);
 });

@@ -190,7 +190,8 @@ test("FAQ covers the required trust, pricing, storage, and product questions", (
   ]) {
     assert.match(faqSource, new RegExp(marker, "i"));
   }
-  assert.match(pageSource, /saved only in this browser on this device/i);
+  assert.match(pageSource, /stays in this browser by default/i);
+  assert.match(pageSource, /never switched on silently/i);
   assert.match(pageSource, /does not auto-apply/i);
   assert.doesNotMatch(pageSource, /stored for your account in this browser/i);
 });

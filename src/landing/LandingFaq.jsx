@@ -1,8 +1,12 @@
+import { RESUME_SYNC_ENABLED } from "../resumeSyncConfig.js";
+
 const FAQS = Object.freeze([
   ["Can I browse without an account?", "Yes. Public job and gig discovery, search, location filters, workplace filters, and original provider links are available before sign-in."],
   ["Is Gigscapes free?", "Gigscapes currently has no published paid plan or checkout. If paid features are introduced, the price and terms will be shown before you take a paid action."],
   ["When do I need to sign in?", "Sign in when you want to save work, add your résumé, import private posting content, tailor, or export. Those actions use the existing private workspace gate."],
-  ["Where is my résumé stored?", "Your résumé is saved only in this browser on this device. It is not currently synced across devices; clearing this browser's site data can remove it, so keep a copy of your original résumé."],
+  ["Where is my résumé stored?", RESUME_SYNC_ENABLED
+    ? "Your résumé stays in this browser by default. Signed-in users can explicitly turn on private account sync for the base résumé; Gigscapes never enables it silently. Without sync, clearing this browser's site data can remove the copy, so keep your original résumé."
+    : "Your résumé is saved only in this browser on this device. Clearing this browser's site data can remove it, so keep your original résumé."],
   ["Does Gigscapes submit applications for me?", "No. Gigscapes does not auto-apply, contact employers, or submit anything in the background. You review the résumé and decide when and where to apply."],
   ["Can I use a posting from another site?", "Yes. Bring a public link, screenshots, or the full posting text. You review the extracted details before tailoring begins."],
   ["Why can’t Gigscapes always read the full job page?", "Some publishers block automated reading or show only a short aggregator snippet. Screenshots or pasted text are the reliable fallback; Gigscapes does not bypass access controls."],
