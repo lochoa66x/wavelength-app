@@ -5,15 +5,15 @@ import { ShieldCheck, X } from "lucide-react";
 const COPY = {
   intake: {
     title: "Before Gigscapes reads this posting",
-    body: "Gigscapes sends the posting text, public page contents, or compressed screenshots to Anthropic through Gigscapes servers so the job can be structured for your review. This input is not added to your Gigscapes profile.",
+    body: "Gigscapes sends the posting text, public page contents, or compressed screenshots through Gigscapes servers to a configured AI processing provider so the job can be structured for your review. This input is not added to your Gigscapes profile.",
   },
   tailor: {
     title: "Before Gigscapes tailors your résumé",
-    body: "Gigscapes sends your browser-saved résumé, the reviewed posting, and any evidence you confirmed to Anthropic through Gigscapes servers for this request. Your base résumé stays stored only in this browser, and Gigscapes never submits an application to an employer.",
+    body: "Gigscapes sends your browser-saved résumé, the reviewed posting, and any evidence you confirmed through Gigscapes servers to a configured AI processing provider for this request. Your base résumé stays stored only in this browser, and Gigscapes never submits an application to an employer.",
   },
   cover_letter: {
     title: "Before Gigscapes writes your cover letter",
-    body: "Gigscapes sends your browser-saved résumé, reviewed posting, confirmed evidence, application assessment, and—when regenerating—a minimized copy of the current draft to Anthropic through Gigscapes servers. The result stays target-specific and editable; it does not change your saved résumé or submit an application.",
+    body: "Gigscapes sends your browser-saved résumé, reviewed posting, confirmed evidence, application assessment, and—when regenerating—a minimized copy of the current draft through Gigscapes servers to a configured AI processing provider. The result stays target-specific and editable; it does not change your saved résumé or submit an application.",
   },
 };
 
@@ -53,7 +53,7 @@ export function PrivateProcessingDialog({ scope, onCancel, onConfirm, returnFocu
         <ShieldCheck size={30} color="#13795B" aria-hidden="true" />
         <h2 id="private-processing-title">{copy.title}</h2>
         <p id="private-processing-copy">{copy.body}</p>
-        <p className="privacy-gate-detail">The generated result remains editable. Gigscapes does not use résumé details for advertising, and optional product-quality signals exclude résumé text.</p>
+        <p className="privacy-gate-detail">The generated result remains editable. Current AI providers and their purposes are identified in the Privacy Notice. Gigscapes does not use résumé details for advertising, and optional product-quality signals exclude résumé text.</p>
         <Link to="/privacy" target="_blank" rel="noreferrer" className="privacy-gate-link">Read the full Privacy Notice</Link>
         <div className="privacy-gate-actions">
           <button type="button" onClick={onCancel} className="privacy-gate-secondary">Cancel</button>
