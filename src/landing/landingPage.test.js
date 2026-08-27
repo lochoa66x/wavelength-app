@@ -150,8 +150,9 @@ test("all hash navigation targets exist in the landing source", () => {
   }
 });
 
-test("footer avoids unimplemented privacy, terms, and social routes", () => {
-  assert.doesNotMatch(pageSource, /to=["']\/(?:privacy|terms)|instagram|linkedin|twitter\.com/i);
+test("footer links the implemented privacy route and avoids absent legal or social routes", () => {
+  assert.match(pageSource, /to=["']\/privacy/);
+  assert.doesNotMatch(pageSource, /to=["']\/terms|instagram|linkedin|twitter\.com/i);
   assert.match(pageSource, /new Date\(\)\.getFullYear\(\)/);
 });
 

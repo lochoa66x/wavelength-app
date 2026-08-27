@@ -201,6 +201,7 @@ function LandingFooter() {
         <a href="#resume-templates">Résumé templates</a>
         <Link to={APP_PATH}>Browse jobs</Link>
         <a href="#faq">FAQ</a>
+        <Link to="/privacy">Privacy</Link>
       </nav>
       <p>
         Discovery sources may include <a href="https://www.adzuna.ca/" target="_blank" rel="noreferrer">Adzuna</a>, <a href="https://ca.jooble.org/" target="_blank" rel="noreferrer">Jooble</a>, <a href="https://jobicy.com/" target="_blank" rel="noreferrer">Jobicy</a>, <a href="https://himalayas.app/jobs" target="_blank" rel="noreferrer">Himalayas</a>, and We Work Remotely. Availability varies.

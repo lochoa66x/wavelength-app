@@ -1,0 +1,61 @@
+import { useEffect, useRef } from "react";
+import { Link } from "react-router";
+import { ShieldCheck, X } from "lucide-react";
+
+const COPY = {
+  intake: {
+    title: "Before Gigscapes reads this posting",
+    body: "Gigscapes sends the posting text, public page contents, or compressed screenshots to Anthropic through Gigscapes servers so the job can be structured for your review. This input is not added to your Gigscapes profile.",
+  },
+  tailor: {
+    title: "Before Gigscapes tailors your résumé",
+    body: "Gigscapes sends your browser-saved résumé, the reviewed posting, and any evidence you confirmed to Anthropic through Gigscapes servers for this request. Your base résumé stays stored only in this browser, and Gigscapes never submits an application to an employer.",
+  },
+};
+
+export function PrivateProcessingDialog({ scope, onCancel, onConfirm, returnFocusTarget }) {
+  const dialogRef = useRef(null);
+  const copy = COPY[scope] || COPY.tailor;
+
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() => dialogRef.current?.querySelector("[data-initial-focus]")?.focus());
+    function onKeyDown(event) {
+      if (event.key === "Escape") onCancel();
+      if (event.key !== "Tab") return;
+      const focusable = dialogRef.current?.querySelectorAll('button:not([disabled]), a[href]');
+      if (!focusable?.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.removeEventListener("keydown", onKeyDown);
+      returnFocusTarget?.focus?.();
+    };
+  }, [onCancel, returnFocusTarget]);
+
+  return (
+    <div className="privacy-gate-backdrop" onMouseDown={(event) => { if (event.target === event.currentTarget) onCancel(); }}>
+      <section ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="private-processing-title" aria-describedby="private-processing-copy" className="privacy-gate-dialog">
+        <button type="button" onClick={onCancel} aria-label="Close privacy notice" className="privacy-gate-close"><X size={18} /></button>
+        <ShieldCheck size={30} color="#13795B" aria-hidden="true" />
+        <h2 id="private-processing-title">{copy.title}</h2>
+        <p id="private-processing-copy">{copy.body}</p>
+        <p className="privacy-gate-detail">The generated result remains editable. Gigscapes does not use résumé details for advertising, and optional product-quality signals exclude résumé text.</p>
+        <Link to="/privacy" target="_blank" rel="noreferrer" className="privacy-gate-link">Read the full Privacy Notice</Link>
+        <div className="privacy-gate-actions">
+          <button type="button" onClick={onCancel} className="privacy-gate-secondary">Cancel</button>
+          <button type="button" onClick={onConfirm} data-initial-focus className="privacy-gate-primary">Continue securely</button>
+        </div>
+      </section>
+    </div>
+  );
+}

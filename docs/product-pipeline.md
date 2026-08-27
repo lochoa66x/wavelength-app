@@ -293,6 +293,45 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 - Local release evidence: 422/422 tests passed. The privacy-safe quality evaluator passed 11/11 cases at 100% contract/readiness/export/integrity/template accuracy with zero privacy violations. Export verification passed for 40 files, 16 strategy/design combinations, 25 PDF pages, 715 selectable text items, canonical manifest parity, final gating, and stale-ready rejection. Vite transformed 1,989 modules while retaining lazy DOCX/PDF/jsPDF chunks.
 - Real-browser component QA used a regulated-electrician fixture at desktop and 390×844. Filtering, progressive disclosure, exact citation/boundary text, mobile wrapping, zero horizontal overflow, and absence of `[object Object]` passed. The scoped automated WCAG A/AA audit reported 16 passes, zero violations, and zero incomplete checks after a contrast correction.
 
+### P3.6 Privacy and data-transparency foundation
+
+**Status:** Implemented, configured, and release-verified on 2026-08-27. Production and Preview use the verified operator facts: Voynich Tech, `hello@voynichtech.com`, Canada, and minimum age 16. The feature SHA and Git-triggered production deployment are recorded in the release handoff.
+
+- A public `/privacy` notice documents browser-local résumé storage, Supabase account-workspace data, Anthropic job-intake and tailoring processing, Vercel hosting/analytics, retention, deletion boundaries, user choices, and the absence of automatic employer submission.
+- Separate, versioned just-in-time acknowledgements precede posting extraction and résumé tailoring. Each notice names the data being sent, purpose, processor, cancellation behavior, and privacy notice; cancellation preserves the person's current input.
+- The current account can clear its résumé, confirmed evidence, presentation choices, and processing acknowledgement from the current browser through a two-step control. The deletion allowlist cannot clear another account, the authentication session, saved jobs, search preferences, Supabase records, or the entire storage origin.
+- Vercel Web Analytics is configured through the official React package with a `beforeSend` boundary that strips query strings and fragments and suppresses the authentication callback. No résumé, posting, candidate, email, employer, or free-form field is added as a custom analytics event.
+- Private API responses use `no-store`/`no-cache`, no-referrer, and MIME-sniffing protections. Application logs contain coarse stage, outcome, and count metadata instead of résumé text, posting text, credentials, AI response bodies, or upstream error bodies.
+- Internal artifacts cover the data map, privacy impact assessment, retention register, subprocessors, and incident response. Checked-in Supabase migrations retain RLS, own-user policies, security-invoker access, service-role-only quality aggregation, and 180-day aggregate cleanup; live advisors require a connector authorized for the Gigscapes production project.
+- Local release evidence: 446/446 tests passed; the focused privacy/intake/tailoring/API suite passed 59/59; export verification passed 40 files, 16 templates, 25 direct-PDF pages, 715 selectable text items, manifest parity, final gating, and stale-ready rejection; the production build passed with export libraries lazy. Desktop and 390×844 privacy/app/sign-in browser checks reported zero automated accessibility violations and no application page errors.
+- The production dependency tree has zero known vulnerabilities. One high and one moderate advisory remain confined to the Vite/esbuild development server and require a separately scoped Vite 8 major upgrade.
+
+### P3.7 Evidence-first cover letters and application packages
+
+**Status:** Approved for the next product phase after the P3.6 privacy release is configured and production-verified.
+
+**Product goal:** Extend the verified tailoring workflow into a natural, specific cover letter without turning Gigscapes into a generic AI-writing tool. “Humanized” means candidate-controlled, voice-aware, and grounded in real evidence—not written to evade AI-detection systems.
+
+- Generate a cover letter only from the reviewed posting, canonical résumé facts, confirmed candidate evidence, and the same application-risk assessment used by the tailored résumé. A missing requirement remains missing and cannot become motivation, experience, or a claimed strength.
+- Reuse the posting-readiness and identity gates. Incomplete postings may produce only a clearly labeled preliminary letter; missing identity, unresolved evidence-integrity failures, or invalid source data block export.
+- Offer a deliberately small voice system—Direct, Warm, and Confident—and short or standard length. Tone may change phrasing, but never facts, contribution level, employment history, metrics, credentials, availability, relationships, or enthusiasm the candidate did not confirm.
+- Structure the letter around the real opportunity: a posting-specific opening, two or three evidence-backed value paragraphs, an honest transition/gap boundary when applicable, and a restrained closing. Never infer a hiring-manager name, pronouns, referral, employer relationship, compensation expectation, work authorization, relocation intent, or start date.
+- Show why each paragraph exists. Link claims to exact candidate evidence and posting requirements; let the user keep, edit, regenerate, or remove a paragraph. A user edit becomes unverified until rechecked against the same evidence contract.
+- Keep the base résumé immutable. Cover-letter edits and generation state are target-scoped and cannot silently rewrite the canonical résumé, Evidence Map, application outlook, template selection, or export authorization.
+- Export plain text, DOCX, and selectable/searchable PDF from one canonical letter plan. Optionally package the approved résumé and letter together while retaining separate files, independent readiness labels, and exact content hashes.
+- Extend the private-processing disclosure before cover-letter generation. State exactly which résumé, posting, evidence, and existing draft fields will be sent to Anthropic; preserve cancellation, focus restoration, input retention, no-cache responses, sanitized logs, and the promise that Gigscapes does not submit applications.
+- Add cross-career fixtures for technology, administration, marketing, creative work, skilled trades, regulated credentials, career transitions, weak fit, and incomplete postings. Tests must reject generic flattery, invented company knowledge, unsupported motivations, fabricated metrics, skills, licences, contacts, and “directly transferable” equivalence claims.
+- Define quality through evidence coverage, specificity, natural sentence variation, factual consistency, editability, accessibility, and export parity—not unverifiable “human-written” or AI-detector scores.
+
+**MVP acceptance criteria:**
+
+- One approved résumé and one reviewed posting can produce a candidate-controlled letter with paragraph-level evidence explanations.
+- The letter and résumé agree on every identity, employer, date, responsibility, metric, skill, credential, and application-risk boundary.
+- Direct/Warm/Confident and short/standard choices are deterministic presentation controls that do not alter factual authorization.
+- Preliminary versus application-ready status is consistent across browser preview, DOCX, PDF, copied text, and an optional application package.
+- No letter content, résumé content, posting text, or free-form user edit enters analytics or operational logs.
+- Desktop and mobile keyboard/screen-reader flows, cancellation, regeneration, paragraph veto, export, and stale-authorization rejection have focused tests and real-browser verification.
+
 ## Recommended execution order
 
 1. P0.1 posting enrichment and provenance
@@ -310,7 +349,9 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 13. P3.3 trust, explainability, and application-risk calibration — implemented, locally verified, and release-authorized
 14. P3.4 visual résumé gallery and strategy/design separation — implemented, locally verified, and release-authorized
 15. P3.5 Evidence Map and application decision clarity — implemented, locally verified, and release-authorized
-16. P3.1 native mobile after the web contracts and privacy boundary remain stable
+16. P3.6 privacy and data-transparency foundation — configured, release-verified, and authorized for Git-triggered production promotion
+17. P3.7 evidence-first cover letters and application packages — approved after the privacy release
+18. P3.1 native mobile after the web contracts and privacy boundary remain stable
 
 ## Source constraints behind P0.1
 

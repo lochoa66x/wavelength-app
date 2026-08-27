@@ -1,4 +1,4 @@
-const RESUME_STORAGE_PREFIX = "gigscapes:resume:v1:";
+export const RESUME_STORAGE_PREFIX = "gigscapes:resume:v1:";
 
 export function resumeStorageKey(userId) {
   return userId ? `${RESUME_STORAGE_PREFIX}${userId}` : null;

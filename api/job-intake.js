@@ -5,6 +5,7 @@ import net from "node:net";
 import { normalizeCustomJobBrief } from "./_lib/jobBrief.js";
 import { authenticateSupabaseRequest, bearerToken } from "./_lib/requestAuth.js";
 import { fetchPublicJobPage as fetchSharedPublicJobPage } from "./_lib/publicJobPage.js";
+import { applyPrivateResponseHeaders } from "./_lib/privateResponse.js";
 
 const MAX_PASTE_CHARS = 30000;
 const MAX_PAGE_BYTES = 1_500_000;
@@ -353,6 +354,7 @@ export function createJobIntakeHandler({
   getApiKey = () => process.env.ANTHROPIC_API_KEY,
 } = {}) {
   return async function handler(req, res) {
+    applyPrivateResponseHeaders(res);
     if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
     const token = bearerToken(req);
@@ -430,7 +432,7 @@ export function createJobIntakeHandler({
       return res.status(200).json({ brief });
     } catch (error) {
       if (error.name === "AbortError") return res.status(504).json({ error: "Posting extraction took too long. Try pasting the text." });
-      console.error("Job intake failed:", error.message);
+      console.error("Job intake failed", JSON.stringify({ name: error.name || "Error" }));
       return res.status(500).json({ error: "Internal error" });
     }
   };

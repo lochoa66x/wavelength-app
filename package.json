@@ -12,10 +12,12 @@
     "audit:sources": "node scripts/auditPublicListingQuality.mjs",
     "evaluate:quality": "node scripts/evaluateResumeQuality.mjs",
     "evaluate:signals": "node scripts/evaluateQualitySignals.mjs",
+    "verify:privacy-release": "node scripts/verifyPrivacyRelease.mjs",
     "verify:exports": "node scripts/verifyResumeExports.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.112.3",
+    "@vercel/analytics": "2.0.1",
     "docx": "9.7.1",
     "jspdf": "^4.2.1",
     "lucide-react": "^0.383.0",

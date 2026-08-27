@@ -1,5 +1,5 @@
-const CANDIDATE_EVIDENCE_PREFIX = "gigscapes:candidate-evidence:v1:";
-const REUSABLE_EVIDENCE_PREFIX = "gigscapes:reusable-candidate-evidence:v1:";
+export const CANDIDATE_EVIDENCE_PREFIX = "gigscapes:candidate-evidence:v1:";
+export const REUSABLE_EVIDENCE_PREFIX = "gigscapes:reusable-candidate-evidence:v1:";
 const MAX_REQUEST_EVIDENCE = 5;
 
 export function isVerifiedReusableEvidence(record) {

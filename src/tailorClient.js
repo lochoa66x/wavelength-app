@@ -11,6 +11,8 @@ async function authenticatedPost(path, body, { signal } = {}) {
       Authorization: `Bearer ${session.access_token}`,
     },
     body: JSON.stringify(body),
+    cache: "no-store",
+    credentials: "same-origin",
     signal,
   });
   const data = await response.json().catch(() => ({}));

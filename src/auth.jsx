@@ -357,6 +357,7 @@ function AccountActionDialog({ request, onClose, returnFocusTarget }) {
         <h1 id="account-action-title" style={styles.title}>Continue with a private account</h1>
         <p id="account-action-description" style={styles.actionCopy}>{description}</p>
         <p style={styles.copy}>We’ll send a secure magic link—no password needed.</p>
+        <p style={{ ...styles.copy, fontSize: 12.5 }}>By continuing, you can review how account and résumé data are handled in the <Link to="/privacy" target="_blank" rel="noreferrer" style={styles.secondaryLink}>Privacy Notice</Link>.</p>
         {!request.continuationStored ? (
           <p role="status" style={styles.storageWarning}>Your browser blocked session storage. After signing in, repeat this action; no private content was stored.</p>
         ) : null}
@@ -381,6 +382,7 @@ export function SignInPage() {
         <p style={styles.copy}>Enter your email and we’ll send you a secure magic link—no password needed.</p>
         <MagicLinkForm nextPath={pending?.returnPath || nextPath} pending={pending} />
         <Link to={APP_PATH} style={{ ...styles.secondaryLink, display: "block", marginTop: 16, textAlign: "center" }}>Continue browsing without signing in</Link>
+        <Link to="/privacy" style={{ ...styles.secondaryLink, display: "block", marginTop: 10, textAlign: "center", fontSize: 13 }}>Privacy Notice</Link>
       </section>
     </main>
   );

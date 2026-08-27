@@ -9,7 +9,7 @@ import {
   stableHash,
 } from "./resumeModel.js";
 
-const TEMPLATE_STORAGE_PREFIX = "gigscapes:resume-template:v1:";
+export const TEMPLATE_STORAGE_PREFIX = "gigscapes:resume-template:v1:";
 export const RESUME_TEMPLATE_STORAGE_VERSION = 2;
 
 export function resumeTemplateTargetKey(item = {}) {

@@ -5,6 +5,7 @@ import { BrandMark } from "./BrandMark.jsx";
 import { AtsReview } from "./AtsReview.jsx";
 import { EvidenceRefinementPanel } from "./EvidenceRefinementPanel.jsx";
 import { CustomJobFlow } from "./CustomJobFlow.jsx";
+import { PrivateProcessingDialog } from "./PrivateProcessingDialog.jsx";
 import { PositioningSummary } from "./PositioningSummary.jsx";
 import { ResumeExperience } from "./ResumeExperience.jsx";
 import { loadLocalResume, saveLocalResume } from "./resumeStorage.js";
@@ -61,6 +62,8 @@ import { QualitySignalSettings } from "./QualitySignalSettings.jsx";
 import { buildQualitySignal } from "./qualitySignalContract.js";
 import { durationBand, emitQualitySignal, emitResumeQualitySignal } from "./qualitySignals.js";
 import { applyTailoringChangeDecision, reviewAfterTailoringChange } from "./tailoringChanges.js";
+import { usePrivateProcessingGate } from "./privateProcessing.js";
+import { clearPrivateBrowserData } from "./privacyStorage.js";
 
 const SYS_FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, sans-serif";
 const ADZUNA_ATTRIBUTION_STYLE = {
@@ -121,6 +124,17 @@ html, body, #root { min-height: 100%; background: #F5F5F7; }
   border: 1px solid rgba(255,255,255,0.6);
   box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.05);
 }
+.privacy-gate-backdrop { position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 20px; background: rgba(28,25,23,.55); backdrop-filter: blur(8px); }
+.privacy-gate-dialog { position: relative; width: min(520px, 100%); border: 1px solid #DED8D1; border-radius: 24px; background: #FFFCF8; padding: 30px; box-shadow: 0 30px 100px rgba(28,25,23,.25); }
+.privacy-gate-dialog h2 { margin: 15px 44px 10px 0; color: #1D1D1F; font-size: 24px; letter-spacing: -.025em; }
+.privacy-gate-dialog p { color: #625B55; font-size: 14px; line-height: 1.6; }
+.privacy-gate-detail { padding: 12px 14px; border: 1px solid #D7E8E0; border-radius: 12px; background: #F2F9F5; }
+.privacy-gate-close { position: absolute; top: 18px; right: 18px; border: 1px solid #DED8D1; border-radius: 999px; background: white; width: 40px; height: 40px; display: grid; place-items: center; cursor: pointer; }
+.privacy-gate-link { color: #A93600; font-size: 14px; font-weight: 750; text-underline-offset: 3px; }
+.privacy-gate-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 24px; }
+.privacy-gate-secondary, .privacy-gate-primary { min-height: 44px; border-radius: 999px; padding: 10px 18px; font: inherit; font-weight: 750; cursor: pointer; }
+.privacy-gate-secondary { border: 1px solid #DED8D1; background: white; color: #1D1D1F; }
+.privacy-gate-primary { border: 1px solid #D34500; background: #D34500; color: white; }
 @media (max-width: 900px) {
   .wl-digest-grid { grid-template-columns: 1fr; }
   .wl-digest-side { position: static; order: -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -689,10 +703,13 @@ export default function Gigscapes() {
   const [cloudResumeWarning, setCloudResumeWarning] = useState("");
   const [guestDismissed, setGuestDismissed] = useState([]);
   const [continuationNotice, setContinuationNotice] = useState("");
+  const [clearPrivateDataOpen, setClearPrivateDataOpen] = useState(false);
+  const [clearPrivateDataMessage, setClearPrivateDataMessage] = useState("");
   const injected = useRef(false);
   const resumeMigrationStarted = useRef(new Set());
   const handledLandingAction = useRef(null);
   const landingAccountAction = landingAccountActionFromState(location.state);
+  const privateProcessing = usePrivateProcessingGate();
 
   useEffect(() => () => {
     for (const request of tailoringRequests.current.values()) request.controller.abort();
@@ -781,6 +798,21 @@ export default function Gigscapes() {
     setResumeStorageError("");
     return true;
   };
+  const clearLocalPrivateData = () => {
+    const result = clearPrivateBrowserData(session?.user?.id);
+    if (!result.ok) {
+      setClearPrivateDataMessage("Your browser blocked deletion. No Gigscapes account or cloud data was changed.");
+      return;
+    }
+    for (const request of tailoringRequests.current.values()) request.controller.abort();
+    tailoringRequests.current.clear();
+    setLocalResume("");
+    setResumeDraft("");
+    setTailored({});
+    setCandidateEvidenceByTarget({});
+    setClearPrivateDataOpen(false);
+    setClearPrivateDataMessage(`Removed ${result.removed} private browser record${result.removed === 1 ? "" : "s"} for this account.`);
+  };
   const toggleDismiss = (key) => {
     const next = dismissed.includes(key) ? dismissed.filter((k) => k !== key) : [...dismissed, key];
     if (session?.user?.id && profile) updateProfile({ dismissed_listings: next }).catch(() => {});
@@ -839,7 +871,7 @@ export default function Gigscapes() {
       },
     });
   };
-  const handleTailor = async (item, stateKey, { skipEnrichment = false, candidateEvidenceOverride } = {}) => {
+  const performTailor = async (item, stateKey, { skipEnrichment = false, candidateEvidenceOverride } = {}) => {
     if (!session?.user?.id) {
       requestAccountAction("tailor_resume", {
         listingId: item.id,
@@ -924,6 +956,11 @@ export default function Gigscapes() {
       }));
     }
   };
+
+  const handleTailor = (item, stateKey, options = {}) => privateProcessing.requestPrivateProcessing(
+    "tailor",
+    () => performTailor(item, stateKey, options),
+  );
 
   const handleTailoringChangeDecision = (stateKey, change, decision) => {
     setTailored((current) => {
@@ -1279,6 +1316,14 @@ export default function Gigscapes() {
         </div>
       )}
       {children}
+      {privateProcessing.pending ? (
+        <PrivateProcessingDialog
+          scope={privateProcessing.pending.scope}
+          onCancel={privateProcessing.cancel}
+          onConfirm={privateProcessing.confirm}
+          returnFocusTarget={privateProcessing.openerRef.current}
+        />
+      ) : null}
     </div>
   );
 
@@ -1579,6 +1624,20 @@ export default function Gigscapes() {
             Saved only in this browser. It will not sync to another device. Tailoring sends it to our AI provider for that request.
           </p>
         )}
+        <section style={{ marginTop: 22, paddingTop: 18, borderTop: `1px solid ${C.border}` }} aria-labelledby="local-data-controls-heading">
+          <h3 id="local-data-controls-heading" style={{ color: C.text, fontSize: 15, margin: "0 0 6px" }}>Private data on this device</h3>
+          <p style={{ color: C.textSub, fontSize: 12.5, lineHeight: 1.55, margin: "0 0 12px" }}>Remove this account’s saved résumé, confirmed evidence, presentation choices, and AI-processing acknowledgement from this browser. This does not delete your account, saved jobs, search preferences, sign-in session, or provider-retained request copies.</p>
+          {!clearPrivateDataOpen ? (
+            <button type="button" onClick={() => { setClearPrivateDataOpen(true); setClearPrivateDataMessage(""); }} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, color: C.red }}>Clear private résumé data</button>
+          ) : (
+            <div role="group" aria-label="Confirm local private data deletion" style={{ display: "flex", flexWrap: "wrap", gap: 9, padding: 12, border: `1px solid ${C.amberBorder}`, borderRadius: 12, background: C.amberTint }}>
+              <strong style={{ width: "100%", fontSize: 13 }}>Clear this account’s private résumé data from this browser?</strong>
+              <button type="button" onClick={clearLocalPrivateData} className="wl-btn" style={{ ...primaryBtnStyle(false), background: C.red }}>Yes, clear local data</button>
+              <button type="button" onClick={() => setClearPrivateDataOpen(false)} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}` }}>Cancel</button>
+            </div>
+          )}
+          {clearPrivateDataMessage ? <p role="status" style={{ color: C.textSub, fontSize: 12.5, margin: "10px 0 0" }}>{clearPrivateDataMessage}</p> : null}
+        </section>
       </div>,
       { showSignOut: true }
     );
@@ -1596,6 +1655,7 @@ export default function Gigscapes() {
         glassBtnStyle={glassBtnStyle}
         onBack={() => setStep("digest")}
         onEditResume={() => openResumeEditor("custom_job")}
+        requestPrivateProcessing={privateProcessing.requestPrivateProcessing}
       />,
       { showSignOut: true },
     );
@@ -2191,7 +2251,7 @@ export default function Gigscapes() {
             Browse Craigslist Canada directly (not imported) <ExternalLink size={11} aria-hidden="true" />
           </a>
         </div>
-        <span style={{ fontSize: 12, color: C.textFaint }}>Refreshed daily</span>
+        <span style={{ fontSize: 12, color: C.textFaint, display: "flex", gap: 12, alignItems: "center" }}><Link to="/privacy" style={{ color: "inherit" }}>Privacy</Link><span>Refreshed daily</span></span>
       </footer>
     </div>,
     { showSignOut: true }

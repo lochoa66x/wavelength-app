@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router";
+import { Analytics } from "@vercel/analytics/react";
 import {
   AuthCallback,
   AuthProvider,
@@ -8,9 +9,11 @@ import {
   SignInPage,
 } from "./auth.jsx";
 import { APP_PATH, AUTH_CALLBACK_PATH, SIGN_IN_PATH } from "./authRoutes.js";
+import { sanitizeVercelAnalyticsEvent } from "./analytics.js";
 
 const Gigscapes = lazy(() => import("./App.jsx"));
 const LandingPage = lazy(() => import("./landing/LandingPage.jsx"));
+const PrivacyPage = lazy(() => import("./privacy/PrivacyPage.jsx"));
 const ProductTourCapture = import.meta.env.DEV
   ? lazy(() => import("./landing/ProductTourCapture.jsx"))
   : null;
@@ -34,6 +37,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <Suspense fallback={<RouteFallback />}>
           <Routes>
             <Route path="/" element={<LandingPage />} />
+            <Route path="/privacy" element={<PrivacyPage />} />
             {ProductTourCapture ? <Route path="/__product-tour-capture" element={<ProductTourCapture />} /> : null}
             <Route
               path={SIGN_IN_PATH}
@@ -49,6 +53,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           </Routes>
         </Suspense>
       </AuthProvider>
+      <Analytics beforeSend={sanitizeVercelAnalyticsEvent} />
     </BrowserRouter>
   </React.StrictMode>
 );

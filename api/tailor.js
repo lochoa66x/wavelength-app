@@ -8,6 +8,7 @@ import { createServerSupabaseClient } from "./_lib/serverSupabase.js";
 import { createSafeResumeFallback } from "./_lib/safeResumeFallback.js";
 import { formatCandidateEvidence, validateCandidateEvidence } from "./_lib/candidateEvidence.js";
 import { applyPdfLayoutToFocusReview, shapeTailoredResumeWithReview } from "./_lib/resumeQuality.js";
+import { applyPrivateResponseHeaders } from "./_lib/privateResponse.js";
 import {
   assessPostingCompleteness,
   extractPostingKeywords,
@@ -355,8 +356,8 @@ async function callAnthropicTool({ fetchImpl, apiKey, tool, prompt, maxTokens, t
     });
 
     if (!response.ok) {
-      const errText = await response.text();
-      const error = new Error(`Anthropic API error ${response.status}: ${errText}`);
+      await response.text();
+      const error = new Error(`Anthropic API error ${response.status}`);
       error.upstream = true;
       error.status = response.status;
       throw error;
@@ -383,7 +384,6 @@ async function callAnthropicTool({ fetchImpl, apiKey, tool, prompt, maxTokens, t
       timeoutMs,
       name: error.name,
       status: error.status || null,
-      message: error.message,
     }));
     throw error;
   } finally {
@@ -469,6 +469,7 @@ export function createTailorHandler({
 } = {}) {
   const resolvedTiming = { ...DEFAULT_TAILOR_TIMING, ...timing };
   return async function handler(req, res) {
+  applyPrivateResponseHeaders(res);
   const requestStartedAt = Date.now();
   const requestDeadlineAt = requestStartedAt + resolvedTiming.requestBudgetMs;
   if (req.method !== "POST") {
@@ -706,7 +707,10 @@ INSTRUCTIONS
       }), analysis, cappedResume);
       const resumeData = shaped.resume;
       if (!resumeData.profile || !Array.isArray(resumeData.experience) || resumeData.experience.length === 0) {
-        console.error(`Incomplete structured resume for gig "${item.title}": ${JSON.stringify(resumeData)}`);
+        console.error("[tailor:resume_draft] Incomplete structured response", JSON.stringify({
+          hasProfile: Boolean(resumeData.profile),
+          experienceCount: Array.isArray(resumeData.experience) ? resumeData.experience.length : null,
+        }));
         return res.status(502).json({ error: "Model returned incomplete resume data" });
       }
 
@@ -736,12 +740,9 @@ INSTRUCTIONS
 
       const metricCount = atsReview.unsupported_metrics.length;
       const historyCount = atsReview.unsupported_history.length;
-      const historyFields = atsReview.unsupported_history
-        .map((issue) => `${issue.field}@${issue.experienceIndex}`)
-        .join(",") || "none";
 
       if (attempt === 0) {
-        console.warn(`Truth check requested automatic repair for gig "${item.title}": metrics=${metricCount}, history=${historyCount}, fields=${historyFields}`);
+        console.warn("[tailor:evidence_repair] Automatic repair requested", JSON.stringify({ metricCount, historyCount }));
         const repairIssues = {
           unsupported_numbers: atsReview.unsupported_metrics.map((issue) => issue.claim),
           unsupported_history: atsReview.unsupported_history.map(({ field, value, experienceIndex }) => ({
@@ -779,7 +780,10 @@ INSTRUCTIONS
       );
       if (safeReview.status !== "blocked" && safeResume.profile && safeResume.experience.length) {
         safeReview.safety_fallback = { applied: true, ...safetyReport };
-        console.warn(`Applied deterministic safety fallback for gig "${item.title}": omitted_experience=${safetyReport.omitted_experience_count}, removed_numbers=${safetyReport.removed_numeric_claim_count}`);
+        console.warn("[tailor:safety_fallback] Applied deterministic fallback", JSON.stringify({
+          omittedExperience: safetyReport.omitted_experience_count,
+          removedNumbers: safetyReport.removed_numeric_claim_count,
+        }));
         return res.status(200).json({
           resume: safeResume,
           ats_review: safeReview,
@@ -790,7 +794,7 @@ INSTRUCTIONS
         });
       }
 
-      console.error(`Truth check blocked repaired resume for gig "${item.title}": metrics=${metricCount}, history=${historyCount}, fields=${historyFields}`);
+      console.error("[tailor:evidence_repair] Repaired response remained blocked", JSON.stringify({ metricCount, historyCount }));
       return res.status(422).json({
         error: `We could not safely repair the draft because it still changed ${historyCount} history field${historyCount === 1 ? "" : "s"} or added ${metricCount} unsupported number${metricCount === 1 ? "" : "s"}. Your original résumé is unchanged.`,
         ats_review: atsReview,
@@ -803,7 +807,6 @@ INSTRUCTIONS
       status: err.status || null,
       timeoutMs: err.timeoutMs || null,
       durationMs: Date.now() - requestStartedAt,
-      message: err.message,
     }));
     if (err.name === "AbortError" || err.name === "TailoringDeadlineError") {
       return res.status(504).json({ error: "This résumé needed more processing time than usual. We retried it automatically, but could not finish safely. Your original résumé is unchanged." });

@@ -85,6 +85,23 @@ Do not reapply the P1.4 migration or change production Auth/database settings du
 - [x] No files from `tmp`, `dist`, screenshots, or rendered QA directories are staged.
 - [x] Only task-owned files/hunks are staged.
 
+## P3.6 privacy and data-transparency local verification — 2026-08-27
+
+- [x] Public privacy notice, provider disclosures, storage boundaries, retention/deletion language, and user choices implemented without placeholder operator claims.
+- [x] Scope-specific job-intake and tailoring acknowledgements implemented with focus containment, Escape/cancel, focus restoration, and input preservation.
+- [x] Current-account browser-private-data deletion uses an explicit allowlist and never clears the origin, authentication session, saved jobs, search preferences, Supabase records, or another account's data.
+- [x] Vercel Web Analytics package installed with query/fragment stripping and auth-callback suppression; no custom résumé/posting telemetry added.
+- [x] Private API responses and logs hardened against caching, referrer leakage, raw content, upstream response bodies, credentials, and AI response logging.
+- [x] Focused privacy/intake/tailoring/API suite: 59 passed, 0 failed.
+- [x] Full suite: 446 passed, 0 failed.
+- [x] Export verifier: 40 files, 16 templates, 25 direct-PDF pages, 715 selectable text items; manifest parity, final gating, and stale-ready rejection passed.
+- [x] Production build passed and retained lazy DOCX/PDF/jsPDF chunks.
+- [x] Production dependency audit passed with zero known vulnerabilities; Vite/esbuild development-only findings are recorded for a separate major upgrade.
+- [x] Desktop and 390×844 privacy/app/sign-in browser QA passed with zero automated accessibility violations and no application page errors. Transparent gradient surfaces received manual contrast review.
+- [x] Database scope reviewed: this release changes no Supabase schema, policy, grant, function, or stored data. Checked-in RLS/grant migrations were reviewed; live Supabase Security and Performance advisors remain unavailable to the current connector and are a documented verification limitation rather than a database-change blocker.
+- [x] Production and Preview privacy configuration set and locally verified with operator Voynich Tech, contact `hello@voynichtech.com`, jurisdiction Canada, and minimum age 16. The configuration gate and real-value browser rendering passed without a placeholder warning.
+- [ ] Commit, push, Git-triggered Vercel production deployment, exact-SHA binding, production smoke, and runtime-error review are authorized and remain the release handoff steps.
+
 ## P2.1 universal design expansion local verification record
 
 - Focused template/export/landing suite: 78 passed, 0 failed.

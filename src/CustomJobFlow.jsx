@@ -97,6 +97,7 @@ export function CustomJobFlow({
   extractPosting = extractCustomJob,
   tailorPosting = tailorResume,
   requestAccountAction,
+  requestPrivateProcessing = (_scope, action) => action(),
 }) {
   const requestCoordinatorRef = useRef(null);
   requestCoordinatorRef.current ||= createCustomJobRequestCoordinator(initialMode);
@@ -166,7 +167,7 @@ export function CustomJobFlow({
     onBack();
   };
 
-  const handleExtract = async () => {
+  const performExtract = async () => {
     const startedAt = Date.now();
     const request = requestCoordinator.beginRequest("extract");
     setStatus("extracting");
@@ -222,10 +223,12 @@ export function CustomJobFlow({
     setFiles(next);
     event.target.value = "";
   };
+
+  const handleExtract = () => requestPrivateProcessing("intake", performExtract);
   const listValue = (key) => (brief?.[key] || []).join("\n");
   const updateList = (key, value) => updateBrief({ [key]: value.split("\n").map((item) => item.trim()).filter(Boolean) });
 
-  const handleTailor = async (evidenceOverride = evidenceRecords) => {
+  const performTailor = async (evidenceOverride = evidenceRecords) => {
     if (!resume) {
       setError("Add your base résumé before tailoring this posting.");
       return;
@@ -274,6 +277,11 @@ export function CustomJobFlow({
       }));
     }
   };
+
+  const handleTailor = (evidenceOverride = evidenceRecords) => requestPrivateProcessing(
+    "tailor",
+    () => performTailor(evidenceOverride),
+  );
 
   const cancelActiveWork = () => {
     setSourceSession(requestCoordinator.cancelActiveRequest());
