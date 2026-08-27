@@ -309,7 +309,7 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 
 ### P3.7 Evidence-first cover letters and application packages
 
-**Status:** Phase A implemented and locally verified on 2026-08-27; production release is authorized and the GitHub/Vercel evidence will be recorded in the release checklist.
+**Status:** Released and production-verified on 2026-08-27. Feature SHA `e674700f47be12d332fc89194774bbb188e846c0` is on `origin/main` and reached `READY` at <https://gigscapes.com> through Git-triggered Vercel deployment `dpl_HrAU1ptbDkp1VQqFXM1hAvkMV5ZC`; exact binding and smoke evidence are recorded in the release checklist.
 
 **Product goal:** Extend the verified tailoring workflow into a natural, specific cover letter without turning Gigscapes into a generic AI-writing tool. “Humanized” means candidate-controlled, voice-aware, and grounded in real evidence—not written to evade AI-detection systems.
 
