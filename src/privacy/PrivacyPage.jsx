@@ -61,19 +61,19 @@ export default function PrivacyPage() {
           <ul>
             <li><strong>Public discovery:</strong> search terms, location and workplace preferences, listing identifiers, and public job-posting information.</li>
             <li><strong>Account workspace:</strong> email-based authentication, saved and dismissed listing identifiers, and account search criteria.</li>
-            <li><strong>Résumé workspace:</strong> résumé text, confirmed candidate evidence, and presentation choices saved in this browser for the signed-in account.</li>
+            <li><strong>Résumé and cover-letter workspace:</strong> résumé text, confirmed candidate evidence, presentation choices, and target-specific cover-letter drafts saved in this browser for the signed-in account.</li>
             <li><strong>Tailoring input:</strong> the reviewed posting, browser-saved résumé, and evidence the person explicitly confirms for a tailoring request.</li>
             <li><strong>Optional quality signals:</strong> a fixed set of coarse product outcomes only when the user enables the setting. Résumé text, names, emails, employers, and free-form posting content are excluded.</li>
           </ul>
         </PolicySection>
 
         <PolicySection title="3. Where data is stored">
-          <p>Your base résumé is saved in local browser storage on the device where you entered it. It is not currently synced to another device. Clearing browser data, using a different browser profile, or choosing the local deletion control can remove it.</p>
+          <p>Your base résumé and target-specific cover-letter drafts are saved in local browser storage on the device where you entered or generated them. They are not currently synced to another device. Clearing browser data, using a different browser profile, or choosing the local deletion control can remove them.</p>
           <p>Supabase stores authentication and account-workspace records such as search criteria and saved listing identifiers. Gigscapes does not intentionally store the current résumé text in the profile database; an earlier profile field is cleared through a guarded migration after a safe local copy succeeds.</p>
         </PolicySection>
 
         <PolicySection title="4. When content is sent to an AI provider">
-          <p>Job-intake and résumé-tailoring requests pass through Gigscapes server functions to Anthropic. Job intake sends the posting material supplied for extraction. Tailoring sends the browser-saved résumé, the reviewed posting, and confirmed evidence needed to generate and truth-check the draft.</p>
+          <p>Job-intake, résumé-tailoring, and cover-letter requests pass through Gigscapes server functions to Anthropic. Job intake sends the posting material supplied for extraction. Tailoring sends the browser-saved résumé, the reviewed posting, and confirmed evidence needed to generate and truth-check the draft. Cover-letter generation sends those same verified sources, the current application assessment, and a minimized existing paragraph or draft only when the person asks to regenerate wording.</p>
           <p>Gigscapes shows a just-in-time notice before each kind of processing. Generated content is returned for review and is not submitted to an employer. Anthropic describes its current commercial/API retention practices and exceptions in its <a href={ANTHROPIC_PRIVACY_URL} target="_blank" rel="noreferrer">data-retention documentation <ExternalLink size={13} /></a>.</p>
         </PolicySection>
 
@@ -85,13 +85,13 @@ export default function PrivacyPage() {
         <PolicySection title="6. Providers and purposes">
           <ul>
             <li><a href={SUPABASE_PRIVACY_URL} target="_blank" rel="noreferrer">Supabase <ExternalLink size={13} /></a> — authentication, account workspace, and public listing database.</li>
-            <li><a href="https://www.anthropic.com/legal/privacy" target="_blank" rel="noreferrer">Anthropic <ExternalLink size={13} /></a> — posting extraction, résumé tailoring, and evidence/truth review.</li>
+            <li><a href="https://www.anthropic.com/legal/privacy" target="_blank" rel="noreferrer">Anthropic <ExternalLink size={13} /></a> — posting extraction, résumé tailoring, cover-letter generation, and evidence/truth review.</li>
             <li><a href="https://vercel.com/legal/privacy-notice" target="_blank" rel="noreferrer">Vercel <ExternalLink size={13} /></a> — hosting, server functions, operational logs, and privacy-filtered aggregate analytics.</li>
           </ul>
         </PolicySection>
 
         <PolicySection title="7. Retention and deletion">
-          <p>Local résumé data remains until the browser or user removes it. The in-app deletion control removes the current account’s résumé, confirmed evidence, presentation choices, and processing acknowledgement from that browser only. It does not delete the Supabase account, saved jobs, search preferences, authentication session, or copies a provider must temporarily retain for security or legal obligations.</p>
+          <p>Local résumé and cover-letter data remains until the browser or user removes it. The in-app deletion control removes the current account’s résumé, target-specific cover-letter drafts, confirmed evidence, presentation choices, and processing acknowledgement from that browser only. It does not delete the Supabase account, saved jobs, search preferences, authentication session, or copies a provider must temporarily retain for security or legal obligations.</p>
           <p>Optional quality events are aggregated by day and the database migration removes aggregate buckets older than 180 days. Provider and hosting retention periods can vary by plan, request type, and legally required exceptions; Gigscapes reviews these settings and documents unresolved owner decisions in its internal retention register.</p>
         </PolicySection>
 
@@ -101,7 +101,7 @@ export default function PrivacyPage() {
             <li>Use pasted text or screenshots when a job site blocks automated page reading.</li>
             <li>Cancel a processing disclosure without losing the input already entered.</li>
             <li>Disable optional quality signals at any time.</li>
-            <li>Clear private résumé data from the current browser.</li>
+            <li>Clear private résumé and cover-letter data from the current browser.</li>
             <li>Contact the privacy address above for account access, correction, or deletion requests.</li>
           </ul>
         </PolicySection>

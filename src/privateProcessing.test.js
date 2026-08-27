@@ -23,8 +23,11 @@ test("private processing acknowledgement is scoped and policy-versioned", () => 
   assert.equal(readPrivateProcessingAcknowledgement("intake", storage), false);
   assert.equal(writePrivateProcessingAcknowledgement("intake", storage), true);
   assert.equal(readPrivateProcessingAcknowledgement("intake", storage), true);
+  assert.equal(readPrivateProcessingAcknowledgement("cover_letter", storage), false);
+  assert.equal(writePrivateProcessingAcknowledgement("cover_letter", storage), true);
+  assert.equal(readPrivateProcessingAcknowledgement("cover_letter", storage), true);
 
   const saved = JSON.parse(storage.getItem(PRIVATE_PROCESSING_ACK_KEY));
-  assert.deepEqual(new Set(saved.scopes), new Set(["tailor", "intake"]));
+  assert.deepEqual(new Set(saved.scopes), new Set(["tailor", "intake", "cover_letter"]));
   assert.doesNotMatch(JSON.stringify(saved), /resume|posting|email/i);
 });

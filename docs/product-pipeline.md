@@ -309,7 +309,7 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 
 ### P3.7 Evidence-first cover letters and application packages
 
-**Status:** Approved for the next product phase after the P3.6 privacy release is configured and production-verified.
+**Status:** Phase A implemented and locally verified on 2026-08-27; production release is authorized and the GitHub/Vercel evidence will be recorded in the release checklist.
 
 **Product goal:** Extend the verified tailoring workflow into a natural, specific cover letter without turning Gigscapes into a generic AI-writing tool. “Humanized” means candidate-controlled, voice-aware, and grounded in real evidence—not written to evade AI-detection systems.
 

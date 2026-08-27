@@ -11,8 +11,8 @@ Last reviewed: 2026-08-27
 
 ## Anthropic
 
-- Purpose: extract supplied job postings; analyze, tailor, and truth-check résumé drafts.
-- Data: supplied posting content or screenshots; résumé; verified candidate evidence; generated response.
+- Purpose: extract supplied job postings; analyze, tailor, and truth-check résumé drafts; generate and evidence-check candidate-controlled cover letters.
+- Data: supplied posting content or screenshots; résumé; verified candidate evidence; application assessment; generated résumé or cover-letter response; minimized existing draft when a paragraph is regenerated.
 - Controls: server-side API key, authenticated Gigscapes endpoints, request-size caps, untrusted-input delimiters, structured tools, evidence validation, no response caching.
 - Retention reference: <https://privacy.anthropic.com/en/articles/7996868-how-long-do-you-store-personal-data>
 - Owner check: verify the active commercial/API plan, data settings, contractual terms, and any exceptions.

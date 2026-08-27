@@ -67,6 +67,13 @@ test("copying tailored text is gated", () => {
   assert.match(accountActionMessage("copy_tailored_text"), /copy this tailored résumé/i);
 });
 
+test("cover-letter generation and all private letter exports are gated", () => {
+  for (const action of ["generate_cover_letter", "download_cover_letter_docx", "download_cover_letter_pdf", "copy_cover_letter_text"]) {
+    assert.ok(ACCOUNT_ACTIONS.includes(action));
+    assert.match(accountActionMessage(action), /cover letter/i);
+  }
+});
+
 test("authenticated users continue immediately without a pending record", () => {
   const decision = accountActionGateDecision({
     session: { user: { id: "user-1" } },

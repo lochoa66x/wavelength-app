@@ -106,6 +106,23 @@ Do not reapply the P1.4 migration or change production Auth/database settings du
 - [x] Production `/api/job-intake` and `/api/tailor` probes returned the expected unauthenticated 401 and retained `Cache-Control: no-store, max-age=0`, `Pragma: no-cache`, `Referrer-Policy: no-referrer`, and `X-Content-Type-Options: nosniff`. Deployment error and `status:5xx` log queries returned no entries.
 - [x] This release-record follow-up is documentation-only and does not alter the verified runtime behavior above.
 
+## P3.7 Phase A evidence-first cover-letter local verification — 2026-08-27
+
+- [x] Preflight began from clean `main` at `5f62c0a2b5a368d0d8279720a45d205349d1cb85`, matching `origin/main`; no interrupted or user-owned change was present.
+- [x] The authenticated `/api/cover-letter` endpoint accepts only a trusted listing or reviewed custom posting, the browser-saved résumé, confirmed candidate evidence, the existing application assessment, and bounded voice/length controls. It performs one bounded evidence repair, returns `no-store` private responses, and logs only coarse outcome/count/duration metadata.
+- [x] Direct, Warm, and Confident voices plus Short and Standard lengths alter presentation only. Generic flattery, invented motivation, relationships, availability, contacts, metrics, skills, licences, equivalence claims, placeholders, and user edits that introduce any uncited substantive capability are rejected deterministically.
+- [x] Each paragraph carries its purpose, exact candidate-evidence citations, exact posting-requirement citations, generated wording, current verified wording, and a stable content hash. Edit/recheck, paragraph regeneration, restore, remove, stale-source rejection, and target/account-scoped browser storage leave the canonical résumé and application assessment unchanged.
+- [x] Browser preview, copied text, DOCX, and selectable PDF consume one canonical plan and one fresh export authorization. Posting, identity, evidence-integrity, preliminary/final, and stale-hash decisions remain consistent with résumé readiness; guidance stays outside exported files.
+- [x] Focused cover-letter, storage, private-API, Auth, and privacy tests: 18 passed, 0 failed. Full regression: 461 passed, 0 failed, skipped, cancelled, or todo.
+- [x] Cover-letter export verifier: two DOCX files, two PDFs, two one-page PDF outputs, 492 selectable text tokens, final and preliminary gates passed, stale authorization covered by the model tests, and no `[object Object]`, placeholder, metadata, or readiness-warning artifact was emitted.
+- [x] Existing résumé export verifier remained green: 40 files, 16 templates, 25 PDF pages, 715 selectable text items, canonical manifest parity, verified-final authorization, and stale-ready rejection passed.
+- [x] LibreOffice-rendered DOCX and direct-PDF cover letters were rasterized with the bundled PDFium fallback and visually inspected. Both final and preliminary fixtures were one page, unclipped, selectable, and aligned with the browser header hierarchy; preliminary guidance remained outside the document.
+- [x] Privacy release configuration reverified for Voynich Tech, `hello@voynichtech.com`, Canada, and minimum age 16. Public privacy copy, retention/data maps, subprocessor record, deletion allowlist, incident boundaries, and the scope-specific just-in-time disclosure include cover letters without changing Supabase schema, RLS, grants, or stored account data.
+- [x] Production build passed with 2,007 modules. Cover-letter DOCX (2.26 kB) and PDF (2.22 kB) remain separate lazy chunks; résumé exporters, landing, privacy, and app route chunks remain independently loaded.
+- [x] Signed-out local browser smoke passed `/`, `/app`, and `/privacy` at desktop plus `/app` at a narrow mobile viewport with one landing H1, no horizontal overflow, no `[object Object]`, and no page errors. The automated app WCAG audit reported 36 passes, zero violations, and zero incomplete checks.
+- [x] Production dependency audit reported zero known vulnerabilities. `git diff --check` passed; generated `dist`, `tmp`, rendered QA, screenshot, and document artifacts remain untracked.
+- [ ] Release state: feature commit, normal push to `main`, Git-triggered Vercel deployment, exact runtime-SHA binding, public production smoke, private endpoint header probe, and deployment 5xx/error review remain the final authorized release steps.
+
 ## P2.1 universal design expansion local verification record
 
 - Focused template/export/landing suite: 78 passed, 0 failed.

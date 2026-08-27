@@ -22,6 +22,7 @@ test("local deletion is allowlisted to the current account's private resume reco
     ["gigscapes:candidate-evidence:v1:user-1:listing%3A1", "[]"],
     ["gigscapes:reusable-candidate-evidence:v1:user-1", "[]"],
     ["gigscapes:resume-template:v1:user-1:listing%3A1", "{}"],
+    ["gigscapes:cover-letter:v1:user-1:listing%3A1", "{}"],
     [PRIVATE_PROCESSING_ACK_KEY, "{}"],
     ["gigscapes:resume:v1:user-2", "other account"],
     ["gigscapes:guest-preferences:v1", "search prefs"],
@@ -29,8 +30,8 @@ test("local deletion is allowlisted to the current account's private resume reco
     ["sb-project-auth-token", "auth session"],
   ]);
 
-  assert.equal(privateBrowserDataKeys("user-1", storage).length, 5);
-  assert.deepEqual(clearPrivateBrowserData("user-1", storage), { ok: true, removed: 5 });
+  assert.equal(privateBrowserDataKeys("user-1", storage).length, 6);
+  assert.deepEqual(clearPrivateBrowserData("user-1", storage), { ok: true, removed: 6 });
   assert.deepEqual(storage.entries(), [
     ["gigscapes:resume:v1:user-2", "other account"],
     ["gigscapes:guest-preferences:v1", "search prefs"],

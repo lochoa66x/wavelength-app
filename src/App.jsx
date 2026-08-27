@@ -1626,12 +1626,12 @@ export default function Gigscapes() {
         )}
         <section style={{ marginTop: 22, paddingTop: 18, borderTop: `1px solid ${C.border}` }} aria-labelledby="local-data-controls-heading">
           <h3 id="local-data-controls-heading" style={{ color: C.text, fontSize: 15, margin: "0 0 6px" }}>Private data on this device</h3>
-          <p style={{ color: C.textSub, fontSize: 12.5, lineHeight: 1.55, margin: "0 0 12px" }}>Remove this account’s saved résumé, confirmed evidence, presentation choices, and AI-processing acknowledgement from this browser. This does not delete your account, saved jobs, search preferences, sign-in session, or provider-retained request copies.</p>
+          <p style={{ color: C.textSub, fontSize: 12.5, lineHeight: 1.55, margin: "0 0 12px" }}>Remove this account’s saved résumé, cover-letter drafts, confirmed evidence, presentation choices, and AI-processing acknowledgement from this browser. This does not delete your account, saved jobs, search preferences, sign-in session, or provider-retained request copies.</p>
           {!clearPrivateDataOpen ? (
-            <button type="button" onClick={() => { setClearPrivateDataOpen(true); setClearPrivateDataMessage(""); }} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, color: C.red }}>Clear private résumé data</button>
+            <button type="button" onClick={() => { setClearPrivateDataOpen(true); setClearPrivateDataMessage(""); }} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, color: C.red }}>Clear private document data</button>
           ) : (
             <div role="group" aria-label="Confirm local private data deletion" style={{ display: "flex", flexWrap: "wrap", gap: 9, padding: 12, border: `1px solid ${C.amberBorder}`, borderRadius: 12, background: C.amberTint }}>
-              <strong style={{ width: "100%", fontSize: 13 }}>Clear this account’s private résumé data from this browser?</strong>
+              <strong style={{ width: "100%", fontSize: 13 }}>Clear this account’s private résumé and cover-letter data from this browser?</strong>
               <button type="button" onClick={clearLocalPrivateData} className="wl-btn" style={{ ...primaryBtnStyle(false), background: C.red }}>Yes, clear local data</button>
               <button type="button" onClick={() => setClearPrivateDataOpen(false)} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}` }}>Cancel</button>
             </div>
@@ -2117,10 +2117,13 @@ export default function Gigscapes() {
                         C={C}
                       />
                       <ResumeExperience
+                        baseResume={resume}
                         resumeData={t.resumeData}
                         item={item}
                         hasLink={hasLink}
                         atsReview={t.atsReview}
+                        candidateEvidence={t.candidateEvidence || []}
+                        requestPrivateProcessing={privateProcessing.requestPrivateProcessing}
                         onEditResume={() => openResumeEditor("digest")}
                         onTailoringChangeDecision={(change, decision) => handleTailoringChangeDecision(stateKey, change, decision)}
                         qualityRoute="app"

@@ -14,6 +14,7 @@ This map describes the implementation in this repository. It is not a claim abou
 | Candidate evidence | Confirmed answers, target key | Local storage, max five request records/reusable records | Sent only with a requested tailoring call | No intended persistence | Included in requested tailoring call | Not included in analytics |
 | Custom job intake | Pasted text, validated public URL contents, or compressed screenshots | React state for the active workflow | Authenticated `/api/job-intake`; no application database write | Auth verification only | Included in extraction call | Not included in analytics; response is `no-store` |
 | Tailoring | Résumé, reviewed job, verified evidence | Generated draft in React state; export initiated locally | Authenticated `/api/tailor` | Trusted listing read when a listing ID is used | Analysis, draft, and truth-repair calls | Operational metadata only; response is `no-store` |
+| Cover-letter generation | Résumé, reviewed job, verified evidence, application assessment, voice/length choice; a minimized current draft for requested paragraph regeneration | Target-specific draft in user-ID-scoped local storage; edits and exports stay local | Authenticated `/api/cover-letter`; no application database write | Trusted listing read when a listing ID is used | Generation and at most one evidence-repair call | Coarse duration/outcome/count metadata only; response is `no-store` |
 | Optional quality signals | Fixed enums/bands and coarse counts | Consent flag local, off by default | `/api/quality-signal` with strict allowlist | Daily private aggregate, service-role only | No | Hosting log metadata; no résumé text |
 | Web Analytics | Route, referrer, coarse device/geography as documented by Vercel | Vercel client; no Gigscapes cookie | Vercel intake | No | No | Query/hash stripped; auth callback dropped |
 
@@ -23,6 +24,7 @@ This map describes the implementation in this repository. It is not a claim abou
 - `gigscapes:candidate-evidence:v1:<encoded-user-id>:<target>` — application evidence.
 - `gigscapes:reusable-candidate-evidence:v1:<encoded-user-id>` — user-confirmed reusable evidence.
 - `gigscapes:resume-template:v1:<encoded-user-id>:<target>` — presentation choice.
+- `gigscapes:cover-letter:v1:<encoded-user-id>:<target>` — target-specific cover-letter plan, exact citations, voice/length choice, and local verification state.
 - `gigscapes:private-processing-ack:v1` — policy version, scopes, acknowledgement timestamp; no résumé content.
 - `gigscapes:guest-preferences:v1` — non-private discovery preferences.
 - `gigscapes:quality-signal-consent:v1` — optional quality-signal choice.
@@ -30,4 +32,4 @@ This map describes the implementation in this repository. It is not a claim abou
 
 ## Deletion boundary
 
-`clearPrivateBrowserData` removes only the signed-in account's résumé, candidate evidence, reusable evidence, template selections, and the processing acknowledgement. It deliberately does not call `localStorage.clear()` and does not remove auth state, another account's data, guest search preferences, quality-signal consent, saved jobs, or provider-retained request copies.
+`clearPrivateBrowserData` removes only the signed-in account's résumé, candidate evidence, reusable evidence, template selections, target-specific cover-letter drafts, and the processing acknowledgement. It deliberately does not call `localStorage.clear()` and does not remove auth state, another account's data, guest search preferences, quality-signal consent, saved jobs, or provider-retained request copies.

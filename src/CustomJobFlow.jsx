@@ -525,7 +525,7 @@ export function CustomJobFlow({
             onSaveAndRetailor={handleEvidenceRetailor}
             C={C}
           />
-          <ResumeExperience resumeData={tailored.resume} item={customItem} hasLink={Boolean(brief.source_url)} atsReview={tailored.atsReview} onEditResume={onEditResume} onTailoringChangeDecision={handleTailoringChangeDecision} requestAccountAction={requestAccountAction} qualityRoute="custom_job" qualityPostingSource={postingSourceForMode(mode)} C={C} primaryBtnStyle={primaryBtnStyle} />
+          <ResumeExperience baseResume={resume} resumeData={tailored.resume} item={customItem} hasLink={Boolean(brief.source_url)} atsReview={tailored.atsReview} candidateEvidence={tailored.candidateEvidence || []} customJob={brief} requestPrivateProcessing={requestPrivateProcessing} onEditResume={onEditResume} onTailoringChangeDecision={handleTailoringChangeDecision} requestAccountAction={requestAccountAction} qualityRoute="custom_job" qualityPostingSource={postingSourceForMode(mode)} C={C} primaryBtnStyle={primaryBtnStyle} />
         </div>
       )}
     </div>

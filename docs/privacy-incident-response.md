@@ -26,8 +26,8 @@
 - Notify the accountable privacy owner and providers through their incident channels.
 - Notify affected people and regulators when required, using factual scope and useful protective steps.
 - Record decisions, evidence, retention/deletion actions, and the owner of every follow-up.
-- Update the data map, PIA, retention register, provider register, public notice, and processing acknowledgement version when the incident changes disclosed practices.
+- Update the data map, PIA, retention register, provider register, public notice, and processing acknowledgement version when the incident changes disclosed practices, including résumé and cover-letter scopes.
 
-## Missing release ownership
+## Operational ownership still required
 
-The production privacy contact, incident commander, backup contact, counsel path, and notification SLA must be filled by the operator before public promotion.
+Voynich Tech and `hello@voynichtech.com` are the public operator/privacy contact. The internal incident commander, backup contact, counsel path, and notification SLA must still be assigned and kept outside this public repository.

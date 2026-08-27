@@ -17,6 +17,10 @@ export const ACCOUNT_ACTIONS = Object.freeze([
   "download_docx",
   "download_pdf",
   "copy_tailored_text",
+  "generate_cover_letter",
+  "download_cover_letter_docx",
+  "download_cover_letter_pdf",
+  "copy_cover_letter_text",
   "view_saved_jobs",
 ]);
 
@@ -43,6 +47,10 @@ export const ACCOUNT_ACTION_MESSAGES = Object.freeze({
   download_docx: "Sign in to download this tailored résumé.",
   download_pdf: "Sign in to download this tailored résumé.",
   copy_tailored_text: "Sign in to copy this tailored résumé.",
+  generate_cover_letter: "Sign in to create an evidence-first cover letter.",
+  download_cover_letter_docx: "Sign in to download this private cover letter.",
+  download_cover_letter_pdf: "Sign in to download this private cover letter.",
+  copy_cover_letter_text: "Sign in to copy this private cover letter.",
   view_saved_jobs: "Sign in to access your private workspace.",
 });
 
@@ -229,7 +237,12 @@ export function pendingActionDestination(pending) {
     case "download_docx":
     case "download_pdf":
     case "copy_tailored_text":
+    case "download_cover_letter_docx":
+    case "download_cover_letter_pdf":
+    case "copy_cover_letter_text":
       return { step: "digest", notice: "regenerate_export" };
+    case "generate_cover_letter":
+      return { step: "digest", notice: "regenerate_cover_letter" };
     default:
       return { step: "digest" };
   }

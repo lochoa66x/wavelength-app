@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 
 import { useAuth } from "./auth.jsx";
 import { ResumeActions } from "./ResumeActions.jsx";
+import { CoverLetterWorkspace } from "./CoverLetterWorkspace.jsx";
 import { ResumeDocumentPreview } from "./ResumeDocumentPreview.jsx";
 import { ResumeDesignSelector } from "./ResumeDesignSelector.jsx";
 import { QualityFeedback } from "./QualityFeedback.jsx";
@@ -23,7 +24,7 @@ import {
 
 const DESIGN_OPTIONS = availableResumeDesigns();
 
-export function ResumeExperience({ resumeData, item, hasLink, atsReview, onEditResume, onTailoringChangeDecision, requestAccountAction, qualityRoute = "app", qualityPostingSource = "not_applicable", C, primaryBtnStyle }) {
+export function ResumeExperience({ baseResume = "", resumeData, item, hasLink, atsReview, candidateEvidence = [], customJob = null, requestPrivateProcessing, onEditResume, onTailoringChangeDecision, requestAccountAction, qualityRoute = "app", qualityPostingSource = "not_applicable", C, primaryBtnStyle }) {
   const { session } = useAuth();
   const previewRef = useRef(null);
   const [showOptions, setShowOptions] = useState(false);
@@ -134,6 +135,18 @@ export function ResumeExperience({ resumeData, item, hasLink, atsReview, onEditR
         requestAccountAction={requestAccountAction}
         qualityRoute={qualityRoute}
         qualityPostingSource={qualityPostingSource}
+        C={C}
+        primaryBtnStyle={primaryBtnStyle}
+      />
+      <CoverLetterWorkspace
+        baseResume={baseResume}
+        resumeData={resumeData}
+        item={item}
+        atsReview={atsReview}
+        candidateEvidence={candidateEvidence}
+        customJob={customJob}
+        requestPrivateProcessing={requestPrivateProcessing}
+        requestAccountAction={requestAccountAction}
         C={C}
         primaryBtnStyle={primaryBtnStyle}
       />

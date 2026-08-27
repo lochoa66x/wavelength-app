@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 
 import { createJobIntakeHandler } from "../api/job-intake.js";
 import { createListingEnrichmentHandler } from "../api/listing-enrichment.js";
+import { createCoverLetterHandler } from "../api/cover-letter.js";
 
 function responseRecorder() {
   return {
@@ -51,4 +52,31 @@ test("listing enrichment rejects an invalid token before privileged database acc
   await handler({ method: "POST", headers: { authorization: "Bearer invalid" }, body: { listingId: "listing-1" } }, res);
   assert.equal(res.statusCode, 401);
   assert.equal(adminCreated, false);
+});
+
+test("cover-letter generation rejects a missing token before private content is processed", async () => {
+  let authenticated = false;
+  let modelCalled = false;
+  const handler = createCoverLetterHandler({
+    authenticate: async () => { authenticated = true; return null; },
+    callModel: async () => { modelCalled = true; throw new Error("should not run"); },
+  });
+  const res = responseRecorder();
+  await handler({ method: "POST", headers: {}, body: { resumeData: { contact: { name: "Private Candidate" } } } }, res);
+  assert.equal(res.statusCode, 401);
+  assert.equal(authenticated, false);
+  assert.equal(modelCalled, false);
+});
+
+test("cover-letter generation rejects an invalid token before private content is processed", async () => {
+  let modelCalled = false;
+  const handler = createCoverLetterHandler({
+    authenticate: async () => null,
+    callModel: async () => { modelCalled = true; throw new Error("should not run"); },
+  });
+  const res = responseRecorder();
+  await handler({ method: "POST", headers: { authorization: "Bearer invalid" }, body: { resumeData: { contact: { name: "Private Candidate" } } } }, res);
+  assert.equal(res.statusCode, 401);
+  assert.equal(res.body.error, "Invalid or expired session");
+  assert.equal(modelCalled, false);
 });

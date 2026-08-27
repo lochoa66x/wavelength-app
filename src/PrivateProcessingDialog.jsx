@@ -11,6 +11,10 @@ const COPY = {
     title: "Before Gigscapes tailors your résumé",
     body: "Gigscapes sends your browser-saved résumé, the reviewed posting, and any evidence you confirmed to Anthropic through Gigscapes servers for this request. Your base résumé stays stored only in this browser, and Gigscapes never submits an application to an employer.",
   },
+  cover_letter: {
+    title: "Before Gigscapes writes your cover letter",
+    body: "Gigscapes sends your browser-saved résumé, reviewed posting, confirmed evidence, application assessment, and—when regenerating—a minimized copy of the current draft to Anthropic through Gigscapes servers. The result stays target-specific and editable; it does not change your saved résumé or submit an application.",
+  },
 };
 
 export function PrivateProcessingDialog({ scope, onCancel, onConfirm, returnFocusTarget }) {
