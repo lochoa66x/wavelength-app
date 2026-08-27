@@ -297,12 +297,11 @@ html {
 }
 
 .landing-hero {
-  min-height: calc(100svh - 72px);
   display: grid;
   grid-template-columns: minmax(0, 1.03fr) minmax(420px, 0.97fr);
   align-items: center;
   gap: clamp(48px, 7vw, 92px);
-  padding-block: clamp(60px, 8vw, 108px);
+  padding-block: clamp(60px, 8vw, 108px) clamp(36px, 4vw, 56px);
 }
 
 .landing-hero-copy {
@@ -633,6 +632,10 @@ html {
 
 .landing-section {
   padding-block: clamp(76px, 9vw, 124px);
+}
+
+.landing-section#start {
+  padding-top: clamp(48px, 5vw, 72px);
 }
 
 .landing-section-heading {
@@ -1321,7 +1324,6 @@ html {
   }
 
   .landing-hero {
-    min-height: 0;
     grid-template-columns: 1fr;
     gap: 56px;
     padding-top: 64px;
@@ -1369,7 +1371,11 @@ html {
   }
 
   .landing-hero {
-    padding-block: 48px 70px;
+    padding-block: 48px 32px;
+  }
+
+  .landing-section#start {
+    padding-top: 48px;
   }
 
   .landing-hero h1 {
@@ -1480,7 +1486,11 @@ html {
 
 @media (max-width: 480px) {
   .landing-hero {
-    padding-block: 36px 58px;
+    padding-block: 36px 24px;
+  }
+
+  .landing-section#start {
+    padding-top: 40px;
   }
 
   .landing-eyebrow {

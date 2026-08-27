@@ -155,12 +155,15 @@ test("metadata defines the production canonical, sharing image, robots, and trut
   assert.doesNotMatch(htmlSource, /aggregateRating|reviewCount|offers|price/);
 });
 
-test("responsive CSS protects mobile width, touch targets, focus, and reduced motion", () => {
+test("responsive CSS protects mobile width, touch targets, focus, reduced motion, and section rhythm", () => {
   assert.match(cssSource, /overflow-x: clip/);
   assert.match(cssSource, /min-height: 44px/);
   assert.match(cssSource, /@media \(max-width: 700px\)/);
   assert.match(cssSource, /@media \(prefers-reduced-motion: reduce\)/);
   assert.match(cssSource, /:focus-visible/);
+  assert.doesNotMatch(cssSource, /\.landing-hero\s*\{[^}]*min-height:\s*calc\(100svh/s);
+  assert.match(cssSource, /\.landing-section#start\s*\{\s*padding-top:\s*clamp\(48px, 5vw, 72px\)/);
+  assert.match(cssSource, /@media \(max-width: 480px\)[\s\S]*\.landing-section#start\s*\{\s*padding-top:\s*40px/);
 });
 
 test("FAQ covers the required trust, pricing, storage, and product questions", () => {
