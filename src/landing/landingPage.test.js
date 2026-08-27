@@ -109,9 +109,9 @@ test("named landing groups use supported landmark or group roles", () => {
 test("the mobile hero keeps the brand signal without letting the headline dominate", () => {
   assert.match(pageSource, /className="landing-hero-title-accent"/);
   assert.match(pageSource, /Build the résumé that fits/);
-  assert.match(pageSource, /className="landing-hero-title-continuation">—without<\/span>/);
+  assert.match(pageSource, /<\/span> without inventing experience\./);
+  assert.doesNotMatch(pageSource, /—without|landing-hero-title-continuation/);
   assert.match(cssSource, /\.landing-hero-title-accent\s*\{[\s\S]*color:\s*var\(--landing-orange\)/);
-  assert.match(cssSource, /\.landing-hero-title-continuation\s*\{[\s\S]*white-space:\s*nowrap/);
   assert.match(cssSource, /\.landing-button--primary\s*\{[\s\S]*background:\s*var\(--landing-orange\)/);
   assert.match(cssSource, /@media \(max-width: 480px\)[\s\S]*\.landing-hero h1\s*\{[\s\S]*font-size:\s*clamp\(34px, 9\.5vw, 40px\)/);
 });
