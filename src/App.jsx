@@ -18,6 +18,11 @@ import {
 } from "./candidateEvidenceStorage.js";
 import { submittableCandidateEvidence } from "./evidenceRefinement.js";
 import { listingLocationSummary, listingStateKey } from "./listingIdentity.js";
+import {
+  nextExpandedTailoringState,
+  scheduleTailoringPanelReveal,
+  tailoringPanelDomIds,
+} from "./listingTailoringTransition.js";
 import { getMatchPresentation } from "./matchPresentation.js";
 import { migrateCloudResume } from "./resumeMigration.js";
 import { supabase } from "./supabase.js";
@@ -98,6 +103,7 @@ html, body, #root { min-height: 100%; background: #F5F5F7; }
 .wl-btn:hover:not(:disabled) { opacity: 0.88; }
 .wl-btn:active:not(:disabled) { transform: scale(0.97); }
 .wl-btn:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, a:focus-visible { outline: 3px solid rgba(254,94,3,0.32); outline-offset: 2px; }
+.wl-tailoring-panel:focus-visible { outline: 3px solid rgba(254,94,3,0.32); outline-offset: 4px; }
 .wl-card { transition: box-shadow 0.2s, transform 0.15s; }
 .wl-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06), 0 12px 28px rgba(0,0,0,0.07) !important; }
 .wl-digest-grid { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 20px; align-items: start; }
@@ -660,8 +666,10 @@ export default function Gigscapes() {
 
   const [step, setStep] = useState("digest");
   const [expandedApply, setExpandedApply] = useState(null);
+  const [pendingTailoringFocus, setPendingTailoringFocus] = useState(null);
   const [tailored, setTailored] = useState({});
   const tailoringRequests = useRef(new Map());
+  const tailoringPanelRefs = useRef(new Map());
   const [candidateEvidenceByTarget, setCandidateEvidenceByTarget] = useState({});
   const [viewFilter, setViewFilter] = useState("all");
   const [showDismissed, setShowDismissed] = useState(false);
@@ -690,6 +698,33 @@ export default function Gigscapes() {
     for (const request of tailoringRequests.current.values()) request.controller.abort();
     tailoringRequests.current.clear();
   }, []);
+
+  const setTailoringPanelRef = useCallback((stateKey, node) => {
+    if (node) tailoringPanelRefs.current.set(stateKey, node);
+    else tailoringPanelRefs.current.delete(stateKey);
+  }, []);
+
+  const showTailoringPanel = useCallback((stateKey) => {
+    setExpandedApply(stateKey);
+    setPendingTailoringFocus(stateKey);
+  }, []);
+
+  const hideTailoringPanel = useCallback(() => {
+    setExpandedApply(null);
+    setPendingTailoringFocus(null);
+  }, []);
+
+  useEffect(() => {
+    if (!pendingTailoringFocus || step !== "digest" || expandedApply !== pendingTailoringFocus) return undefined;
+    const panel = tailoringPanelRefs.current.get(pendingTailoringFocus);
+    if (!panel) return undefined;
+
+    return scheduleTailoringPanelReveal(panel, {
+      onComplete: () => {
+        setPendingTailoringFocus((current) => current === pendingTailoringFocus ? null : current);
+      },
+    });
+  }, [expandedApply, pendingTailoringFocus, step]);
 
   const resume = localResume;
   const dismissed = session?.user?.id ? profile?.dismissed_listings || [] : guestDismissed;
@@ -797,14 +832,18 @@ export default function Gigscapes() {
   const openTailoring = (item, stateKey) => {
     requestAccountAction("tailor_resume", {
       listingId: item.id,
-      continuation: () => setExpandedApply((current) => current === stateKey ? null : stateKey),
+      continuation: () => {
+        const nextStateKey = nextExpandedTailoringState(expandedApply, stateKey);
+        if (nextStateKey) showTailoringPanel(nextStateKey);
+        else hideTailoringPanel();
+      },
     });
   };
   const handleTailor = async (item, stateKey, { skipEnrichment = false, candidateEvidenceOverride } = {}) => {
     if (!session?.user?.id) {
       requestAccountAction("tailor_resume", {
         listingId: item.id,
-        continuation: () => setExpandedApply(stateKey),
+        continuation: () => showTailoringPanel(stateKey),
       });
       return;
     }
@@ -908,7 +947,7 @@ export default function Gigscapes() {
     if (!session?.user?.id) {
       requestAccountAction("add_evidence", {
         listingId: item.id,
-        continuation: () => setExpandedApply(stateKey),
+        continuation: () => showTailoringPanel(stateKey),
       });
       return;
     }
@@ -955,7 +994,7 @@ export default function Gigscapes() {
     } finally {
       setStep(stepAfterSignOut());
       setViewFilter("all");
-      setExpandedApply(null);
+      hideTailoringPanel();
       setTailored({});
       setCandidateEvidenceByTarget({});
     }
@@ -1090,8 +1129,8 @@ export default function Gigscapes() {
         setContinuationNotice("The selected listing is no longer in this search. Find it again to continue tailoring.");
         return;
       }
-      setExpandedApply(listingStateKey(listing));
       setStep("digest");
+      showTailoringPanel(listingStateKey(listing));
       return;
     }
     if (["download_docx", "download_pdf", "copy_tailored_text"].includes(pending.action)) {
@@ -1834,6 +1873,7 @@ export default function Gigscapes() {
           const hasLink = item.url && item.url !== "#";
           const stateKey = listingStateKey(item);
           const isExpanded = expandedApply === stateKey;
+          const { panelId, headingId } = tailoringPanelDomIds(stateKey);
           const t = tailored[stateKey];
           const av = avatarStyle(item.company);
           const key = itemKey(item);
@@ -1871,7 +1911,7 @@ export default function Gigscapes() {
                     <button
                       onClick={() => {
                         toggleDismiss(key);
-                        if (!isDismissed && isExpanded) setExpandedApply(null);
+                        if (!isDismissed && isExpanded) hideTailoringPanel();
                       }}
                       className="wl-btn"
                       title={isDismissed ? "Restore" : "Dismiss"}
@@ -1890,22 +1930,38 @@ export default function Gigscapes() {
                   </a>
                 )}
                 <button
+                  type="button"
                   onClick={() => openTailoring(item, stateKey)}
                   className="wl-btn"
+                  aria-expanded={isExpanded}
+                  aria-controls={panelId}
+                  aria-label={isExpanded ? `Hide tailoring options for ${item.title}` : `Review and tailor résumé for ${item.title}`}
                   style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 13, fontWeight: 600, color: C.green, background: "none", border: "none", cursor: "pointer", marginLeft: hasLink ? 0 : "auto" }}
                 >
-                  <Sparkles size={13} /> {isExpanded ? "Hide" : "Tailor résumé & apply"}
+                  <Sparkles size={13} /> {isExpanded ? "Hide tailoring options" : "Review & tailor résumé"}
                 </button>
               </div>
 
               {isExpanded && (
-                <div style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${C.border}` }}>
+                <div
+                  ref={(node) => setTailoringPanelRef(stateKey, node)}
+                  id={panelId}
+                  role="region"
+                  aria-labelledby={headingId}
+                  tabIndex={-1}
+                  className="wl-tailoring-panel"
+                  style={{ marginTop: 14, paddingTop: 14, borderTop: `1px solid ${C.border}`, scrollMarginTop: 96 }}
+                >
+                  <h3 id={headingId} style={{ color: C.text, fontSize: 15, lineHeight: 1.35, margin: "0 0 10px" }}>
+                    Review and tailor for {item.title}
+                  </h3>
                   {!resume && (
                     <div>
                       <p style={{ fontSize: 13, color: C.textSub, marginBottom: 10 }}>
                         Add your résumé first so we can tailor it for this gig.
                       </p>
                       <button
+                        type="button"
                         onClick={() => openResumeEditor("digest")}
                         className="wl-btn"
                         style={{ ...primaryBtnStyle(false), fontSize: 13, padding: "10px 18px" }}
@@ -1919,7 +1975,7 @@ export default function Gigscapes() {
                       <p style={{ fontSize: 13, color: C.textSub, marginBottom: 10 }}>
                         We'll analyze the posting evidence and tailor your saved résumé safely. This usually takes 1–2 minutes.
                       </p>
-                      <button onClick={() => handleTailor(item, stateKey)} className="wl-btn" style={{ ...primaryBtnStyle(false), fontSize: 13, padding: "10px 18px" }}>
+                      <button type="button" onClick={() => handleTailor(item, stateKey)} className="wl-btn" style={{ ...primaryBtnStyle(false), fontSize: 13, padding: "10px 18px" }}>
                         <Sparkles size={13} /> Generate tailored version
                       </button>
                     </div>
