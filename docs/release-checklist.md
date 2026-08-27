@@ -92,15 +92,19 @@ Do not reapply the P1.4 migration or change production Auth/database settings du
 - [x] Current-account browser-private-data deletion uses an explicit allowlist and never clears the origin, authentication session, saved jobs, search preferences, Supabase records, or another account's data.
 - [x] Vercel Web Analytics package installed with query/fragment stripping and auth-callback suppression; no custom résumé/posting telemetry added.
 - [x] Private API responses and logs hardened against caching, referrer leakage, raw content, upstream response bodies, credentials, and AI response logging.
-- [x] Focused privacy/intake/tailoring/API suite: 59 passed, 0 failed.
-- [x] Full suite: 446 passed, 0 failed.
+- [x] Focused privacy/intake/tailoring/API suite: 60 passed, 0 failed.
+- [x] Full suite: 447 passed, 0 failed.
 - [x] Export verifier: 40 files, 16 templates, 25 direct-PDF pages, 715 selectable text items; manifest parity, final gating, and stale-ready rejection passed.
 - [x] Production build passed and retained lazy DOCX/PDF/jsPDF chunks.
 - [x] Production dependency audit passed with zero known vulnerabilities; Vite/esbuild development-only findings are recorded for a separate major upgrade.
 - [x] Desktop and 390×844 privacy/app/sign-in browser QA passed with zero automated accessibility violations and no application page errors. Transparent gradient surfaces received manual contrast review.
 - [x] Database scope reviewed: this release changes no Supabase schema, policy, grant, function, or stored data. Checked-in RLS/grant migrations were reviewed; live Supabase Security and Performance advisors remain unavailable to the current connector and are a documented verification limitation rather than a database-change blocker.
 - [x] Production and Preview privacy configuration set and locally verified with operator Voynich Tech, contact `hello@voynichtech.com`, jurisdiction Canada, and minimum age 16. The configuration gate and real-value browser rendering passed without a placeholder warning.
-- [ ] Commit, push, Git-triggered Vercel production deployment, exact-SHA binding, production smoke, and runtime-error review are authorized and remain the release handoff steps.
+- [x] Privacy feature commit `6165c508c9c490e9b804ac198f5519ce7ee11124` and direct-route hotfix `132f8d0cbecb0e188ff902e8e637a9a2968a7fa6` were pushed normally to `main`. The initial production smoke found `/privacy` returning Vercel 404; an explicit SPA rewrite and regression test fixed the failure before release closure.
+- [x] Corrected Git-triggered Vercel deployment <https://wavelength-cwxx9xy8s-luisochoasap-2007s-projects.vercel.app> (`dpl_2f23ACnmAaJqCXhY7s4sNLyUCE4D`) reached `READY`, carried the `gigscapes.com`, `www.gigscapes.com`, and `main` aliases, and its GitHub deployment status was bound exactly to runtime SHA `132f8d0cbecb0e188ff902e8e637a9a2968a7fa6`.
+- [x] Production smoke passed direct `/privacy`, `/`, `/app`, and `/sign-in` navigation. The privacy page rendered Voynich Tech, `hello@voynichtech.com`, Canada, and age 16 with no placeholder warning or horizontal overflow at desktop and 390×844. The signed-out search-result Tailor action opened its private-account dialog, confirming the main transition remained wired. Browser errors and console output were empty.
+- [x] Production `/api/job-intake` and `/api/tailor` probes returned the expected unauthenticated 401 and retained `Cache-Control: no-store, max-age=0`, `Pragma: no-cache`, `Referrer-Policy: no-referrer`, and `X-Content-Type-Options: nosniff`. Deployment error and `status:5xx` log queries returned no entries.
+- [x] This release-record follow-up is documentation-only and does not alter the verified runtime behavior above.
 
 ## P2.1 universal design expansion local verification record
 
