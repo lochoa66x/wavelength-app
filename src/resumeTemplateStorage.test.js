@@ -1,7 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { TEMPLATE_IDS } from "./resumeModel.js";
+import {
+  DENSITY_IDS,
+  HEADER_ALIGNMENT_IDS,
+  LENGTH_PREFERENCE_IDS,
+  PALETTE_IDS,
+  TEMPLATE_IDS,
+} from "./resumeModel.js";
 import {
   loadResumePresentationSelection,
   loadResumeTemplateSelection,
@@ -19,6 +25,13 @@ function memoryStorage() {
     removeItem: (key) => values.delete(key),
   };
 }
+
+const DEFAULT_PRESENTATION = Object.freeze({
+  paletteId: PALETTE_IDS.GIGSCAPES_ORANGE,
+  densityId: DENSITY_IDS.COMFORTABLE,
+  headerAlignment: HEADER_ALIGNMENT_IDS.STYLE_DEFAULT,
+  lengthPreference: LENGTH_PREFERENCE_IDS.AUTO,
+});
 
 test("template selection is isolated by account and target", () => {
   const storage = memoryStorage();
@@ -102,6 +115,7 @@ test("visual design and content strategy persist independently and legacy choice
   assert.deepEqual(loadResumePresentationSelection("user-a", target, storage), {
     strategyId: TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES,
     designId: TEMPLATE_IDS.BOLD_IMPACT,
+    ...DEFAULT_PRESENTATION,
   });
   assert.equal(loadResumePresentationSelection("user-b", target, storage), null);
 
@@ -110,6 +124,7 @@ test("visual design and content strategy persist independently and legacy choice
   assert.deepEqual(loadResumePresentationSelection("user-a", legacyRoleTarget, storage), {
     strategyId: TEMPLATE_IDS.CREATIVE_DESIGN,
     designId: TEMPLATE_IDS.STUDIO_EDITORIAL,
+    ...DEFAULT_PRESENTATION,
   });
 
   const legacyDesignTarget = resumeTemplateTargetKey({ id: "legacy-design" });
@@ -117,5 +132,33 @@ test("visual design and content strategy persist independently and legacy choice
   assert.deepEqual(loadResumePresentationSelection("user-a", legacyDesignTarget, storage), {
     strategyId: TEMPLATE_IDS.ATS_CORE,
     designId: TEMPLATE_IDS.COMPACT_FOCUS,
+    ...DEFAULT_PRESENTATION,
+  });
+});
+
+test("presentation modifiers round-trip and version 2 choices receive deterministic defaults", () => {
+  const storage = memoryStorage();
+  const target = resumeTemplateTargetKey({ id: "presentation-v3" });
+  const custom = {
+    strategyId: TEMPLATE_IDS.PROJECT_LEADERSHIP,
+    designId: TEMPLATE_IDS.MODERN_SIGNAL,
+    paletteId: PALETTE_IDS.FOREST,
+    densityId: DENSITY_IDS.COMPACT,
+    headerAlignment: HEADER_ALIGNMENT_IDS.LEFT,
+    lengthPreference: LENGTH_PREFERENCE_IDS.ONE_PAGE,
+  };
+  assert.equal(saveResumePresentationSelection("user-a", target, custom, storage), true);
+  assert.deepEqual(loadResumePresentationSelection("user-a", target, storage), custom);
+
+  const v2Target = resumeTemplateTargetKey({ id: "presentation-v2-migration" });
+  storage.setItem(resumeTemplateStorageKey("user-a", v2Target), JSON.stringify({
+    version: 2,
+    strategyId: TEMPLATE_IDS.ATS_CORE,
+    designId: TEMPLATE_IDS.CLASSIC_LEDGER,
+  }));
+  assert.deepEqual(loadResumePresentationSelection("user-a", v2Target, storage), {
+    strategyId: TEMPLATE_IDS.ATS_CORE,
+    designId: TEMPLATE_IDS.CLASSIC_LEDGER,
+    ...DEFAULT_PRESENTATION,
   });
 });

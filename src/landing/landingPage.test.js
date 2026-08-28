@@ -76,12 +76,12 @@ test("the app consumes the landing intent through the centralized gate and clear
   assert.match(appSource, /if \(!landingAccountAction \|\| authLoading/);
 });
 
-test("the landing gallery exposes all seven visual designs without presenting strategies as skins", () => {
+test("the landing gallery exposes all seven visual styles without presenting strategies as skins", () => {
   const designs = availableResumeDesigns();
   assert.equal(designs.length, 7);
   assert.match(templateSource, /availableResumeDesigns\(\)/);
-  assert.match(templateSource, /Seven visual résumé designs/);
-  assert.match(templateSource, /content strategy/);
+  assert.match(templateSource, /Seven résumé styles/);
+  assert.match(templateSource, /content approach/);
   assert.doesNotMatch(templateSource, /ats-core-v1|sap-functional-v1|creative-design-v1/);
   assert.match(templateSource, /aria-pressed=\{isSelected\}/);
 });

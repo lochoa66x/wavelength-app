@@ -34,11 +34,27 @@ export function ResumeExperience({ baseResume = "", resumeData, item, hasLink, a
   const storedSelection = useMemo(() => loadResumePresentationSelection(userId, targetKey), [userId, targetKey]);
   const [selectedStrategyId, setSelectedStrategyId] = useState(() => storedSelection?.strategyId || recommendationPackage.presentation.recommendedStrategyId);
   const [selectedDesignId, setSelectedDesignId] = useState(() => storedSelection?.designId || recommendationPackage.presentation.recommendedDesignId);
+  const [selectedPaletteId, setSelectedPaletteId] = useState(() => storedSelection?.paletteId || recommendationPackage.presentation.selectedPaletteId);
+  const [selectedDensityId, setSelectedDensityId] = useState(() => storedSelection?.densityId || recommendationPackage.presentation.selectedDensityId);
+  const [selectedHeaderAlignment, setSelectedHeaderAlignment] = useState(() => storedSelection?.headerAlignment || recommendationPackage.presentation.selectedHeaderAlignment);
+  const [selectedLengthPreference, setSelectedLengthPreference] = useState(() => storedSelection?.lengthPreference || recommendationPackage.presentation.selectedLengthPreference);
 
   useEffect(() => {
     setSelectedStrategyId(storedSelection?.strategyId || recommendationPackage.presentation.recommendedStrategyId);
     setSelectedDesignId(storedSelection?.designId || recommendationPackage.presentation.recommendedDesignId);
-  }, [storedSelection, recommendationPackage.presentation.recommendedStrategyId, recommendationPackage.presentation.recommendedDesignId]);
+    setSelectedPaletteId(storedSelection?.paletteId || recommendationPackage.presentation.selectedPaletteId);
+    setSelectedDensityId(storedSelection?.densityId || recommendationPackage.presentation.selectedDensityId);
+    setSelectedHeaderAlignment(storedSelection?.headerAlignment || recommendationPackage.presentation.selectedHeaderAlignment);
+    setSelectedLengthPreference(storedSelection?.lengthPreference || recommendationPackage.presentation.selectedLengthPreference);
+  }, [
+    storedSelection,
+    recommendationPackage.presentation.recommendedStrategyId,
+    recommendationPackage.presentation.recommendedDesignId,
+    recommendationPackage.presentation.selectedPaletteId,
+    recommendationPackage.presentation.selectedDensityId,
+    recommendationPackage.presentation.selectedHeaderAlignment,
+    recommendationPackage.presentation.selectedLengthPreference,
+  ]);
 
   useEffect(() => {
     void import("./resumeDocx.js")
@@ -47,23 +63,52 @@ export function ResumeExperience({ baseResume = "", resumeData, item, hasLink, a
   }, []);
 
   const resumePackage = useMemo(
-    () => createResumePackage(resumeData, { item, atsReview, selectedStrategyId, selectedDesignId }),
-    [resumeData, item, atsReview, selectedStrategyId, selectedDesignId],
+    () => createResumePackage(resumeData, {
+      item,
+      atsReview,
+      selectedStrategyId,
+      selectedDesignId,
+      selectedPaletteId,
+      selectedDensityId,
+      selectedHeaderAlignment,
+      selectedLengthPreference,
+    }),
+    [resumeData, item, atsReview, selectedStrategyId, selectedDesignId, selectedPaletteId, selectedDensityId, selectedHeaderAlignment, selectedLengthPreference],
   );
   const readiness = useMemo(() => getResumeExportReadiness(resumePackage, atsReview), [resumePackage, atsReview]);
   const exportNotice = useMemo(() => getResumeExportNotice(resumePackage, atsReview), [resumePackage, atsReview]);
   const renderPlan = useMemo(
-    () => buildResumeRenderPlan(resumePackage, { strategyId: selectedStrategyId, designId: selectedDesignId }, { preliminary: readiness.preliminary }),
-    [resumePackage, selectedStrategyId, selectedDesignId, readiness.preliminary],
+    () => buildResumeRenderPlan(resumePackage, {
+      strategyId: selectedStrategyId,
+      designId: selectedDesignId,
+      paletteId: selectedPaletteId,
+      densityId: selectedDensityId,
+      headerAlignment: selectedHeaderAlignment,
+      lengthPreference: selectedLengthPreference,
+    }, { preliminary: readiness.preliminary }),
+    [resumePackage, selectedStrategyId, selectedDesignId, selectedPaletteId, selectedDensityId, selectedHeaderAlignment, selectedLengthPreference, readiness.preliminary],
   );
   const recommendedStrategy = RESUME_STRATEGY_REGISTRY[resumePackage.presentation.recommendedStrategyId];
   const recommendedDesign = RESUME_DESIGN_REGISTRY[resumePackage.presentation.recommendedDesignId];
   const selectedDesign = RESUME_DESIGN_REGISTRY[renderPlan.designId];
   const controlId = `design-control-${targetKey || "resume"}`;
 
-  const chooseDesign = (designId) => {
-    setSelectedDesignId(designId);
-    saveResumePresentationSelection(userId, targetKey, { strategyId: selectedStrategyId, designId });
+  const updatePresentation = (changes) => {
+    const next = {
+      strategyId: selectedStrategyId,
+      designId: selectedDesignId,
+      paletteId: selectedPaletteId,
+      densityId: selectedDensityId,
+      headerAlignment: selectedHeaderAlignment,
+      lengthPreference: selectedLengthPreference,
+      ...changes,
+    };
+    if (changes.designId) setSelectedDesignId(changes.designId);
+    if (changes.paletteId) setSelectedPaletteId(changes.paletteId);
+    if (changes.densityId) setSelectedDensityId(changes.densityId);
+    if (changes.headerAlignment) setSelectedHeaderAlignment(changes.headerAlignment);
+    if (changes.lengthPreference) setSelectedLengthPreference(changes.lengthPreference);
+    saveResumePresentationSelection(userId, targetKey, next);
   };
 
   return (
@@ -73,10 +118,18 @@ export function ResumeExperience({ baseResume = "", resumeData, item, hasLink, a
         recommendedStrategy={recommendedStrategy}
         recommendedDesign={recommendedDesign}
         selectedDesign={selectedDesign}
+        selectedPresentation={{
+          designId: selectedDesignId,
+          paletteId: selectedPaletteId,
+          densityId: selectedDensityId,
+          headerAlignment: selectedHeaderAlignment,
+          lengthPreference: selectedLengthPreference,
+        }}
         recommendationReason={resumePackage.presentation.recommendationReason}
         showOptions={showOptions}
         onToggle={() => setShowOptions((value) => !value)}
-        onChoose={chooseDesign}
+        onChoose={(designId) => updatePresentation({ designId })}
+        onPresentationChange={updatePresentation}
         controlId={controlId}
         C={C}
       />
@@ -126,7 +179,14 @@ export function ResumeExperience({ baseResume = "", resumeData, item, hasLink, a
         resumeData={resumeData}
         resumePackage={resumePackage}
         renderPlan={renderPlan}
-        selection={{ strategyId: renderPlan.strategyId, designId: renderPlan.designId }}
+        selection={{
+          strategyId: renderPlan.strategyId,
+          designId: renderPlan.designId,
+          paletteId: renderPlan.paletteId,
+          densityId: renderPlan.densityId,
+          headerAlignment: renderPlan.headerAlignment,
+          lengthPreference: renderPlan.lengthPreference,
+        }}
         previewRef={previewRef}
         item={item}
         hasLink={hasLink}

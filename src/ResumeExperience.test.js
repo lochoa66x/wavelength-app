@@ -4,12 +4,17 @@ import test from "node:test";
 
 test("design selector separates strategy from visual choice and stays network-free", async () => {
   const source = await readFile(new URL("./ResumeDesignSelector.jsx", import.meta.url), "utf8");
-  assert.match(source, /Recommended content strategy:/);
-  assert.match(source, /Choose résumé design/);
+  assert.match(source, /Content approach:/);
+  assert.match(source, /Choose résumé style/);
   assert.match(source, /aria-expanded/);
   assert.match(source, /aria-pressed/);
-  assert.match(source, /Changing the design below never changes your facts/);
-  assert.match(source, /Available visual résumé designs/);
+  assert.match(source, /Changing the résumé style below never changes your facts/);
+  assert.match(source, /Available visual résumé styles/);
+  assert.match(source, /Colour palette/);
+  assert.match(source, /Evidence density/);
+  assert.match(source, /Header alignment/);
+  assert.match(source, /Target length/);
+  assert.match(source, /never permission to delete evidence/);
   assert.match(source, /ResumeDesignThumbnail/);
   assert.match(source, /<li key=\{design\.id\}/);
   assert.doesNotMatch(source, /<button[\s\S]{0,160}role="listitem"/);

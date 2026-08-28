@@ -338,6 +338,17 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 - No letter content, résumé content, posting text, or free-form user edit enters analytics or operational logs.
 - Desktop and mobile keyboard/screen-reader flows, cancellation, regeneration, paragraph veto, export, and stale-authorization rejection have focused tests and real-browser verification.
 
+### P3.8 Position-independent résumé presentation system
+
+**Status:** Implementation complete on 2026-08-28; exact local and production release evidence is recorded in `docs/release-checklist.md` after the release gate.
+
+- Content approach and visual presentation are separate product choices. The evidence-aware strategy continues to control safe emphasis, headings, and section order; presentation controls cannot create, remove, reclassify, or rewrite evidence.
+- Seven position-independent résumé styles—Essential, Ledger, Contour, Compact Focus, Bold Impact, Studio Editorial, and Field Ready—work across technology, administration, marketing, creative work, skilled trades, healthcare, education, finance, logistics, hospitality, and community services. Usage copy is a mild suggestion, never an occupation lock.
+- Four accessible palettes—Gigscapes Orange, Forest, Slate Blue, and Monochrome—compose with Comfortable or Compact density, style-default/left/center header alignment, and Auto/one-page/two-page target length. Target length changes geometry only and never silently deletes evidence.
+- The complete account-and-target-scoped selection persists in the browser with deterministic migration from version-1 role/visual selections and version-2 strategy/style pairs. Invalid or removed options fail safely to canonical defaults.
+- Browser preview, editable DOCX, selectable/searchable direct PDF, render hashes, and export authorization consume the same composed tokens. Switching any presentation control is local and immediate, makes no AI/network request, and preserves the canonical content hash, item IDs, Evidence Map, requirement coverage, fit assessment, and readiness decision.
+- Automated coverage includes the 7 × 4 × 2 style/palette/density matrix, every modifier group, accessible colour contrast, persistence migration, stale authorization, and four representative cross-format export combinations. Real-file QA covers both LibreOffice-rendered DOCX and direct PDF pages.
+
 ## Recommended execution order
 
 1. P0.1 posting enrichment and provenance
@@ -357,7 +368,8 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 15. P3.5 Evidence Map and application decision clarity — implemented, locally verified, and release-authorized
 16. P3.6 privacy and data-transparency foundation — configured, release-verified, and authorized for Git-triggered production promotion
 17. P3.7 evidence-first cover letters and application packages — approved after the privacy release
-18. P3.1 Phase A opt-in web résumé sync and production RLS verification, then native mobile after the web contract remains stable
+18. P3.8 position-independent résumé presentation system — implementation complete; release evidence recorded with the feature SHA
+19. P3.1 Phase A opt-in web résumé sync and production RLS verification, then native mobile after the web contract remains stable
 
 ## Source constraints behind P0.1
 

@@ -24,7 +24,7 @@ This map describes the implementation in this repository. It is not a claim abou
 - `gigscapes:resume-sync:v1:<encoded-user-id>` — versioned per-browser opt-in, known revision/hash, and pending flag; no résumé text.
 - `gigscapes:candidate-evidence:v1:<encoded-user-id>:<target>` — application evidence.
 - `gigscapes:reusable-candidate-evidence:v1:<encoded-user-id>` — user-confirmed reusable evidence.
-- `gigscapes:resume-template:v1:<encoded-user-id>:<target>` — presentation choice.
+- `gigscapes:resume-template:v1:<encoded-user-id>:<target>` — local strategy/style/palette/density/header/length choice; no résumé or posting text.
 - `gigscapes:cover-letter:v1:<encoded-user-id>:<target>` — target-specific cover-letter plan, exact citations, voice/length choice, and local verification state.
 - `gigscapes:private-processing-ack:v1` — policy version, scopes, acknowledgement timestamp; no résumé content.
 - `gigscapes:guest-preferences:v1` — non-private discovery preferences.

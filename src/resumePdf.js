@@ -68,6 +68,8 @@ async function createResumePdfDocument(input, template = "professional", options
   const headerBackground = rgb(tokens.headerBackground, accent);
   const headerText = rgb(tokens.headerText, [255, 255, 255]);
   const pdfFont = tokens.pdfFontFamily || "helvetica";
+  const rhythm = tokens.verticalRhythmScale || 1;
+  const gap = (value) => value * rhythm;
   const bodyLeading = tokens.bodyFontSizePt * tokens.bodyLineHeight;
   let y = page.top;
 
@@ -78,8 +80,8 @@ async function createResumePdfDocument(input, template = "professional", options
   const ensureSpace = (height) => {
     if (y + height > page.height - page.bottom) newPage();
   };
-  const wrappedLines = (value, width, size = tokens.bodyFontSizePt) => {
-    doc.setFont(pdfFont, "normal");
+  const wrappedLines = (value, width, size = tokens.bodyFontSizePt, style = "normal") => {
+    doc.setFont(pdfFont, style);
     doc.setFontSize(size);
     const safe = pdfSafeText(value);
     return safe ? doc.splitTextToSize(safe, width) : [];
@@ -98,7 +100,7 @@ async function createResumePdfDocument(input, template = "professional", options
     doc.setFont(pdfFont, style);
     doc.setTextColor(...color);
     doc.setFontSize(size);
-    const lines = wrappedLines(value, width, size);
+    const lines = wrappedLines(value, width, size, style);
     if (!lines.length) return 0;
     const height = lines.length * leading;
     if (ensure) ensureSpace(height + after);
@@ -113,30 +115,30 @@ async function createResumePdfDocument(input, template = "professional", options
     // and DOCX may apply visual capitalization without rewriting content.
     const headingText = value;
     const headingLeading = tokens.sectionFontSizePt * 1.2;
-    const lines = wrappedLines(headingText, treatment === "accent-edge" ? contentWidth - 10 : contentWidth, tokens.sectionFontSizePt);
+    const lines = wrappedLines(headingText, treatment === "accent-edge" ? contentWidth - 10 : contentWidth, tokens.sectionFontSizePt, "bold");
     const textHeight = Math.max(headingLeading, lines.length * headingLeading);
     ensureSpace(textHeight + 26);
-    y += treatment === "compact-rule" ? 7 : 10;
+    y += gap(treatment === "compact-rule" ? 7 : 10);
     if (treatment === "soft-band") {
       doc.setFillColor(...accentSoft);
       doc.rect(page.left, y - 3, contentWidth, textHeight + 6, "F");
-      writeLines(headingText, { x: page.left + 7, width: contentWidth - 14, size: tokens.sectionFontSizePt, style: "bold", color: accent, leading: headingLeading, after: 8, ensure: false });
+      writeLines(headingText, { x: page.left + 7, width: contentWidth - 14, size: tokens.sectionFontSizePt, style: "bold", color: accent, leading: headingLeading, after: gap(8), ensure: false });
       return;
     }
     if (treatment === "accent-edge") {
       doc.setDrawColor(...accent);
       doc.setLineWidth(3);
       doc.line(page.left + 1.5, y - 1, page.left + 1.5, y + textHeight - 1);
-      writeLines(headingText, { x: page.left + 10, width: contentWidth - 10, size: tokens.sectionFontSizePt, style: "bold", color: accent, leading: headingLeading, after: 7, ensure: false });
+      writeLines(headingText, { x: page.left + 10, width: contentWidth - 10, size: tokens.sectionFontSizePt, style: "bold", color: accent, leading: headingLeading, after: gap(7), ensure: false });
       return;
     }
-    writeLines(headingText, { size: tokens.sectionFontSizePt, style: "bold", color: accent, leading: headingLeading, after: 4, ensure: false });
+    writeLines(headingText, { size: tokens.sectionFontSizePt, style: "bold", color: accent, leading: headingLeading, after: gap(4), ensure: false });
     doc.setDrawColor(...(treatment === "underline" ? [201, 205, 209] : accent));
     doc.setLineWidth(treatment === "compact-rule" ? 1.15 : 0.6);
     doc.line(page.left, y, page.width - page.right, y);
-    y += treatment === "compact-rule" ? 5 : 7;
+    y += gap(treatment === "compact-rule" ? 5 : 7);
   };
-  const paragraph = (value, overrides = {}) => writeLines(value, { size: tokens.bodyFontSizePt, leading: bodyLeading, after: 4, ...overrides });
+  const paragraph = (value, overrides = {}) => writeLines(value, { size: tokens.bodyFontSizePt, leading: bodyLeading, after: gap(4), ...overrides });
   const bullet = (value) => {
     const bulletX = page.left + 2;
     const textX = page.left + 14;
@@ -144,13 +146,13 @@ async function createResumePdfDocument(input, template = "professional", options
     const lines = wrappedLines(value, width, tokens.bodyFontSizePt);
     if (!lines.length) return;
     const height = lines.length * bodyLeading;
-    ensureSpace(height + 4);
+    ensureSpace(height + gap(4));
     doc.setFont(pdfFont, "normal");
     doc.setFontSize(tokens.bodyFontSizePt);
     doc.setTextColor(23, 25, 28);
     doc.text("-", bulletX, y, { baseline: "top" });
     doc.text(lines, textX, y, { baseline: "top", lineHeightFactor: tokens.bodyLineHeight });
-    y += height + 4;
+    y += height + gap(4);
   };
   const projectBlockHeight = (project) => {
     const projectHeading = [project.name, project.organization].filter(Boolean).join(" - ");

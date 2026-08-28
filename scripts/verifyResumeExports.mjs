@@ -3,7 +3,14 @@ import { mkdir, rm, writeFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 
 import { createResumeDocxBlob } from "../src/resumeDocx.js";
-import { manifestVisibleText, TEMPLATE_IDS } from "../src/resumeModel.js";
+import {
+  DENSITY_IDS,
+  HEADER_ALIGNMENT_IDS,
+  LENGTH_PREFERENCE_IDS,
+  PALETTE_IDS,
+  manifestVisibleText,
+  TEMPLATE_IDS,
+} from "../src/resumeModel.js";
 import { createResumePdfBytes } from "../src/resumePdf.js";
 import { createResumeExportContext, getResumeExportReadiness, validateResumeExportContext } from "../src/resumeReadiness.js";
 import { resumeDataToPlainText } from "../src/resumeText.js";
@@ -230,7 +237,45 @@ try {
     item: creativeTargetItem,
     templateId: TEMPLATE_IDS.CREATIVE_DESIGN,
   });
-  for (const context of [...finalContexts, apprenticeContext, marketingTransitionContext, creativeAdjacentContext, preliminaryContext]) validateResumeExportContext(context);
+  const presentationVariantContexts = [
+    createResumeExportContext(resume, verifiedReview, {
+      item,
+      strategyId: TEMPLATE_IDS.ATS_CORE,
+      designId: TEMPLATE_IDS.ESSENTIAL_ATS,
+      paletteId: PALETTE_IDS.GIGSCAPES_ORANGE,
+      densityId: DENSITY_IDS.COMFORTABLE,
+      headerAlignment: HEADER_ALIGNMENT_IDS.CENTER,
+      lengthPreference: LENGTH_PREFERENCE_IDS.AUTO,
+    }),
+    createResumeExportContext(resume, verifiedReview, {
+      item,
+      strategyId: TEMPLATE_IDS.ATS_CORE,
+      designId: TEMPLATE_IDS.MODERN_SIGNAL,
+      paletteId: PALETTE_IDS.FOREST,
+      densityId: DENSITY_IDS.COMPACT,
+      headerAlignment: HEADER_ALIGNMENT_IDS.LEFT,
+      lengthPreference: LENGTH_PREFERENCE_IDS.ONE_PAGE,
+    }),
+    createResumeExportContext(resume, verifiedReview, {
+      item,
+      strategyId: TEMPLATE_IDS.ATS_CORE,
+      designId: TEMPLATE_IDS.CLASSIC_LEDGER,
+      paletteId: PALETTE_IDS.SLATE_BLUE,
+      densityId: DENSITY_IDS.COMFORTABLE,
+      headerAlignment: HEADER_ALIGNMENT_IDS.CENTER,
+      lengthPreference: LENGTH_PREFERENCE_IDS.TWO_PAGES,
+    }),
+    createResumeExportContext(resume, verifiedReview, {
+      item,
+      strategyId: TEMPLATE_IDS.ATS_CORE,
+      designId: TEMPLATE_IDS.BOLD_IMPACT,
+      paletteId: PALETTE_IDS.MONOCHROME,
+      densityId: DENSITY_IDS.COMPACT,
+      headerAlignment: HEADER_ALIGNMENT_IDS.STYLE_DEFAULT,
+      lengthPreference: LENGTH_PREFERENCE_IDS.AUTO,
+    }),
+  ];
+  for (const context of [...finalContexts, apprenticeContext, marketingTransitionContext, creativeAdjacentContext, ...presentationVariantContexts, preliminaryContext]) validateResumeExportContext(context);
   assert.equal(preliminaryContext.authorization.mode, "preliminary");
   assert.equal(preliminaryContext.renderPlan.preliminary, true);
 
@@ -245,6 +290,15 @@ try {
   outputs.push({ prefix: "marketing-transition-marketing-communications-v1", context: marketingTransitionContext, docx: marketingTransitionDocx, pdf: marketingTransitionPdf });
   const [creativeAdjacentDocx, creativeAdjacentPdf] = await Promise.all([createResumeDocxBlob(creativeAdjacentContext), createResumePdfBytes(creativeAdjacentContext)]);
   outputs.push({ prefix: "creative-adjacent-creative-design-v1", context: creativeAdjacentContext, docx: creativeAdjacentDocx, pdf: creativeAdjacentPdf });
+  for (const context of presentationVariantContexts) {
+    const [docx, pdf] = await Promise.all([createResumeDocxBlob(context), createResumePdfBytes(context)]);
+    outputs.push({
+      prefix: `presentation--${context.renderPlan.designId}--${context.renderPlan.paletteId}--${context.renderPlan.densityId}`,
+      context,
+      docx,
+      pdf,
+    });
+  }
   const [preliminaryDocx, preliminaryPdf] = await Promise.all([createResumeDocxBlob(preliminaryContext), createResumePdfBytes(preliminaryContext)]);
   outputs.push({ prefix: "preliminary-ats-core-v1", context: preliminaryContext, docx: preliminaryDocx, pdf: preliminaryPdf });
 
@@ -325,6 +379,13 @@ try {
       "marketing-transition-marketing-communications-v1",
       "creative-adjacent-creative-design-v1",
     ],
+    presentationVariants: presentationVariantContexts.map(({ renderPlan }) => ({
+      designId: renderPlan.designId,
+      paletteId: renderPlan.paletteId,
+      densityId: renderPlan.densityId,
+      headerAlignment: renderPlan.headerAlignment,
+      lengthPreference: renderPlan.lengthPreference,
+    })),
   }, null, 2));
 } finally {
   if (!keepArtifacts) await rm(outputDir, { recursive: true, force: true });

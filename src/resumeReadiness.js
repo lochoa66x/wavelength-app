@@ -145,6 +145,10 @@ function renderBindingHash(renderPlan) {
   return stableHash({
     strategyId: renderPlan?.strategyId,
     designId: renderPlan?.designId,
+    paletteId: renderPlan?.paletteId,
+    densityId: renderPlan?.densityId,
+    headerAlignment: renderPlan?.headerAlignment,
+    lengthPreference: renderPlan?.lengthPreference,
     preliminary: renderPlan?.preliminary,
     manifest: createResumeContentManifest(renderPlan),
   }, "render");
@@ -170,6 +174,10 @@ export function createResumeExportContext(resumeData, atsReview, {
   templateId,
   strategyId,
   designId,
+  paletteId,
+  densityId,
+  headerAlignment,
+  lengthPreference,
 } = {}) {
   const resumePackage = createResumePackage(resumeData, {
     item,
@@ -177,12 +185,23 @@ export function createResumeExportContext(resumeData, atsReview, {
     selectedTemplateId: templateId,
     selectedStrategyId: strategyId,
     selectedDesignId: designId,
+    selectedPaletteId: paletteId,
+    selectedDensityId: densityId,
+    selectedHeaderAlignment: headerAlignment,
+    selectedLengthPreference: lengthPreference,
   });
   const readiness = getResumeExportReadiness(resumePackage, atsReview);
   const assessment = assessmentSnapshot(atsReview);
   const renderPlan = buildResumeRenderPlan(
     resumePackage,
-    { strategyId: resumePackage.presentation.selectedStrategyId, designId: resumePackage.presentation.selectedDesignId },
+    {
+      strategyId: resumePackage.presentation.selectedStrategyId,
+      designId: resumePackage.presentation.selectedDesignId,
+      paletteId: resumePackage.presentation.selectedPaletteId,
+      densityId: resumePackage.presentation.selectedDensityId,
+      headerAlignment: resumePackage.presentation.selectedHeaderAlignment,
+      lengthPreference: resumePackage.presentation.selectedLengthPreference,
+    },
     { preliminary: readiness.preliminary },
   );
   const createdAt = Date.now();
@@ -221,7 +240,14 @@ export function validateResumeExportContext(context, now = Date.now()) {
   if (renderPlan?.contentHash !== resumePackage.contentHash) throw new Error("The résumé render plan does not match the authorized content.");
   const expectedRenderPlan = buildResumeRenderPlan(
     resumePackage,
-    { strategyId: renderPlan.strategyId, designId: renderPlan.designId },
+    {
+      strategyId: renderPlan.strategyId,
+      designId: renderPlan.designId,
+      paletteId: renderPlan.paletteId,
+      densityId: renderPlan.densityId,
+      headerAlignment: renderPlan.headerAlignment,
+      lengthPreference: renderPlan.lengthPreference,
+    },
     { preliminary: readiness.preliminary },
   );
   if (renderBindingHash(renderPlan) !== expectedRenderPlan.renderPlanHash) {

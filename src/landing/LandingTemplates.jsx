@@ -16,19 +16,19 @@ export function LandingTemplates() {
     <section id="resume-templates" className="landing-section landing-section--templates" aria-labelledby="templates-title">
       <div className="landing-section-heading landing-section-heading--split">
         <div>
-          <p className="landing-eyebrow"><LayoutTemplate size={16} aria-hidden="true" /> Seven visual résumé designs</p>
+          <p className="landing-eyebrow"><LayoutTemplate size={16} aria-hidden="true" /> Seven résumé styles</p>
           <h2 id="templates-title">Choose the look. Keep the evidence strategy intact.</h2>
         </div>
         <div>
           <p>
-            Gigscapes first recommends a content strategy from verified evidence—then lets you choose a genuinely different visual design.
+            Gigscapes first recommends a content approach from verified evidence—then lets you choose a genuinely different visual style.
           </p>
-          <p className="landing-template-strategy-note"><ShieldCheck size={16} aria-hidden="true" /> Design changes never rewrite facts, change requirement coverage, or bypass export readiness.</p>
+          <p className="landing-template-strategy-note"><ShieldCheck size={16} aria-hidden="true" /> Style changes never rewrite facts, change requirement coverage, or bypass export readiness.</p>
         </div>
       </div>
 
       <div className="landing-template-layout">
-        <ul className="landing-template-grid" aria-label="Available visual résumé designs">
+        <ul className="landing-template-grid" aria-label="Available visual résumé styles">
           {DESIGNS.map((design) => {
             const isSelected = design.id === selected.id;
             return (
@@ -55,21 +55,21 @@ export function LandingTemplates() {
           })}
         </ul>
 
-        <div className="landing-template-preview" role="region" aria-live="polite" aria-label={`${selected.displayName} design example`}>
+        <div className="landing-template-preview" role="region" aria-live="polite" aria-label={`${selected.displayName} style example`}>
           <div className="landing-template-preview-topline">
-            <span>Visual design preview</span>
+            <span>Résumé style preview</span>
             <span>Searchable · selectable · single column</span>
           </div>
           <div className="landing-template-preview-document">
             <ResumeDesignThumbnail design={selected} selected />
           </div>
           <div className="landing-template-preview-name">{selected.displayName}</div>
-          <div className="landing-template-preview-role">{selected.tone} visual system</div>
+          <div className="landing-template-preview-role">{selected.tone} presentation</div>
           <p>{selected.description}</p>
           <dl className="landing-template-preview-facts">
             <div><dt>Best for</dt><dd>{selected.intendedUse}</dd></div>
-            <div><dt>Content</dt><dd>Unchanged when you switch designs</dd></div>
-            <div><dt>Exports</dt><dd>Browser preview, DOCX, and PDF share the same design tokens</dd></div>
+            <div><dt>Content</dt><dd>Unchanged when you switch styles</dd></div>
+            <div><dt>Exports</dt><dd>Browser preview, DOCX, and PDF share the same presentation tokens</dd></div>
           </dl>
           <p className="landing-template-preview-note">
             {selected.atsSafetyLevel === "high"

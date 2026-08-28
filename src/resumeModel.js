@@ -41,6 +41,78 @@ export const DESIGN_IDS = Object.freeze({
   FIELD_READY: TEMPLATE_IDS.FIELD_READY,
 });
 
+export const PALETTE_IDS = Object.freeze({
+  GIGSCAPES_ORANGE: "gigscapes-orange-v1",
+  FOREST: "forest-v1",
+  SLATE_BLUE: "slate-blue-v1",
+  MONOCHROME: "monochrome-v1",
+});
+
+export const DENSITY_IDS = Object.freeze({
+  COMFORTABLE: "comfortable-v1",
+  COMPACT: "compact-v1",
+});
+
+export const HEADER_ALIGNMENT_IDS = Object.freeze({
+  STYLE_DEFAULT: "style-default",
+  LEFT: "left",
+  CENTER: "center",
+});
+
+export const LENGTH_PREFERENCE_IDS = Object.freeze({
+  AUTO: "auto",
+  ONE_PAGE: "one-page",
+  TWO_PAGES: "two-pages",
+});
+
+export const RESUME_PALETTE_REGISTRY = Object.freeze({
+  [PALETTE_IDS.GIGSCAPES_ORANGE]: Object.freeze({
+    id: PALETTE_IDS.GIGSCAPES_ORANGE,
+    displayName: "Gigscapes Orange",
+    description: "Warm, confident, and closest to the Gigscapes brand.",
+    accent: "#a93d0c",
+    accentSoft: "#fff0e8",
+  }),
+  [PALETTE_IDS.FOREST]: Object.freeze({
+    id: PALETTE_IDS.FOREST,
+    displayName: "Forest",
+    description: "Grounded and practical without feeling occupationally specific.",
+    accent: "#1f604a",
+    accentSoft: "#e9f4ef",
+  }),
+  [PALETTE_IDS.SLATE_BLUE]: Object.freeze({
+    id: PALETTE_IDS.SLATE_BLUE,
+    displayName: "Slate Blue",
+    description: "Calm, polished, and broadly professional.",
+    accent: "#315a87",
+    accentSoft: "#edf2f8",
+  }),
+  [PALETTE_IDS.MONOCHROME]: Object.freeze({
+    id: PALETTE_IDS.MONOCHROME,
+    displayName: "Monochrome",
+    description: "Neutral black and grey for the most restrained presentation.",
+    accent: "#25272a",
+    accentSoft: "#f0f1f1",
+  }),
+});
+
+export const RESUME_DENSITY_REGISTRY = Object.freeze({
+  [DENSITY_IDS.COMFORTABLE]: Object.freeze({ id: DENSITY_IDS.COMFORTABLE, displayName: "Comfortable", description: "More breathing room for easy scanning.", rhythmScale: 1 }),
+  [DENSITY_IDS.COMPACT]: Object.freeze({ id: DENSITY_IDS.COMPACT, displayName: "Compact", description: "Fits more evidence without removing content.", rhythmScale: 0.86 }),
+});
+
+export const RESUME_HEADER_ALIGNMENT_REGISTRY = Object.freeze({
+  [HEADER_ALIGNMENT_IDS.STYLE_DEFAULT]: Object.freeze({ id: HEADER_ALIGNMENT_IDS.STYLE_DEFAULT, displayName: "Style default" }),
+  [HEADER_ALIGNMENT_IDS.LEFT]: Object.freeze({ id: HEADER_ALIGNMENT_IDS.LEFT, displayName: "Left" }),
+  [HEADER_ALIGNMENT_IDS.CENTER]: Object.freeze({ id: HEADER_ALIGNMENT_IDS.CENTER, displayName: "Centered" }),
+});
+
+export const RESUME_LENGTH_PREFERENCE_REGISTRY = Object.freeze({
+  [LENGTH_PREFERENCE_IDS.AUTO]: Object.freeze({ id: LENGTH_PREFERENCE_IDS.AUTO, displayName: "Best fit", description: "Let the verified content determine the page count.", rhythmScale: 1 }),
+  [LENGTH_PREFERENCE_IDS.ONE_PAGE]: Object.freeze({ id: LENGTH_PREFERENCE_IDS.ONE_PAGE, displayName: "Aim for 1 page", description: "Tighten layout, but never delete verified evidence silently.", rhythmScale: 0.92, pageTarget: 1 }),
+  [LENGTH_PREFERENCE_IDS.TWO_PAGES]: Object.freeze({ id: LENGTH_PREFERENCE_IDS.TWO_PAGES, displayName: "Allow 2 pages", description: "Keep a more relaxed reading rhythm for deeper experience.", rhythmScale: 1.02, pageTarget: 2 }),
+});
+
 const LEGACY_TRADES_TEMPLATE_ID = "trades-legacy-v1";
 
 const INVALID_EXACT_TEXT = /^(?:\[object Object\]|undefined|null|<\s*unknown\s*>)$/i;
@@ -283,8 +355,8 @@ export const RESUME_TEMPLATE_REGISTRY = Object.freeze({
   }),
   [TEMPLATE_IDS.ESSENTIAL_ATS]: templateDefinition({
     id: TEMPLATE_IDS.ESSENTIAL_ATS,
-    displayName: "Essential ATS",
-    description: "A disciplined, familiar résumé design with restrained hierarchy and maximum parser confidence.",
+    displayName: "Essential",
+    description: "A disciplined, familiar résumé style with restrained hierarchy and maximum parser confidence.",
     intendedUse: "Online applications, conservative employers, regulated work, and any portal where clarity comes first",
     accent: "#1f4f63",
     accentSoft: "#edf4f7",
@@ -307,8 +379,8 @@ export const RESUME_TEMPLATE_REGISTRY = Object.freeze({
   }),
   [TEMPLATE_IDS.CLASSIC_LEDGER]: templateDefinition({
     id: TEMPLATE_IDS.CLASSIC_LEDGER,
-    displayName: "Classic Ledger",
-    description: "A timeless serif-led résumé with restrained rules and a left-aligned identity block.",
+    displayName: "Ledger",
+    description: "A timeless serif-led résumé style with restrained rules and a precise identity block.",
     intendedUse: "Law, finance, education, public service, healthcare, research, and traditional employers",
     accent: "#4b5563",
     accentSoft: "#f3f4f6",
@@ -334,8 +406,8 @@ export const RESUME_TEMPLATE_REGISTRY = Object.freeze({
   }),
   [TEMPLATE_IDS.MODERN_SIGNAL]: templateDefinition({
     id: TEMPLATE_IDS.MODERN_SIGNAL,
-    displayName: "Modern Signal",
-    description: "A crisp left-aligned layout with strong hierarchy and a controlled accent signal.",
+    displayName: "Contour",
+    description: "A crisp résumé style with strong hierarchy, clean edges, and a controlled accent signal.",
     intendedUse: "Business, technology, operations, consulting, sales, logistics, and cross-functional roles",
     accent: "#0f5f66",
     accentSoft: "#e9f5f4",
@@ -495,6 +567,22 @@ export function availableResumeDesigns() {
   return Object.values(RESUME_DESIGN_REGISTRY).filter((design) => design.visible);
 }
 
+export function availableResumePalettes() {
+  return Object.values(RESUME_PALETTE_REGISTRY);
+}
+
+export function availableResumeDensities() {
+  return Object.values(RESUME_DENSITY_REGISTRY);
+}
+
+export function availableResumeHeaderAlignments() {
+  return Object.values(RESUME_HEADER_ALIGNMENT_REGISTRY);
+}
+
+export function availableResumeLengthPreferences() {
+  return Object.values(RESUME_LENGTH_PREFERENCE_REGISTRY);
+}
+
 export function resolveTemplateId(value, fallback = TEMPLATE_IDS.ATS_CORE) {
   const requested = cleanScalar(value).toLowerCase();
   const resolved = TEMPLATE_ALIASES[requested] || requested;
@@ -509,6 +597,69 @@ export function resolveStrategyId(value, fallback = STRATEGY_IDS.ATS_CORE) {
 export function resolveDesignId(value, fallback = DESIGN_IDS.ESSENTIAL_ATS) {
   const resolved = resolveTemplateId(value, "");
   return RESUME_DESIGN_REGISTRY[resolved] ? resolved : fallback;
+}
+
+export function resolvePaletteId(value, fallback = PALETTE_IDS.GIGSCAPES_ORANGE) {
+  const requested = cleanScalar(value).toLowerCase();
+  return RESUME_PALETTE_REGISTRY[requested] ? requested : fallback;
+}
+
+export function resolveDensityId(value, fallback = DENSITY_IDS.COMFORTABLE) {
+  const requested = cleanScalar(value).toLowerCase();
+  return RESUME_DENSITY_REGISTRY[requested] ? requested : fallback;
+}
+
+export function resolveHeaderAlignment(value, fallback = HEADER_ALIGNMENT_IDS.STYLE_DEFAULT) {
+  const requested = cleanScalar(value).toLowerCase();
+  return RESUME_HEADER_ALIGNMENT_REGISTRY[requested] ? requested : fallback;
+}
+
+export function resolveLengthPreference(value, fallback = LENGTH_PREFERENCE_IDS.AUTO) {
+  const requested = cleanScalar(value).toLowerCase();
+  return RESUME_LENGTH_PREFERENCE_REGISTRY[requested] ? requested : fallback;
+}
+
+function roundToken(value, digits = 3) {
+  return Number(Number(value).toFixed(digits));
+}
+
+export function composeResumeVisualTokens(designOrId, {
+  paletteId,
+  densityId,
+  headerAlignment,
+  lengthPreference,
+} = {}) {
+  const design = typeof designOrId === "object" && designOrId?.visualTokens
+    ? designOrId
+    : RESUME_DESIGN_REGISTRY[resolveDesignId(designOrId)];
+  const palette = RESUME_PALETTE_REGISTRY[resolvePaletteId(paletteId)];
+  const density = RESUME_DENSITY_REGISTRY[resolveDensityId(densityId)];
+  const resolvedHeaderAlignment = resolveHeaderAlignment(headerAlignment);
+  const length = RESUME_LENGTH_PREFERENCE_REGISTRY[resolveLengthPreference(lengthPreference)];
+  const rhythmScale = density.rhythmScale * length.rhythmScale;
+  const compact = density.id === DENSITY_IDS.COMPACT || length.id === LENGTH_PREFERENCE_IDS.ONE_PAGE;
+  const base = design.visualTokens;
+  const marginReduction = compact ? 0.08 : 0;
+  const bodyReduction = compact ? 0.3 : 0;
+  return Object.freeze({
+    ...base,
+    accent: palette.accent,
+    accentSoft: palette.accentSoft,
+    headerBackground: base.headerTreatment === "accent-band" ? palette.accent : base.headerBackground,
+    headerAlignment: resolvedHeaderAlignment === HEADER_ALIGNMENT_IDS.STYLE_DEFAULT ? base.headerAlignment : resolvedHeaderAlignment,
+    marginTopIn: roundToken(Math.max(0.46, base.marginTopIn - marginReduction)),
+    marginRightIn: roundToken(Math.max(0.54, base.marginRightIn - marginReduction)),
+    marginBottomIn: roundToken(Math.max(0.46, base.marginBottomIn - marginReduction)),
+    marginLeftIn: roundToken(Math.max(0.54, base.marginLeftIn - marginReduction)),
+    bodyFontSizePt: roundToken(Math.max(9.15, base.bodyFontSizePt - bodyReduction)),
+    bodyLineHeight: roundToken(Math.max(1.22, base.bodyLineHeight * rhythmScale)),
+    sectionFontSizePt: roundToken(Math.max(9.5, base.sectionFontSizePt - (compact ? 0.2 : 0))),
+    verticalRhythmScale: roundToken(rhythmScale),
+    paletteId: palette.id,
+    densityId: density.id,
+    headerAlignmentPreference: resolvedHeaderAlignment,
+    lengthPreference: length.id,
+  });
 }
 
 export function recommendedResumeDesignId(strategyId) {
@@ -1349,6 +1500,10 @@ export function createResumePackage(resumeData = {}, {
   selectedTemplateId,
   selectedStrategyId,
   selectedDesignId,
+  selectedPaletteId,
+  selectedDensityId,
+  selectedHeaderAlignment,
+  selectedLengthPreference,
 } = {}) {
   if (resumeData?.kind === "resume-package" && resumeData.schemaVersion !== RESUME_SCHEMA_VERSION) {
     throw new Error(`Unsupported ResumePackage schema version: ${cleanScalar(resumeData.schemaVersion) || "missing"}.`);
@@ -1369,13 +1524,25 @@ export function createResumePackage(resumeData = {}, {
       selectedDesignId || (selectedTemplateId ? legacySelection.designId : presentation.selectedDesignId) || legacySelection.designId,
       recommendedDesignId,
     );
+    const paletteId = resolvePaletteId(selectedPaletteId || presentation.selectedPaletteId);
+    const densityId = resolveDensityId(selectedDensityId || presentation.selectedDensityId);
+    const headerAlignment = resolveHeaderAlignment(selectedHeaderAlignment || presentation.selectedHeaderAlignment);
+    const lengthPreference = resolveLengthPreference(selectedLengthPreference || presentation.selectedLengthPreference);
     if (
       !selectedTemplateId
       && !selectedStrategyId
       && !selectedDesignId
-      && presentation.version === 2
+      && !selectedPaletteId
+      && !selectedDensityId
+      && !selectedHeaderAlignment
+      && !selectedLengthPreference
+      && presentation.version === 3
       && presentation.selectedStrategyId === strategyId
       && presentation.selectedDesignId === designId
+      && presentation.selectedPaletteId === paletteId
+      && presentation.selectedDensityId === densityId
+      && presentation.selectedHeaderAlignment === headerAlignment
+      && presentation.selectedLengthPreference === lengthPreference
     ) return resumeData;
     return {
       ...resumeData,
@@ -1385,10 +1552,14 @@ export function createResumePackage(resumeData = {}, {
         selectedStrategyId: strategyId,
         recommendedDesignId,
         selectedDesignId: designId,
+        selectedPaletteId: paletteId,
+        selectedDensityId: densityId,
+        selectedHeaderAlignment: headerAlignment,
+        selectedLengthPreference: lengthPreference,
         recommendedTemplateId: recommendedStrategyId,
         selectedTemplateId: strategyId,
-        pageTarget: RESUME_DESIGN_REGISTRY[designId].pageTarget,
-        version: 2,
+        pageTarget: RESUME_LENGTH_PREFERENCE_REGISTRY[lengthPreference].pageTarget || RESUME_DESIGN_REGISTRY[designId].pageTarget,
+        version: 3,
       },
     };
   }
@@ -1434,6 +1605,10 @@ export function createResumePackage(resumeData = {}, {
     selectedDesignId ?? source.presentation?.selectedDesignId ?? source.presentation?.selected_design ?? legacySelection.designId,
     recommendedDesignId,
   );
+  const selectedPalette = resolvePaletteId(selectedPaletteId ?? source.presentation?.selectedPaletteId ?? source.presentation?.selected_palette);
+  const selectedDensity = resolveDensityId(selectedDensityId ?? source.presentation?.selectedDensityId ?? source.presentation?.selected_density);
+  const headerAlignment = resolveHeaderAlignment(selectedHeaderAlignment ?? source.presentation?.selectedHeaderAlignment ?? source.presentation?.selected_header_alignment);
+  const lengthPreference = resolveLengthPreference(selectedLengthPreference ?? source.presentation?.selectedLengthPreference ?? source.presentation?.selected_length_preference);
   const errors = [];
   if (!document.candidate.fullName || PLACEHOLDER_IDENTITY.test(document.candidate.fullName)) {
     errors.push({ path: "candidate.fullName", code: "missing_identity", message: "Candidate name is required before final export." });
@@ -1458,13 +1633,17 @@ export function createResumePackage(resumeData = {}, {
       selectedStrategyId: selectedStrategy,
       recommendedDesignId,
       selectedDesignId: selectedDesign,
+      selectedPaletteId: selectedPalette,
+      selectedDensityId: selectedDensity,
+      selectedHeaderAlignment: headerAlignment,
+      selectedLengthPreference: lengthPreference,
       recommendationReason: classification.recommendationReason,
       recommendationReasonCode: classification.recommendationReasonCode,
       recommendationStrength: classification.recommendationStrength,
       recommendationDisposition: classification.recommendationDisposition,
-      pageTarget: RESUME_DESIGN_REGISTRY[selectedDesign].pageTarget,
+      pageTarget: RESUME_LENGTH_PREFERENCE_REGISTRY[lengthPreference].pageTarget || RESUME_DESIGN_REGISTRY[selectedDesign].pageTarget,
       locale: cleanScalar(source.presentation?.locale ?? globalThis.navigator?.language, 40) || "en-CA",
-      version: 2,
+      version: 3,
     },
     validation: { valid: errors.length === 0, errors, warnings },
     contentHash,
@@ -1639,6 +1818,10 @@ export function buildResumeRenderPlan(resumePackage, selection, {
   preliminary = false,
   strategyId: requestedStrategyId,
   designId: requestedDesignId,
+  paletteId: requestedPaletteId,
+  densityId: requestedDensityId,
+  headerAlignment: requestedHeaderAlignment,
+  lengthPreference: requestedLengthPreference,
 } = {}) {
   const pkg = createResumePackage(resumePackage);
   const objectSelection = selection && typeof selection === "object" && !Array.isArray(selection) ? selection : {};
@@ -1665,6 +1848,11 @@ export function buildResumeRenderPlan(resumePackage, selection, {
   );
   const strategy = RESUME_STRATEGY_REGISTRY[strategyId];
   const design = RESUME_DESIGN_REGISTRY[designId];
+  const paletteId = resolvePaletteId(objectSelection.paletteId || requestedPaletteId || pkg.presentation.selectedPaletteId);
+  const densityId = resolveDensityId(objectSelection.densityId || requestedDensityId || pkg.presentation.selectedDensityId);
+  const headerAlignment = resolveHeaderAlignment(objectSelection.headerAlignment || requestedHeaderAlignment || pkg.presentation.selectedHeaderAlignment);
+  const lengthPreference = resolveLengthPreference(objectSelection.lengthPreference || requestedLengthPreference || pkg.presentation.selectedLengthPreference);
+  const visualTokens = composeResumeVisualTokens(design, { paletteId, densityId, headerAlignment, lengthPreference });
   const resolvedTemplateId = legacyTemplateId || designId;
   const contentTemplateId = strategyId;
   const contentPlan = buildResumeContentPlan(pkg);
@@ -1682,6 +1870,12 @@ export function buildResumeRenderPlan(resumePackage, selection, {
     strategyName: strategy.displayName,
     designId,
     designName: design.displayName,
+    paletteId,
+    paletteName: RESUME_PALETTE_REGISTRY[paletteId].displayName,
+    densityId,
+    densityName: RESUME_DENSITY_REGISTRY[densityId].displayName,
+    headerAlignment,
+    lengthPreference,
     contentTemplateId,
     atsSafetyLevel: design.atsSafetyLevel,
     templateGroup: design.group,
@@ -1696,11 +1890,11 @@ export function buildResumeRenderPlan(resumePackage, selection, {
       contactLine: contactLine(pkg.document.candidate),
     },
     sections,
-    visualTokens: design.visualTokens,
-    pageTarget: design.pageTarget,
+    visualTokens,
+    pageTarget: RESUME_LENGTH_PREFERENCE_REGISTRY[lengthPreference].pageTarget || design.pageTarget,
   };
   plan.manifest = createResumeContentManifest(plan);
-  plan.renderPlanHash = `render-${hashText({ strategyId, designId, preliminary, manifest: plan.manifest })}`;
+  plan.renderPlanHash = `render-${hashText({ strategyId, designId, paletteId, densityId, headerAlignment, lengthPreference, preliminary, manifest: plan.manifest })}`;
   return deepFreeze(plan);
 }
 

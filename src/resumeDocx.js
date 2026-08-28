@@ -67,6 +67,8 @@ export async function createResumeDocxBlob(input, template = "professional", opt
   } = await prepareResumeDocxExport();
 
   const tokens = renderPlan.visualTokens;
+  const rhythm = tokens.verticalRhythmScale || 1;
+  const space = (value) => Math.round(value * rhythm);
   const color = (value, fallback = "111111") => String(value || fallback).replace("#", "").toUpperCase();
   const headerAlignment = tokens.headerAlignment === "left" ? AlignmentType.LEFT : AlignmentType.CENTER;
   const headerBand = tokens.headerTreatment === "accent-band";
@@ -88,7 +90,7 @@ export async function createResumeDocxBlob(input, template = "professional", opt
             : { bottom: { color: "B8B8B8", size: 4, space: 4, style: "single" } };
     children.push(new Paragraph({
       heading: HeadingLevel.HEADING_2,
-      spacing: { before: treatment === "compact-rule" ? 150 : 220, after: 80 },
+      spacing: { before: space(treatment === "compact-rule" ? 150 : 220), after: space(80) },
       keepNext: true,
       border,
       shading: treatment === "soft-band" ? { type: ShadingType.CLEAR, color: "auto", fill: color(tokens.accentSoft, "F3F4F6") } : undefined,
@@ -105,7 +107,7 @@ export async function createResumeDocxBlob(input, template = "professional", opt
   };
   const addBullet = (value, options = {}) => addParagraph(value, {
     bullet: { level: 0 },
-    spacing: { after: 40 },
+    spacing: { after: space(40) },
     keepLines: true,
     ...options,
   });
@@ -128,7 +130,7 @@ export async function createResumeDocxBlob(input, template = "professional", opt
       color: color(headerBand ? tokens.headerText : row.kind === "headline" ? tokens.accent : row.kind === "contact" ? tokens.muted : tokens.ink),
     }), {
       alignment: headerAlignment,
-      spacing: { after: isLast ? row.after : headerBand ? 15 : row.after },
+      spacing: { after: space(isLast ? row.after : headerBand ? 15 : row.after) },
       keepNext: !isLast,
       border,
       shading: headerBand ? { type: ShadingType.CLEAR, color: "auto", fill: color(tokens.headerBackground, color(tokens.accent)) } : undefined,
@@ -138,26 +140,26 @@ export async function createResumeDocxBlob(input, template = "professional", opt
   for (const section of renderPlan.sections) {
     addHeading(section.heading);
     if (section.type === "paragraph") {
-      for (const item of section.items) addParagraph(item.text, { spacing: { after: 80 }, keepLines: true });
+      for (const item of section.items) addParagraph(item.text, { spacing: { after: space(80) }, keepLines: true });
     } else if (section.type === "inline-list") {
-      addParagraph(section.items.map((item) => item.text).join(" | "), { spacing: { after: 80 }, keepLines: true });
+      addParagraph(section.items.map((item) => item.text).join(" | "), { spacing: { after: space(80) }, keepLines: true });
     } else if (section.type === "experience") {
       for (const entry of section.items) {
         const title = [entry.title, entry.employer].filter(Boolean).join(" - ");
         addParagraph(text(entryHeader(title, entry.location, entry.dateDisplay), { bold: true }), {
           keepNext: entry.bullets.length > 0,
-          spacing: { before: 80, after: 40 },
+          spacing: { before: space(80), after: space(40) },
         });
         for (const bullet of entry.bullets) addBullet(bullet.text);
       }
     } else if (section.type === "projects") {
       for (const project of section.items) {
         const heading = [project.name, project.organization].filter(Boolean).join(" - ");
-        if (heading) addParagraph(text(heading, { bold: true }), { keepNext: Boolean(project.description || project.bullets.length), spacing: { before: 80, after: 30 } });
+        if (heading) addParagraph(text(heading, { bold: true }), { keepNext: Boolean(project.description || project.bullets.length), spacing: { before: space(80), after: space(30) } });
         const dates = [project.startDate, project.endDate].filter(Boolean).join(" - ");
-        if (dates) addParagraph(text(dates, { italics: true }), { spacing: { after: 30 }, keepNext: Boolean(project.description || project.bullets.length) });
+        if (dates) addParagraph(text(dates, { italics: true }), { spacing: { after: space(30) }, keepNext: Boolean(project.description || project.bullets.length) });
         if (project.description) addParagraph(project.description, {
-          spacing: { after: 35 },
+          spacing: { after: space(35) },
           keepLines: true,
           keepNext: project.bullets.length > 0,
         });
@@ -166,16 +168,16 @@ export async function createResumeDocxBlob(input, template = "professional", opt
         }));
       }
     } else if (section.type === "credentials") {
-      for (const credential of section.items) addParagraph(entryHeader(credential.name, credential.issuer, credential.dateDisplay), { spacing: { after: 40 }, keepLines: true });
+      for (const credential of section.items) addParagraph(entryHeader(credential.name, credential.issuer, credential.dateDisplay), { spacing: { after: space(40) }, keepLines: true });
     } else if (section.type === "education") {
       for (const education of section.items) {
-        addParagraph(entryHeader([education.credential, education.field].filter(Boolean).join(" - "), education.institution, education.location, education.dateDisplay), { spacing: { after: education.details.length ? 20 : 40 }, keepNext: education.details.length > 0 });
+        addParagraph(entryHeader([education.credential, education.field].filter(Boolean).join(" - "), education.institution, education.location, education.dateDisplay), { spacing: { after: space(education.details.length ? 20 : 40) }, keepNext: education.details.length > 0 });
         for (const detail of education.details) addBullet(detail.text);
       }
     } else if (section.type === "languages") {
-      addParagraph(section.items.map((language) => [language.name, language.proficiency].filter(Boolean).join(" - ")).join(", "), { spacing: { after: 40 }, keepLines: true });
+      addParagraph(section.items.map((language) => [language.name, language.proficiency].filter(Boolean).join(" - ")).join(", "), { spacing: { after: space(40) }, keepLines: true });
     } else {
-      for (const item of section.items) addParagraph(item.text, { spacing: { after: 40 }, keepLines: true });
+      for (const item of section.items) addParagraph(item.text, { spacing: { after: space(40) }, keepLines: true });
     }
   }
 

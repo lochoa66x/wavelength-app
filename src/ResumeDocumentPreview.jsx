@@ -2,6 +2,7 @@ import { forwardRef } from "react";
 
 function SectionHeading({ children, tokens }) {
   const treatment = tokens.sectionTreatment || "underline";
+  const rhythm = tokens.verticalRhythmScale || 1;
   const treatmentStyle = treatment === "accent-edge"
     ? { padding: "2px 0 2px 9px", borderLeft: `4px solid ${tokens.accent}`, borderBottom: 0 }
     : treatment === "soft-band"
@@ -13,7 +14,7 @@ function SectionHeading({ children, tokens }) {
           : { paddingBottom: 4, borderBottom: `1px solid ${tokens.rule}` };
   return (
     <h2 style={{
-      margin: treatment === "compact-rule" ? "13px 0 6px" : "18px 0 8px",
+      margin: treatment === "compact-rule" ? `${13 * rhythm}px 0 ${6 * rhythm}px` : `${18 * rhythm}px 0 ${8 * rhythm}px`,
       color: tokens.accent,
       fontFamily: tokens.fontFamily,
       fontSize: `${tokens.sectionFontSizePt}pt`,
@@ -38,14 +39,16 @@ const bodyStyle = (tokens) => ({
 
 function BulletList({ bullets, tokens }) {
   if (!bullets.length) return null;
+  const rhythm = tokens.verticalRhythmScale || 1;
   return (
     <ul style={{ ...bodyStyle(tokens), margin: "5px 0 0", paddingLeft: 20 }}>
-      {bullets.map((bullet) => <li key={bullet.id} style={{ marginBottom: tokens.sectionTreatment === "compact-rule" ? 2 : 3, breakInside: "avoid" }}>{bullet.text}</li>)}
+      {bullets.map((bullet) => <li key={bullet.id} style={{ marginBottom: (tokens.sectionTreatment === "compact-rule" ? 2 : 3) * rhythm, breakInside: "avoid" }}>{bullet.text}</li>)}
     </ul>
   );
 }
 
 function SectionBody({ section, tokens }) {
+  const rhythm = tokens.verticalRhythmScale || 1;
   if (section.type === "paragraph") {
     return section.items.map((item) => <p key={item.id} style={bodyStyle(tokens)}>{item.text}</p>);
   }
@@ -54,7 +57,7 @@ function SectionBody({ section, tokens }) {
   }
   if (section.type === "experience") {
     return section.items.map((entry) => (
-      <article key={entry.id} data-resume-entry={entry.id} style={{ marginBottom: tokens.sectionTreatment === "compact-rule" ? 9 : 12, breakInside: "avoid-page" }}>
+      <article key={entry.id} data-resume-entry={entry.id} style={{ marginBottom: (tokens.sectionTreatment === "compact-rule" ? 9 : 12) * rhythm, breakInside: "avoid-page" }}>
         <p style={{ ...bodyStyle(tokens), fontWeight: 700 }}>
           {[entry.title, entry.employer].filter(Boolean).join(" - ")}
           {entry.location ? <span style={{ color: tokens.muted, fontWeight: 400 }}> | {entry.location}</span> : null}
@@ -66,7 +69,7 @@ function SectionBody({ section, tokens }) {
   }
   if (section.type === "projects") {
     return section.items.map((project) => (
-      <article key={project.id} data-resume-entry={project.id} style={{ marginBottom: 10, breakInside: "avoid-page" }}>
+      <article key={project.id} data-resume-entry={project.id} style={{ marginBottom: 10 * rhythm, breakInside: "avoid-page" }}>
         <p style={{ ...bodyStyle(tokens), fontWeight: 700 }}>{[project.name, project.organization].filter(Boolean).join(" - ")}</p>
         {(project.startDate || project.endDate) ? <p style={{ ...bodyStyle(tokens), color: tokens.muted }}>{[project.startDate, project.endDate].filter(Boolean).join(" - ")}</p> : null}
         {project.description ? <p style={{ ...bodyStyle(tokens), marginTop: 3 }}>{project.description}</p> : null}
@@ -79,7 +82,7 @@ function SectionBody({ section, tokens }) {
   }
   if (section.type === "education") {
     return section.items.map((item) => (
-      <article key={item.id} data-resume-entry={item.id} style={{ marginBottom: 7, breakInside: "avoid-page" }}>
+      <article key={item.id} data-resume-entry={item.id} style={{ marginBottom: 7 * rhythm, breakInside: "avoid-page" }}>
         <p style={{ ...bodyStyle(tokens), fontWeight: 700 }}>{[item.credential, item.field].filter(Boolean).join(" - ")}</p>
         <p style={{ ...bodyStyle(tokens), color: tokens.muted }}>{[item.institution, item.location, item.dateDisplay].filter(Boolean).join(" | ")}</p>
         <BulletList bullets={item.details} tokens={tokens} />
@@ -116,6 +119,10 @@ export const ResumeDocumentPreview = forwardRef(function ResumeDocumentPreview({
       data-resume-preview={renderPlan.designId}
       data-resume-strategy={renderPlan.strategyId}
       data-resume-design={renderPlan.designId}
+      data-resume-palette={renderPlan.paletteId}
+      data-resume-density={renderPlan.densityId}
+      data-resume-header-alignment={renderPlan.headerAlignment}
+      data-resume-length-preference={renderPlan.lengthPreference}
       data-resume-content-hash={renderPlan.contentHash}
       aria-label={`${renderPlan.designName} design résumé preview using the ${renderPlan.strategyName} content strategy`}
       style={{
