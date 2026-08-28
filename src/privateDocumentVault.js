@@ -5,7 +5,9 @@ export const BASE_RESUME_DOCUMENT_KEY = "primary";
 export const RESUME_SYNC_STORAGE_PREFIX = "gigscapes:resume-sync:v1:";
 
 const PRIVATE_DOCUMENT_PROJECTION = "id,user_id,document_type,document_key,schema_version,payload,content_hash,revision,client_updated_at,created_at,updated_at";
-const MAX_RESUME_LENGTH = 60_000;
+export const MAX_BASE_RESUME_LENGTH = 60_000;
+export const MAX_PRIVATE_DOCUMENT_PAYLOAD_BYTES = 100_000;
+const JSONB_ENCODING_OVERHEAD_BYTES = 64;
 
 function storageOrNull(storage) {
   if (storage) return storage;
@@ -32,17 +34,39 @@ export function privateDocumentHash(payload) {
 }
 
 export function createBaseResumePayload(resumeText) {
-  const text = typeof resumeText === "string" ? resumeText.trim().slice(0, MAX_RESUME_LENGTH) : "";
+  const text = typeof resumeText === "string" ? resumeText.trim() : "";
   return Object.freeze({ schema_version: PRIVATE_DOCUMENT_SCHEMA_VERSION, resume_text: text });
+}
+
+function utf8ByteLength(value) {
+  let length = 0;
+  for (const character of value) {
+    const codePoint = character.codePointAt(0);
+    length += codePoint <= 0x7f ? 1 : codePoint <= 0x7ff ? 2 : codePoint <= 0xffff ? 3 : 4;
+  }
+  return length;
+}
+
+export function validateBaseResumeText(resumeText) {
+  const text = typeof resumeText === "string" ? resumeText.trim() : "";
+  if (!text) return { valid: false, reason: "resume_missing", length: 0 };
+  if (text.length > MAX_BASE_RESUME_LENGTH) {
+    return { valid: false, reason: "resume_too_long", length: text.length };
+  }
+  const payloadBytes = utf8ByteLength(JSON.stringify(createBaseResumePayload(text))) + JSONB_ENCODING_OVERHEAD_BYTES;
+  if (payloadBytes > MAX_PRIVATE_DOCUMENT_PAYLOAD_BYTES) {
+    return { valid: false, reason: "resume_payload_too_large", length: text.length, payloadBytes };
+  }
+  return { valid: true, reason: "", length: text.length, payloadBytes };
 }
 
 export function resumeTextFromPrivateDocument(document) {
   if (document?.document_type !== BASE_RESUME_DOCUMENT_TYPE) return "";
   if (document?.schema_version !== PRIVATE_DOCUMENT_SCHEMA_VERSION) return "";
   if (document?.payload?.schema_version !== PRIVATE_DOCUMENT_SCHEMA_VERSION) return "";
-  return typeof document.payload.resume_text === "string"
-    ? document.payload.resume_text.trim().slice(0, MAX_RESUME_LENGTH)
-    : "";
+  if (typeof document.payload.resume_text !== "string") return "";
+  const text = document.payload.resume_text.trim();
+  return text && text.length <= MAX_BASE_RESUME_LENGTH ? text : "";
 }
 
 export function resumeSyncStorageKey(userId) {
@@ -111,17 +135,21 @@ function normalizePrivateDocument(data, userId) {
 
 export async function readPrivateResume(client, userId) {
   if (!client || !userId) return { status: "unavailable", document: null };
-  const { data, error } = await client
-    .from(PRIVATE_DOCUMENT_TABLE)
-    .select(PRIVATE_DOCUMENT_PROJECTION)
-    .eq("user_id", userId)
-    .eq("document_type", BASE_RESUME_DOCUMENT_TYPE)
-    .eq("document_key", BASE_RESUME_DOCUMENT_KEY)
-    .maybeSingle();
-  if (error) return { status: classifyVaultError(error), document: null };
-  if (!data) return { status: "missing", document: null };
-  const document = normalizePrivateDocument(data, userId);
-  return document ? { status: "ok", document } : { status: "invalid", document: null };
+  try {
+    const { data, error } = await client
+      .from(PRIVATE_DOCUMENT_TABLE)
+      .select(PRIVATE_DOCUMENT_PROJECTION)
+      .eq("user_id", userId)
+      .eq("document_type", BASE_RESUME_DOCUMENT_TYPE)
+      .eq("document_key", BASE_RESUME_DOCUMENT_KEY)
+      .maybeSingle();
+    if (error) return { status: classifyVaultError(error), document: null };
+    if (!data) return { status: "missing", document: null };
+    const document = normalizePrivateDocument(data, userId);
+    return document ? { status: "ok", document } : { status: "invalid", document: null };
+  } catch (error) {
+    return { status: classifyVaultError(error), document: null };
+  }
 }
 
 async function readConflict(client, userId) {
@@ -135,8 +163,16 @@ export async function writePrivateResume(client, {
   expectedRevision = 0,
   now = () => new Date(),
 }) {
+  const validation = validateBaseResumeText(resumeText);
+  if (!validation.valid) return { status: "invalid", reason: validation.reason, document: null };
   const payload = createBaseResumePayload(resumeText);
-  if (!client || !userId || !payload.resume_text) return { status: "invalid", document: null };
+  if (!client || !userId) return { status: "invalid", reason: "vault_identity_missing", document: null };
+  let clientUpdatedAt;
+  try {
+    clientUpdatedAt = now().toISOString();
+  } catch {
+    return { status: "invalid", reason: "client_timestamp_invalid", document: null };
+  }
   const values = {
     user_id: userId,
     document_type: BASE_RESUME_DOCUMENT_TYPE,
@@ -144,49 +180,59 @@ export async function writePrivateResume(client, {
     schema_version: PRIVATE_DOCUMENT_SCHEMA_VERSION,
     payload,
     content_hash: privateDocumentHash(payload),
-    client_updated_at: now().toISOString(),
+    client_updated_at: clientUpdatedAt,
   };
 
-  if (!expectedRevision) {
+  try {
+    if (!expectedRevision) {
+      const { data, error } = await client
+        .from(PRIVATE_DOCUMENT_TABLE)
+        .insert(values)
+        .select(PRIVATE_DOCUMENT_PROJECTION)
+        .maybeSingle();
+      if (error?.code === "23505") return readConflict(client, userId);
+      if (error?.code === "23514") return { status: "invalid", reason: "server_payload_rejected", document: null };
+      if (error) return { status: classifyVaultError(error), document: null };
+      const document = normalizePrivateDocument(data, userId);
+      return document ? { status: "saved", document } : { status: "invalid", reason: "server_document_invalid", document: null };
+    }
+
     const { data, error } = await client
       .from(PRIVATE_DOCUMENT_TABLE)
-      .insert(values)
+      .update(values)
+      .eq("user_id", userId)
+      .eq("document_type", BASE_RESUME_DOCUMENT_TYPE)
+      .eq("document_key", BASE_RESUME_DOCUMENT_KEY)
+      .eq("revision", expectedRevision)
       .select(PRIVATE_DOCUMENT_PROJECTION)
       .maybeSingle();
-    if (error?.code === "23505") return readConflict(client, userId);
+    if (error?.code === "23514") return { status: "invalid", reason: "server_payload_rejected", document: null };
     if (error) return { status: classifyVaultError(error), document: null };
+    if (!data) return readConflict(client, userId);
     const document = normalizePrivateDocument(data, userId);
-    return document ? { status: "saved", document } : { status: "invalid", document: null };
+    return document ? { status: "saved", document } : { status: "invalid", reason: "server_document_invalid", document: null };
+  } catch (error) {
+    return { status: classifyVaultError(error), document: null };
   }
-
-  const { data, error } = await client
-    .from(PRIVATE_DOCUMENT_TABLE)
-    .update(values)
-    .eq("user_id", userId)
-    .eq("document_type", BASE_RESUME_DOCUMENT_TYPE)
-    .eq("document_key", BASE_RESUME_DOCUMENT_KEY)
-    .eq("revision", expectedRevision)
-    .select(PRIVATE_DOCUMENT_PROJECTION)
-    .maybeSingle();
-  if (error) return { status: classifyVaultError(error), document: null };
-  if (!data) return readConflict(client, userId);
-  const document = normalizePrivateDocument(data, userId);
-  return document ? { status: "saved", document } : { status: "invalid", document: null };
 }
 
 export async function deletePrivateResume(client, { userId, expectedRevision }) {
   if (!client || !userId || !expectedRevision) return { status: "invalid" };
-  const { data, error } = await client
-    .from(PRIVATE_DOCUMENT_TABLE)
-    .delete()
-    .eq("user_id", userId)
-    .eq("document_type", BASE_RESUME_DOCUMENT_TYPE)
-    .eq("document_key", BASE_RESUME_DOCUMENT_KEY)
-    .eq("revision", expectedRevision)
-    .select("id")
-    .maybeSingle();
-  if (error) return { status: classifyVaultError(error) };
-  return data?.id ? { status: "deleted" } : { status: "conflict" };
+  try {
+    const { data, error } = await client
+      .from(PRIVATE_DOCUMENT_TABLE)
+      .delete()
+      .eq("user_id", userId)
+      .eq("document_type", BASE_RESUME_DOCUMENT_TYPE)
+      .eq("document_key", BASE_RESUME_DOCUMENT_KEY)
+      .eq("revision", expectedRevision)
+      .select("id")
+      .maybeSingle();
+    if (error) return { status: classifyVaultError(error) };
+    return data?.id ? { status: "deleted" } : { status: "conflict" };
+  } catch (error) {
+    return { status: classifyVaultError(error) };
+  }
 }
 
 export function decideResumeSyncState({ localResume, remoteDocument, preference }) {

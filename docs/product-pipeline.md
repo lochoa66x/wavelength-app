@@ -236,15 +236,18 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 
 ### P3.1 Cross-device private document foundation, then iOS and Android
 
-**Phase A status:** Implemented locally on 2026-08-27; the production database migration is intentionally pending operator application and RLS verification.
+**Phase A status:** Foundation implemented on 2026-08-27. The production migration and metadata verification passed on 2026-08-28; Phase A2 client hardening and deterministic verification are implemented locally, while Production exposure remains off pending the synthetic two-account/anonymous behavioral gate.
 
 - The release is fail-closed behind `VITE_RESUME_SYNC_ENABLED`; an unset or non-`true` value preserves the current browser-only UI and makes no vault request.
 - Browser-only résumé storage remains the default. A signed-in person must explicitly enable one account-synced base-résumé document; no existing local résumé is uploaded automatically.
 - The private vault uses an indexed ownership key, authenticated-only grants, separate own-user RLS policies for SELECT/INSERT/UPDATE/DELETE, bounded versioned JSON, content hashes, and monotonic revisions.
+- Phase A2 rejects over-limit content without slicing or sending it, maps thrown transport failures into recoverable states, and verifies insert/update/delete ownership plus compare-and-swap behavior with deterministic client doubles. A checked-in read-only SQL verifier reports only RLS/grant/policy/index/trigger/function metadata.
 - New-device restore occurs only after the device has opted in before or the person chooses the available synced copy. Divergent browser and account copies require an explicit keep-local/use-synced decision; no last-write-wins overwrite is permitted.
 - Offline edits remain safe locally and are marked pending. Stopping sync on one browser preserves the account copy. Local cleanup and remote deletion remain separate two-step boundaries.
 - Phase A syncs only the canonical base résumé. Cover letters, evidence, presentation choices, tailored outputs, and export history remain browser-local until their own schemas, retention, and conflict policies are approved.
 - Phase B can reuse this contract for iOS and Android, storing device drafts with platform-secure storage and requiring authentication only for cloud save, tailoring, export history, and multi-device sync.
+- Remaining release gate: use two disposable authenticated accounts and synthetic text to prove cross-account denial, anonymous denial, revision conflicts, explicit new-device adoption, stop-on-device semantics, and remote deletion. Do not add `VITE_RESUME_SYNC_ENABLED=true` to Production before this passes.
+- Phase A2 release evidence: 15 focused checks and the full 482-test suite passed; the production build transformed 2,011 modules; production dependencies reported zero vulnerabilities; signed-out production passed desktop/mobile runtime and overflow checks without a vault request; and Vercel confirmed the flag is Preview/Development-only. The connected Supabase integration lacked SQL/advisor permission, so the checked-in aggregate verifier still requires an operator run alongside the synthetic two-account gate.
 
 ### P3.2 Evaluation and analytics
 

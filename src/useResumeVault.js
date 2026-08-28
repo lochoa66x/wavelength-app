@@ -85,6 +85,19 @@ export function useResumeVault({ userId, ready, localResume, replaceLocalResume 
       updateState({ phase: "conflict", remote: result.document, message: "Another copy changed before this save. Choose which résumé to keep.", busy: false });
       return false;
     }
+    if (result.status === "invalid") {
+      updateState((current) => ({
+        ...current,
+        phase: "error",
+        message: result.reason === "resume_too_long"
+          ? "This résumé is longer than the 60,000-character sync limit. It remains complete in this browser and was not uploaded."
+          : result.reason === "resume_payload_too_large"
+            ? "This résumé exceeds the safe encoded sync limit. It remains complete in this browser and was not uploaded."
+            : "The résumé could not be safely prepared for sync. Your browser copy is unchanged and was not uploaded.",
+        busy: false,
+      }));
+      return false;
+    }
     const payload = createBaseResumePayload(text);
     saveResumeSyncPreference(userId, {
       ...loadResumeSyncPreference(userId),

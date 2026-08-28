@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 
 const sql = readFileSync(new URL("../supabase/migrations/20260827210349_add_private_document_vault.sql", import.meta.url), "utf8");
+const releaseCheck = readFileSync(new URL("../supabase/verification/20260828_private_document_vault_release_check.sql", import.meta.url), "utf8");
 
 test("private document migration is explicit, own-user, and browser-deny-by-default", () => {
   assert.match(sql, /create table if not exists public\.private_documents/i);
@@ -29,4 +30,17 @@ test("private document migration enforces revision and bounded schema contracts"
   assert.match(sql, /before insert or update on public\.private_documents/i);
   assert.match(sql, /security invoker/i);
   assert.doesNotMatch(sql, /security definer/i);
+});
+
+test("release verification is read-only, aggregate-only, and covers every metadata gate", () => {
+  assert.doesNotMatch(releaseCheck, /^\s*(insert|update|delete|alter|drop|create|grant|revoke|truncate)\b/im);
+  assert.doesNotMatch(releaseCheck, /select\s+\*\s+from\s+(?:public\.)?private_documents/i);
+  assert.match(releaseCheck, /rls_enabled/i);
+  assert.match(releaseCheck, /anon_grant_count/i);
+  assert.match(releaseCheck, /authenticated_grants_exact/i);
+  assert.match(releaseCheck, /own_user_policy_count/i);
+  assert.match(releaseCheck, /guarded_update_policy_count/i);
+  assert.match(releaseCheck, /ownership_unique_index_count/i);
+  assert.match(releaseCheck, /revision_trigger_count/i);
+  assert.match(releaseCheck, /invoker_function_count/i);
 });
