@@ -89,9 +89,29 @@ test("the landing gallery exposes all seven visual styles without presenting str
 test("template examples are explicitly generic and contain no private fixture résumé", () => {
   const thumbnailSource = source("../ResumeDesignSelector.jsx");
   assert.match(thumbnailSource, /ALEX MORGAN/);
+  assert.match(templateSource, /Generic sample résumé — your information appears after tailoring/);
+  assert.match(thumbnailSource, /Sample Candidate/);
   for (const marker of ["Accomplished and versatile", "Deloitte Canada", "John Deere Financial", "resume-bicg0d"]) {
     assert.doesNotMatch(`${pageSource}\n${templateSource}\n${thumbnailSource}`, new RegExp(marker, "i"));
   }
+});
+
+test("the selected résumé style has a readable sample and an accessible full-size preview", () => {
+  const designSource = source("../ResumeDesignSelector.jsx");
+  assert.match(designSource, /export function ResumeDesignSample/);
+  assert.match(templateSource, /<ResumeDesignSample design=\{selected\}/);
+  assert.match(templateSource, /View full-size sample/);
+  assert.match(templateSource, /<dialog/);
+  assert.match(templateSource, /aria-modal="true"/);
+  assert.match(templateSource, /onCancel=\{\(event\) => \{ event\.preventDefault\(\); closeFullPreview\(\); \}\}/);
+  assert.match(templateSource, /closeButtonRef\.current\?\.focus\(\)/);
+  assert.match(templateSource, /previewOpenerRef\.current\?\.focus\(\{ preventScroll: true \}\)/);
+  assert.match(templateSource, /document\.body\.style\.overflow = "hidden"/);
+  assert.match(cssSource, /\.landing-template-dialog::backdrop/);
+  assert.match(cssSource, /\.resume-design-sample\s*\{[\s\S]*container-type:\s*inline-size/);
+  assert.match(cssSource, /\.landing-section--templates\s*\{[\s\S]*scroll-margin-top:\s*92px/);
+  assert.match(cssSource, /@media \(max-width: 700px\)[\s\S]*\.landing-template-dialog\s*\{[\s\S]*100dvh/);
+  assert.doesNotMatch(templateSource, /fetch\s*\(|supabase\.|\/api\//);
 });
 
 test("landing modules do not import export libraries or call private and AI endpoints", () => {

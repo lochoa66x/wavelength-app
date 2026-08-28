@@ -19,6 +19,13 @@ const sampleSections = [
   ["Experience", "Role and employer", "Delivered a clear, supported result for the team."],
 ];
 
+const readableSampleSections = [
+  ["Professional summary", "Evidence-led professional with verified experience relevant to the target role."],
+  ["Core capabilities", "Verified skill · Relevant tool · Transferable strength"],
+  ["Experience", "Recent role · Employer", "Delivered a clear, supported result for the team."],
+  ["Education & training", "Verified education, licence, or training when relevant."],
+];
+
 export function ResumeDesignThumbnail({ design, selected = false, compact = false, visualTokens }) {
   const tokens = visualTokens || design.visualTokens;
   const headerBand = tokens.headerTreatment === "accent-band";
@@ -69,6 +76,44 @@ export function ResumeDesignThumbnail({ design, selected = false, compact = fals
         </span>
       ))}
     </span>
+  );
+}
+
+export function ResumeDesignSample({ design, size = "selected", visualTokens }) {
+  const tokens = visualTokens || design.visualTokens;
+  return (
+    <article
+      className={`resume-design-sample resume-design-sample--${size}`}
+      data-design-sample={design.id}
+      data-header-treatment={tokens.headerTreatment}
+      data-section-treatment={tokens.sectionTreatment}
+      style={{
+        "--sample-accent": tokens.accent,
+        "--sample-accent-soft": tokens.accentSoft,
+        "--sample-paper": tokens.paper,
+        "--sample-ink": tokens.ink,
+        "--sample-header-background": tokens.headerBackground,
+        "--sample-header-text": tokens.headerText,
+        "--sample-font-family": tokens.fontFamily,
+        "--sample-header-alignment": tokens.headerAlignment,
+        "--sample-section-transform": tokens.sectionTextTransform,
+      }}
+      aria-label={`${design.displayName} generic sample résumé`}
+    >
+      <header className="resume-design-sample-header">
+        <strong>Sample Candidate</strong>
+        <span>Target role</span>
+        <small>sample@example.com · Canada</small>
+      </header>
+      <div className="resume-design-sample-body">
+        {readableSampleSections.map(([heading, ...lines]) => (
+          <section key={heading}>
+            <h3>{heading}</h3>
+            {lines.map((line) => <p key={line}>{line}</p>)}
+          </section>
+        ))}
+      </div>
+    </article>
   );
 }
 
