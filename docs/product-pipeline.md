@@ -236,7 +236,7 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 
 ### P3.1 Cross-device private document foundation, then iOS and Android
 
-**Phase A status:** Foundation implemented on 2026-08-27. The production migration and metadata verification passed on 2026-08-28; Phase A2 client hardening and deterministic verification are implemented locally, while Production exposure remains off pending the synthetic two-account/anonymous behavioral gate.
+**Phase A status:** Released to Production on 2026-08-29. The production migration, aggregate metadata verifier, synthetic two-account/anonymous isolation soak, new-device restore, explicit conflict choices, stop-on-device behavior, offline pending/retry, remote deletion, desktop/mobile Preview checks, and post-deploy production smoke all passed.
 
 - The release is fail-closed behind `VITE_RESUME_SYNC_ENABLED`; an unset or non-`true` value preserves the current browser-only UI and makes no vault request.
 - Browser-only résumé storage remains the default. A signed-in person must explicitly enable one account-synced base-résumé document; no existing local résumé is uploaded automatically.
@@ -246,8 +246,8 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 - Offline edits remain safe locally and are marked pending. Stopping sync on one browser preserves the account copy. Local cleanup and remote deletion remain separate two-step boundaries.
 - Phase A syncs only the canonical base résumé. Cover letters, evidence, presentation choices, tailored outputs, and export history remain browser-local until their own schemas, retention, and conflict policies are approved.
 - Phase B can reuse this contract for iOS and Android, storing device drafts with platform-secure storage and requiring authentication only for cloud save, tailoring, export history, and multi-device sync.
-- Remaining release gate: use two disposable authenticated accounts and synthetic text to prove cross-account denial, anonymous denial, revision conflicts, explicit new-device adoption, stop-on-device semantics, and remote deletion. Do not add `VITE_RESUME_SYNC_ENABLED=true` to Production before this passes.
-- Phase A2 release evidence: 15 focused checks and the full 482-test suite passed; the production build transformed 2,011 modules; production dependencies reported zero vulnerabilities; signed-out production passed desktop/mobile runtime and overflow checks without a vault request; and Vercel confirmed the flag is Preview/Development-only. The connected Supabase integration lacked SQL/advisor permission, so the checked-in aggregate verifier still requires an operator run alongside the synthetic two-account gate.
+- Phase A3 release evidence: the aggregate SQL verifier returned the expected RLS, grants, policies, indexes, trigger, and security-invoker function; 18 focused checks and the full 510-test suite passed; export/privacy gates and the zero-vulnerability audit passed; and the build transformed 2,447 modules.
+- Two disposable accounts and synthetic text proved anonymous and cross-account denial, own-account CRUD, monotonic revisions, stale-write/delete conflicts, both visible conflict choices, explicit new-device restore, stop-on-device, offline pending/retry, and remote deletion. Preview and production smokes passed without browser or Vercel errors. Production deployment `dpl_8DX6GX6TrfiTV7pnq4WyHx91o5HW` released commit `92348241cba81b94ba33ae4337bfc62d47a66c9f` with the fail-closed flag enabled.
 
 ### P3.2 Evaluation and analytics
 
@@ -378,7 +378,7 @@ Implementation closure includes a dedicated authenticated, no-store clarificatio
 
 ### Recorded pipeline after P3.9
 
-- **P3.1 release closure:** complete the synthetic two-account, anonymous-denial, revision-conflict, new-device adoption, stop-on-device, and remote-delete gate; only then enable résumé sync in Production. Finish the currently local activation/status UX without changing the fail-closed boundary.
+- **P3.1 release closure — complete:** the synthetic two-account, anonymous-denial, revision-conflict, new-device adoption, stop-on-device, offline-retry, and remote-delete gates passed; résumé sync is enabled in Production behind the unchanged fail-closed flag boundary.
 - **P4.1 résumé intake expansion:** add PDF/DOCX upload and camera/photo capture with OCR, page ordering, confidence review, explicit identity/contact confirmation, private-processing disclosure, bounded files, and no silent overwrite. Reuse the same canonical résumé schema on web before native apps.
 - **P4.2 native readiness:** stabilize authenticated sync and document intake on responsive web, then evaluate a PWA and native iOS/Android shells with secure device storage, camera/file permissions, deep links, accessibility, offline behavior, and app-store privacy disclosures.
 - **P4.3 geography and source expansion:** add countries only with country-specific location, language, work-authorization, privacy, accessibility, and source-policy rules. Expand job sources through documented APIs or permitted feeds; never bypass publisher controls.
