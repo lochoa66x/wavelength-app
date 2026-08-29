@@ -3,7 +3,7 @@ import { useCallback, useRef, useState } from "react";
 import { PRIVACY_POLICY_VERSION } from "./privacyConfig.js";
 
 export const PRIVATE_PROCESSING_ACK_KEY = "gigscapes:private-processing-ack:v1";
-const VALID_SCOPES = new Set(["intake", "tailor", "cover_letter"]);
+const VALID_SCOPES = new Set(["intake", "resume_intake", "tailor", "cover_letter"]);
 
 function browserStorage(storage) {
   if (storage) return storage;

@@ -64,7 +64,7 @@ export default function PrivacyPage() {
           <ul>
             <li><strong>Public discovery:</strong> search terms, location and workplace preferences, listing identifiers, and public job-posting information.</li>
             <li><strong>Account workspace:</strong> email-based authentication, saved and dismissed listing identifiers, and account search criteria.</li>
-            <li><strong>Résumé and cover-letter workspace:</strong> résumé text, confirmed candidate evidence, presentation choices, and target-specific cover-letter drafts saved in this browser for the signed-in account. {RESUME_SYNC_ENABLED ? "If you explicitly enable résumé sync, an account-owned copy of the base résumé is also stored in Supabase." : null}</li>
+            <li><strong>Résumé and cover-letter workspace:</strong> résumé text, confirmed candidate evidence, presentation choices, and target-specific cover-letter drafts saved in this browser for the signed-in account. DOCX and text-based PDF imports are parsed on the device; their original files are not saved or synced. {RESUME_SYNC_ENABLED ? "If you explicitly enable résumé sync, an account-owned copy of the reviewed base-résumé text is also stored in Supabase." : null}</li>
             <li><strong>Tailoring input:</strong> the reviewed posting, selected résumé, and evidence the person explicitly confirms for a tailoring request.</li>
             <li><strong>Optional quality signals:</strong> a fixed set of coarse product outcomes only when the user enables the setting. Résumé text, names, emails, employers, and free-form posting content are excluded.</li>
           </ul>
@@ -77,7 +77,7 @@ export default function PrivacyPage() {
         </PolicySection>
 
         <PolicySection title="4. When content is sent to an AI provider">
-          <p>Job-intake, résumé-tailoring, and cover-letter requests pass through Gigscapes server functions to Anthropic. Job intake sends the posting material supplied for extraction. Tailoring sends the selected résumé, the reviewed posting, and confirmed evidence needed to generate and truth-check the draft. Cover-letter generation sends those same verified sources, the current application assessment, and a minimized existing paragraph or draft only when the person asks to regenerate wording.</p>
+          <p>Job-intake, résumé-image reading, résumé-tailoring, and cover-letter requests pass through Gigscapes server functions to Anthropic. DOCX and text-based PDF résumé imports stay on the device. When a photo or scanned PDF needs optical reading, Gigscapes sends compressed rendered pages only after a separate notice; the original binary file is not saved. Job intake sends the posting material supplied for extraction. Tailoring sends the selected résumé, the reviewed posting, and confirmed evidence needed to generate and truth-check the draft. Cover-letter generation sends those same verified sources, the current application assessment, and a minimized existing paragraph or draft only when the person asks to regenerate wording.</p>
           <p>Gigscapes shows a just-in-time notice before each kind of processing. Generated content is returned for review and is not submitted to an employer. Anthropic describes its current commercial/API retention practices and exceptions in its <a href={ANTHROPIC_PRIVACY_URL} target="_blank" rel="noreferrer">data-retention documentation <ExternalLink size={13} /></a>.</p>
         </PolicySection>
 
@@ -89,7 +89,7 @@ export default function PrivacyPage() {
         <PolicySection title="6. Providers and purposes">
           <ul>
             <li><a href={SUPABASE_PRIVACY_URL} target="_blank" rel="noreferrer">Supabase <ExternalLink size={13} /></a> — authentication, account workspace, public listing database{RESUME_SYNC_ENABLED ? ", and the optional private base-résumé sync you enable" : ""}.</li>
-            <li><a href="https://www.anthropic.com/legal/privacy" target="_blank" rel="noreferrer">Anthropic <ExternalLink size={13} /></a> — posting extraction, résumé tailoring, cover-letter generation, and evidence/truth review.</li>
+            <li><a href="https://www.anthropic.com/legal/privacy" target="_blank" rel="noreferrer">Anthropic <ExternalLink size={13} /></a> — posting extraction, opt-in résumé image transcription, résumé tailoring, cover-letter generation, and evidence/truth review.</li>
             <li><a href="https://vercel.com/legal/privacy-notice" target="_blank" rel="noreferrer">Vercel <ExternalLink size={13} /></a> — hosting, server functions, operational logs, and privacy-filtered aggregate analytics.</li>
           </ul>
         </PolicySection>
@@ -104,6 +104,7 @@ export default function PrivacyPage() {
           <ul>
             <li>Browse public listings without signing in.</li>
             <li>Use pasted text or screenshots when a job site blocks automated page reading.</li>
+            <li>Add a base résumé by paste, DOCX, PDF, or photos; review extracted text before saving or syncing it.</li>
             <li>Cancel a processing disclosure without losing the input already entered.</li>
             <li>Disable optional quality signals at any time.</li>
             <li>Clear private résumé and cover-letter data from the current browser.</li>

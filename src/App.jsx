@@ -9,6 +9,7 @@ import { PrivateProcessingDialog } from "./PrivateProcessingDialog.jsx";
 import { PositioningSummary } from "./PositioningSummary.jsx";
 import { ResumeExperience } from "./ResumeExperience.jsx";
 import { ResumeSyncControls } from "./ResumeSyncControls.jsx";
+import { ResumeIntakePanel } from "./ResumeIntakePanel.jsx";
 import { RESUME_SYNC_ENABLED } from "./resumeSyncConfig.js";
 import { loadLocalResume, saveLocalResume } from "./resumeStorage.js";
 import {
@@ -138,6 +139,18 @@ html, body, #root { min-height: 100%; background: #F5F5F7; }
 .privacy-gate-secondary, .privacy-gate-primary { min-height: 44px; border-radius: 999px; padding: 10px 18px; font: inherit; font-weight: 750; cursor: pointer; }
 .privacy-gate-secondary { border: 1px solid #DED8D1; background: white; color: #1D1D1F; }
 .privacy-gate-primary { border: 1px solid #D34500; background: #D34500; color: white; }
+.resume-intake-tabs { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-bottom: 12px; }
+.resume-intake-tab { min-height: 48px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 9px 12px; border: 1px solid #DED8D1; border-radius: 12px; background: rgba(255,255,255,.76); color: #625B55; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+.resume-intake-tab[data-active="true"] { border-color: #D34500; background: #FFF2EA; color: #A93600; box-shadow: inset 0 0 0 1px rgba(211,69,0,.08); }
+.resume-intake-dropzone { min-height: 190px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 26px; border: 1.5px dashed #C9C2BB; border-radius: 14px; background: rgba(255,255,255,.72); text-align: center; }
+.resume-intake-dropzone strong { color: #1D1D1F; font-size: 15px; }
+.resume-intake-dropzone span { max-width: 440px; color: #706962; font-size: 12.5px; line-height: 1.5; }
+.resume-intake-dropzone input { max-width: 100%; color: #625B55; font: inherit; font-size: 13px; }
+.resume-intake-busy { display: inline-flex; align-items: center; gap: 7px; color: #A93600 !important; font-weight: 700; }
+.resume-intake-status, .resume-intake-warning, .resume-intake-error { margin: 9px 0 0; font-size: 12px; line-height: 1.5; }
+.resume-intake-status { color: #706962; }
+.resume-intake-warning { color: #9A6700; }
+.resume-intake-error { color: #B42318; }
 @media (max-width: 900px) {
   .wl-digest-grid { grid-template-columns: 1fr; }
   .wl-digest-side { position: static; order: -1; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -147,6 +160,8 @@ html, body, #root { min-height: 100%; background: #F5F5F7; }
   .wl-location-editor-grid { grid-template-columns: 1fr; }
 }
 @media (max-width: 460px) {
+  .resume-intake-tabs { grid-template-columns: 1fr; }
+  .resume-intake-tab { justify-content: flex-start; }
   .wl-primary-search-row { grid-template-columns: 1fr; }
   .wl-primary-search-row > button { width: 100%; justify-content: center; }
   .wl-searchrow { flex-wrap: wrap; }
@@ -1576,14 +1591,15 @@ export default function Gigscapes() {
         <div style={{ fontSize: 13, color: C.textSub, fontWeight: 500, marginBottom: 6 }}>Step 5 of 5 · Optional</div>
         <h2 style={{ fontSize: 23, fontWeight: 700, margin: "0 0 6px", color: C.text }}>Add your résumé</h2>
         <p style={{ fontSize: 14, color: C.textSub, margin: "0 0 16px", lineHeight: 1.5 }}>
-          Paste it now and we'll tailor a fresh version for every gig you apply to. It stays in this browser, not in your Gigscapes database.
+          Paste it, upload a DOCX or PDF, or photograph its pages. Review the extracted text before saving it as the base for future tailoring.
         </p>
-        <textarea
+        <ResumeIntakePanel
           value={resumeDraft}
-          onChange={(e) => setResumeDraft(e.target.value)}
-          placeholder="Paste your résumé text here (experience, skills, past projects)…"
-          rows={14}
-          style={{ width: "100%", background: C.bgCard, border: `1.5px solid ${C.border}`, borderRadius: 14, padding: "14px 16px", color: C.text, fontSize: 14, fontFamily: SYS_FONT, resize: "vertical", marginBottom: 16, boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}
+          savedValue={localResume}
+          onChange={setResumeDraft}
+          requestPrivateProcessing={privateProcessing.requestPrivateProcessing}
+          C={C}
+          fontFamily={SYS_FONT}
         />
         <div className="wl-glass wl-btn" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderRadius: 980, padding: "8px" }}>
           <button
@@ -1625,14 +1641,15 @@ export default function Gigscapes() {
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
         <h2 style={{ fontSize: 23, fontWeight: 700, margin: "0 0 6px", color: C.text }}>Your résumé</h2>
         <p style={{ fontSize: 14, color: C.textSub, margin: "0 0 16px" }}>
-          Paste your full résumé here — experience, skills, past projects. It is saved in this browser by default and used as the base for each tailored version.
+          Paste text, upload a DOCX or PDF, or photograph the pages. Imported text stays editable and does not replace your saved résumé until you review and save it.
         </p>
-        <textarea
+        <ResumeIntakePanel
           value={resumeDraft}
-          onChange={(e) => setResumeDraft(e.target.value)}
-          placeholder="Paste your résumé text here…"
-          rows={18}
-          style={{ width: "100%", background: C.bgCard, border: `1.5px solid ${C.border}`, borderRadius: 14, padding: "14px 16px", color: C.text, fontSize: 14, fontFamily: SYS_FONT, resize: "vertical", marginBottom: 16, boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}
+          savedValue={localResume}
+          onChange={setResumeDraft}
+          requestPrivateProcessing={privateProcessing.requestPrivateProcessing}
+          C={C}
+          fontFamily={SYS_FONT}
         />
         <div style={{ display: "flex", gap: 10, justifyContent: "space-between" }}>
           <button onClick={() => setStep(resumeReturnStep)} className="wl-btn" style={{ ...glassBtnStyle(), background: "none", border: `1px solid ${C.border}` }}>

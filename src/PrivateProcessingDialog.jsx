@@ -3,6 +3,10 @@ import { Link } from "react-router";
 import { ShieldCheck, X } from "lucide-react";
 
 const COPY = {
+  resume_intake: {
+    title: "Before Gigscapes reads these résumé images",
+    body: "Gigscapes sends compressed copies of the résumé photos you selected through Gigscapes servers to a configured AI processing provider for transcription. The original images are not saved to your profile or synced; only text you review and explicitly save can become your base résumé.",
+  },
   intake: {
     title: "Before Gigscapes reads this posting",
     body: "Gigscapes sends the posting text, public page contents, or compressed screenshots through Gigscapes servers to a configured AI processing provider so the job can be structured for your review. This input is not added to your Gigscapes profile.",

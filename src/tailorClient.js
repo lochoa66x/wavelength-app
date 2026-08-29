@@ -46,3 +46,9 @@ export async function extractCustomJob(payload, options = {}) {
   if (!data.brief?.title || !data.brief?.description) throw new Error("The posting could not be extracted completely.");
   return data.brief;
 }
+
+export async function extractResumeImages(images, options = {}) {
+  const data = await authenticatedPost("/api/resume-intake", { images }, options);
+  if (typeof data.text !== "string" || data.text.trim().length < 40) throw new Error("The résumé images did not contain enough readable text.");
+  return { text: data.text.trim(), warnings: Array.isArray(data.warnings) ? data.warnings : [] };
+}

@@ -25,9 +25,9 @@ const pageSize = 1000;
 for (let page = 0; ; page += 1) {
   const from = page * pageSize;
   const { data, error } = await supabase
-    .from("listings")
-    .select("*")
-    .order("fetched_at", { ascending: false })
+    .from("public_listings")
+    .select("id,title,location,source,city,region,country_code,location_type")
+    .order("posted_at", { ascending: false })
     .order("id", { ascending: false })
     .range(from, from + pageSize - 1);
 
