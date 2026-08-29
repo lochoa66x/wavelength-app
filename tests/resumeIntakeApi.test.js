@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { createResumeIntakeHandler } from "./resume-intake.js";
+import { createResumeIntakeHandler } from "../api/resume-intake.js";
 
 function responseRecorder() {
   return {
