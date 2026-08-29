@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { createTailorHandler } from "../api/tailor.js";
+import { createTailorHandler, DEFAULT_TAILOR_TIMING } from "../api/tailor.js";
 
 function analysisInput(overrides = {}) {
   return {
@@ -40,6 +40,18 @@ function responseRecorder() {
     },
   };
 }
+
+test("production timing gives evidence-analysis retry a useful window without consuming the draft budget", () => {
+  const [firstAnalysisMs, retryAnalysisMs] = DEFAULT_TAILOR_TIMING.analysisAttemptsMs;
+  const reservedDraftMs = DEFAULT_TAILOR_TIMING.requestBudgetMs - firstAnalysisMs - retryAnalysisMs;
+
+  assert.ok(firstAnalysisMs > 80_000, "the first analysis attempt must clear the observed 80-second latency cliff");
+  assert.ok(retryAnalysisMs >= 80_000, "the retry must be long enough for a normal production analysis");
+  assert.ok(
+    reservedDraftMs >= DEFAULT_TAILOR_TIMING.draftAttemptsMs[0],
+    "a full first drafting attempt must remain available after both analysis windows",
+  );
+});
 
 test("tailoring rejects a missing authorization header before external work", async () => {
   let authenticated = false;

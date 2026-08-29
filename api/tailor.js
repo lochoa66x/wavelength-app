@@ -16,10 +16,14 @@ import {
   structuredPostingRequirementInventory,
 } from "./_lib/tailoringEvidence.js";
 
-const DEFAULT_TAILOR_TIMING = Object.freeze({
+export const DEFAULT_TAILOR_TIMING = Object.freeze({
   requestBudgetMs: 285_000,
   minimumCallMs: 15_000,
-  analysisAttemptsMs: [80_000, 45_000],
+  // Production evidence analysis has completed in about 70 seconds, while an
+  // 80-second attempt has also timed out. Keep the first attempt above that
+  // observed cliff and give a retry enough time to complete, while reserving
+  // at least 105 seconds of the request budget for résumé drafting.
+  analysisAttemptsMs: [95_000, 80_000],
   draftAttemptsMs: [105_000, 55_000],
   repairAttemptsMs: [70_000],
 });
@@ -373,6 +377,9 @@ async function callAnthropicTool({ fetchImpl, apiKey, tool, prompt, maxTokens, t
     console.info(`[tailor:${stage}] Anthropic request completed`, JSON.stringify({
       tool: tool.name,
       durationMs: Date.now() - startedAt,
+      inputTokens: Number.isFinite(data.usage?.input_tokens) ? data.usage.input_tokens : null,
+      outputTokens: Number.isFinite(data.usage?.output_tokens) ? data.usage.output_tokens : null,
+      stopReason: typeof data.stop_reason === "string" ? data.stop_reason : null,
     }));
     return toolUse.input;
   } catch (error) {
@@ -397,6 +404,20 @@ function isRetryableAnthropicError(error) {
     || error?.status === 409
     || error?.status === 429
     || Number(error?.status) >= 500;
+}
+
+function inputSizeBand(length) {
+  if (length < 4_000) return "short";
+  if (length < 10_000) return "medium";
+  return "long";
+}
+
+function logTailoringCompleted(requestStartedAt, { repairApplied = false, safetyFallbackApplied = false } = {}) {
+  console.info("[tailor:request] completed", JSON.stringify({
+    durationMs: Date.now() - requestStartedAt,
+    repairApplied,
+    safetyFallbackApplied,
+  }));
 }
 
 async function callAnthropicToolWithRetry({
@@ -665,6 +686,13 @@ INSTRUCTIONS
   * Prefer specific, source-supported context over generic wording. Name the real systems, environments, stakeholders, deliverables, or constraints from the base résumé. Specificity makes a bullet high-signal even when no number is available.
   * Structure bullets as: [action verb] + [what you did] + [scope/scale] + [outcome, when supported by the base resume]. Not every bullet needs all four — but every bullet must have at least verb + what + one of scope-or-outcome.${categoryAppendix}`;
 
+  console.info("[tailor:request] started", JSON.stringify({
+    source: normalizedCustomJob ? "reviewed_custom_job" : "trusted_listing",
+    resumeSize: inputSizeBand(cappedResume.length),
+    postingSize: inputSizeBand(String(storedPosting || "").length),
+    requestBudgetMs: resolvedTiming.requestBudgetMs,
+  }));
+
   try {
     const rawAnalysis = await callAnthropicToolWithRetry({
       fetchImpl,
@@ -729,6 +757,7 @@ INSTRUCTIONS
         },
       );
       if (atsReview.status !== "blocked") {
+        logTailoringCompleted(requestStartedAt, { repairApplied: attempt > 0 });
         return res.status(200).json({
           resume: resumeData,
           ats_review: atsReview,
@@ -784,6 +813,7 @@ INSTRUCTIONS
           omittedExperience: safetyReport.omitted_experience_count,
           removedNumbers: safetyReport.removed_numeric_claim_count,
         }));
+        logTailoringCompleted(requestStartedAt, { repairApplied: true, safetyFallbackApplied: true });
         return res.status(200).json({
           resume: safeResume,
           ats_review: safeReview,
