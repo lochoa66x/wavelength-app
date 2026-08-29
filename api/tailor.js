@@ -125,7 +125,7 @@ const PROFESSIONAL_TOOL = {
       },
       profile: {
         type: "string",
-        description: "2-4 sentence profile/summary tailored to this specific gig, using transferable-skill language where the candidate's background differs from the target role's specific domain.",
+        description: "2-4 sentence employer-facing profile tailored to this gig using verified evidence. Never mention missing requirements, gaps, application risk, unsupported capabilities, or what the candidate lacks; those belong only in the private review.",
       },
       fit_assessment: {
         type: "object",
@@ -325,6 +325,8 @@ function tailoringResponseMetadata(analysis, atsReview, candidateEvidence = []) 
     },
     candidate_fit: analysis.candidate_fit,
     requirements: analysis.requirements,
+    core_coverage: analysis.core_coverage,
+    requirement_summary: analysis.requirement_summary,
     evidence_questions: analysis.evidence_questions || [],
     candidate_evidence: candidateEvidence,
     application_ready: atsReview.application_ready === true,
@@ -670,6 +672,7 @@ INSTRUCTIONS
 - Common transferable abilities—planning, reliability, customer communication, team coordination, problem solving, quality, safety awareness, organization, and learning agility—may be emphasized only when a concrete statement or accomplishment in the base résumé supports them. Rewrite that evidence for relevance; do not merely assume the ability because it is common.
 - Every skills-section item must either appear in CANDIDATE EVIDENCE or be listed under verified_transferable_skills in the analysis. Never add a target technology, tool, credential, project, employer, achievement, or date merely because it appears in the posting.
 - A requirement classified as missing cannot be converted into a claimed skill, title, or accomplishment. It may only influence the candidate-facing fit note, missing-evidence list, or questions.
+- Keep candidate-fit warnings outside the résumé document. Never put a missing requirement, evidence gap, application-risk label, unsupported capability, or statement about what the candidate lacks in the title, profile, skills, experience, projects, training, education, or languages. The private review already carries that information.
 - For a major career change (for example SAP manager to a plumbing helper/apprentice path), emphasize only proven transferable capabilities such as perseverance, leading teams, safety awareness, planning, dependable execution, customer communication, and solving practical problems. De-emphasize domain-specific technical details that do not help the target role; retain only enough to keep the work history truthful.
 - If the candidate's real career is long (many roles, decades), use real editorial judgment: keep the roles and bullets most relevant to THIS gig in full detail, and compress the least relevant older/unrelated roles to one or two bullets each — the way a human resume writer would for a 1-2 page document. Don't just cut off the oldest roles entirely unless truly irrelevant.
 - For a career change, use no more than three bullets for each of the two most recent roles and no more than two bullets for each older role. Rank bullets by verified relevance to the target; do not use volume to disguise a weak match.

@@ -68,6 +68,19 @@ test("non-career-change shaping preserves content while still removing identity 
   assert.deepEqual(resume.skills, ["React"]);
 });
 
+test("employer-facing résumé profiles omit private fit and gap disclosures", () => {
+  const resume = shapeTailoredResume({
+    name: "Luis Example",
+    title: "SAP Finance Solution Architect",
+    profile: "Senior SAP architect with verified finance delivery experience. Procurement experience is a noted gap this candidate seeks to bridge. Brings cross-functional architecture leadership.",
+    skills: ["SAP Finance"],
+  }, { fit_assessment: { path: "adjacent" } });
+
+  assert.match(resume.profile, /verified finance delivery experience/i);
+  assert.match(resume.profile, /cross-functional architecture leadership/i);
+  assert.doesNotMatch(resume.profile, /gap|seeks to bridge|procurement experience/i);
+});
+
 test("SAP tailoring keeps relevant SAP training and omits unrelated training filler", () => {
   const result = shapeTailoredResumeWithReview({
     name: "Luis Example",

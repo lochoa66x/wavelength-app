@@ -19,6 +19,10 @@ const COPY = {
     title: "Before Gigscapes writes your cover letter",
     body: "Gigscapes sends the résumé you selected, reviewed posting, confirmed evidence, application assessment, and—when regenerating—a minimized copy of the current draft through Gigscapes servers to a configured AI processing provider. The result stays target-specific and editable; it does not change your saved résumé or submit an application.",
   },
+  evidence_coach: {
+    title: "Before Gigscapes clarifies your evidence",
+    body: "Gigscapes sends only this requirement, its follow-up question, and the factual sentences you entered for this answer through Gigscapes servers to a configured AI processing provider. It does not send your full résumé. The result is a proposal only: you can approve, edit, reject, or answer a follow-up before it can affect tailoring.",
+  },
 };
 
 export function PrivateProcessingDialog({ scope, onCancel, onConfirm, returnFocusTarget }) {

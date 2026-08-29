@@ -1,3 +1,5 @@
+import { validateEvidenceCoachProposal } from "./evidenceCoach.js";
+
 const MAX_EVIDENCE_ITEMS = 5;
 
 const CONTRIBUTION_LEVELS = new Set(["supported", "contributed", "owned", "led"]);
@@ -34,6 +36,40 @@ export function validateCandidateEvidence(input) {
     if (raw.user_confirmed !== true) errors.push(`Answer ${index + 1} must be confirmed by the candidate.`);
     if (!requirementId) errors.push(`Answer ${index + 1} is missing its requirement reference.`);
     if (!declined && answer.length < 3) errors.push(`Answer ${index + 1} needs a factual response or “I don't have this experience.”`);
+    let coachProvenance = null;
+    if (!declined && (raw.coach_status === "approved" || raw.approval_status === "approved" || raw.evidence_hash)) {
+      if (raw.coach_status !== "approved" || raw.approval_status !== "approved") {
+        errors.push(`Answer ${index + 1} has an evidence proposal that was not explicitly approved.`);
+      } else {
+        const coachInput = {
+          requirement: {
+            id: requirementId,
+            text: cleanText(raw.requirement, 1500),
+            question: cleanText(raw.question, 1000),
+          },
+          candidate_input: {
+            answer: cleanText(raw.raw_answer, 1200),
+            context: cleanText(raw.context, 500),
+            approximate_date: cleanText(raw.approximate_date, 80),
+            employer_or_project: cleanText(raw.employer_or_project, 180),
+            contribution_level: CONTRIBUTION_LEVELS.has(raw.contribution_level) ? raw.contribution_level : "supported",
+            follow_up_answer: cleanText(raw.coach_follow_up_answer, 800),
+          },
+        };
+        const checked = validateEvidenceCoachProposal(raw.coach_proposal, coachInput);
+        if (checked.issues.length || checked.proposal.evidence_hash !== raw.evidence_hash || checked.proposal.proposed_wording !== answer) {
+          errors.push(`Answer ${index + 1} has a stale or unverified evidence proposal.`);
+        } else {
+          coachProvenance = {
+            kind: "evidence_coach",
+            approval_status: "approved",
+            evidence_hash: checked.proposal.evidence_hash,
+            raw_answer: coachInput.candidate_input.answer,
+            facts_used: checked.proposal.facts_used,
+          };
+        }
+      }
+    }
     if (errors.length > errorCountBefore) return;
 
     evidence.push({
@@ -50,6 +86,7 @@ export function validateCandidateEvidence(input) {
       declined,
       user_confirmed: true,
       created_at: cleanText(raw.created_at, 40) || new Date().toISOString(),
+      ...(coachProvenance ? { provenance: coachProvenance } : {}),
     });
   });
 

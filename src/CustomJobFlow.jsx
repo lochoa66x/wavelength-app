@@ -523,6 +523,7 @@ export function CustomJobFlow({
             afterCoverage={tailored.atsReview?.coverage}
             loading={status === "tailoring"}
             onSaveAndRetailor={handleEvidenceRetailor}
+            requestPrivateProcessing={requestPrivateProcessing}
             C={C}
           />
           <ResumeExperience baseResume={resume} resumeData={tailored.resume} item={customItem} hasLink={Boolean(brief.source_url)} atsReview={tailored.atsReview} candidateEvidence={tailored.candidateEvidence || []} customJob={brief} requestPrivateProcessing={requestPrivateProcessing} onEditResume={onEditResume} onTailoringChangeDecision={handleTailoringChangeDecision} requestAccountAction={requestAccountAction} qualityRoute="custom_job" qualityPostingSource={postingSourceForMode(mode)} C={C} primaryBtnStyle={primaryBtnStyle} />

@@ -709,6 +709,12 @@ function calibratedLevel(rawLevel, path) {
 
 function applicationOutlook(requirements, gapCounts, candidateFit, postingAssessment) {
   const evidenceCounts = coverageCounts(requirements);
+  const coreRequirements = requirements.filter((requirement) => ["required", "responsibility"].includes(requirement.priority));
+  const coreInventory = coreRequirements.length ? coreRequirements : requirements;
+  const coreEvidenceCounts = coverageCounts(coreInventory);
+  const coreMaterialGaps = coreInventory.filter((requirement) => requirement.gap_severity === "material_gap").length;
+  const coreBlockers = coreInventory.filter((requirement) => requirement.gap_severity === "verified_blocker").length;
+  const coreMissingRate = coreInventory.length ? coreEvidenceCounts.missing / coreInventory.length : 1;
   const counts = {
     verified_strengths: evidenceCounts.direct,
     related_evidence: evidenceCounts.adjacent + evidenceCounts.transferable,
@@ -717,6 +723,8 @@ function applicationOutlook(requirements, gapCounts, candidateFit, postingAssess
     preferences: gapCounts.preference,
     development_gaps: gapCounts.development_gap,
     total: requirements.length,
+    core_total: coreInventory.length,
+    core_supported: coreEvidenceCounts.direct + coreEvidenceCounts.adjacent + coreEvidenceCounts.transferable,
   };
   const confidence = postingAssessment.fit_allowed === true
     ? candidateFit.confidence || (requirements.length >= 5 ? "high" : "medium")
@@ -732,23 +740,23 @@ function applicationOutlook(requirements, gapCounts, candidateFit, postingAssess
       counts,
     };
   }
-  if (gapCounts.verified_blocker > 0) {
+  if (coreBlockers > 0) {
     return {
       status: "likely_screening_blocker",
       label: "Likely screening blocker",
       confidence,
-      reason: `${gapCounts.verified_blocker} explicit mandatory credential or eligibility requirement${gapCounts.verified_blocker === 1 ? " has" : "s have"} no supporting evidence.`,
+      reason: `${coreBlockers} explicit mandatory credential or eligibility requirement${coreBlockers === 1 ? " has" : "s have"} no supporting evidence.`,
       what_would_change: "Candidate-confirmed evidence of the required credential or eligibility condition.",
       counts,
     };
   }
-  if (gapCounts.material_gap > 0) {
-    const hasRelevantEvidence = evidenceCounts.direct + evidenceCounts.adjacent + evidenceCounts.transferable > 0;
+  if (coreMaterialGaps > 0) {
+    const highRisk = coreEvidenceCounts.direct <= coreMaterialGaps || coreMissingRate >= 0.45;
     return {
-      status: hasRelevantEvidence ? "viable_transition_material_gaps" : "high_application_risk",
-      label: hasRelevantEvidence ? "Viable transition with material gaps" : "High application risk",
+      status: highRisk ? "high_application_risk" : "viable_transition_material_gaps",
+      label: highRisk ? "High application risk" : "Viable transition with material gaps",
       confidence,
-      reason: `${gapCounts.material_gap} required capabilit${gapCounts.material_gap === 1 ? "y remains" : "ies remain"} unsupported by exact candidate evidence.`,
+      reason: `${coreMaterialGaps} core required capabilit${coreMaterialGaps === 1 ? "y remains" : "ies remain"} unsupported by exact candidate evidence.`,
       what_would_change: "Candidate-confirmed evidence that directly or honestly relates to the unsupported required capabilities.",
       counts,
     };
@@ -894,6 +902,16 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
     },
     requirements,
     coverage,
+    core_coverage: {
+      ...calibration.counts,
+      total: calibration.total,
+      supported: calibration.supported,
+    },
+    requirement_summary: {
+      total: requirements.length,
+      core_total: calibration.total,
+      preferred_or_context_total: Math.max(0, requirements.length - calibration.total),
+    },
     gap_summary: {
       application_risk: applicationRisk,
       counts: gapCounts,

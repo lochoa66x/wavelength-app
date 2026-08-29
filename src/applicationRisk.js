@@ -20,6 +20,15 @@ const OUTLOOK_LABELS = Object.freeze({
   assessment_incomplete: "Assessment incomplete",
 });
 
+const OUTLOOK_RISK = Object.freeze({
+  strong_verified_alignment: 0,
+  viable_manageable_gaps: 1,
+  viable_transition_material_gaps: 2,
+  high_application_risk: 3,
+  likely_screening_blocker: 4,
+  assessment_incomplete: 5,
+});
+
 const ORIGIN_LABELS = Object.freeze({
   responsibility: "Responsibility",
   mandatory_qualification: "Mandatory qualification",
@@ -181,7 +190,8 @@ function fallbackOutlook(review, counts, postingComplete) {
     };
   }
   if (counts.materialGaps > 0) {
-    const status = counts.verifiedStrengths + counts.relatedEvidence > 0
+    const missingRate = counts.total ? counts.missing / counts.total : 1;
+    const status = counts.verifiedStrengths > counts.materialGaps && missingRate < 0.45
       ? "viable_transition_material_gaps"
       : "high_application_risk";
     return {
@@ -244,16 +254,42 @@ export function buildApplicationRiskView(review = {}) {
     preferences: 0,
     needsReview: 0,
   });
+  const coreRequirements = requirements.filter((requirement) => ["required", "responsibility"].includes(requirement.priority));
+  const coreInventory = coreRequirements.length ? coreRequirements : requirements;
+  const coreCounts = coreInventory.reduce((result, requirement) => {
+    result.total += 1;
+    if (requirement.evidenceMatch === "direct") result.verifiedStrengths += 1;
+    if (requirement.evidenceMatch === "adjacent") result.adjacent += 1;
+    if (requirement.evidenceMatch === "transferable") result.transferable += 1;
+    if (["adjacent", "transferable"].includes(requirement.evidenceMatch)) result.relatedEvidence += 1;
+    if (requirement.evidenceMatch === "missing") result.missing += 1;
+    if (requirement.gapSeverity === "verified_blocker") result.blockers += 1;
+    if (requirement.gapSeverity === "material_gap") result.materialGaps += 1;
+    return result;
+  }, {
+    total: 0,
+    verifiedStrengths: 0,
+    adjacent: 0,
+    transferable: 0,
+    relatedEvidence: 0,
+    missing: 0,
+    blockers: 0,
+    materialGaps: 0,
+  });
   const postingComplete = review?.posting_readiness?.fit_allowed === true;
   const suppliedOutlook = review?.gap_summary?.outlook;
-  const fallback = fallbackOutlook(review, counts, postingComplete);
-  const status = text(suppliedOutlook?.status, fallback.status);
+  const fallback = fallbackOutlook(review, coreCounts, postingComplete);
+  const suppliedStatus = text(suppliedOutlook?.status, fallback.status);
+  const status = (OUTLOOK_RISK[suppliedStatus] ?? -1) >= (OUTLOOK_RISK[fallback.status] ?? -1)
+    ? suppliedStatus
+    : fallback.status;
+  const useSupplied = status === suppliedStatus;
   const outlook = {
     status,
-    label: text(suppliedOutlook?.label, OUTLOOK_LABELS[status] || fallback.label),
+    label: useSupplied ? text(suppliedOutlook?.label, OUTLOOK_LABELS[status] || fallback.label) : fallback.label,
     confidence: text(suppliedOutlook?.confidence, fallback.confidence),
-    reason: text(suppliedOutlook?.reason, fallback.reason),
-    whatWouldChange: text(suppliedOutlook?.what_would_change, fallback.whatWouldChange),
+    reason: useSupplied ? text(suppliedOutlook?.reason, fallback.reason) : fallback.reason,
+    whatWouldChange: useSupplied ? text(suppliedOutlook?.what_would_change, fallback.whatWouldChange) : fallback.whatWouldChange,
     tone: outlookTone(status),
   };
 
@@ -291,6 +327,7 @@ export function buildApplicationRiskView(review = {}) {
     postingComplete,
     requirements,
     counts,
+    coreCounts,
     outlook,
     document,
     filters,

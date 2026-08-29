@@ -1,6 +1,6 @@
 # Gigscapes product pipeline
 
-Updated: 2026-08-26
+Updated: 2026-08-29
 
 This roadmap orders work by the value of the product's core promise: produce a truthful, role-specific, ATS-readable resume from enough candidate and job-posting evidence. Search volume and presentation work follow that foundation.
 
@@ -352,6 +352,40 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 - Browser preview, editable DOCX, selectable/searchable direct PDF, render hashes, and export authorization consume the same composed tokens. Switching any presentation control is local and immediate, makes no AI/network request, and preserves the canonical content hash, item IDs, Evidence Map, requirement coverage, fit assessment, and readiness decision.
 - Automated coverage includes the 7 × 4 × 2 style/palette/density matrix, every modifier group, accessible colour contrast, persistence migration, stale authorization, and four representative cross-format export combinations. Real-file QA covers both LibreOffice-rendered DOCX and direct PDF pages.
 
+### P3.9 Decision tightening and candidate-controlled Evidence Coach
+
+**Phase A status:** Implemented and locally verified on 2026-08-29; commit and production release evidence remain.
+
+- Application outlook now uses one core-requirement inventory. Adjacent or transferable evidence alone cannot soften unsupported mandatory capabilities into a “viable” label; a viable material-gap outcome requires direct core evidence to outweigh the remaining material gaps.
+- Legacy saved analyses are recalibrated conservatively in the presentation layer, so an older optimistic model label cannot override a stricter deterministic client result.
+- Core fit and the complete requirement inventory are shown as separate, named quantities. The review no longer mixes core requirements with preferred/contextual items or calls every inventory item “atomic” without explaining the denominator.
+- Candidate-facing fit risk remains in the private review. Missing requirements, gap language, unsupported-capability warnings, and application-risk labels are removed from employer-facing résumé profile content and explicitly prohibited in future generated document fields.
+- Zero-effect safety messages are hidden. Quality checks, missing-evidence inventories, and lower-level audit detail use progressive disclosure, while the application decision, blockers, and core evidence remain visible.
+- The explained-change ledger puts repositioned and condensed lines before straightforward rephrases so the candidate reviews the highest-judgment edits first.
+
+**Phase B — next implementation: Candidate Evidence Coach**
+
+**Status:** Implemented and locally verified on 2026-08-29; commit and production release evidence remain.
+
+- Let a person answer a missing-evidence question in ordinary factual sentences. AI may clarify and organize only the facts the person supplied; it must ask a follow-up rather than guess an employer, date, tool, credential, contribution level, outcome, or metric.
+- Show four things before acceptance: the person’s source words, the proposed evidence statement, the exact facts used, and unresolved details. Offer **Approve**, **Edit**, **Reject**, and **Answer follow-up**.
+- Approval does not legalize an invention. Every proposal still passes exact history, title/employer/date, semantic-evidence, credential, metric, and contribution-level validation before it can affect tailoring.
+- Keep application-only and reusable evidence separate. Reusable evidence remains browser-local until the P3.1 sync schema, retention, consent, conflict, and deletion contract is deliberately extended.
+- Re-run core fit, Evidence Map, explained changes, résumé shaping, and export authorization after accepted evidence. Never mutate the canonical base résumé silently.
+- Make the flow useful across software, SAP, administration, marketing, creative work, healthcare, education, logistics, hospitality, electricians, plumbers, other skilled trades, regulated credentials, and deliberately weak-fit applications.
+
+Implementation closure includes a dedicated authenticated, no-store clarification endpoint; provider-neutral candidate copy; minimized one-answer requests; exact source-fact citations; deterministic metric, credential, regulated-action, named-term, and contribution-level checks; stable evidence hashes; explicit Approve/Edit/Reject/Answer-follow-up controls; cancellation and late-response protection; sanitized aggregate telemetry; and a second provenance validation before accepted evidence can reach tailoring. AI output remains a proposal until candidate approval, candidate edits return to the ordinary confirmation path, and the base résumé remains immutable.
+
+### Recorded pipeline after P3.9
+
+- **P3.1 release closure:** complete the synthetic two-account, anonymous-denial, revision-conflict, new-device adoption, stop-on-device, and remote-delete gate; only then enable résumé sync in Production. Finish the currently local activation/status UX without changing the fail-closed boundary.
+- **P4.1 résumé intake expansion:** add PDF/DOCX upload and camera/photo capture with OCR, page ordering, confidence review, explicit identity/contact confirmation, private-processing disclosure, bounded files, and no silent overwrite. Reuse the same canonical résumé schema on web before native apps.
+- **P4.2 native readiness:** stabilize authenticated sync and document intake on responsive web, then evaluate a PWA and native iOS/Android shells with secure device storage, camera/file permissions, deep links, accessibility, offline behavior, and app-store privacy disclosures.
+- **P4.3 geography and source expansion:** add countries only with country-specific location, language, work-authorization, privacy, accessibility, and source-policy rules. Expand job sources through documented APIs or permitted feeds; never bypass publisher controls.
+- **P4.4 listing freshness:** retain source-run provenance and availability status, recheck listings on a bounded schedule, treat repeated absence or a verified closed page conservatively, refresh active-source rows without overwriting richer reviewed text, and explain stale/closed states to users.
+- **P4.5 presentation growth:** add visual styles only through the existing position-independent token system. Every new style must preserve selectable single-column output, browser/DOCX/PDF parity, content hashes, accessibility, and conservative ATS fallback.
+- **P4.6 application workspace:** after the evidence workflow is stable, consider a lightweight saved → applied → interviewing → offer tracker and evidence-first cover-letter packages. Do not add automatic application submission.
+
 ## Recommended execution order
 
 1. P0.1 posting enrichment and provenance
@@ -373,6 +407,9 @@ For the SAP functional family, use a restrained two-page ATS-safe layout: identi
 17. P3.7 evidence-first cover letters and application packages — approved after the privacy release
 18. P3.8 position-independent résumé presentation system — implementation complete; release evidence recorded with the feature SHA
 19. P3.1 Phase A opt-in web résumé sync and production RLS verification, then native mobile after the web contract remains stable
+20. P3.9 Phase A decision tightening, then Phase B candidate-controlled Evidence Coach
+21. P4.1 PDF/DOCX/photo résumé intake, followed by P4.2 native readiness
+22. P4.3 terms-approved geography/source expansion and P4.4 listing freshness
 
 ## Source constraints behind P0.1
 

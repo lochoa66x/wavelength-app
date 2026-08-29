@@ -12,6 +12,9 @@
     "api/listing-enrichment.js": {
       "maxDuration": 60
     },
+    "api/evidence-coach.js": {
+      "maxDuration": 60
+    },
     "api/cron/adzuna.js": {
       "maxDuration": 300
     },

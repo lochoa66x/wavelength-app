@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
-import { MapPin, Clock, ExternalLink, Check, ArrowRight, ArrowLeft, Pencil, Sparkles, Loader2, CheckCircle2, Circle, Search, Bookmark, X, RotateCcw, LogOut, ChevronDown, Link2, FileImage, Text, Building2 } from "lucide-react";
+import { MapPin, Clock, ExternalLink, Check, ArrowRight, ArrowLeft, Pencil, Sparkles, Loader2, CheckCircle2, Circle, Search, Bookmark, X, RotateCcw, LogOut, ChevronDown, Link2, FileImage, Text, Building2, Cloud } from "lucide-react";
 import { BrandMark } from "./BrandMark.jsx";
 import { AtsReview } from "./AtsReview.jsx";
 import { EvidenceRefinementPanel } from "./EvidenceRefinementPanel.jsx";
@@ -68,6 +68,7 @@ import { applyTailoringChangeDecision, reviewAfterTailoringChange } from "./tail
 import { usePrivateProcessingGate } from "./privateProcessing.js";
 import { clearPrivateBrowserData } from "./privacyStorage.js";
 import { useResumeVault } from "./useResumeVault.js";
+import { resumeSyncWorkspaceStatus } from "./resumeSyncPresentation.js";
 
 const SYS_FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, sans-serif";
 const ADZUNA_ATTRIBUTION_STYLE = {
@@ -747,6 +748,7 @@ export default function Gigscapes() {
     localResume,
     replaceLocalResume: replaceLocalResumeFromSync,
   });
+  const resumeSyncStatus = resumeSyncWorkspaceStatus(resumeVault.phase, Boolean(localResume.trim()));
 
   useEffect(() => () => {
     for (const request of tailoringRequests.current.values()) request.controller.abort();
@@ -836,6 +838,10 @@ export default function Gigscapes() {
     setResumeStorageError("");
     void resumeVault.syncAfterLocalSave(normalized);
     return true;
+  };
+  const saveResumeAndEnableSync = async (text) => {
+    if (!saveResume(text)) return false;
+    return resumeVault.enableText(text);
   };
   const clearLocalPrivateData = () => {
     const result = clearPrivateBrowserData(session?.user?.id);
@@ -1643,6 +1649,7 @@ export default function Gigscapes() {
         <p style={{ fontSize: 14, color: C.textSub, margin: "0 0 16px" }}>
           Paste text, upload a DOCX or PDF, or photograph the pages. Imported text stays editable and does not replace your saved résumé until you review and save it.
         </p>
+        <ResumeSyncControls sync={resumeVault} localResume={localResume} />
         <ResumeIntakePanel
           value={resumeDraft}
           savedValue={localResume}
@@ -1651,18 +1658,39 @@ export default function Gigscapes() {
           C={C}
           fontFamily={SYS_FONT}
         />
-        <div style={{ display: "flex", gap: 10, justifyContent: "space-between" }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 10, justifyContent: "space-between" }}>
           <button onClick={() => setStep(resumeReturnStep)} className="wl-btn" style={{ ...glassBtnStyle(), background: "none", border: `1px solid ${C.border}` }}>
             <ArrowLeft size={15} /> Back
           </button>
-          <button
-            onClick={() => { if (saveResume(resumeDraft)) setStep(resumeReturnStep); }}
-            disabled={!resumeDraft.trim()}
-            className="wl-btn"
-            style={primaryBtnStyle(!resumeDraft.trim())}
-          >
-            <Check size={15} /> Save résumé
-          </button>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8, justifyContent: "flex-end" }}>
+            <button
+              onClick={() => { if (saveResume(resumeDraft)) setStep(resumeReturnStep); }}
+              disabled={!resumeDraft.trim() || resumeVault.busy}
+              className="wl-btn"
+              style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, opacity: !resumeDraft.trim() || resumeVault.busy ? 0.55 : 1 }}
+            >
+              <Check size={15} /> Save on this device
+            </button>
+            {RESUME_SYNC_ENABLED && ["local_only", "sync_ready", "remote_available"].includes(resumeVault.phase) ? (
+              <button
+                onClick={async () => { if (await saveResumeAndEnableSync(resumeDraft)) setStep(resumeReturnStep); }}
+                disabled={!resumeDraft.trim() || resumeVault.busy}
+                className="wl-btn"
+                style={primaryBtnStyle(!resumeDraft.trim() || resumeVault.busy)}
+              >
+                <Cloud size={15} /> Save and use on my devices
+              </button>
+            ) : (
+              <button
+                onClick={() => { if (saveResume(resumeDraft)) setStep(resumeReturnStep); }}
+                disabled={!resumeDraft.trim() || resumeVault.busy}
+                className="wl-btn"
+                style={primaryBtnStyle(!resumeDraft.trim() || resumeVault.busy)}
+              >
+                <Check size={15} /> Save résumé
+              </button>
+            )}
+          </div>
         </div>
         {resumePrivacyWarning ? (
           <p role="alert" style={{ fontSize: 13, color: C.red, marginTop: 12 }}>{resumePrivacyWarning}</p>
@@ -1673,7 +1701,6 @@ export default function Gigscapes() {
               : "Saved only in this browser on this device. Tailoring sends the selected résumé to our AI provider for that request."}
           </p>
         )}
-        <ResumeSyncControls sync={resumeVault} localResume={localResume} />
         <section style={{ marginTop: 22, paddingTop: 18, borderTop: `1px solid ${C.border}` }} aria-labelledby="local-data-controls-heading">
           <h3 id="local-data-controls-heading" style={{ color: C.text, fontSize: 15, margin: "0 0 6px" }}>Private data on this device</h3>
           <p style={{ color: C.textSub, fontSize: 12.5, lineHeight: 1.55, margin: "0 0 12px" }}>{RESUME_SYNC_ENABLED
@@ -2166,6 +2193,7 @@ export default function Gigscapes() {
                         afterCoverage={t.atsReview?.coverage}
                         loading={false}
                         onSaveAndRetailor={(evidence) => handleEvidenceRetailor(item, stateKey, evidence)}
+                        requestPrivateProcessing={privateProcessing.requestPrivateProcessing}
                         C={C}
                       />
                       <ResumeExperience
@@ -2283,6 +2311,17 @@ export default function Gigscapes() {
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}><Pencil size={14} /> Résumé</span>
                 <span style={{ color: resume ? C.green : C.amber }}>{resume ? "Ready" : "Add"}</span>
               </button>
+              {RESUME_SYNC_ENABLED ? (
+                <button
+                  type="button"
+                  onClick={() => openResumeEditor("digest")}
+                  className="wl-btn"
+                  style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", border: 0, borderTop: `1px solid ${C.border}`, padding: "11px 0 5px", marginTop: 4, background: "transparent", color: C.textSub, fontSize: 12.5, fontWeight: 650, cursor: "pointer", fontFamily: SYS_FONT }}
+                >
+                  <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}><Cloud size={14} /> Multi-device résumé</span>
+                  <span style={{ color: resumeSyncStatus.emphasis === "success" ? C.green : resumeSyncStatus.emphasis === "warning" ? C.amber : resumeSyncStatus.emphasis === "action" ? C.orange : C.textFaint }}>{resumeSyncStatus.label}</span>
+                </button>
+              ) : null}
             </section>
           ) : (
             <section style={{ padding: 18, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 16 }}>

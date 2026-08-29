@@ -122,13 +122,15 @@ export function useResumeVault({ userId, ready, localResume, replaceLocalResume 
     return saveResult(result, text);
   }, [saveResult, updateState, userId]);
 
-  const enable = useCallback(async () => {
-    if (!userId || !localResumeRef.current.trim()) return false;
+  const enableText = useCallback(async (resumeText = localResumeRef.current) => {
+    const text = String(resumeText || "").trim();
+    if (!userId || !text) return false;
+    localResumeRef.current = text;
     updateState((current) => ({ ...current, busy: true, message: "" }));
     const latest = await readPrivateResume(supabase, userId);
-    if (latest.status === "missing") return syncText(localResumeRef.current, 0);
-    if (latest.status !== "ok") return saveResult(latest, localResumeRef.current);
-    if (latest.document.content_hash === privateDocumentHash(createBaseResumePayload(localResumeRef.current))) {
+    if (latest.status === "missing") return syncText(text, 0);
+    if (latest.status !== "ok") return saveResult(latest, text);
+    if (latest.document.content_hash === privateDocumentHash(createBaseResumePayload(text))) {
       storeKnownDocument(latest.document);
       updateState({ phase: "synced", remote: latest.document, message: "Cross-device résumé sync is on.", busy: false });
       return true;
@@ -136,6 +138,8 @@ export function useResumeVault({ userId, ready, localResume, replaceLocalResume 
     updateState({ phase: "conflict", remote: latest.document, message: "A different synced résumé already exists. Choose which copy to keep.", busy: false });
     return false;
   }, [saveResult, storeKnownDocument, syncText, updateState, userId]);
+
+  const enable = useCallback(() => enableText(localResumeRef.current), [enableText]);
 
   const syncAfterLocalSave = useCallback(async (text) => {
     const preference = loadResumeSyncPreference(userId);
@@ -213,5 +217,5 @@ export function useResumeVault({ userId, ready, localResume, replaceLocalResume 
     return () => globalThis.removeEventListener?.("online", handleOnline);
   }, [retry, state.phase]);
 
-  return { ...state, enable, syncAfterLocalSave, keepLocal, useRemote, stopOnDevice, deleteRemote, resetAfterLocalClear, refresh, retry };
+  return { ...state, enable, enableText, syncAfterLocalSave, keepLocal, useRemote, stopOnDevice, deleteRemote, resetAfterLocalClear, refresh, retry };
 }

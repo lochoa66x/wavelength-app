@@ -16,6 +16,8 @@ test("privacy notice is public, versioned, and covers the real processing bounda
   assert.match(page, /Anthropic/);
   assert.match(page, /Vercel Web Analytics/);
   assert.match(page, /not submitted to an employer/i);
+  assert.match(page, /does not send the full résumé/i);
+  assert.match(page, /cannot affect tailoring until the person approves it/i);
   assert.match(page, /query strings and fragments/i);
   assert.match(page, /180 days/i);
   assert.doesNotMatch(page, /privacy@gigscapes\.com|Example Operator/i);

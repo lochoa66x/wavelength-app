@@ -6,6 +6,9 @@ export function TailoringChangeReview({ changes = [], resumeData, onDecision, C 
   if (!changes.length) return null;
   const changed = changes.filter((change) => change.change_type !== "retained" && change.original && change.proposed);
   const retainedCount = changes.length - changed.length;
+  const reviewFirst = changed.filter((change) => change.change_type !== "rephrased");
+  const straightforward = changed.filter((change) => change.change_type === "rephrased");
+  const prioritizedChanges = [...reviewFirst, ...straightforward];
 
   return (
     <details style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 14, margin: "0 0 12px", padding: "11px 13px" }}>
@@ -17,12 +20,15 @@ export function TailoringChangeReview({ changes = [], resumeData, onDecision, C 
       </p>
       {retainedCount > 0 ? <p style={{ color: C.textFaint, fontSize: 11.25, margin: "5px 0 0" }}>{retainedCount} mapped line{retainedCount === 1 ? " was" : "s were"} retained without rewriting.</p> : null}
       <div style={{ display: "grid", gap: 9, marginTop: 10 }}>
-        {changed.map((change) => {
+        {prioritizedChanges.map((change, index) => {
           const current = tailoringChangeCurrentText(resumeData, change);
           const usesOriginal = current === String(change.original || "").replace(/\s+/g, " ").trim();
           const citation = change.evidence_citations?.[0];
           return (
-            <article key={change.id} style={{ border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 11px" }}>
+            <div key={change.id}>
+              {index === 0 && reviewFirst.length ? <h4 style={{ color: C.text, fontSize: 11.75, margin: "0 0 7px" }}>Review first · repositioned or condensed ({reviewFirst.length})</h4> : null}
+              {index === reviewFirst.length && straightforward.length ? <h4 style={{ color: C.text, borderTop: reviewFirst.length ? `1px solid ${C.border}` : "none", fontSize: 11.75, margin: reviewFirst.length ? "12px 0 7px" : "0 0 7px", paddingTop: reviewFirst.length ? 10 : 0 }}>Straightforward rephrases ({straightforward.length})</h4> : null}
+            <article style={{ border: `1px solid ${C.border}`, borderRadius: 10, padding: "10px 11px" }}>
               <div style={{ alignItems: "flex-start", display: "flex", gap: 8, justifyContent: "space-between" }}>
                 <strong style={{ color: C.text, fontSize: 12 }}>{change.role || "Experience"} · bullet {Number(change.bullet_index || 0) + 1}</strong>
                 <span style={{ color: C.blue, fontSize: 10.5, fontWeight: 750, textTransform: "capitalize" }}>{String(change.change_type).replaceAll("_", " ")}</span>
@@ -40,6 +46,7 @@ export function TailoringChangeReview({ changes = [], resumeData, onDecision, C 
                 </div>
               ) : null}
             </article>
+            </div>
           );
         })}
       </div>

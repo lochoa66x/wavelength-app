@@ -126,11 +126,14 @@ export function EvidenceMap({ review, C }) {
           </span>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(105px, 1fr))", gap: 7, marginTop: 10 }}>
-          <CountCard value={view.counts.verifiedStrengths} label="Direct strengths" color={C.green} C={C} />
-          <CountCard value={view.counts.relatedEvidence} label="Adjacent / transferable" color={C.blue} C={C} />
-          <CountCard value={view.counts.materialGaps} label="Material gaps" color={C.amber} C={C} />
-          <CountCard value={view.counts.blockers} label="Likely blockers" color={view.counts.blockers ? C.red : C.green} C={C} />
+          <CountCard value={view.coreCounts.verifiedStrengths} label="Direct core evidence" color={C.green} C={C} />
+          <CountCard value={view.coreCounts.relatedEvidence} label="Related core evidence" color={C.blue} C={C} />
+          <CountCard value={view.coreCounts.materialGaps} label="Required core gaps" color={C.amber} C={C} />
+          <CountCard value={view.coreCounts.blockers} label="Likely blockers" color={view.coreCounts.blockers ? C.red : C.green} C={C} />
         </div>
+        <p style={{ color: C.textSub, fontSize: 10.75, lineHeight: 1.4, margin: "8px 0 0" }}>
+          Core fit: <strong style={{ color: C.text }}>{view.coreCounts.total - view.coreCounts.missing} of {view.coreCounts.total} supported</strong> · Full review: {view.counts.total} total requirement{view.counts.total === 1 ? "" : "s"}{view.counts.total > view.coreCounts.total ? ` (${view.counts.total - view.coreCounts.total} preferred or contextual)` : ""}.
+        </p>
         <p style={{ color: C.textSub, fontSize: 10.75, lineHeight: 1.4, margin: "8px 0 0" }}>
           Assessment confidence: <strong style={{ color: C.text, textTransform: "capitalize" }}>{view.outlook.confidence}</strong>. What could change this: {view.outlook.whatWouldChange}
         </p>
@@ -155,7 +158,7 @@ export function EvidenceMap({ review, C }) {
 
       <details style={{ borderTop: `1px solid ${C.border}`, paddingTop: 9 }}>
         <summary style={{ color: C.text, cursor: "pointer", fontSize: 12.5, fontWeight: 750 }}>
-          Evidence Map · {view.counts.total} atomic requirement{view.counts.total === 1 ? "" : "s"}
+          Requirement evidence · {view.counts.total} total ({view.coreCounts.total} core)
         </summary>
         {!view.requirements.length ? (
           <div role="status" style={{ color: C.textSub, background: C.amberTint, border: `1px solid ${C.amberBorder}`, borderRadius: 9, fontSize: 11.5, lineHeight: 1.45, marginTop: 9, padding: "8px 9px" }}>

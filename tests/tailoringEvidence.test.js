@@ -175,6 +175,9 @@ test("three verified neighboring SAP requirements produce adjacent positioning w
   assert.equal(result.fit_assessment.path, "adjacent");
   assert.equal(result.readiness.status, "significant_gap");
   assert.notEqual(result.fit_assessment.recommended_level, "Transitional or entry-level positioning");
+  assert.equal(result.core_coverage.total, inventory.length);
+  assert.equal(result.requirement_summary.core_total, inventory.length);
+  assert.equal(result.gap_summary.outlook.status, "high_application_risk");
 });
 
 test("a short provider snippet cannot produce a definitive fit or application-ready output", () => {

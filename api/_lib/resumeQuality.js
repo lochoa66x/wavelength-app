@@ -8,6 +8,13 @@ const UNVERIFIED_PROGRESS_PATTERNS = [
   /\benrolled in\b/i,
 ];
 
+const EMPLOYER_FACING_GAP_PATTERNS = [
+  /\b(?:material|required|mandatory|noted|domain|experience|capability|qualification)?\s*gap(?:s)?\b/i,
+  /\b(?:missing|unsupported|unverified|not evidenced|not verified)\b/i,
+  /\b(?:no|without)\s+(?:direct|verified|hands-on|target-domain)\b/i,
+  /\b(?:lacks?|seeks? to bridge)\b/i,
+];
+
 const TOKEN_STOPWORDS = new Set([
   "a", "an", "and", "are", "as", "at", "by", "for", "from", "in", "is", "of", "on", "or",
   "the", "this", "to", "with", "work", "worked", "working", "experience", "professional", "role",
@@ -63,6 +70,13 @@ function evidenceTokens(analysis) {
       .flatMap((requirement) => [requirement?.safe_language, requirement?.resume_evidence, ...(requirement?.keywords || [])]),
   ];
   return new Set(normalized(values.filter(Boolean).join(" ")).split(" ").filter((token) => token.length > 2 && !TOKEN_STOPWORDS.has(token)));
+}
+
+function removeCandidateGapDisclosures(value) {
+  return sentences(value)
+    .filter((sentence) => !EMPLOYER_FACING_GAP_PATTERNS.some((pattern) => pattern.test(sentence)))
+    .join(" ")
+    .trim();
 }
 
 function weightedEvidenceTokens(analysis) {
@@ -287,7 +301,7 @@ function shapeCareerChangeResume(resumeData, analysis) {
   }));
   const foundationRole = String(experience[0]?.role || "Experienced professional").trim();
   const fallbackSkills = verifiedSkills.slice(0, 3);
-  const fallbackProfile = `${foundationRole}${fallbackSkills.length ? ` with verified experience in ${fallbackSkills.join(", ")}` : ""}. Pursuing an evidence-led career transition without overstating target-role experience.`;
+  const fallbackProfile = `${foundationRole}${fallbackSkills.length ? ` with verified experience in ${fallbackSkills.join(", ")}` : ""}. Bringing that proven foundation to an evidence-led career transition.`;
 
   return {
     ...resumeData,
@@ -303,9 +317,10 @@ export function shapeTailoredResume(resumeData, analysis) {
 
 export function shapeTailoredResumeWithReview(resumeData, analysis, baseResume = "") {
   const sanitized = sanitizeIdentity(resumeData && typeof resumeData === "object" ? resumeData : {});
+  const gapSafe = { ...sanitized, profile: removeCandidateGapDisclosures(sanitized.profile) };
   const strategyShaped = analysis?.fit_assessment?.path === "career_change"
-    ? shapeCareerChangeResume(sanitized, analysis)
-    : sanitized;
+    ? shapeCareerChangeResume(gapSafe, analysis)
+    : gapSafe;
   const evidenceComplete = restoreRequiredEducation(strategyShaped, analysis, baseResume);
   const trainingFocused = focusRelevantTraining(evidenceComplete, analysis);
   const focused = focusResume(trainingFocused.resume, analysis);

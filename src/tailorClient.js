@@ -52,3 +52,9 @@ export async function extractResumeImages(images, options = {}) {
   if (typeof data.text !== "string" || data.text.trim().length < 40) throw new Error("The résumé images did not contain enough readable text.");
   return { text: data.text.trim(), warnings: Array.isArray(data.warnings) ? data.warnings : [] };
 }
+
+export async function clarifyCandidateEvidence(payload, options = {}) {
+  const data = await authenticatedPost("/api/evidence-coach", payload, options);
+  if (!data.proposal?.disposition) throw new Error("The evidence clarification response was incomplete.");
+  return data.proposal;
+}

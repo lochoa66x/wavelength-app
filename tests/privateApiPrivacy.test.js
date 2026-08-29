@@ -6,11 +6,12 @@ const tailor = readFileSync(new URL("../api/tailor.js", import.meta.url), "utf8"
 const intake = readFileSync(new URL("../api/job-intake.js", import.meta.url), "utf8");
 const resumeIntake = readFileSync(new URL("../api/resume-intake.js", import.meta.url), "utf8");
 const coverLetter = readFileSync(new URL("../api/cover-letter.js", import.meta.url), "utf8");
+const evidenceCoach = readFileSync(new URL("../api/evidence-coach.js", import.meta.url), "utf8");
 const tailorClient = readFileSync(new URL("../src/tailorClient.js", import.meta.url), "utf8");
 const coverLetterClient = readFileSync(new URL("../src/coverLetterClient.js", import.meta.url), "utf8");
 
 test("private APIs disable response and browser caching", () => {
-  for (const source of [tailor, intake, resumeIntake, coverLetter]) assert.match(source, /applyPrivateResponseHeaders\(res\)/);
+  for (const source of [tailor, intake, resumeIntake, coverLetter, evidenceCoach]) assert.match(source, /applyPrivateResponseHeaders\(res\)/);
   assert.match(tailorClient, /cache:\s*"no-store"/);
   assert.match(coverLetterClient, /cache:\s*"no-store"/);
 });
@@ -22,4 +23,5 @@ test("private API operational logs do not serialize resume or upstream bodies", 
   assert.doesNotMatch(intake, /console\.error\("Job intake failed:",\s*error\.message\)/);
   assert.doesNotMatch(resumeIntake, /console\.(?:warn|error)[^\n]*(?:toolUse\?\.input|req\.body|data\.content|image\.data)/i);
   assert.doesNotMatch(coverLetter, /console\.(?:warn|error)[^\n]*(?:resume|postingCorpus|candidateCorpus|item\.title)/i);
+  assert.doesNotMatch(evidenceCoach, /console\.(?:warn|error)[^\n]*(?:candidate_input|proposed_wording|source_excerpt|req\.body)/i);
 });

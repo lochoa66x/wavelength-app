@@ -456,6 +456,8 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
     },
     requirements: options.analysis?.requirements || [],
     gap_summary: options.analysis?.gap_summary || null,
+    core_coverage: options.analysis?.core_coverage || null,
+    requirement_summary: options.analysis?.requirement_summary || null,
     coverage: {
       ...coverage,
       total: coverageTotal,

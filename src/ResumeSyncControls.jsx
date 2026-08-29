@@ -38,16 +38,18 @@ export function ResumeSyncControls({ sync, localResume }) {
   const working = sync.busy;
 
   return (
-    <section style={{ marginTop: 22, padding: 16, border: "1px solid #E2DEDA", borderRadius: 16, background: "#FAFAF9" }} aria-labelledby="resume-sync-heading">
+    <section style={{ margin: "0 0 16px", padding: 16, border: "1px solid #E2DEDA", borderRadius: 16, background: "#FAFAF9" }} aria-labelledby="resume-sync-heading">
       <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
         <span style={{ width: 34, height: 34, flex: "0 0 auto", display: "grid", placeItems: "center", borderRadius: "50%", background: sync.phase === "synced" ? "#EAF7EF" : "#FFF4E8", color: sync.phase === "synced" ? "#13795B" : "#B65C00" }}>
           {sync.phase === "synced" ? <ShieldCheck size={18} aria-hidden="true" /> : sync.phase === "unavailable" ? <CloudOff size={18} aria-hidden="true" /> : <Cloud size={18} aria-hidden="true" />}
         </span>
         <div>
-          <h3 id="resume-sync-heading" style={{ margin: "0 0 4px", fontSize: 15 }}>Cross-device résumé</h3>
+          <h3 id="resume-sync-heading" style={{ margin: "0 0 4px", fontSize: 15 }}>Multi-device résumé</h3>
           <p style={{ margin: 0, color: "#6E6E73", fontSize: 12.5, lineHeight: 1.5 }}>
             {sync.phase === "local_only" || sync.phase === "sync_ready"
-              ? "Browser-only is the default. Turn on account sync only if you want this résumé available on another signed-in device."
+              ? localResume.trim()
+                ? "This résumé is currently saved only on this device. Turn on account sync once to make it available wherever you sign in."
+                : "No account-synced résumé exists yet. On the device that already has your résumé, open Edit résumé and select Make résumé available on my devices."
               : sync.phase === "remote_available"
                 ? "A synced résumé exists for this account. Your browser copy will not be replaced until you choose."
                 : sync.phase === "conflict"
@@ -72,17 +74,17 @@ export function ResumeSyncControls({ sync, localResume }) {
             </label>
           </div>
           <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 10 }}>
-            <Button onClick={sync.keepLocal} disabled={working} primary>Keep this browser copy</Button>
-            <Button onClick={sync.useRemote} disabled={working}>Use synced copy</Button>
+            <Button onClick={sync.keepLocal} disabled={working} primary>Keep this device copy and sync it</Button>
+            <Button onClick={sync.useRemote} disabled={working}>Restore account copy</Button>
           </div>
         </div>
       ) : (
         <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 14 }}>
-          {(sync.phase === "local_only" || sync.phase === "sync_ready") && <Button onClick={sync.enable} disabled={working || !localResume.trim()} primary><Cloud size={14} /> Turn on résumé sync</Button>}
+          {(sync.phase === "local_only" || sync.phase === "sync_ready") && localResume.trim() && <Button onClick={sync.enable} disabled={working} primary><Cloud size={14} /> Make résumé available on my devices</Button>}
           {sync.phase === "remote_available" && (
             localResume.trim()
               ? <Button onClick={sync.enable} disabled={working} primary><Cloud size={14} /> Compare and turn on sync</Button>
-              : <Button onClick={sync.useRemote} disabled={working} primary><Cloud size={14} /> Use synced copy on this device</Button>
+              : <Button onClick={sync.useRemote} disabled={working} primary><Cloud size={14} /> Restore résumé to this device</Button>
           )}
           {sync.phase === "synced" && <Button onClick={sync.stopOnDevice} disabled={working}><CloudOff size={14} /> Stop syncing on this device</Button>}
           {(sync.phase === "pending" || sync.phase === "offline" || sync.phase === "error" || sync.phase === "unavailable") && <Button onClick={sync.retry} disabled={working}><RefreshCw size={14} /> Retry sync</Button>}
