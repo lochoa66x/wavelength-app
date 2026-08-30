@@ -5,8 +5,14 @@ import {
   normalizeWorkArrangement,
 } from "../../src/listingCategories.js";
 import { toStructuredLocationPatch } from "../../src/listingLocations.js";
+import {
+  DEFAULT_MARKET_CODE,
+  marketScopedExternalId,
+  marketSourceScope,
+} from "../../src/markets.js";
 import { assessDescriptionStatus, descriptionHash } from "./listingDescription.js";
 import { LISTING_SOURCE_RUN_MODE, saveListingSourceRun } from "./listingFreshness.js";
+import { sourceMarketConfig } from "./sourceMarkets.js";
 import { selectDailyTechnologySearches } from "./technologySearches.js";
 
 export const JOOBLE_COUNTRY = "CA";
@@ -14,8 +20,6 @@ export const JOOBLE_RESULTS_PER_REQUEST = 50;
 export const JOOBLE_MAX_DAYS_OLD = 30;
 export const JOOBLE_REQUEST_BUDGET = 18;
 export const JOOBLE_STALE_AFTER_DAYS = 45;
-
-const JOOBLE_API_ROOT = "https://ca.jooble.org/api";
 
 const SEARCHES = [
   { category: "tech", keywords: "software developer IT support engineer" },
@@ -56,9 +60,10 @@ function daysBefore(now, days) {
   return new Date(now.getTime() - days * 24 * 60 * 60 * 1000).toISOString();
 }
 
-export function deterministicJoobleListingId(externalId) {
+export function deterministicJoobleListingId(externalId, marketCode = DEFAULT_MARKET_CODE) {
+  const scopedId = marketScopedExternalId(externalId, marketCode);
   const bytes = createHash("sha256")
-    .update(`jooble:${externalId}`)
+    .update(`jooble:${scopedId}`)
     .digest()
     .subarray(0, 16);
 
@@ -129,13 +134,15 @@ async function requestJson(endpoint, body, {
 
 export async function fetchJoobleListings({
   apiKey,
+  marketCode = DEFAULT_MARKET_CODE,
   fetchImpl = globalThis.fetch,
   now = new Date(),
   requestLimit = JOOBLE_REQUEST_BUDGET,
   wait,
 }) {
   const budget = createRequestBudget(requestLimit);
-  const endpoint = `${JOOBLE_API_ROOT}/${encodeURIComponent(apiKey)}`;
+  const market = sourceMarketConfig(marketCode);
+  const endpoint = `${market.joobleApiRoot}/${encodeURIComponent(apiKey)}`;
   const plan = buildJoobleSearchPlan(now);
   const received = [];
   const failures = [];
@@ -144,7 +151,7 @@ export async function fetchJoobleListings({
     try {
       const payload = await requestJson(endpoint, {
         keywords: search.keywords,
-        location: "Canada",
+        location: market.joobleLocation,
         page: "1",
         ResultOnPage: String(JOOBLE_RESULTS_PER_REQUEST),
         SearchMode: "0",
@@ -184,15 +191,19 @@ export async function fetchJoobleListings({
   };
 }
 
-export function mapJoobleResult(result, sourceCategory, { now = new Date() } = {}) {
-  const externalId = clean(result?.id);
+export function mapJoobleResult(result, sourceCategory, {
+  now = new Date(),
+  marketCode = DEFAULT_MARKET_CODE,
+} = {}) {
+  const market = sourceMarketConfig(marketCode);
+  const externalId = marketScopedExternalId(result?.id, market.code);
   const title = cleanSnippet(result?.title);
   const url = clean(result?.link);
   if (!externalId || !title || !url) return null;
 
   const classification = classifyListingTitle(title, sourceCategory || "other");
   const jobType = normalizeWorkArrangement(result?.type, title);
-  const location = cleanSnippet(result?.location) || "Canada";
+  const location = cleanSnippet(result?.location) || market.label;
   const postedAt = isoDate(result?.updated);
   if (!postedAt) return null;
 
@@ -200,7 +211,7 @@ export function mapJoobleResult(result, sourceCategory, { now = new Date() } = {
     source: "jooble",
     title,
     location,
-    country_code: JOOBLE_COUNTRY,
+    country_code: market.code,
   });
   const explicitType = jobType !== "unlabeled";
   const description = cleanSnippet(result?.snippet).slice(0, 12_000) || null;
@@ -235,22 +246,25 @@ export function mapJoobleResult(result, sourceCategory, { now = new Date() } = {
 export async function runJoobleIngestion({
   supabase,
   apiKey,
+  marketCode = DEFAULT_MARKET_CODE,
   fetchImpl = globalThis.fetch,
   now = new Date(),
   wait,
 }) {
-  const feed = await fetchJoobleListings({ apiKey, fetchImpl, now, wait });
+  const market = sourceMarketConfig(marketCode);
+  const feed = await fetchJoobleListings({ apiKey, marketCode: market.code, fetchImpl, now, wait });
   const mapped = feed.items
-    .map(({ result, sourceCategory }) => mapJoobleResult(result, sourceCategory, { now }))
+    .map(({ result, sourceCategory }) => mapJoobleResult(result, sourceCategory, { now, marketCode: market.code }))
     .filter(Boolean);
 
   if (mapped.length === 0) {
-    throw new Error("Jooble returned no valid fresh Canadian listings; existing data was left unchanged");
+    throw new Error(`Jooble returned no valid fresh ${market.label} listings; existing data was left unchanged`);
   }
 
   const saved = await saveListingSourceRun({
     supabase,
     source: "jooble",
+    sourceScope: marketSourceScope("jooble", market.code),
     rows: mapped,
     // Ranked first-page searches and rotating technology queries are positive
     // observations, never a complete Jooble inventory.
@@ -261,6 +275,7 @@ export async function runJoobleIngestion({
   });
 
   return {
+    market: market.code,
     ...feed.stats,
     ...saved,
   };

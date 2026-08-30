@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 
 import { runAdzunaIngestion } from "../_lib/adzuna.js";
 import { parseAtsBoardConfig, runAtsBoardIngestion } from "../_lib/atsBoards.js";
+import { normalizeMarketCode } from "../../src/markets.js";
 import {
   filterEligibleAtsBoards,
   parseDisabledJobSources,
@@ -14,6 +15,7 @@ import {
   summarizeCronHealth,
   summarizeSourceOutcome,
 } from "../_lib/sourceHealth.js";
+import { parseEnabledJobMarkets } from "../_lib/sourceMarkets.js";
 
 export function getAdzunaCronConfig(env = process.env) {
   const config = {
@@ -23,6 +25,7 @@ export function getAdzunaCronConfig(env = process.env) {
     supabaseUrl: (env.SUPABASE_URL || env.VITE_SUPABASE_URL)?.trim(),
     supabaseSecretKey: env.SUPABASE_SECRET_KEY?.trim(),
     atsBoards: parseAtsBoardConfig(env.ATS_JOB_BOARDS),
+    jobMarkets: parseEnabledJobMarkets(env.JOB_MARKETS),
     disabledSources: parseDisabledJobSources(env.JOB_SOURCE_DISABLED),
   };
   const required = {
@@ -73,35 +76,48 @@ export function createAdzunaCronHandler({
     });
 
     const disabledSources = config.disabledSources || new Set();
+    const jobMarkets = config.jobMarkets || ["CA"];
     const adzunaConfigured = Boolean(config.adzunaAppId && config.adzunaAppKey);
-    const adzunaDecision = sourceImportDecision({
-      source: "adzuna",
-      configured: adzunaConfigured,
-      disabledSources,
-    });
-    const configuredAtsBoards = config.atsBoards || [];
+    const adzunaMarkets = jobMarkets.filter((marketCode) => marketCode === "CA" || marketCode === "US");
+    const configuredAtsBoards = (config.atsBoards || []).filter(({ marketCode = "CA" }) => (
+      jobMarkets.includes(normalizeMarketCode(marketCode, "CA"))
+    ));
     const eligibleAtsBoards = filterEligibleAtsBoards(configuredAtsBoards, disabledSources);
     const atsDecision = {
       enabled: eligibleAtsBoards.length > 0,
       skipCategory: configuredAtsBoards.length > 0 ? "disabled_by_policy" : "configuration",
     };
-    const [adzunaResult, atsResult] = await Promise.all([
-      runSourceImport(() => adzunaDecision.enabled
+    const adzunaTasks = adzunaMarkets.map((marketCode) => {
+      const decision = sourceImportDecision({
+        source: "adzuna",
+        marketCode,
+        configured: adzunaConfigured,
+        disabledSources,
+      });
+      return runSourceImport(() => decision.enabled
         ? ingest({
           supabase,
+          marketCode,
           credentials: {
             appId: config.adzunaAppId,
             appKey: config.adzunaAppKey,
           },
         })
-        : Promise.resolve(skippedSourceImport(adzunaDecision))),
+        : Promise.resolve(skippedSourceImport(decision)));
+    });
+    const results = await Promise.all([
+      ...adzunaTasks,
       runSourceImport(() => atsDecision.enabled
         ? atsIngest({ supabase, boards: eligibleAtsBoards })
         : Promise.resolve(skippedSourceImport(atsDecision, { boards: configuredAtsBoards.length }))),
     ]);
+    const atsResult = results.at(-1);
 
     const sources = {
-      adzuna: summarizeSourceOutcome(adzunaResult, "Adzuna import failed"),
+      ...Object.fromEntries(adzunaMarkets.map((marketCode, index) => [
+        marketCode === "CA" ? "adzuna" : `adzuna${marketCode}`,
+        summarizeSourceOutcome(results[index], `Adzuna ${marketCode} import failed`),
+      ])),
       employerDirect: summarizeSourceOutcome(atsResult, "Employer-direct ATS import failed"),
     };
     const health = summarizeCronHealth(sources);
@@ -112,18 +128,20 @@ export function createAdzunaCronHandler({
         ok: true,
         skipped: true,
         country: "CA",
+        markets: jobMarkets,
         health,
         sources,
       });
     }
     if (health.succeeded === 0) {
-      return res.status(502).json({ ok: false, error: "Scheduled imports failed", country: "CA", health, sources });
+      return res.status(502).json({ ok: false, error: "Scheduled imports failed", country: "CA", markets: jobMarkets, health, sources });
     }
 
     return res.status(200).json({
       ok: true,
       source: adzunaConfigured ? "adzuna" : "employer-direct",
       country: "CA",
+      markets: jobMarkets,
       partial: health.state === "partial",
       health,
       ...adzunaSummary,

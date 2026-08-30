@@ -1,3 +1,8 @@
+import {
+  MARKET_REGISTRY,
+  normalizeMarketCode,
+} from "./markets.js";
+
 export const LOCATION_OPTIONS = [
   { id: "either", label: "All" },
   { id: "remote", label: "Remote" },
@@ -7,8 +12,7 @@ export const LOCATION_OPTIONS = [
 
 export const COUNTRY_OPTIONS = [
   { id: "", label: "Any country" },
-  { id: "CA", label: "Canada" },
-  { id: "US", label: "United States" },
+  ...Object.values(MARKET_REGISTRY).map(({ code, optionLabel }) => ({ id: code, label: optionLabel })),
 ];
 
 const REMOTE_PATTERN = /\b(?:remote|anywhere|worldwide|work from home|home[- ]based|distributed)\b/i;
@@ -94,7 +98,9 @@ const REGION_DEFINITIONS = Object.entries(REGION_OPTIONS_BY_COUNTRY)
     [region, ...aliases],
   ]));
 
-export const COUNTRY_LABELS = { CA: "Canada", US: "United States" };
+export const COUNTRY_LABELS = Object.fromEntries(
+  Object.values(MARKET_REGISTRY).map(({ code, label }) => [code, label]),
+);
 const COUNTRY_ALIASES = new Map([
   ["canada", "CA"], ["canadian", "CA"], ["can", "CA"],
   ["united states", "US"], ["united states of america", "US"], ["usa", "US"], ["u s a", "US"], ["us", "US"],
@@ -152,6 +158,19 @@ export function parseLocationText(value = "") {
   if (parsedCountry) {
     countryCode = parsedCountry;
     parts.pop();
+  } else if (parts.length >= 2) {
+    const shortMarket = normalizeMarketCode(possibleCountry);
+    const precedingRegion = canonicalRegion(parts.at(-2));
+    // `CA` is both the Canadian country code and the USPS abbreviation for
+    // California. It is a country only when another region immediately before
+    // it makes the intent explicit (for example Toronto, ON, CA). In a normal
+    // two-part US location such as San Francisco, CA it remains California.
+    const isContextualCountry = shortMarket === "US"
+      || (shortMarket === "CA" && precedingRegion.countryCode === "CA");
+    if (isContextualCountry) {
+      countryCode = shortMarket;
+      parts.pop();
+    }
   }
 
   const possibleRegion = parts.at(-1);

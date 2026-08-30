@@ -7,6 +7,7 @@ import {
 import { clusterDuplicateListings } from "./listingIdentity.js";
 import { mapListingRow } from "./listingMapping.js";
 import { locationMatches } from "./listingLocations.js";
+import { marketSearchEvent } from "./marketTelemetry.js";
 import {
   INITIAL_LISTING_PAGE_LIMIT,
   LISTINGS_PAGE_SIZE,
@@ -165,10 +166,12 @@ export function useLiveListings(criteria = {}, { resetKey = "", pageSize = LISTI
       setLegacyFallback(usedLegacyFallback);
       setLastFetched(new Date());
       setStatus("ready");
+      if (replace) marketSearchEvent(countryCode, deduplicatedRows.length > 0 ? "results" : "empty");
     } catch (fetchError) {
       if (activeVersion !== requestVersion.current) return;
       setError(fetchError);
       setStatus("error");
+      if (replace) marketSearchEvent(countryCode, "failed");
     }
   }, [city, countryCode, field, fingerprint, keyword, location, pageSize, region, strictness, workTypes]);
 

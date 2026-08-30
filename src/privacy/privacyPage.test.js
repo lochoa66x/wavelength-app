@@ -15,6 +15,9 @@ test("privacy notice is public, versioned, and covers the real processing bounda
   assert.match(page, /Supabase/);
   assert.match(page, /Anthropic/);
   assert.match(page, /Vercel Web Analytics/);
+  assert.match(page, /selected country \(Canada or United States\)/i);
+  assert.match(page, /whether the search returned results, returned no results, or failed/i);
+  assert.match(page, /never includes your search terms, city, résumé, posting, contact details, or other free-form content/i);
   assert.match(page, /not submitted to an employer/i);
   assert.match(page, /does not send the full résumé/i);
   assert.match(page, /cannot affect tailoring until the person approves it/i);

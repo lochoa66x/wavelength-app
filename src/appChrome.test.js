@@ -15,7 +15,8 @@ test("the app wordmark is a flat home link rather than an oversized glass pill",
 test("workspace source copy does not claim unconfigured feeds are live", async () => {
   const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
 
-  assert.match(source, /Searching available Canadian and remote sources/);
+  assert.match(source, /Searching available/);
+  assert.match(source, /marketDefinition\(marketCode\)/);
   assert.match(source, /Sources may include:/);
   assert.doesNotMatch(source, /Scanning We Work Remotely/);
   assert.doesNotMatch(source, /Live feeds:/);
@@ -26,6 +27,21 @@ test("bring-your-own-posting copy describes an open posting rather than a job al
 
   assert.match(source, /Already have a job posting\?/);
   assert.doesNotMatch(source, /Already found a job\?/);
+});
+
+test("the US selector and results surface are fail-closed behind the controlled pilot boundary", async () => {
+  const [app, markets, exposure] = await Promise.all([
+    readFile(new URL("./App.jsx", import.meta.url), "utf8"),
+    readFile(new URL("./markets.js", import.meta.url), "utf8"),
+    readFile(new URL("./marketExposure.js", import.meta.url), "utf8"),
+  ]);
+  assert.match(markets, /United States \(pilot\)/);
+  assert.match(exposure, /VITE_US_MARKET_ENABLED/);
+  assert.match(exposure, /countryCode: "CA"/);
+  assert.match(app, /PUBLIC_COUNTRY_OPTIONS/);
+  assert.match(app, /enforceExposedLocationCriteria/);
+  assert.match(app, /United States coverage is an early pilot/);
+  assert.match(app, /does not infer those facts from your résumé/);
 });
 
 test("blocked source enrichment is presented as a calm preliminary-tailoring choice", async () => {

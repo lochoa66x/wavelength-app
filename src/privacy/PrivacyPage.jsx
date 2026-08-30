@@ -82,7 +82,7 @@ export default function PrivacyPage() {
         </PolicySection>
 
         <PolicySection title="5. Analytics and operational logs">
-          <p>Gigscapes uses Vercel Web Analytics for aggregate page and device insights. The client strips query strings and fragments and suppresses the authentication callback before analytics transmission. No résumé or posting content is added to analytics events. Vercel describes its cookie-free visitor hashing and aggregate data in its <a href={VERCEL_PRIVACY_URL} target="_blank" rel="noreferrer">Web Analytics privacy documentation <ExternalLink size={13} /></a>.</p>
+          <p>Gigscapes uses Vercel Web Analytics for aggregate page and device insights. The client strips query strings and fragments and suppresses the authentication callback before analytics transmission. A coarse market-search event may include only the selected country (Canada or United States) and whether the search returned results, returned no results, or failed. It never includes your search terms, city, résumé, posting, contact details, or other free-form content. Vercel describes its cookie-free visitor hashing and aggregate data in its <a href={VERCEL_PRIVACY_URL} target="_blank" rel="noreferrer">Web Analytics privacy documentation <ExternalLink size={13} /></a>.</p>
           <p>Hosting and API providers may create operational security and error logs. Gigscapes application logs are designed to contain coarse request stages and status categories rather than résumé text, job-posting text, access tokens, or AI response bodies.</p>
         </PolicySection>
 

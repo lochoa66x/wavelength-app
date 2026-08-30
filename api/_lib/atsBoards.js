@@ -5,6 +5,12 @@ import {
 } from "../../src/listingCategories.js";
 import { toStructuredLocationPatch } from "../../src/listingLocations.js";
 import {
+  DEFAULT_MARKET_CODE,
+  marketScopedExternalId,
+  marketSourceScope,
+  normalizeMarketCode,
+} from "../../src/markets.js";
+import {
   cleanFeedHtml,
   cleanFeedText,
   feedIsoDate,
@@ -19,6 +25,7 @@ export const ATS_STALE_AFTER_DAYS = 21;
 const GENERIC_REMOTE = /^(?:remote|anywhere|worldwide)$/i;
 const CANADA_RELEVANT = /\b(?:canada|canadian|alberta|british columbia|manitoba|new brunswick|newfoundland|labrador|nova scotia|ontario|prince edward island|quebec|québec|saskatchewan|northwest territories|nunavut|yukon|toronto|montreal|montréal|vancouver|calgary|edmonton|ottawa|winnipeg|halifax|north america|worldwide|anywhere)\b/i;
 const US_ONLY = /\b(?:united states|u\.?s\.?a?\.? only|us-only)\b/i;
+const NORTH_AMERICA_OR_WORLDWIDE = /\b(?:north america|worldwide|anywhere)\b/i;
 
 export function parseAtsBoardConfig(value) {
   if (!cleanFeedText(value)) return [];
@@ -35,9 +42,20 @@ export function parseAtsBoardConfig(value) {
     const provider = cleanFeedText(item?.provider).toLowerCase();
     const board = cleanFeedText(item?.board);
     if (!ATS_PROVIDERS.has(provider) || !/^[a-z0-9][a-z0-9_-]{0,99}$/i.test(board)) continue;
-    const key = `${provider}:${board.toLowerCase()}`;
+    const requestedMarket = cleanFeedText(item?.market || item?.country);
+    const marketCode = requestedMarket
+      ? normalizeMarketCode(requestedMarket)
+      : DEFAULT_MARKET_CODE;
+    if (!marketCode) continue;
+    const key = `${provider}:${board.toLowerCase()}:${marketCode.toLowerCase()}`;
     if (!boards.has(key)) {
-      boards.set(key, { provider, board, company: cleanFeedText(item?.company) || board });
+      const config = {
+        provider,
+        board,
+        company: cleanFeedText(item?.company) || board,
+      };
+      if (requestedMarket) config.marketCode = marketCode;
+      boards.set(key, config);
     }
   }
   return [...boards.values()];
@@ -111,14 +129,18 @@ function normalizeAtsJob(config, job) {
   };
 }
 
-function isCanadaRelevant(location, structuredLocation) {
+function isMarketRelevant(location, structuredLocation, marketCode) {
   const value = cleanFeedText(location);
-  if (structuredLocation.country_code === "CA" || CANADA_RELEVANT.test(value)) return true;
-  if (US_ONLY.test(value)) return false;
+  if (structuredLocation.country_code === marketCode) return true;
+  if (structuredLocation.country_code && structuredLocation.country_code !== marketCode) return false;
+  if (marketCode === "CA" && CANADA_RELEVANT.test(value)) return true;
+  if (marketCode === "US" && (US_ONLY.test(value) || NORTH_AMERICA_OR_WORLDWIDE.test(value))) return true;
+  if (marketCode === "CA" && US_ONLY.test(value)) return false;
   return GENERIC_REMOTE.test(value);
 }
 
 export function mapAtsResult(config, job, { now = new Date() } = {}) {
+  const marketCode = normalizeMarketCode(config?.marketCode, DEFAULT_MARKET_CODE);
   const normalized = normalizeAtsJob(config, job);
   const title = cleanFeedHtml(normalized.title);
   const location = cleanFeedHtml(normalized.location) || "Remote";
@@ -134,19 +156,23 @@ export function mapAtsResult(config, job, { now = new Date() } = {}) {
     : /\bremote\b|anywhere|worldwide/i.test(location)
       ? "remote"
       : "onsite";
-  const structuredLocation = toStructuredLocationPatch({
+  const inferredLocation = toStructuredLocationPatch({
     source: config.provider,
     title,
     location,
     location_type: locationType,
   });
-  if (!isCanadaRelevant(location, structuredLocation)) return null;
+  if (!isMarketRelevant(location, inferredLocation, marketCode)) return null;
+  const structuredLocation = {
+    ...inferredLocation,
+    country_code: inferredLocation.country_code || marketCode,
+  };
 
   const explicitType = jobType !== "unlabeled";
   const description = cleanFeedHtml(normalized.description).slice(0, 12_000) || null;
   return {
     source: config.provider,
-    external_id: `${config.board}:${rawId}`,
+    external_id: marketScopedExternalId(`${config.board}:${rawId}`, marketCode),
     title,
     company: config.company,
     location,
@@ -224,7 +250,7 @@ export async function runAtsBoardIngestion({
     const { config, rows } = result.value;
     received += result.value.received;
     if (rows.length === 0) continue;
-    const sourceScope = `${config.provider}:${config.board.toLowerCase()}`;
+    const sourceScope = marketSourceScope(`${config.provider}:${config.board.toLowerCase()}`, config.marketCode);
     summaries[sourceScope] = await savePublicFeedListings({
       supabase,
       source: config.provider,

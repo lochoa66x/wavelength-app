@@ -14,10 +14,13 @@ import {
   summarizeCronHealth,
   summarizeSourceOutcome,
 } from "../_lib/sourceHealth.js";
+import { parseEnabledJobMarkets } from "../_lib/sourceMarkets.js";
 
 export function getJoobleCronConfig(env = process.env) {
   const config = {
     joobleApiKey: env.JOOBLE_API_KEY?.trim(),
+    joobleUsApiKey: env.JOOBLE_US_API_KEY?.trim(),
+    jobMarkets: parseEnabledJobMarkets(env.JOB_MARKETS),
     cronSecret: env.CRON_SECRET?.trim(),
     supabaseUrl: (env.SUPABASE_URL || env.VITE_SUPABASE_URL)?.trim(),
     supabaseSecretKey: env.SUPABASE_SECRET_KEY?.trim(),
@@ -72,45 +75,53 @@ export function createJoobleCronHandler({
     });
 
     const disabledSources = config.disabledSources || new Set();
-    const decisions = {
-      jooble: sourceImportDecision({
+    const jobMarkets = config.jobMarkets || ["CA"];
+    const taskDefinitions = jobMarkets.flatMap((marketCode) => ([
+      {
         source: "jooble",
-        configured: Boolean(config.joobleApiKey),
-        disabledSources,
-      }),
-      jobicy: sourceImportDecision({ source: "jobicy", disabledSources }),
-      himalayas: sourceImportDecision({ source: "himalayas", disabledSources }),
-    };
-    const [joobleResult, jobicyResult, himalayasResult] = await Promise.all([
-      runSourceImport(() => decisions.jooble.enabled
-        ? ingest({
+        marketCode,
+        configured: Boolean(marketCode === "US" ? config.joobleUsApiKey : config.joobleApiKey),
+        run: () => ingest({
           supabase,
-          apiKey: config.joobleApiKey,
-        })
-        : Promise.resolve(skippedSourceImport(decisions.jooble))),
-      runSourceImport(() => decisions.jobicy.enabled
-        ? jobicyIngest({ supabase })
-        : Promise.resolve(skippedSourceImport(decisions.jobicy))),
-      runSourceImport(() => decisions.himalayas.enabled
-        ? himalayasIngest({ supabase })
-        : Promise.resolve(skippedSourceImport(decisions.himalayas))),
-    ]);
+          marketCode,
+          apiKey: marketCode === "US" ? config.joobleUsApiKey : config.joobleApiKey,
+        }),
+      },
+      { source: "jobicy", marketCode, configured: true, run: () => jobicyIngest({ supabase, marketCode }) },
+      { source: "himalayas", marketCode, configured: true, run: () => himalayasIngest({ supabase, marketCode }) },
+    ]));
+    const outcomes = await Promise.all(taskDefinitions.map((definition) => {
+      const decision = sourceImportDecision({
+        source: definition.source,
+        marketCode: definition.marketCode,
+        configured: definition.configured,
+        disabledSources,
+      });
+      return runSourceImport(() => decision.enabled
+        ? definition.run()
+        : Promise.resolve(skippedSourceImport(decision)));
+    }));
 
-    const sources = {
-      jooble: summarizeSourceOutcome(joobleResult, "Jooble import failed"),
-      jobicy: summarizeSourceOutcome(jobicyResult, "Jobicy import failed"),
-      himalayas: summarizeSourceOutcome(himalayasResult, "Himalayas import failed"),
-    };
+    const sources = Object.fromEntries(taskDefinitions.map((definition, index) => {
+      const key = definition.marketCode === "CA"
+        ? definition.source
+        : `${definition.source}${definition.marketCode}`;
+      return [key, summarizeSourceOutcome(
+        outcomes[index],
+        `${definition.source} ${definition.marketCode} import failed`,
+      )];
+    }));
     const health = summarizeCronHealth(sources);
     logCronHealth(console.info, "scheduled_feed_refresh", health, sources);
     if (health.succeeded === 0) {
-      return res.status(502).json({ ok: false, error: "Scheduled imports failed", country: "CA", health, sources });
+      return res.status(502).json({ ok: false, error: "Scheduled imports failed", country: "CA", markets: jobMarkets, health, sources });
     }
 
     return res.status(200).json({
       ok: true,
       partial: health.state === "partial",
       country: "CA",
+      markets: jobMarkets,
       health,
       sources,
     });

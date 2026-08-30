@@ -12,7 +12,7 @@ Gigscapes finds public jobs and creates editable résumé and cover-letter draft
 | Risk | Severity | Control | Residual issue |
 | --- | --- | --- | --- |
 | User does not realize an AI provider receives private content | High | One-time, versioned, scope-specific disclosure immediately before job intake, tailoring, and cover-letter generation; cancel retains work | Operator must keep provider wording current |
-| Résumé leaks into analytics or logs | High | No custom résumé events; `beforeSend` strips query/hash and suppresses auth callback; APIs log only stage/status/counts; private responses are `no-store` | Verify Vercel project log retention and drain configuration |
+| Résumé leaks into analytics or logs | High | No custom résumé events; the only market-search dimensions are country and results/empty/failed outcome; `beforeSend` strips query/hash and suppresses auth callback; APIs log only stage/status/counts; private responses are `no-store` | Verify Vercel project log retention and drain configuration |
 | Shared-device exposure | High | User-ID-scoped local keys, honest browser-only copy, scoped deletion control | Browser profile itself remains a security boundary |
 | Unauthorized profile access | High | RLS, own-row authenticated policies, anon revocation, server-only secret key | Run Supabase advisors after every schema change |
 | Unauthorized synced-résumé access or silent overwrite | High | Sync is opt-in; authenticated-only grants; own-user RLS for every operation; bounded payload/hash validation; revision compare-and-swap; explicit conflict choice; separate local and remote deletion | Apply the vault migration and complete anonymous/User A/User B production verification before calling sync operational |
@@ -27,7 +27,7 @@ Gigscapes finds public jobs and creates editable résumé and cover-letter draft
 - Accountability: a verified operator and reachable privacy contact are mandatory release facts.
 - Identifying purposes: discovery, account workspace, job extraction, résumé and cover-letter generation, local editing/export, optional user-enabled cross-device base-résumé sync, optional aggregate quality evaluation.
 - Consent: account action is explicit; AI processing has just-in-time acknowledgement; optional quality signals are off by default.
-- Limiting collection/use/disclosure: request payloads are purpose-bound and analytics are route-only after sanitization.
+- Limiting collection/use/disclosure: request payloads are purpose-bound; analytics routes are sanitized; and the optional market-search event carries only country plus results/empty/failed outcome, never search, city, résumé, posting, contact, or free-form content.
 - Safeguards: RLS, server-only credentials, authorization headers, input caps, SSRF protection, no-store responses, minimized logs.
 - Openness/access: public `/privacy` route, provider links, local deletion control, contact route once configured.
 

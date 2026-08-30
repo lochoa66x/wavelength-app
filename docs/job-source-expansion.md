@@ -10,7 +10,7 @@ proves a commercial agreement.
 | --- | --- | --- | --- |
 | Jobicy | Public API for job-discovery products: <https://jobicy.com/jobs-rss-feed> | Keep Jobicy attribution and canonical URL; cache; never poll more than hourly | Recheck fair-use changes before increasing volume |
 | Himalayas | Public API may power other remote job boards: <https://himalayas.app/api> | Mention Himalayas, retain its URL, and do not resubmit to prohibited third-party aggregators | Recheck rate limits and attribution language |
-| Jooble | Regional-key REST API: <https://help.jooble.org/en/support/solutions/articles/60001448238-rest-api-documentation> | Use the Canadian endpoint/key, preserve Jooble attribution/link, and treat `snippet` as incomplete | Confirm the production key remains valid for `ca.jooble.org` and within quota |
+| Jooble | Regional-key REST API: <https://help.jooble.org/en/support/solutions/articles/60001448238-rest-api-documentation> | Use a distinct endpoint/key for each enabled market, preserve Jooble attribution/link, and treat `snippet` as incomplete | Confirm the Canadian key remains valid for `ca.jooble.org`; obtain a separate `jooble.org` key before the U.S. pilot and monitor the documented lifetime quota |
 | Adzuna | Publishing terms: <https://developer.adzuna.com/docs/terms_of_service> | Preserve required “Jobs by Adzuna” attribution/link and current rate limits | Confirm current publishing licence/trial status and branding approval; an API key alone is not proof |
 | Greenhouse | Public Job Board API: <https://developers.greenhouse.io/job-board.html> | Configured employer boards only; published jobs and employer-hosted links | Employer board slug must be deliberately configured |
 | Lever | Public Postings API: <https://github.com/lever/postings-api> | Configured employer boards only; published jobs and employer-hosted links | Employer board slug must be deliberately configured |
@@ -22,6 +22,12 @@ written during that scheduled run, companion sources continue independently,
 and the response exposes only `disabled_by_policy`. Removing already stored
 rows remains an explicit database operation; the kill switch does not delete
 inventory.
+Append `:ca` or `:us` to stop only one market route. `JOB_MARKETS` is the
+server-only market allowlist; it defaults to Canada and always retains Canada.
+It authorizes ingestion, not public exposure. The independent, non-secret
+`VITE_US_MARKET_ENABLED` build flag remains false while U.S. rows are staged
+and audited; changing that Vite value requires a new deployment. Keep provider
+credentials server-only and never use the public flag as importer authority.
 
 Gigscapes keeps the Vercel Hobby deployment at two daily cron schedules. The
 existing Jooble schedule also refreshes Jobicy and Himalayas; the
@@ -49,10 +55,11 @@ entry requires a supported provider and that employer's public board slug:
 ]
 ```
 
-Only Greenhouse, Lever, and Ashby are accepted. The importer keeps listings that
-are Canadian, Canada-eligible, worldwide, North America-wide, or generically
-remote; obvious US-only roles are discarded. A failed employer board does not
-break the primary Adzuna import.
+Only Greenhouse, Lever, and Ashby are accepted. A board defaults to Canada; add
+`"market":"US"` only for an approved U.S. board. The importer keeps listings
+eligible for that configured market, North America, worldwide, or generically
+remote, and rejects records explicitly assigned to the other market. A failed
+employer board does not break the primary Adzuna import.
 
 ## User-supplied postings
 

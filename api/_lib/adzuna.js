@@ -5,7 +5,13 @@ import {
   normalizeWorkArrangement,
 } from "../../src/listingCategories.js";
 import { toStructuredLocationPatch } from "../../src/listingLocations.js";
+import {
+  DEFAULT_MARKET_CODE,
+  marketScopedExternalId,
+  marketSourceScope,
+} from "../../src/markets.js";
 import { LISTING_SOURCE_RUN_MODE, saveListingSourceRun } from "./listingFreshness.js";
+import { sourceMarketConfig } from "./sourceMarkets.js";
 import { selectDailyTechnologySearches } from "./technologySearches.js";
 
 export const ADZUNA_COUNTRY = "ca";
@@ -127,8 +133,9 @@ export function buildAdzunaSearchPlan(categories = [], now = new Date()) {
   return [...broadSearches, ...technologySearches];
 }
 
-function adzunaUrl(path, credentials, params = {}) {
-  const url = new URL(`${ADZUNA_API_ROOT}/${ADZUNA_COUNTRY}/${path}`);
+function adzunaUrl(path, credentials, params = {}, marketCode = DEFAULT_MARKET_CODE) {
+  const market = sourceMarketConfig(marketCode);
+  const url = new URL(`${ADZUNA_API_ROOT}/${market.adzunaCountry}/${path}`);
   url.searchParams.set("app_id", credentials.appId);
   url.searchParams.set("app_key", credentials.appKey);
   url.searchParams.set("content-type", "application/json");
@@ -187,6 +194,7 @@ async function requestJson(url, {
 
 export async function fetchAdzunaListings({
   credentials,
+  marketCode = DEFAULT_MARKET_CODE,
   fetchImpl = globalThis.fetch,
   now = new Date(),
   requestLimit = ADZUNA_REQUEST_BUDGET,
@@ -197,7 +205,7 @@ export async function fetchAdzunaListings({
 
   try {
     const categoryPayload = await requestJson(
-      adzunaUrl("categories", credentials),
+      adzunaUrl("categories", credentials, {}, marketCode),
       { budget, fetchImpl, wait },
     );
     categories = selectRelevantAdzunaCategories(categoryPayload);
@@ -219,7 +227,7 @@ export async function fetchAdzunaListings({
           results_per_page: ADZUNA_RESULTS_PER_REQUEST,
           max_days_old: ADZUNA_MAX_DAYS_OLD,
           sort_by: "date",
-        }),
+        }, marketCode),
         { budget, fetchImpl, retries: 1, wait },
       );
       for (const result of payload?.results || []) {
@@ -256,8 +264,12 @@ export async function fetchAdzunaListings({
   };
 }
 
-export function mapAdzunaResult(result, sourceCategory, { now = new Date() } = {}) {
-  const externalId = clean(result?.id);
+export function mapAdzunaResult(result, sourceCategory, {
+  now = new Date(),
+  marketCode = DEFAULT_MARKET_CODE,
+} = {}) {
+  const market = sourceMarketConfig(marketCode);
+  const externalId = marketScopedExternalId(result?.id, market.code);
   const title = clean(result?.title);
   const url = clean(result?.redirect_url);
   if (!externalId || !title || !url) return null;
@@ -269,7 +281,7 @@ export function mapAdzunaResult(result, sourceCategory, { now = new Date() } = {
     .join(" ")
     .replaceAll("_", " ");
   const jobType = normalizeWorkArrangement(rawType, title);
-  const location = clean(result?.location?.display_name) || "Canada";
+  const location = clean(result?.location?.display_name) || market.label;
   const postedAt = isoDate(result?.created);
   if (!postedAt) return null;
 
@@ -277,7 +289,7 @@ export function mapAdzunaResult(result, sourceCategory, { now = new Date() } = {
     source: "adzuna",
     title,
     location,
-    country_code: "CA",
+    country_code: market.code,
   });
   const explicitType = jobType !== "unlabeled";
   const description = clean(result?.description).slice(0, 12_000) || null;
@@ -306,22 +318,25 @@ export function mapAdzunaResult(result, sourceCategory, { now = new Date() } = {
 export async function runAdzunaIngestion({
   supabase,
   credentials,
+  marketCode = DEFAULT_MARKET_CODE,
   fetchImpl = globalThis.fetch,
   now = new Date(),
   wait,
 }) {
-  const feed = await fetchAdzunaListings({ credentials, fetchImpl, now, wait });
+  const market = sourceMarketConfig(marketCode);
+  const feed = await fetchAdzunaListings({ credentials, marketCode: market.code, fetchImpl, now, wait });
   const mapped = feed.items
-    .map(({ result, sourceCategory }) => mapAdzunaResult(result, sourceCategory, { now }))
+    .map(({ result, sourceCategory }) => mapAdzunaResult(result, sourceCategory, { now, marketCode: market.code }))
     .filter(Boolean);
 
   if (mapped.length === 0) {
-    throw new Error("Adzuna returned no valid fresh Canadian listings; existing data was left unchanged");
+    throw new Error(`Adzuna returned no valid fresh ${market.label} listings; existing data was left unchanged`);
   }
 
   const saved = await saveListingSourceRun({
     supabase,
     source: "adzuna",
+    sourceScope: marketSourceScope("adzuna", market.code),
     rows: mapped,
     // Ranked first-page searches and rotating technology queries are positive
     // observations, never a complete Adzuna inventory.
@@ -332,6 +347,7 @@ export async function runAdzunaIngestion({
   });
 
   return {
+    market: market.code,
     ...feed.stats,
     ...saved,
   };

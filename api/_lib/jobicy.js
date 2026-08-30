@@ -6,7 +6,13 @@ import {
   normalizeWorkArrangement,
 } from "../../src/listingCategories.js";
 import { toStructuredLocationPatch } from "../../src/listingLocations.js";
+import {
+  DEFAULT_MARKET_CODE,
+  marketScopedExternalId,
+  marketSourceScope,
+} from "../../src/markets.js";
 import { LISTING_SOURCE_RUN_MODE, saveListingSourceRun } from "./listingFreshness.js";
+import { sourceMarketConfig } from "./sourceMarkets.js";
 
 export const JOBICY_COUNTRY = "CA";
 export const JOBICY_RESULTS_PER_REQUEST = 100;
@@ -69,9 +75,10 @@ function sourceCategory(job) {
   return guessCategoryFromKeyword(industries.filter(Boolean).join(" ")) || "other";
 }
 
-export function deterministicJobicyListingId(externalId) {
+export function deterministicJobicyListingId(externalId, marketCode = DEFAULT_MARKET_CODE) {
+  const scopedId = marketScopedExternalId(externalId, marketCode);
   const bytes = createHash("sha256")
-    .update(`jobicy:${externalId}`)
+    .update(`jobicy:${scopedId}`)
     .digest()
     .subarray(0, 16);
 
@@ -81,20 +88,22 @@ export function deterministicJobicyListingId(externalId) {
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
-export function buildJobicyFeedUrl() {
+export function buildJobicyFeedUrl(marketCode = DEFAULT_MARKET_CODE) {
+  const market = sourceMarketConfig(marketCode);
   const url = new URL(JOBICY_API_URL);
   url.searchParams.set("count", String(JOBICY_RESULTS_PER_REQUEST));
-  url.searchParams.set("geo", "canada");
+  url.searchParams.set("geo", market.jobicyGeo);
   return url;
 }
 
 export async function fetchJobicyListings({
+  marketCode = DEFAULT_MARKET_CODE,
   fetchImpl = globalThis.fetch,
   now = new Date(),
 } = {}) {
   let response;
   try {
-    response = await fetchImpl(buildJobicyFeedUrl(), {
+    response = await fetchImpl(buildJobicyFeedUrl(marketCode), {
       headers: {
         Accept: "application/json",
         "User-Agent": "Gigscapes/1.0 (+https://gigscapes.com)",
@@ -131,8 +140,12 @@ export async function fetchJobicyListings({
   };
 }
 
-export function mapJobicyResult(job, { now = new Date() } = {}) {
-  const externalId = jobExternalId(job);
+export function mapJobicyResult(job, {
+  now = new Date(),
+  marketCode = DEFAULT_MARKET_CODE,
+} = {}) {
+  const market = sourceMarketConfig(marketCode);
+  const externalId = marketScopedExternalId(jobExternalId(job), market.code);
   const title = cleanHtml(job?.jobTitle || job?.title);
   const url = canonicalUrl(job);
   const postedAt = isoDate(job?.pubDate || job?.publishedAt);
@@ -144,13 +157,13 @@ export function mapJobicyResult(job, { now = new Date() } = {}) {
   const geo = cleanHtml(job?.jobGeo || job?.geo);
   const location = geo && !/^(?:remote|anywhere|worldwide)$/i.test(geo)
     ? `Remote, ${geo}`
-    : "Remote, Canada";
+    : `Remote, ${market.label}`;
   const structuredLocation = toStructuredLocationPatch({
     source: "jobicy",
     title,
     location,
     location_type: "remote",
-    country_code: JOBICY_COUNTRY,
+    country_code: market.code,
   });
   const explicitType = jobType !== "unlabeled";
   const description = cleanHtml(job?.jobDescription || job?.jobExcerpt).slice(0, 12_000);
@@ -178,19 +191,22 @@ export function mapJobicyResult(job, { now = new Date() } = {}) {
 
 export async function runJobicyIngestion({
   supabase,
+  marketCode = DEFAULT_MARKET_CODE,
   fetchImpl = globalThis.fetch,
   now = new Date(),
 }) {
-  const feed = await fetchJobicyListings({ fetchImpl, now });
-  const mapped = feed.items.map((job) => mapJobicyResult(job, { now })).filter(Boolean);
+  const market = sourceMarketConfig(marketCode);
+  const feed = await fetchJobicyListings({ marketCode: market.code, fetchImpl, now });
+  const mapped = feed.items.map((job) => mapJobicyResult(job, { now, marketCode: market.code })).filter(Boolean);
 
   if (mapped.length === 0) {
-    throw new Error("Jobicy returned no valid fresh Canadian listings; existing data was left unchanged");
+    throw new Error(`Jobicy returned no valid fresh ${market.label} listings; existing data was left unchanged`);
   }
 
   const saved = await saveListingSourceRun({
     supabase,
     source: "jobicy",
+    sourceScope: marketSourceScope("jobicy", market.code),
     rows: mapped,
     // The public endpoint is capped at 100 ranked results and does not prove
     // that every still-open Canada-eligible listing was enumerated.
@@ -199,6 +215,7 @@ export async function runJobicyIngestion({
   });
 
   return {
+    market: market.code,
     ...feed.stats,
     ...saved,
   };

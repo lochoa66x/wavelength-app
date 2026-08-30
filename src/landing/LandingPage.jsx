@@ -16,6 +16,7 @@ import { Link, useNavigate } from "react-router";
 
 import { BrandMark } from "../BrandMark.jsx";
 import { APP_PATH } from "../authRoutes.js";
+import { US_MARKET_EXPOSURE_ENABLED } from "../marketExposure.js";
 import { RESUME_SYNC_ENABLED } from "../resumeSyncConfig.js";
 import { LandingFaq } from "./LandingFaq.jsx";
 import { LandingHeader } from "./LandingHeader.jsx";
@@ -24,8 +25,15 @@ import { ProductTour } from "./ProductTour.jsx";
 import { buildLandingNavigationState, LANDING_DESTINATIONS } from "./landingIntents.js";
 import "./landing.css";
 
+const DISCOVERY_MARKET_COPY = US_MARKET_EXPOSURE_ENABLED
+  ? "Canada-first discovery with an early U.S. pilot"
+  : "Canada-first discovery";
+const DISCOVERY_FOCUS_COPY = US_MARKET_EXPOSURE_ENABLED
+  ? "Gigscapes focuses on Canadian work and is piloting United States coverage."
+  : "Gigscapes currently focuses on Canadian work.";
+
 const PROCESS_STEPS = Object.freeze([
-  { number: "01", title: "Choose or import a posting", copy: "Search public Canadian listings, paste a public link, upload screenshots, or paste the complete posting." },
+  { number: "01", title: "Choose or import a posting", copy: US_MARKET_EXPOSURE_ENABLED ? "Search public Canadian and U.S. pilot listings, paste a public link, upload screenshots, or paste the complete posting." : "Search public Canadian listings, paste a public link, upload screenshots, or paste the complete posting." },
   { number: "02", title: "Review the evidence", copy: "Confirm the posting, then see what your résumé supports directly, adjacently, transferably, or not yet." },
   { number: "03", title: "Tailor, review, and export", copy: "Choose a job-aware structure and export a DOCX or selectable-text PDF only when the readiness checks allow it." },
 ]);
@@ -76,9 +84,9 @@ function StartPaths() {
           <div className="landing-path-icon"><Search aria-hidden="true" /></div>
           <p className="landing-card-kicker">Path A</p>
           <h3>Search Gigscapes</h3>
-          <p>Browse public jobs and gigs, then narrow the feed by province, city, workplace, and work type.</p>
+          <p>Browse public jobs and gigs, then narrow the feed by {US_MARKET_EXPOSURE_ENABLED ? "province or state" : "province"}, city, workplace, and work type.</p>
           <ul>
-            <li><Check aria-hidden="true" /> Canada-first discovery</li>
+            <li><Check aria-hidden="true" /> {DISCOVERY_MARKET_COPY}</li>
             <li><Check aria-hidden="true" /> Visible provider attribution</li>
             <li><Check aria-hidden="true" /> Public browsing before sign-in</li>
           </ul>
@@ -161,9 +169,9 @@ function DiscoveryAndPrivacy() {
     <section className="landing-section landing-control-grid" aria-label="Discovery and privacy">
       <article id="canada-first" className="landing-control-card">
         <div className="landing-control-icon"><MapPin aria-hidden="true" /></div>
-        <p className="landing-card-kicker">Canada-first discovery</p>
+        <p className="landing-card-kicker">{DISCOVERY_MARKET_COPY}</p>
         <h2>Search here—or bring the listing with you.</h2>
-        <p>Gigscapes currently focuses on Canadian work. Source coverage varies, provider attribution stays visible, and original listing links remain available.</p>
+        <p>{DISCOVERY_FOCUS_COPY} Source coverage varies, provider attribution stays visible, and original listing links remain available.</p>
         <p>When a public page uses anti-bot protection or exposes only a short snippet, screenshots or pasted text can preserve the complete posting without bypassing that protection.</p>
       </article>
       <article id="privacy" className="landing-control-card landing-control-card--orange">
@@ -207,7 +215,7 @@ function LandingFooter() {
         <Link to="/privacy">Privacy</Link>
       </nav>
       <p>
-        Discovery sources may include <a href="https://www.adzuna.ca/" target="_blank" rel="noreferrer">Adzuna</a>, <a href="https://ca.jooble.org/" target="_blank" rel="noreferrer">Jooble</a>, <a href="https://jobicy.com/" target="_blank" rel="noreferrer">Jobicy</a>, <a href="https://himalayas.app/jobs" target="_blank" rel="noreferrer">Himalayas</a>, and We Work Remotely. Availability varies.
+        Discovery sources may include <a href={US_MARKET_EXPOSURE_ENABLED ? "https://www.adzuna.com/" : "https://www.adzuna.ca/"} target="_blank" rel="noreferrer">Adzuna</a>, <a href={US_MARKET_EXPOSURE_ENABLED ? "https://jooble.org/" : "https://ca.jooble.org/"} target="_blank" rel="noreferrer">Jooble</a>, <a href="https://jobicy.com/" target="_blank" rel="noreferrer">Jobicy</a>, <a href="https://himalayas.app/jobs" target="_blank" rel="noreferrer">Himalayas</a>, and We Work Remotely. Availability varies.
       </p>
     </footer>
   );
@@ -229,7 +237,7 @@ export default function LandingPage() {
             <h1 id="landing-title">
               Find the work. <span className="landing-hero-title-accent">Build the résumé that fits</span> without inventing experience.
             </h1>
-            <p className="landing-hero-lede">Search jobs and gigs across Canada, or bring a posting you found elsewhere. Gigscapes helps you position real evidence clearly, choose a job-aware template, and export an ATS-readable résumé.</p>
+            <p className="landing-hero-lede">Search jobs and gigs across {US_MARKET_EXPOSURE_ENABLED ? "Canada and the United States pilot" : "Canada"}, or bring a posting you found elsewhere. Gigscapes helps you position real evidence clearly, choose a job-aware template, and export an ATS-readable résumé.</p>
             <div className="landing-cta-row">
               <Link className="landing-button landing-button--primary" to={APP_PATH}>Browse jobs &amp; gigs <ArrowRight aria-hidden="true" /></Link>
               <IntakeButton action={LANDING_DESTINATIONS.postingUrl.action}>Tailor a posting I found <ArrowRight aria-hidden="true" /></IntakeButton>

@@ -33,6 +33,14 @@ test("landing and app are route-level lazy chunks", () => {
   assert.match(mainSource, /lazy\(\(\) => import\("\.\/App\.jsx"\)\)/);
 });
 
+test("US discovery copy and regional provider links share the fail-closed public gate", () => {
+  assert.match(pageSource, /US_MARKET_EXPOSURE_ENABLED/);
+  assert.match(pageSource, /Canada-first discovery with an early U\.S\. pilot/);
+  assert.match(pageSource, /Canada and the United States pilot/);
+  assert.match(pageSource, /https:\/\/www\.adzuna\.com\//);
+  assert.match(pageSource, /https:\/\/jooble\.org\//);
+});
+
 test("warm glass stays an explicit landing-only visual preview", () => {
   assert.match(pageSource, /surface/);
   assert.match(pageSource, /warm-glass/);

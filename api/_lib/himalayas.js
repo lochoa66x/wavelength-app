@@ -5,6 +5,11 @@ import {
 } from "../../src/listingCategories.js";
 import { toStructuredLocationPatch } from "../../src/listingLocations.js";
 import {
+  DEFAULT_MARKET_CODE,
+  marketScopedExternalId,
+  marketSourceScope,
+} from "../../src/markets.js";
+import {
   cleanFeedHtml,
   cleanFeedText,
   daysBefore,
@@ -12,6 +17,7 @@ import {
   savePublicFeedListings,
 } from "./publicFeedStore.js";
 import { LISTING_SOURCE_RUN_MODE } from "./listingFreshness.js";
+import { sourceMarketConfig } from "./sourceMarkets.js";
 
 export const HIMALAYAS_COUNTRY = "CA";
 export const HIMALAYAS_PAGE_BUDGET = 5;
@@ -20,9 +26,10 @@ export const HIMALAYAS_STALE_AFTER_DAYS = 60;
 
 const HIMALAYAS_API_URL = "https://himalayas.app/jobs/api/search";
 
-export function buildHimalayasFeedUrl(page = 1) {
+export function buildHimalayasFeedUrl(page = 1, marketCode = DEFAULT_MARKET_CODE) {
+  const market = sourceMarketConfig(marketCode);
   const url = new URL(HIMALAYAS_API_URL);
-  url.searchParams.set("country", HIMALAYAS_COUNTRY);
+  url.searchParams.set("country", market.himalayasCountry);
   url.searchParams.set("sort", "recent");
   url.searchParams.set("page", String(page));
   return url;
@@ -50,6 +57,7 @@ function restrictions(job) {
 }
 
 export async function fetchHimalayasListings({
+  marketCode = DEFAULT_MARKET_CODE,
   fetchImpl = globalThis.fetch,
   now = new Date(),
 } = {}) {
@@ -61,7 +69,7 @@ export async function fetchHimalayasListings({
   for (let page = 1; page <= HIMALAYAS_PAGE_BUDGET; page += 1) {
     let response;
     try {
-      response = await fetchImpl(buildHimalayasFeedUrl(page), {
+      response = await fetchImpl(buildHimalayasFeedUrl(page, marketCode), {
         headers: {
           Accept: "application/json",
           "User-Agent": "Gigscapes/1.0 (+https://gigscapes.com)",
@@ -110,8 +118,12 @@ export async function fetchHimalayasListings({
   };
 }
 
-export function mapHimalayasResult(job, { now = new Date() } = {}) {
-  const externalId = cleanFeedText(job?.guid || job?.applicationLink);
+export function mapHimalayasResult(job, {
+  now = new Date(),
+  marketCode = DEFAULT_MARKET_CODE,
+} = {}) {
+  const market = sourceMarketConfig(marketCode);
+  const externalId = marketScopedExternalId(job?.guid || job?.applicationLink, market.code);
   const title = cleanFeedHtml(job?.title);
   const url = canonicalHimalayasUrl(job);
   const postedAt = feedIsoDate(job?.pubDate);
@@ -132,7 +144,7 @@ export function mapHimalayasResult(job, { now = new Date() } = {}) {
     title,
     location,
     location_type: "remote",
-    country_code: HIMALAYAS_COUNTRY,
+    country_code: market.code,
   });
   const explicitType = jobType !== "unlabeled";
   const description = cleanFeedHtml(job?.description || job?.excerpt).slice(0, 12_000) || null;
@@ -160,19 +172,22 @@ export function mapHimalayasResult(job, { now = new Date() } = {}) {
 
 export async function runHimalayasIngestion({
   supabase,
+  marketCode = DEFAULT_MARKET_CODE,
   fetchImpl = globalThis.fetch,
   now = new Date(),
 }) {
-  const feed = await fetchHimalayasListings({ fetchImpl, now });
-  const rows = feed.items.map((job) => mapHimalayasResult(job, { now })).filter(Boolean);
+  const market = sourceMarketConfig(marketCode);
+  const feed = await fetchHimalayasListings({ marketCode: market.code, fetchImpl, now });
+  const rows = feed.items.map((job) => mapHimalayasResult(job, { now, marketCode: market.code })).filter(Boolean);
   const saved = await savePublicFeedListings({
     supabase,
     source: "himalayas",
+    sourceScope: marketSourceScope("himalayas", market.code),
     rows,
     runMode: feed.stats.reachedTerminalPage
       ? LISTING_SOURCE_RUN_MODE.AUTHORITATIVE_SNAPSHOT
       : LISTING_SOURCE_RUN_MODE.OBSERVATION_ONLY,
     now,
   });
-  return { ...feed.stats, ...saved };
+  return { market: market.code, ...feed.stats, ...saved };
 }

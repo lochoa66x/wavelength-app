@@ -34,6 +34,12 @@ import { isFutureJwtError, runWithFutureJwtRecovery } from "./supabaseRecovery.j
 import { checkListingAvailability, enrichListing, tailorResume } from "./tailorClient.js";
 import { useAuth } from "./auth.jsx";
 import {
+  enforceExposedLocationCriteria,
+  exposedCountryOptions,
+  US_MARKET_EXPOSURE_ENABLED,
+} from "./marketExposure.js";
+import { marketDefinition } from "./markets.js";
+import {
   COUNTRY_OPTIONS,
   LOCATION_OPTIONS,
   formatLocationSearchValue,
@@ -75,6 +81,7 @@ import {
   shouldCheckBeforeTailoring,
 } from "./listingAvailability.js";
 
+const PUBLIC_COUNTRY_OPTIONS = exposedCountryOptions(COUNTRY_OPTIONS);
 const SYS_FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, sans-serif";
 const ADZUNA_ATTRIBUTION_STYLE = {
   display: "inline-flex",
@@ -423,9 +430,11 @@ function MatchBadge({ listing, keyword, fitAssessment, postingReadiness }) {
   );
 }
 
-function PrimarySourceAttribution({ source }) {
+function PrimarySourceAttribution({ source, marketCode = "CA" }) {
+  const market = marketDefinition(marketCode);
   if (source === "Jooble") {
-    return <a href="https://ca.jooble.org/" target="_blank" rel="noreferrer" style={SOURCE_LINK_STYLE}>Jooble</a>;
+    const href = market.code === "US" ? "https://jooble.org/" : "https://ca.jooble.org/";
+    return <a href={href} target="_blank" rel="noreferrer" style={SOURCE_LINK_STYLE}>Jooble</a>;
   }
 
   if (source === "Jobicy") {
@@ -450,22 +459,23 @@ function PrimarySourceAttribution({ source }) {
 
   if (source !== "Jobs by Adzuna") return <span>{source}</span>;
 
+  const adzunaHref = market.code === "US" ? "https://www.adzuna.com/" : "https://www.adzuna.ca/";
   return (
     <span style={ADZUNA_ATTRIBUTION_STYLE}>
-      <a href="https://www.adzuna.ca/" target="_blank" rel="noreferrer" style={ADZUNA_LINK_STYLE}>Jobs</a>
+      <a href={adzunaHref} target="_blank" rel="noreferrer" style={ADZUNA_LINK_STYLE}>Jobs</a>
       <span>&nbsp;by&nbsp;</span>
-      <a href="https://www.adzuna.ca/" target="_blank" rel="noreferrer" style={ADZUNA_NAME_LINK_STYLE}>Adzuna</a>
+      <a href={adzunaHref} target="_blank" rel="noreferrer" style={ADZUNA_NAME_LINK_STYLE}>Adzuna</a>
     </span>
   );
 }
 
-function SourceAttribution({ source, sources = [] }) {
+function SourceAttribution({ source, sources = [], marketCode = "CA" }) {
   const additionalSources = [...new Set(
     sources.map(({ label }) => label).filter((label) => label && label !== source),
   )];
   return (
     <span style={{ display: "inline-flex", alignItems: "center", gap: 4, flexWrap: "wrap" }}>
-      <PrimarySourceAttribution source={source} />
+      <PrimarySourceAttribution source={source} marketCode={marketCode} />
       {additionalSources.length > 0 && (
         <span title={`Also found via ${additionalSources.join(", ")}`}>
           +{additionalSources.length} {additionalSources.length === 1 ? "source" : "sources"}
@@ -488,7 +498,7 @@ function LocationPreferenceFields({
   onChangeCountry,
 }) {
   const regions = regionOptionsForCountry(countryCode);
-  const countryLabel = COUNTRY_OPTIONS.find(({ id }) => id === countryCode)?.label || "Any country";
+  const countryLabel = PUBLIC_COUNTRY_OPTIONS.find(({ id }) => id === countryCode)?.label || marketDefinition(countryCode).label;
   const regionLabel = countryCode === "CA"
     ? "Province or territory"
     : countryCode === "US"
@@ -528,7 +538,7 @@ function LocationPreferenceFields({
               }}
               style={selectStyle}
             >
-              {COUNTRY_OPTIONS.map((country) => <option key={country.id || "any"} value={country.id}>{country.label}</option>)}
+              {PUBLIC_COUNTRY_OPTIONS.map((country) => <option key={country.id || "any"} value={country.id}>{country.label}</option>)}
             </select>
           </label>
         ) : (
@@ -630,7 +640,7 @@ function WorkplaceTypeChips({ value = "either", onChange }) {
   );
 }
 
-function ScanningTransition({ onDone }) {
+function ScanningTransition({ onDone, marketCode }) {
   useEffect(() => {
     const t = setTimeout(onDone, 1900);
     return () => clearTimeout(t);
@@ -642,7 +652,7 @@ function ScanningTransition({ onDone }) {
         <div style={{ position: "absolute", inset: 14, borderRadius: "50%", background: C.green }} />
       </div>
       <div style={{ fontFamily: SYS_FONT, fontSize: 14, color: C.textSub, fontWeight: 500 }}>
-        Searching available Canadian and remote sources…
+        Searching available {marketCode ? `${marketDefinition(marketCode).label} and remote` : "Canadian, U.S., and remote"} sources…
       </div>
     </div>
   );
@@ -669,7 +679,10 @@ export default function Gigscapes() {
   const storedCriteria = session?.user?.id && profile?.criteria && Object.keys(profile.criteria).length
     ? profile.criteria
     : guestCriteria;
-  const normalizedLocationCriteria = normalizeLocationCriteria(storedCriteria);
+  const normalizedLocationCriteria = enforceExposedLocationCriteria(
+    normalizeLocationCriteria(storedCriteria),
+    US_MARKET_EXPOSURE_ENABLED,
+  );
   const criteria = {
     ...DEFAULT_CRITERIA,
     ...storedCriteria,
@@ -1715,7 +1728,7 @@ export default function Gigscapes() {
     );
   }
 
-  if (step === "scanning" && session?.user?.id) return shell(<ScanningTransition onDone={() => setStep("digest")} />, { showSignOut: true });
+  if (step === "scanning" && session?.user?.id) return shell(<ScanningTransition marketCode={criteria.countryCode} onDone={() => setStep("digest")} />, { showSignOut: true });
 
   if (step === "resume" && session?.user?.id) {
     return shell(
@@ -1856,6 +1869,12 @@ export default function Gigscapes() {
         )}
         {listingsStatus === "ready" && lastFetched && `Updated ${lastFetched.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.`}
         </p>
+        {criteria.countryCode === "US" && (
+          <div role="status" style={{ margin: "0 0 14px", padding: "11px 13px", borderRadius: 12, border: `1px solid ${C.blueBorder}`, background: C.blueTint, color: C.textSub, fontSize: 12.5, lineHeight: 1.5 }}>
+            <strong style={{ color: C.text }}>United States coverage is an early pilot.</strong>{" "}
+            Inventory varies by source and remote roles may have state, work-authorization, or sponsorship rules. Gigscapes does not infer those facts from your résumé—confirm them with the employer.
+          </div>
+        )}
       </section>
 
       <section aria-label="Search jobs and gigs" style={{ marginBottom: 18, padding: 16, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 16, boxShadow: "0 1px 2px rgba(0,0,0,0.025)" }}>
@@ -1902,7 +1921,7 @@ export default function Gigscapes() {
             </div>
             {quickLocationMode === "remote" && (
               <div style={{ marginTop: 10, color: C.textFaint, fontSize: 12.5, lineHeight: 1.45 }}>
-                Remote jobs may still require you to live in {COUNTRY_OPTIONS.find(({ id }) => id === quickCountryCode)?.label || "the selected market"}.
+                Remote jobs may still require you to live in {marketDefinition(quickCountryCode).label}.
               </div>
             )}
             <div style={{ display: "flex", justifyContent: "space-between", gap: 10, flexWrap: "wrap", marginTop: 14, paddingTop: 12, borderTop: `1px solid ${C.border}` }}>
@@ -2115,7 +2134,7 @@ export default function Gigscapes() {
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 10, fontSize: 12.5, color: C.textFaint }}>
                       <span style={{ display: "flex", alignItems: "center", gap: 4 }}><MapPin size={12} /> {listingLocationSummary(item)}</span>
                       <span style={{ display: "flex", alignItems: "center", gap: 4 }}><Clock size={12} /> {item.type}</span>
-                      <SourceAttribution source={item.source} sources={item.sourceAttributions} />
+                      <SourceAttribution source={item.source} sources={item.sourceAttributions} marketCode={item.locationData?.countryCode} />
                     </div>
                     <div style={{ fontSize: 12.5, color: C.textFaint, marginTop: 8 }}>{item.reason}</div>
                     <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginTop: 9 }}>
@@ -2481,10 +2500,10 @@ export default function Gigscapes() {
       <footer style={{ marginTop: 28, paddingTop: 18, borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", gap: 16 }}>
         <div style={{ color: C.textFaint, display: "flex", flexDirection: "column", gap: 6 }}>
           <span style={{ fontSize: 12, fontWeight: 500, display: "flex", alignItems: "center", flexWrap: "wrap" }}>
-            Sources may include: We Work Remotely&nbsp;•&nbsp;<SourceAttribution source="Jobs by Adzuna" />&nbsp;•&nbsp;<SourceAttribution source="Jooble" />&nbsp;•&nbsp;<SourceAttribution source="Jobicy" />&nbsp;•&nbsp;<SourceAttribution source="Himalayas" />
+            Sources may include: We Work Remotely&nbsp;•&nbsp;<SourceAttribution source="Jobs by Adzuna" marketCode={criteria.countryCode} />&nbsp;•&nbsp;<SourceAttribution source="Jooble" marketCode={criteria.countryCode} />&nbsp;•&nbsp;<SourceAttribution source="Jobicy" />&nbsp;•&nbsp;<SourceAttribution source="Himalayas" />
           </span>
-          <a href="https://www.craigslist.org/about/sites#CA" target="_blank" rel="noreferrer" style={MANUAL_SOURCE_LINK_STYLE}>
-            Browse Craigslist Canada directly (not imported) <ExternalLink size={11} aria-hidden="true" />
+          <a href={criteria.countryCode ? `https://www.craigslist.org/about/sites#${criteria.countryCode === "US" ? "US" : "CA"}` : "https://www.craigslist.org/about/sites"} target="_blank" rel="noreferrer" style={MANUAL_SOURCE_LINK_STYLE}>
+            Browse Craigslist {criteria.countryCode ? marketDefinition(criteria.countryCode).label : "all regions"} directly (not imported) <ExternalLink size={11} aria-hidden="true" />
           </a>
         </div>
         <span style={{ fontSize: 12, color: C.textFaint, display: "flex", gap: 12, alignItems: "center" }}><Link to="/privacy" style={{ color: "inherit" }}>Privacy</Link><span>Refreshed daily</span></span>

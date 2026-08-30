@@ -172,6 +172,21 @@ test("raw source locations are parsed into structured Canadian and US fields", (
     region: "california",
     countryCode: "US",
   });
+  assert.deepEqual(parseLocationText("Toronto, ON, CA"), {
+    city: "Toronto",
+    region: "ontario",
+    countryCode: "CA",
+  });
+  assert.deepEqual(parseLocationText("San Francisco, CA, US"), {
+    city: "San Francisco",
+    region: "california",
+    countryCode: "US",
+  });
+  assert.deepEqual(parseLocationText("Washington, DC"), {
+    city: "Washington",
+    region: "district of columbia",
+    countryCode: "US",
+  });
   assert.deepEqual(parseLocationText("Remote - Canada"), {
     city: "",
     region: "",
