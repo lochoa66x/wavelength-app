@@ -47,23 +47,36 @@ test("browser preview is single-column semantic text with print-friendly markers
   assert.doesNotMatch(source, /<table|<canvas|<img|gridTemplateColumns/);
 });
 
-test("preliminary guidance stays outside the résumé while DOCX dependencies warm in advance", async () => {
-  const [experienceSource, previewSource, actionsSource, errorSource] = await Promise.all([
+test("preliminary guidance stays outside the résumé while all export dependencies warm safely", async () => {
+  const [experienceSource, previewSource, actionsSource, coverLetterSource, modulesSource, recoverySource, noticeSource] = await Promise.all([
     readFile(new URL("./ResumeExperience.jsx", import.meta.url), "utf8"),
     readFile(new URL("./ResumeDocumentPreview.jsx", import.meta.url), "utf8"),
     readFile(new URL("./ResumeActions.jsx", import.meta.url), "utf8"),
-    readFile(new URL("./resumeExportErrors.js", import.meta.url), "utf8"),
+    readFile(new URL("./CoverLetterWorkspace.jsx", import.meta.url), "utf8"),
+    readFile(new URL("./exportModules.js", import.meta.url), "utf8"),
+    readFile(new URL("./exportRecovery.js", import.meta.url), "utf8"),
+    readFile(new URL("./ExportStatusNotice.jsx", import.meta.url), "utf8"),
   ]);
   const guidanceIndex = experienceSource.indexOf("data-export-state");
   const previewIndex = experienceSource.indexOf("<ResumeDocumentPreview");
 
   assert.ok(guidanceIndex >= 0 && guidanceIndex < previewIndex);
-  assert.match(experienceSource, /import\("\.\/resumeDocx\.js"\)/);
-  assert.match(experienceSource, /prepareResumeDocxExport/);
   assert.match(experienceSource, /getResumeExportNotice/);
   assert.match(experienceSource, /data-export-state/);
   assert.match(experienceSource, /guidance is not included in the résumé file/i);
   assert.doesNotMatch(previewSource, /preliminaryNotice|PRELIMINARY DRAFT/);
-  assert.match(actionsSource, /docxExportErrorMessage/);
-  assert.match(errorSource, /updated while this draft was open/i);
+  assert.match(actionsSource, /preloadResumeExporters/);
+  assert.match(actionsSource, /loadResumeDocxExporter/);
+  assert.match(actionsSource, /loadResumePdfExporter/);
+  assert.match(coverLetterSource, /preloadCoverLetterExporters/);
+  assert.match(coverLetterSource, /loadCoverLetterDocxExporter/);
+  assert.match(coverLetterSource, /loadCoverLetterPdfExporter/);
+  assert.match(modulesSource, /import\("\.\/resumeDocx\.js"\)/);
+  assert.match(modulesSource, /import\("\.\/resumePdf\.js"\)/);
+  assert.match(modulesSource, /import\("\.\/coverLetterDocx\.js"\)/);
+  assert.match(modulesSource, /import\("\.\/coverLetterPdf\.js"\)/);
+  assert.match(recoverySource, /copy it before refreshing/i);
+  assert.doesNotMatch(recoverySource, /https?:\/\//i);
+  assert.match(noticeSource, /Refresh Gigscapes/);
+  assert.match(noticeSource, /globalThis\.location\?\.reload/);
 });

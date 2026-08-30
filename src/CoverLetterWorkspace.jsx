@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CheckCircle2, Copy, Download, FileText, Loader2, PenLine, RotateCcw, Sparkles, Trash2, X } from "lucide-react";
 
+import { ExportStatusNotice } from "./ExportStatusNotice.jsx";
 import { useAuth } from "./auth.jsx";
 import { generateCoverLetter } from "./coverLetterClient.js";
+import { loadCoverLetterDocxExporter, loadCoverLetterPdfExporter, preloadCoverLetterExporters } from "./exportModules.js";
+import { classifyExportError, createExportErrorNotice } from "./exportRecovery.js";
 import {
   COVER_LETTER_LENGTHS,
   COVER_LETTER_VOICES,
@@ -53,6 +56,19 @@ export function CoverLetterWorkspace({
   }, [userId, item?.id, item?.title, item?.company, context.baseResume, context.resumeData, context.atsReview, context.candidateEvidence]);
 
   useEffect(() => () => controllerRef.current?.abort(), []);
+
+  useEffect(() => {
+    if (!plan) return undefined;
+    let active = true;
+    void preloadCoverLetterExporters().then((results) => {
+      if (!active) return;
+      const failure = results.find((result) => result.status === "failed");
+      if (failure && classifyExportError(failure.error) === "stale_exporter") {
+        setMessage(createExportErrorNotice(failure.error, { artifact: "cover letter", format: "DOCX/PDF" }));
+      }
+    });
+    return () => { active = false; };
+  }, [plan]);
 
   const readiness = useMemo(() => getCoverLetterReadiness(plan, context), [plan, context]);
   const busy = state === "generating" || state === "exporting";
@@ -128,18 +144,26 @@ export function CoverLetterWorkspace({
   const freshExportContext = () => createCoverLetterExportContext(plan, context);
   const handleCopy = () => requestAccountAction("copy_cover_letter_text", { continuation: async () => {
     try { await navigator.clipboard.writeText(coverLetterToPlainText(freshExportContext().plan)); setMessage({ type: "info", text: "Cover-letter text copied." }); }
-    catch (error) { setMessage({ type: "error", text: error.message || "The cover letter could not be copied." }); }
+    catch { setMessage({ type: "error", text: "The cover letter could not be copied. Check this browser's clipboard permission and try again." }); }
   } });
   const handleDocx = () => requestAccountAction("download_cover_letter_docx", { continuation: async () => {
     setState("exporting"); setMessage(null);
-    try { const { downloadCoverLetterDocx } = await import("./coverLetterDocx.js"); await downloadCoverLetterDocx(freshExportContext()); setMessage({ type: "info", text: "Cover-letter DOCX downloaded." }); }
-    catch (error) { setMessage({ type: "error", text: error.message || "The DOCX could not be created." }); }
+    try { const { downloadCoverLetterDocx } = await loadCoverLetterDocxExporter(); await downloadCoverLetterDocx(freshExportContext()); setMessage({ type: "info", text: "Cover-letter DOCX downloaded." }); }
+    catch (error) {
+      const notice = createExportErrorNotice(error, { artifact: "cover letter", format: "DOCX" });
+      console.error(`Cover-letter DOCX export failed (${notice.category}).`);
+      setMessage(notice);
+    }
     finally { setState("idle"); }
   } });
   const handlePdf = () => requestAccountAction("download_cover_letter_pdf", { continuation: async () => {
     setState("exporting"); setMessage(null);
-    try { const { downloadCoverLetterPdf } = await import("./coverLetterPdf.js"); await downloadCoverLetterPdf(freshExportContext()); setMessage({ type: "info", text: "Selectable cover-letter PDF downloaded." }); }
-    catch (error) { setMessage({ type: "error", text: error.message || "The PDF could not be created." }); }
+    try { const { downloadCoverLetterPdf } = await loadCoverLetterPdfExporter(); await downloadCoverLetterPdf(freshExportContext()); setMessage({ type: "info", text: "Selectable cover-letter PDF downloaded." }); }
+    catch (error) {
+      const notice = createExportErrorNotice(error, { artifact: "cover letter", format: "PDF" });
+      console.error(`Cover-letter PDF export failed (${notice.category}).`);
+      setMessage(notice);
+    }
     finally { setState("idle"); }
   } });
 
@@ -193,7 +217,7 @@ export function CoverLetterWorkspace({
           <div style={{ display: "flex", flexWrap: "wrap", gap: 9, marginTop: 14 }}><button type="button" onClick={handleDocx} disabled={!readiness.canExport || busy} className="wl-btn" style={{ ...primaryBtnStyle(!readiness.canExport || busy), fontSize: 13, padding: "9px 15px" }}><Download size={13} /> {readiness.preliminary ? "Download preliminary DOCX" : "Download cover-letter DOCX"}</button><button type="button" onClick={handlePdf} disabled={!readiness.canExport || busy} className="wl-btn" style={{ border: `1px solid ${C.border}`, borderRadius: 980, background: C.bgCard, color: C.text, padding: "9px 15px", opacity: !readiness.canExport || busy ? 0.5 : 1 }}><FileText size={13} /> {readiness.preliminary ? "Download preliminary PDF" : "Download cover-letter PDF"}</button><button type="button" onClick={handleCopy} disabled={!readiness.canExport || busy} className="wl-btn" style={{ border: `1px solid ${C.border}`, borderRadius: 980, background: C.bgCard, color: C.text, padding: "9px 15px", opacity: !readiness.canExport || busy ? 0.5 : 1 }}><Copy size={13} /> Copy letter text</button></div>
         </>
       ) : null}
-      {message ? <p role={message.type === "error" ? "alert" : "status"} style={{ color: message.type === "error" ? C.red : C.textSub, fontSize: 12.5, margin: "12px 0 0" }}>{message.text}</p> : null}
+      <ExportStatusNotice message={message} C={C} />
     </section>
   );
 }

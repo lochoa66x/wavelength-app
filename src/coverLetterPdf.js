@@ -1,12 +1,22 @@
 import { safeCoverLetterFilename, validateCoverLetterExportContext } from "./coverLetterModel.js";
 
+let pdfModulePromise;
+
+export function prepareCoverLetterPdfExport() {
+  pdfModulePromise ||= import("jspdf").catch((error) => {
+    pdfModulePromise = undefined;
+    throw error;
+  });
+  return pdfModulePromise;
+}
+
 function pdfText(value) {
   return String(value || "").replace(/[–—]/g, "-").replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/\u00a0/g, " ");
 }
 
 export async function createCoverLetterPdfBlob(input) {
   const { plan } = validateCoverLetterExportContext(input);
-  const { jsPDF } = await import("jspdf");
+  const { jsPDF } = await prepareCoverLetterPdfExport();
   const doc = new jsPDF({ unit: "pt", format: "letter", orientation: "portrait", compress: true, putOnlyUsedFonts: true });
   const left = 58;
   const width = 496;

@@ -1,9 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Copy, Download, ExternalLink, FileText, Loader2 } from "lucide-react";
 
+import { ExportStatusNotice } from "./ExportStatusNotice.jsx";
+import { loadResumeDocxExporter, loadResumePdfExporter, preloadResumeExporters } from "./exportModules.js";
+import { classifyExportError, createExportErrorNotice } from "./exportRecovery.js";
 import { resumeDataToPlainText } from "./resumeText.js";
 import { createResumeExportContext, getResumeExportReadiness, validateResumeExportContext } from "./resumeReadiness.js";
-import { classifyDocxExportError, docxExportErrorMessage } from "./resumeExportErrors.js";
 import { useAuth } from "./auth.jsx";
 import { QualityFeedback } from "./QualityFeedback.jsx";
 import { emitResumeQualitySignal } from "./qualitySignals.js";
@@ -30,6 +32,18 @@ export function ResumeActions({ resumeData, resumePackage, renderPlan, selection
     ...extra,
   });
 
+  useEffect(() => {
+    let active = true;
+    void preloadResumeExporters().then((results) => {
+      if (!active) return;
+      const failure = results.find((result) => result.status === "failed");
+      if (failure && classifyExportError(failure.error) === "stale_exporter") {
+        setMessage(createExportErrorNotice(failure.error, { artifact: "résumé", format: "DOCX/PDF" }));
+      }
+    });
+    return () => { active = false; };
+  }, []);
+
   const downloadDocx = async () => {
     const startedAt = Date.now();
     setDocxState("loading");
@@ -37,16 +51,17 @@ export function ResumeActions({ resumeData, resumePackage, renderPlan, selection
     setFeedbackFormat("");
     void emitResumeQualitySignal("export_attempted", signalInput({ exportFormat: "docx" }));
     try {
-      const { downloadResumeDocx } = await import("./resumeDocx.js");
+      const { downloadResumeDocx } = await loadResumeDocxExporter();
       await downloadResumeDocx(freshExportContext());
       setDocxState("done");
       setFeedbackFormat("docx");
       void emitResumeQualitySignal("export_completed", signalInput({ exportFormat: "docx", outcome: "completed", durationMs: Date.now() - startedAt }));
     } catch (error) {
-      console.error("DOCX export failed:", error);
+      const notice = createExportErrorNotice(error, { artifact: "résumé", format: "DOCX" });
+      console.error(`Résumé DOCX export failed (${notice.category}).`);
       setDocxState("error");
-      setMessage({ type: "error", text: docxExportErrorMessage(error) });
-      void emitResumeQualitySignal("export_failed", signalInput({ exportFormat: "docx", outcome: "failed", errorCategory: classifyDocxExportError(error), durationMs: Date.now() - startedAt }));
+      setMessage(notice);
+      void emitResumeQualitySignal("export_failed", signalInput({ exportFormat: "docx", outcome: "failed", errorCategory: notice.category, durationMs: Date.now() - startedAt }));
     }
   };
 
@@ -62,28 +77,47 @@ export function ResumeActions({ resumeData, resumePackage, renderPlan, selection
     void emitResumeQualitySignal("export_attempted", signalInput({ exportFormat: "pdf" }));
     let pdfExports;
     try {
-      pdfExports = await import("./resumePdf.js");
+      pdfExports = await loadResumePdfExporter();
+    } catch (error) {
+      const notice = createExportErrorNotice(error, { artifact: "résumé", format: "PDF" });
+      console.error(`Résumé PDF exporter could not load (${notice.category}).`);
+      setPdfState("error");
+      setMessage(notice);
+      void emitResumeQualitySignal("export_failed", signalInput({ exportFormat: "pdf", outcome: "failed", errorCategory: notice.category, durationMs: Date.now() - startedAt }));
+      return;
+    }
+
+    try {
       await pdfExports.downloadResumePdf(freshExportContext());
       setPdfState("done");
       setFeedbackFormat("pdf");
       setMessage({ type: "info", text: "The ATS-readable PDF was downloaded. Its text remains selectable and searchable." });
       void emitResumeQualitySignal("export_completed", signalInput({ exportFormat: "pdf", outcome: "completed", durationMs: Date.now() - startedAt }));
     } catch (error) {
-      console.warn("Direct PDF export failed; opening the browser print fallback:", error);
+      const category = classifyExportError(error);
+      if (category === "stale_exporter" || category === "invalid_content") {
+        const notice = createExportErrorNotice(error, { artifact: "résumé", format: "PDF" });
+        console.error(`Résumé PDF export failed (${notice.category}).`);
+        setPdfState("error");
+        setMessage(notice);
+        void emitResumeQualitySignal("export_failed", signalInput({ exportFormat: "pdf", outcome: "failed", errorCategory: notice.category, durationMs: Date.now() - startedAt }));
+        return;
+      }
+      console.warn(`Direct résumé PDF export failed (${category}); opening the browser print fallback.`);
       try {
         const context = freshExportContext();
         const title = [context.renderPlan.header.fullName, context.renderPlan.header.headline].filter(Boolean).join(" - ");
-        pdfExports ||= await import("./resumePdf.js");
         await pdfExports.printResumePdf(previewRef?.current, title || "Tailored resume");
         setPdfState("done");
         setFeedbackFormat("pdf");
         setMessage({ type: "info", text: "The direct download was unavailable. In the browser print dialog, choose “Save as PDF”." });
         void emitResumeQualitySignal("export_completed", signalInput({ exportFormat: "pdf", outcome: "completed_with_fallback", durationMs: Date.now() - startedAt }));
       } catch (fallbackError) {
-        console.error("PDF export failed:", fallbackError);
+        const notice = createExportErrorNotice(fallbackError, { artifact: "résumé", format: "PDF" });
+        console.error(`Résumé PDF export and print fallback failed (${notice.category}).`);
         setPdfState("error");
-        setMessage({ type: "error", text: "The PDF could not be created. Download the DOCX or copy the tailored text instead." });
-        void emitResumeQualitySignal("export_failed", signalInput({ exportFormat: "pdf", outcome: "failed", errorCategory: "unknown", durationMs: Date.now() - startedAt }));
+        setMessage(notice);
+        void emitResumeQualitySignal("export_failed", signalInput({ exportFormat: "pdf", outcome: "failed", errorCategory: notice.category, durationMs: Date.now() - startedAt }));
       }
     }
   };
@@ -161,7 +195,7 @@ export function ResumeActions({ resumeData, resumePackage, renderPlan, selection
           </a>
         )}
       </div>
-      {message && <p role={message.type === "error" ? "alert" : "status"} style={{ color: message.type === "error" ? C.red : C.textSub, fontSize: 12.5, margin: "10px 0 0" }}>{message.text}</p>}
+      <ExportStatusNotice message={message} C={C} />
       {feedbackFormat ? (
         <QualityFeedback
           kind="export"

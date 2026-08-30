@@ -414,3 +414,24 @@ Do not commit while a required check is failing. Do not push or deploy without s
 Production database evidence: the migration completed transactionally in the `wavelength` Production project on 2026-08-30. The independent release query returned `true` for all ten RLS, grant, public-view, RPC, index, and constraint gates. The aggregate-only backfill check reported 6,843 active listings, zero unchecked rows, and zero closed rows without a closure timestamp. A publishable-key smoke returned HTTP 200 for the safe public lifecycle field, HTTP 401 for an internal miss-counter read, and a hidden/denied response for the service-only finalization RPC.
 
 Production application evidence: feature commit `7a6896c8b86366fe8eb0a686f3f5d4f056d08e3f` and timestamp-compatibility hotfix `ed367c1` were pushed normally to `main`. Git-triggered Vercel deployment `dpl_FnVw96A83XdTM2YaEfwotAVQBNuo` reached `READY` and carries the `gigscapes.com`, `www.gigscapes.com`, and `main` aliases. Public `/`, `/app`, and `/privacy` returned HTTP 200; the private availability endpoint rejected an anonymous request with HTTP 401 and `Cache-Control: no-store, private`. Desktop and 390×844 signed-out browser smoke had no horizontal overflow, application exception, or console error. A production cron run then reported `success` for all three companion sources: Jooble saved 451/451 fresh unique observations, Jobicy saved 100/100, and Himalayas saved 100/100 after its live Unix-second timestamps were normalized. All source logs exposed only bounded counts, run mode, durations, and zero-valued uncertain/closed/reactivated metrics. Authenticated state-transition smoke across active, stale, uncertain, closed, saved-history, manual-refresh, and pre-tailoring variants remains an explicit hands-on gate; no synthetic user or listing state was created in Production for that check.
+
+## P4.H1 exporter deployment-skew resilience — 2026-08-30
+
+- [x] All résumé and cover-letter DOCX/PDF dynamic imports are owned by one cached, rejection-resetting loader boundary.
+- [x] Warm-up reaches the nested `docx` and `jspdf` dependencies only after a tailored résumé or cover-letter plan exists.
+- [x] Dynamic-module, module-script, ChunkLoad, loading-chunk, content-validation, download, serialization, and unknown errors map to fixed safe categories.
+- [x] Candidate-facing notices never interpolate the original error, hashed asset URL, chunk name, document content, or posting content.
+- [x] Stale résumé recovery protects the saved base résumé and tells the user to copy exact tailored wording before an explicit refresh and regeneration.
+- [x] Stale cover-letter recovery accurately protects the saved résumé and browser-saved target-specific draft.
+- [x] No automatic reload occurs; the accessible `Refresh Gigscapes` control is rendered only for stale-exporter recovery.
+- [x] Résumé PDF print fallback cannot run when the module did not load or export authorization/content validation failed.
+- [x] Console diagnostics and quality telemetry receive only artifact/format plus the allowlisted category.
+- [x] Focused regression passed 22/22; the complete suite passed 554/554 with zero failures, skips, cancellations, or todos.
+- [x] `npm run verify:exports` passed 48 files across 16 strategy/design combinations, 29 PDF pages, 820 selectable text items, canonical manifest parity, final authorization, stale-ready rejection, and documented one-/two-page fixtures.
+- [x] `npm run verify:cover-letters` passed final and preliminary states across two DOCX and two PDF files, two pages, 492 selectable tokens, and stale-authorization unit coverage.
+- [x] Vite 5.4.21 transformed 2,453 modules. `coverLetterDocx` (2.27 kB), `coverLetterPdf` (2.28 kB), `resumeDocx` (6.44 kB), `resumePdf` (10.75 kB), and `jspdf` (390.43 kB) remain separate lazy chunks; the public landing bundle does not gain an eager exporter import.
+- [x] Local signed-out `/app` rendered meaningful discovery content with no Vite overlay or recorded browser error. At 390×844, viewport and document widths both measured 390 px with no horizontal overflow; the interactive search, intake, listing, account, and privacy controls remained present.
+- [ ] Commit and deploy the exact verified tree after release authorization.
+- [ ] Keep a valid authenticated result open across that deployment and exercise stale résumé DOCX/PDF plus stale cover-letter DOCX/PDF recovery, copy-before-refresh, explicit refresh, regeneration where required, and successful retry.
+
+No database migration, persistence change, AI-provider change, model prompt change, evidence-policy change, or production data mutation is part of this hotfix. Microsoft Word, Google Docs, an external ATS parser, and authenticated stale-tab behavior were not available to this local pass and are not claimed.

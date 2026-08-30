@@ -56,12 +56,6 @@ export function ResumeExperience({ baseResume = "", resumeData, item, hasLink, a
     recommendationPackage.presentation.selectedLengthPreference,
   ]);
 
-  useEffect(() => {
-    void import("./resumeDocx.js")
-      .then(({ prepareResumeDocxExport }) => prepareResumeDocxExport())
-      .catch(() => {});
-  }, []);
-
   const resumePackage = useMemo(
     () => createResumePackage(resumeData, {
       item,

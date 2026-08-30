@@ -7,6 +7,16 @@ import {
 } from "./resumeModel.js";
 import { validateResumeExportContext } from "./resumeReadiness.js";
 
+let pdfModulePromise;
+
+export function prepareResumePdfExport() {
+  pdfModulePromise ||= import("jspdf").catch((error) => {
+    pdfModulePromise = undefined;
+    throw error;
+  });
+  return pdfModulePromise;
+}
+
 const PRINT_STYLES = `
   *, *::before, *::after { box-sizing: border-box; }
   html, body { width: 8.5in; min-height: 11in; margin: 0; padding: 0; background: #fff; }
@@ -50,7 +60,7 @@ function resolveRenderPlan(input, template, options) {
 async function createResumePdfDocument(input, template = "professional", options = {}, { allowMissingIdentity = false } = {}) {
   const renderPlan = resolveRenderPlan(input, template, options);
   if (!allowMissingIdentity) assertResumePackageIdentity(createResumePackage({ name: renderPlan.header.fullName }));
-  const { jsPDF } = await import("jspdf");
+  const { jsPDF } = await prepareResumePdfExport();
   const doc = new jsPDF({ unit: "pt", format: "letter", orientation: "portrait", compress: true, putOnlyUsedFonts: true });
   const tokens = renderPlan.visualTokens;
   const page = {
