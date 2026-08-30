@@ -4,6 +4,7 @@ import assert from "node:assert/strict";
 import {
   cleanFeedHtml,
   deterministicFeedListingId,
+  feedIsoDate,
   savePublicFeedListings,
 } from "../api/_lib/publicFeedStore.js";
 
@@ -20,6 +21,13 @@ test("public-feed HTML cleanup removes markup and unsafe embedded content", () =
     "Build & test",
   );
   assert.equal(cleanFeedHtml("Safe &#999999999; text"), "Safe text");
+});
+
+test("public-feed dates normalize Unix seconds and milliseconds", () => {
+  const expected = "2026-08-29T09:10:11.000Z";
+  const unixSeconds = Date.parse(expected) / 1_000;
+  assert.equal(feedIsoDate(unixSeconds), expected);
+  assert.equal(feedIsoDate(unixSeconds * 1_000), expected);
 });
 
 test("an empty public-feed batch never touches or prunes existing inventory", async () => {

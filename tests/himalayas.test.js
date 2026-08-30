@@ -84,6 +84,27 @@ test("Himalayas pagination deduplicates fresh listings and stops on an empty pag
   assert.equal(feed.stats.pageBudgetExhausted, false);
 });
 
+test("Himalayas accepts the live feed's Unix-second publication and expiry dates", async () => {
+  const now = new Date("2026-08-30T12:00:00Z");
+  const job = {
+    ...completeJob(1),
+    pubDate: Date.parse("2026-08-29T10:00:00Z") / 1_000,
+    expiryDate: Date.parse("2026-09-29T10:00:00Z") / 1_000,
+  };
+  let calls = 0;
+  const feed = await fetchHimalayasListings({
+    fetchImpl: async () => {
+      calls += 1;
+      return jsonResponse({ jobs: calls === 1 ? [job] : [] });
+    },
+    now,
+  });
+
+  assert.equal(feed.stats.fresh, 1);
+  assert.equal(feed.items.length, 1);
+  assert.equal(mapHimalayasResult(feed.items[0], { now }).posted_at, "2026-08-29T10:00:00.000Z");
+});
+
 test("Himalayas finalizes only after reaching a terminal page", async () => {
   const database = databaseRecorder();
   let calls = 0;

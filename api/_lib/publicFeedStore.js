@@ -31,7 +31,11 @@ export function cleanFeedHtml(value) {
 
 export function feedIsoDate(value) {
   if (typeof value === "number" && Number.isFinite(value)) {
-    const date = new Date(value);
+    // Public feeds commonly encode Unix timestamps in seconds while the
+    // JavaScript Date constructor expects milliseconds. Values already in
+    // milliseconds are left unchanged.
+    const milliseconds = Math.abs(value) < 1e12 ? value * 1_000 : value;
+    const date = new Date(milliseconds);
     return Number.isNaN(date.getTime()) ? null : date.toISOString();
   }
   const date = new Date(value);

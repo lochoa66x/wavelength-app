@@ -84,9 +84,11 @@ export async function fetchHimalayasListings({
   }
 
   const fresh = received.filter((job) => {
-    const published = new Date(job?.pubDate);
+    const publishedAt = feedIsoDate(job?.pubDate);
+    const published = publishedAt ? new Date(publishedAt) : new Date(Number.NaN);
     if (Number.isNaN(published.getTime()) || published < cutoff) return false;
-    const expiry = job?.expiryDate ? new Date(job.expiryDate) : null;
+    const expiryAt = job?.expiryDate ? feedIsoDate(job.expiryDate) : null;
+    const expiry = expiryAt ? new Date(expiryAt) : null;
     return !expiry || Number.isNaN(expiry.getTime()) || expiry >= now;
   });
   const unique = new Map();
