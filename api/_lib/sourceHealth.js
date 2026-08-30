@@ -6,7 +6,9 @@ const SAFE_NUMERIC_METRICS = [
   "saved",
   "inserted",
   "updated",
-  "pruned",
+  "uncertain",
+  "closed",
+  "reactivated",
   "boards",
   "failed",
 ];
@@ -14,6 +16,12 @@ const SAFE_NUMERIC_METRICS = [
 const SAFE_SKIP_CATEGORIES = new Set([
   "configuration",
   "disabled_by_policy",
+]);
+
+const SAFE_RUN_MODES = new Set([
+  "authoritative_snapshot",
+  "observation_only",
+  "partial",
 ]);
 
 function safeMetric(value) {
@@ -25,7 +33,7 @@ export function categorizeSourceError(error) {
   const message = String(error?.message || "").toLowerCase();
   if (/missing|not configured|configuration/.test(message)) return "configuration";
   if (/no valid fresh|empty|invalid batch/.test(message)) return "invalid_batch";
-  if (/supabase|database|could not (?:load|save|prune)|permission/.test(message)) return "database";
+  if (/supabase|database|could not (?:load|save|finalize)|permission/.test(message)) return "database";
   if (/timeout|fetch|request|api|unavailable|upstream|board/.test(message)) return "upstream";
   return "unknown";
 }
@@ -64,6 +72,7 @@ export function summarizeSourceOutcome(outcome, failureMessage) {
       ? value.skipCategory
       : "configuration";
   }
+  if (SAFE_RUN_MODES.has(value.runMode)) summary.runMode = value.runMode;
   for (const metric of SAFE_NUMERIC_METRICS) {
     const safe = safeMetric(value[metric]);
     if (safe !== undefined) summary[metric] = safe;

@@ -50,5 +50,12 @@ export function mapListingRow(row) {
     descriptionSourceUrl: row.url || "",
     postedAt,
     url: row.url,
+    availabilityStatus: row.availability_status || "active",
+    availabilityReason: row.availability_reason || null,
+    firstSeenAt: row.first_seen_at || null,
+    lastSeenAt: row.last_seen_at || null,
+    lastCheckedAt: row.last_checked_at || null,
+    closedAt: row.closed_at || null,
+    validThrough: row.valid_through || null,
   };
 }

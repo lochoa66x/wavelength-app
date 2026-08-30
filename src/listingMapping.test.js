@@ -14,6 +14,9 @@ test("public rows map snippets, source attribution, and valid freshness into dis
     source: "adzuna",
     description_snippet: "Configure SAP FICO and support a verified S/4HANA implementation program.",
     posted_at: "2026-08-24T12:00:00Z",
+    availability_status: "uncertain",
+    availability_reason: "publisher_blocked",
+    last_checked_at: "2026-08-30T12:00:00Z",
     url: "https://www.adzuna.ca/details/1?utm_source=gigscapes",
   });
   const intent = inferKeywordIntent("SAP consultant");
@@ -22,6 +25,9 @@ test("public rows map snippets, source attribution, and valid freshness into dis
   assert.match(mapped.searchDescription, /SAP FICO/);
   assert.equal(mapped.postedAt, "2026-08-24T12:00:00.000Z");
   assert.equal(mapped.sourceId, "adzuna");
+  assert.equal(mapped.availabilityStatus, "uncertain");
+  assert.equal(mapped.availabilityReason, "publisher_blocked");
+  assert.equal(mapped.lastCheckedAt, "2026-08-30T12:00:00Z");
   assert.deepEqual(mapped.sourceAttributions.map(({ label }) => label), ["Jobs by Adzuna"]);
   assert.ok(scoreListingRelevance(mapped, "SAP consultant", intent.categories, intent) > 0);
 });

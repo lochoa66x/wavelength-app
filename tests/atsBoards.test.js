@@ -112,3 +112,42 @@ test("ATS ingestion skips cleanly until employer boards are configured", async (
     saved: 0,
   });
 });
+
+test("ATS freshness finalization is isolated to each successful employer board", async () => {
+  const scopes = [];
+  const supabase = {
+    from: () => ({
+      select: () => ({ eq: () => ({ in: async () => ({ data: [], error: null }) }) }),
+      upsert: async () => ({ error: null }),
+    }),
+    rpc: async (_name, payload) => {
+      scopes.push(payload.p_scope);
+      return { data: [{ uncertain_count: 0, closed_count: 0 }], error: null };
+    },
+  };
+  const boards = [
+    { provider: "greenhouse", board: "working", company: "Working Inc." },
+    { provider: "greenhouse", board: "failed", company: "Failed Inc." },
+  ];
+  const fetchImpl = async (url) => {
+    if (String(url).includes("/failed/")) throw new Error("network unavailable");
+    return {
+      ok: true,
+      status: 200,
+      json: async () => ({ jobs: [{
+        id: 1,
+        title: "SAP Analyst",
+        location: { name: "Toronto, Ontario" },
+        absolute_url: "https://job-boards.greenhouse.io/working/jobs/1",
+        updated_at: "2026-08-30T10:00:00Z",
+        content: "Support SAP delivery.",
+      }] }),
+    };
+  };
+
+  const summary = await runAtsBoardIngestion({ supabase, boards, fetchImpl, now: new Date("2026-08-30T12:00:00Z") });
+
+  assert.deepEqual(scopes, ["greenhouse:working"]);
+  assert.equal(summary.successfulBoards, 1);
+  assert.equal(summary.failedBoards, 1);
+});

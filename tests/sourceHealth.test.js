@@ -17,6 +17,7 @@ test("source summaries expose only bounded metrics and never raw failure text", 
     fresh: 40,
     unique: 35,
     saved: 35,
+    runMode: "observation_only",
     secret: "must-not-leak",
     responseBody: "untrusted upstream content",
   }), { now: () => (clock += 5) });
@@ -25,6 +26,7 @@ test("source summaries expose only bounded metrics and never raw failure text", 
   assert.equal(summary.state, "success");
   assert.equal(summary.durationMs, 5);
   assert.equal(summary.saved, 35);
+  assert.equal(summary.runMode, "observation_only");
   assert.equal("secret" in summary, false);
   assert.equal("responseBody" in summary, false);
 
@@ -41,6 +43,22 @@ test("source summaries expose only bounded metrics and never raw failure text", 
     durationMs: 12,
   });
   assert.doesNotMatch(JSON.stringify(failure), /token=private/);
+});
+
+test("source summaries expose only allowlisted run modes", () => {
+  const safe = summarizeSourceOutcome({
+    status: "fulfilled",
+    value: { runMode: "authoritative_snapshot" },
+    durationMs: 1,
+  }, "Import failed");
+  const unsafe = summarizeSourceOutcome({
+    status: "fulfilled",
+    value: { runMode: "private-board-name" },
+    durationMs: 1,
+  }, "Import failed");
+
+  assert.equal(safe.runMode, "authoritative_snapshot");
+  assert.equal("runMode" in unsafe, false);
 });
 
 test("cron health distinguishes success, partial failure, complete failure, and skipped runs", () => {

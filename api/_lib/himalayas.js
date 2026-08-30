@@ -11,6 +11,7 @@ import {
   feedIsoDate,
   savePublicFeedListings,
 } from "./publicFeedStore.js";
+import { LISTING_SOURCE_RUN_MODE } from "./listingFreshness.js";
 
 export const HIMALAYAS_COUNTRY = "CA";
 export const HIMALAYAS_PAGE_BUDGET = 5;
@@ -55,6 +56,7 @@ export async function fetchHimalayasListings({
   const cutoff = new Date(daysBefore(now, HIMALAYAS_MAX_DAYS_OLD));
   const received = [];
   let requests = 0;
+  let reachedTerminalPage = false;
 
   for (let page = 1; page <= HIMALAYAS_PAGE_BUDGET; page += 1) {
     let response;
@@ -75,7 +77,10 @@ export async function fetchHimalayasListings({
     const payload = await response.json();
     const jobs = Array.isArray(payload?.jobs) ? payload.jobs : [];
     received.push(...jobs);
-    if (jobs.length === 0) break;
+    if (jobs.length === 0) {
+      reachedTerminalPage = true;
+      break;
+    }
   }
 
   const fresh = received.filter((job) => {
@@ -92,7 +97,14 @@ export async function fetchHimalayasListings({
 
   return {
     items: [...unique.values()],
-    stats: { requests, received: received.length, fresh: fresh.length, unique: unique.size },
+    stats: {
+      requests,
+      received: received.length,
+      fresh: fresh.length,
+      unique: unique.size,
+      reachedTerminalPage,
+      pageBudgetExhausted: !reachedTerminalPage && requests >= HIMALAYAS_PAGE_BUDGET,
+    },
   };
 }
 
@@ -155,7 +167,9 @@ export async function runHimalayasIngestion({
     supabase,
     source: "himalayas",
     rows,
-    staleAfterDays: HIMALAYAS_STALE_AFTER_DAYS,
+    runMode: feed.stats.reachedTerminalPage
+      ? LISTING_SOURCE_RUN_MODE.AUTHORITATIVE_SNAPSHOT
+      : LISTING_SOURCE_RUN_MODE.OBSERVATION_ONLY,
     now,
   });
   return { ...feed.stats, ...saved };

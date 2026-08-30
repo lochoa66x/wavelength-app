@@ -6,6 +6,7 @@ import {
   normalizeWorkArrangement,
 } from "../../src/listingCategories.js";
 import { toStructuredLocationPatch } from "../../src/listingLocations.js";
+import { LISTING_SOURCE_RUN_MODE, saveListingSourceRun } from "./listingFreshness.js";
 
 export const JOBICY_COUNTRY = "CA";
 export const JOBICY_RESULTS_PER_REQUEST = 100;
@@ -13,14 +14,6 @@ export const JOBICY_MAX_DAYS_OLD = 45;
 export const JOBICY_STALE_AFTER_DAYS = 60;
 
 const JOBICY_API_URL = "https://jobicy.com/api/v2/remote-jobs";
-
-function chunk(values, size) {
-  const chunks = [];
-  for (let index = 0; index < values.length; index += size) {
-    chunks.push(values.slice(index, index + size));
-  }
-  return chunks;
-}
 
 function clean(value) {
   return String(value || "").trim();
@@ -183,46 +176,6 @@ export function mapJobicyResult(job, { now = new Date() } = {}) {
   };
 }
 
-async function loadExistingJobicyIds(supabase, externalIds) {
-  const existing = new Map();
-  for (const ids of chunk(externalIds, 200)) {
-    const { data, error } = await supabase
-      .from("listings")
-      .select("id,external_id")
-      .eq("source", "jobicy")
-      .in("external_id", ids);
-    if (error) throw new Error(`Could not load existing Jobicy listings: ${error.message}`);
-    for (const row of data || []) existing.set(String(row.external_id), row.id);
-  }
-  return existing;
-}
-
-async function upsertJobicyRows(supabase, rows) {
-  for (const batch of chunk(rows, 100)) {
-    const { error } = await supabase.from("listings").upsert(batch);
-    if (error) throw new Error(`Could not save Jobicy listings: ${error.message}`);
-  }
-}
-
-async function pruneStaleJobicyRows(supabase, cutoff) {
-  const oldDated = await supabase
-    .from("listings")
-    .delete({ count: "exact" })
-    .eq("source", "jobicy")
-    .lt("posted_at", cutoff);
-  if (oldDated.error) throw new Error(`Could not prune stale Jobicy listings: ${oldDated.error.message}`);
-
-  const oldUndated = await supabase
-    .from("listings")
-    .delete({ count: "exact" })
-    .eq("source", "jobicy")
-    .is("posted_at", null)
-    .lt("fetched_at", cutoff);
-  if (oldUndated.error) throw new Error(`Could not prune undated Jobicy listings: ${oldUndated.error.message}`);
-
-  return (oldDated.count || 0) + (oldUndated.count || 0);
-}
-
 export async function runJobicyIngestion({
   supabase,
   fetchImpl = globalThis.fetch,
@@ -235,26 +188,18 @@ export async function runJobicyIngestion({
     throw new Error("Jobicy returned no valid fresh Canadian listings; existing data was left unchanged");
   }
 
-  const existing = await loadExistingJobicyIds(
+  const saved = await saveListingSourceRun({
     supabase,
-    mapped.map((row) => row.external_id),
-  );
-  const rows = mapped.map((row) => ({
-    ...row,
-    id: existing.get(row.external_id) || deterministicJobicyListingId(row.external_id),
-  }));
-
-  await upsertJobicyRows(supabase, rows);
-  const pruned = await pruneStaleJobicyRows(
-    supabase,
-    daysBefore(now, JOBICY_STALE_AFTER_DAYS),
-  );
+    source: "jobicy",
+    rows: mapped,
+    // The public endpoint is capped at 100 ranked results and does not prove
+    // that every still-open Canada-eligible listing was enumerated.
+    runMode: LISTING_SOURCE_RUN_MODE.OBSERVATION_ONLY,
+    now,
+  });
 
   return {
     ...feed.stats,
-    saved: rows.length,
-    inserted: rows.length - existing.size,
-    updated: existing.size,
-    pruned,
+    ...saved,
   };
 }

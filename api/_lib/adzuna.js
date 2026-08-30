@@ -5,6 +5,7 @@ import {
   normalizeWorkArrangement,
 } from "../../src/listingCategories.js";
 import { toStructuredLocationPatch } from "../../src/listingLocations.js";
+import { LISTING_SOURCE_RUN_MODE, saveListingSourceRun } from "./listingFreshness.js";
 import { selectDailyTechnologySearches } from "./technologySearches.js";
 
 export const ADZUNA_COUNTRY = "ca";
@@ -47,14 +48,6 @@ const FALLBACK_SEARCHES = [
   { category: "hospitality", whatOr: "hospitality retail cook server" },
   { category: "care", whatOr: "healthcare caregiver education teacher" },
 ];
-
-function chunk(values, size) {
-  const chunks = [];
-  for (let index = 0; index < values.length; index += size) {
-    chunks.push(values.slice(index, index + size));
-  }
-  return chunks;
-}
 
 function clean(value) {
   return String(value || "").trim();
@@ -310,46 +303,6 @@ export function mapAdzunaResult(result, sourceCategory, { now = new Date() } = {
   };
 }
 
-async function loadExistingAdzunaIds(supabase, externalIds) {
-  const existing = new Map();
-  for (const ids of chunk(externalIds, 200)) {
-    const { data, error } = await supabase
-      .from("listings")
-      .select("id,external_id")
-      .eq("source", "adzuna")
-      .in("external_id", ids);
-    if (error) throw new Error(`Could not load existing Adzuna listings: ${error.message}`);
-    for (const row of data || []) existing.set(String(row.external_id), row.id);
-  }
-  return existing;
-}
-
-async function upsertAdzunaRows(supabase, rows) {
-  for (const batch of chunk(rows, 100)) {
-    const { error } = await supabase.from("listings").upsert(batch);
-    if (error) throw new Error(`Could not save Adzuna listings: ${error.message}`);
-  }
-}
-
-async function pruneStaleAdzunaRows(supabase, cutoff) {
-  const oldDated = await supabase
-    .from("listings")
-    .delete({ count: "exact" })
-    .eq("source", "adzuna")
-    .lt("posted_at", cutoff);
-  if (oldDated.error) throw new Error(`Could not prune stale Adzuna listings: ${oldDated.error.message}`);
-
-  const oldUndated = await supabase
-    .from("listings")
-    .delete({ count: "exact" })
-    .eq("source", "adzuna")
-    .is("posted_at", null)
-    .lt("fetched_at", cutoff);
-  if (oldUndated.error) throw new Error(`Could not prune undated Adzuna listings: ${oldUndated.error.message}`);
-
-  return (oldDated.count || 0) + (oldUndated.count || 0);
-}
-
 export async function runAdzunaIngestion({
   supabase,
   credentials,
@@ -366,26 +319,20 @@ export async function runAdzunaIngestion({
     throw new Error("Adzuna returned no valid fresh Canadian listings; existing data was left unchanged");
   }
 
-  const existing = await loadExistingAdzunaIds(
+  const saved = await saveListingSourceRun({
     supabase,
-    mapped.map((row) => row.external_id),
-  );
-  const rows = mapped.map((row) => ({
-    ...row,
-    id: existing.get(row.external_id) || deterministicListingId("adzuna", row.external_id),
-  }));
-
-  await upsertAdzunaRows(supabase, rows);
-  const pruned = await pruneStaleAdzunaRows(
-    supabase,
-    daysBefore(now, ADZUNA_STALE_AFTER_DAYS),
-  );
+    source: "adzuna",
+    rows: mapped,
+    // Ranked first-page searches and rotating technology queries are positive
+    // observations, never a complete Adzuna inventory.
+    runMode: feed.stats.failures.length > 0
+      ? LISTING_SOURCE_RUN_MODE.PARTIAL
+      : LISTING_SOURCE_RUN_MODE.OBSERVATION_ONLY,
+    now,
+  });
 
   return {
     ...feed.stats,
-    saved: rows.length,
-    inserted: rows.length - existing.size,
-    updated: existing.size,
-    pruned,
+    ...saved,
   };
 }

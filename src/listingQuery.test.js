@@ -9,6 +9,7 @@ import {
   escapeLikePattern,
   hasNextListingPage,
   isMissingPublicListingView,
+  isMissingListingAvailabilityColumn,
   listingServerSearchTerms,
   listingQueryFingerprint,
   mergeListingPages,
@@ -139,6 +140,11 @@ test("legacy fallback is restricted to missing location columns", () => {
 test("public-view fallback is restricted to a missing relation", () => {
   assert.equal(isMissingPublicListingView({ code: "PGRST205", message: "Could not find public.public_listings" }), true);
   assert.equal(isMissingPublicListingView({ code: "42501", message: "permission denied" }), false);
+});
+
+test("availability fallback is restricted to missing lifecycle columns", () => {
+  assert.equal(isMissingListingAvailabilityColumn({ code: "42703", message: "column availability_status does not exist" }), true);
+  assert.equal(isMissingListingAvailabilityColumn({ code: "42501", message: "permission denied" }), false);
 });
 
 test("query fingerprints reset pagination for search and geographic changes", () => {

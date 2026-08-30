@@ -10,6 +10,7 @@ import {
   feedIsoDate,
   savePublicFeedListings,
 } from "./publicFeedStore.js";
+import { LISTING_SOURCE_RUN_MODE } from "./listingFreshness.js";
 
 export const ATS_PROVIDERS = new Set(["greenhouse", "lever", "ashby"]);
 export const ATS_BOARD_LIMIT = 60;
@@ -209,30 +210,27 @@ export async function runAtsBoardIngestion({
 
   const results = [];
   for (const batch of chunk(boards, 5)) {
-    results.push(...await Promise.allSettled(batch.map((config) => fetchAtsBoard(config, { fetchImpl, now }))));
+    results.push(...await Promise.allSettled(batch.map(async (config) => ({
+      config,
+      ...await fetchAtsBoard(config, { fetchImpl, now }),
+    }))));
   }
   const successful = results.filter(({ status }) => status === "fulfilled");
   if (successful.length === 0) throw new Error("All configured ATS board requests failed");
 
-  const rowsBySource = new Map();
   let received = 0;
-  for (const result of successful) {
-    received += result.value.received;
-    for (const row of result.value.rows) {
-      const rows = rowsBySource.get(row.source) || [];
-      rows.push(row);
-      rowsBySource.set(row.source, rows);
-    }
-  }
-
   const summaries = {};
-  for (const [source, rows] of rowsBySource) {
+  for (const result of successful) {
+    const { config, rows } = result.value;
+    received += result.value.received;
     if (rows.length === 0) continue;
-    summaries[source] = await savePublicFeedListings({
+    const sourceScope = `${config.provider}:${config.board.toLowerCase()}`;
+    summaries[sourceScope] = await savePublicFeedListings({
       supabase,
-      source,
+      source: config.provider,
+      sourceScope,
       rows,
-      staleAfterDays: ATS_STALE_AFTER_DAYS,
+      runMode: LISTING_SOURCE_RUN_MODE.AUTHORITATIVE_SNAPSHOT,
       now,
     });
   }

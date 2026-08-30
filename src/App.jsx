@@ -31,7 +31,7 @@ import { getMatchPresentation } from "./matchPresentation.js";
 import { migrateCloudResume } from "./resumeMigration.js";
 import { supabase } from "./supabase.js";
 import { isFutureJwtError, runWithFutureJwtRecovery } from "./supabaseRecovery.js";
-import { enrichListing, tailorResume } from "./tailorClient.js";
+import { checkListingAvailability, enrichListing, tailorResume } from "./tailorClient.js";
 import { useAuth } from "./auth.jsx";
 import {
   COUNTRY_OPTIONS,
@@ -69,6 +69,11 @@ import { usePrivateProcessingGate } from "./privateProcessing.js";
 import { clearPrivateBrowserData } from "./privacyStorage.js";
 import { useResumeVault } from "./useResumeVault.js";
 import { resumeSyncWorkspaceStatus } from "./resumeSyncPresentation.js";
+import {
+  availabilityPatch,
+  getAvailabilityPresentation,
+  shouldCheckBeforeTailoring,
+} from "./listingAvailability.js";
 
 const SYS_FONT = "-apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Segoe UI', Roboto, sans-serif";
 const ADZUNA_ATTRIBUTION_STYLE = {
@@ -694,6 +699,7 @@ export default function Gigscapes() {
     hasMore: hasMoreListings,
     loadMore: loadMoreListings,
     refetch: refetchListings,
+    updateListing,
     legacyFallback: legacyLocationFallback,
   } = useLiveListings(criteria, { resetKey: listingResetKey });
 
@@ -701,6 +707,7 @@ export default function Gigscapes() {
   const [expandedApply, setExpandedApply] = useState(null);
   const [pendingTailoringFocus, setPendingTailoringFocus] = useState(null);
   const [tailored, setTailored] = useState({});
+  const [availabilityChecks, setAvailabilityChecks] = useState({});
   const tailoringRequests = useRef(new Map());
   const tailoringPanelRefs = useRef(new Map());
   const [candidateEvidenceByTarget, setCandidateEvidenceByTarget] = useState({});
@@ -917,6 +924,39 @@ export default function Gigscapes() {
       },
     });
   };
+
+  const runAvailabilityCheck = useCallback(async (item, options = {}) => {
+    setAvailabilityChecks((current) => ({
+      ...current,
+      [item.id]: { status: "loading", message: "Checking the publisher…" },
+    }));
+    try {
+      const result = await checkListingAvailability(item.id, options);
+      const patch = availabilityPatch(result);
+      updateListing(item.id, patch);
+      setAvailabilityChecks((current) => ({
+        ...current,
+        [item.id]: { status: "done", message: result.message, availability: patch },
+      }));
+      return { ...item, ...patch };
+    } catch (error) {
+      if (error.name === "AbortError") throw error;
+      setAvailabilityChecks((current) => ({
+        ...current,
+        [item.id]: { status: "error", message: "We couldn't confirm this posting. The listing was not marked closed." },
+      }));
+      throw error;
+    }
+  }, [updateListing]);
+
+  const handleAvailabilityCheck = (item) => {
+    if (!session?.user?.id) {
+      openSignIn();
+      return;
+    }
+    void runAvailabilityCheck(item);
+  };
+
   const performTailor = async (item, stateKey, { skipEnrichment = false, candidateEvidenceOverride } = {}) => {
     if (!session?.user?.id) {
       requestAccountAction("tailor_resume", {
@@ -937,8 +977,40 @@ export default function Gigscapes() {
       submittableCandidateEvidence(applicationEvidence),
       submittableCandidateEvidence(loadReusableCandidateEvidence(session?.user?.id)),
     );
-    setTailored((t) => ({ ...t, [stateKey]: { ...t[stateKey], status: "loading", phase: skipEnrichment ? "tailoring" : "enriching" } }));
+    setTailored((t) => ({ ...t, [stateKey]: { ...t[stateKey], status: "loading", phase: "availability" } }));
     try {
+      let checkedItem = liveListings.find((listing) => listing.id === item.id) || item;
+      if (checkedItem.availabilityStatus === "closed") {
+        setTailored((t) => ({ ...t, [stateKey]: {
+          status: "listing_closed",
+          message: "This posting appears to be closed. Your saved history remains available, or you can bring an updated posting.",
+        } }));
+        tailoringRequests.current.delete(stateKey);
+        return;
+      }
+      if (shouldCheckBeforeTailoring(checkedItem)) {
+        try {
+          checkedItem = await runAvailabilityCheck(checkedItem, { signal: request.controller.signal });
+        } catch (availabilityError) {
+          if (availabilityError.name === "AbortError") throw availabilityError;
+          // A blocked or unreachable publisher is not proof that the job is
+          // closed. Keep the user's explicit tailoring action available.
+        }
+        if (tailoringRequests.current.get(stateKey) !== request) return;
+        if (checkedItem.availabilityStatus === "closed") {
+          setTailored((t) => ({ ...t, [stateKey]: {
+            status: "listing_closed",
+            message: "The publisher now shows this posting as closed. Nothing was submitted, and your résumé is unchanged.",
+          } }));
+          tailoringRequests.current.delete(stateKey);
+          return;
+        }
+      }
+
+      setTailored((t) => ({
+        ...t,
+        [stateKey]: { ...t[stateKey], status: "loading", phase: skipEnrichment ? "tailoring" : "enriching" },
+      }));
       let enrichment = null;
       if (!skipEnrichment) {
         enrichment = await enrichListing(item.id, { signal: request.controller.signal });
@@ -1258,9 +1330,12 @@ export default function Gigscapes() {
   const filterByWorkType = selectedWorkTypes.length > 0 && !selectedWorkTypes.includes("any");
 
   const discoveryNow = new Date();
-  const discoveryListings = liveListings.filter((item) =>
-    isListingFreshForDiscovery(item, { now: discoveryNow }),
-  );
+  const discoveryListings = liveListings.filter((item) => {
+    const savedHistory = viewFilter === "saved" && saved.includes(itemKey(item));
+    if (savedHistory) return true;
+    return item.availabilityStatus !== "closed"
+      && isListingFreshForDiscovery(item, { now: discoveryNow });
+  });
 
   const keywordRelevantListings = discoveryListings
     .map((item) => ({
@@ -2018,6 +2093,15 @@ export default function Gigscapes() {
           const key = itemKey(item);
           const isDismissed = dismissed.includes(key);
           const isSaved = saved.includes(key);
+          const availability = getAvailabilityPresentation(item);
+          const availabilityCheck = availabilityChecks[item.id];
+          const availabilityTone = availability.tone === "danger"
+            ? { color: C.red, background: "#FFF1EF", border: "#F5C7C0" }
+            : availability.tone === "warning"
+              ? { color: C.amber, background: C.amberTint, border: C.amberBorder }
+              : availability.tone === "positive"
+                ? { color: "#1F6B52", background: "#EDF8F3", border: "#C9E7DB" }
+                : { color: C.textSub, background: "#F6F6F7", border: C.border };
           return (
             <div key={stateKey} className="wl-card" style={{ background: C.bgCard, borderRadius: 18, padding: "18px 20px", boxShadow: "0 1px 2px rgba(0,0,0,0.03), 0 6px 16px rgba(0,0,0,0.04)", opacity: isDismissed ? 0.5 : 1 }}>
               <div className="wl-cardhead" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 14 }}>
@@ -2034,6 +2118,27 @@ export default function Gigscapes() {
                       <SourceAttribution source={item.source} sources={item.sourceAttributions} />
                     </div>
                     <div style={{ fontSize: 12.5, color: C.textFaint, marginTop: 8 }}>{item.reason}</div>
+                    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 8, marginTop: 9 }}>
+                      <span
+                        title={availability.detail}
+                        style={{
+                          alignItems: "center",
+                          background: availabilityTone.background,
+                          border: `1px solid ${availabilityTone.border}`,
+                          borderRadius: 980,
+                          color: availabilityTone.color,
+                          display: "inline-flex",
+                          fontSize: 11.5,
+                          fontWeight: 700,
+                          gap: 5,
+                          padding: "4px 8px",
+                        }}
+                      >
+                        {availability.status === "active" ? <CheckCircle2 size={12} /> : <Clock size={12} />}
+                        {availability.label}
+                      </span>
+                      <span style={{ color: C.textFaint, fontSize: 11.5 }}>{availability.detail}</span>
+                    </div>
                   </div>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 8, flexShrink: 0 }}>
@@ -2070,6 +2175,16 @@ export default function Gigscapes() {
                 )}
                 <button
                   type="button"
+                  onClick={() => handleAvailabilityCheck(item)}
+                  disabled={availabilityCheck?.status === "loading"}
+                  className="wl-btn"
+                  style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12.5, fontWeight: 600, color: C.textSub, background: "none", border: "none", cursor: availabilityCheck?.status === "loading" ? "wait" : "pointer" }}
+                >
+                  {availabilityCheck?.status === "loading" ? <Loader2 size={12} className="wl-spin" /> : <RotateCcw size={12} />}
+                  {availabilityCheck?.status === "loading" ? "Checking…" : "Check availability"}
+                </button>
+                <button
+                  type="button"
                   onClick={() => openTailoring(item, stateKey)}
                   className="wl-btn"
                   aria-expanded={isExpanded}
@@ -2094,7 +2209,20 @@ export default function Gigscapes() {
                   <h3 id={headingId} style={{ color: C.text, fontSize: 15, lineHeight: 1.35, margin: "0 0 10px" }}>
                     Review and tailor for {item.title}
                   </h3>
-                  {!resume && (
+                  {availabilityCheck?.status === "error" && (
+                    <p role="status" style={{ color: C.amber, fontSize: 12.5, margin: "0 0 10px" }}>{availabilityCheck.message}</p>
+                  )}
+                  {item.availabilityStatus === "closed" && !t && (
+                    <div role="status" style={{ background: "#FFF1EF", border: "1px solid #F5C7C0", borderRadius: 12, padding: "12px 13px" }}>
+                      <strong style={{ color: C.red, display: "block", fontSize: 13.5, marginBottom: 4 }}>This posting appears to be closed</strong>
+                      <p style={{ color: C.textSub, fontSize: 12.5, lineHeight: 1.5, margin: "0 0 10px" }}>It remains in your saved history. You can view the source, search for a similar role, or bring an updated posting without losing prior work.</p>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                        {hasLink && <a href={item.url} target="_blank" rel="noreferrer" className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, fontSize: 12, padding: "8px 11px", textDecoration: "none" }}>View source <ExternalLink size={11} /></a>}
+                        <button type="button" onClick={() => openCustomJob("url")} className="wl-btn" style={{ ...primaryBtnStyle(false), fontSize: 12, padding: "8px 11px" }}><Link2 size={12} /> Add updated posting</button>
+                      </div>
+                    </div>
+                  )}
+                  {!resume && item.availabilityStatus !== "closed" && (
                     <div>
                       <p style={{ fontSize: 13, color: C.textSub, marginBottom: 10 }}>
                         Add your résumé first so we can tailor it for this gig.
@@ -2109,7 +2237,7 @@ export default function Gigscapes() {
                       </button>
                     </div>
                   )}
-                  {resume && !t && (
+                  {resume && !t && item.availabilityStatus !== "closed" && (
                     <div>
                       <p style={{ fontSize: 13, color: C.textSub, marginBottom: 10 }}>
                         We'll analyze the posting evidence and tailor your saved résumé safely. This usually takes 1–2 minutes.
@@ -2122,11 +2250,20 @@ export default function Gigscapes() {
                   {t?.status === "loading" && (
                     <div style={{ alignItems: "center", display: "flex", flexWrap: "wrap", gap: 10 }}>
                       <span role="status" style={{ fontSize: 13, color: C.textSub, display: "flex", alignItems: "center", gap: 6 }}>
-                        <Loader2 size={14} className="wl-spin" /> {t.phase === "enriching" ? "Loading and validating the full posting…" : "Analyzing evidence and tailoring safely… (usually 1–2 minutes)"}
+                        <Loader2 size={14} className="wl-spin" /> {t.phase === "availability" ? "Confirming that the posting is still available…" : t.phase === "enriching" ? "Loading and validating the full posting…" : "Analyzing evidence and tailoring safely… (usually 1–2 minutes)"}
                       </span>
                       <button type="button" onClick={() => cancelListingTailoring(stateKey)} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, fontSize: 12, padding: "7px 11px" }}>
                         Cancel
                       </button>
+                    </div>
+                  )}
+                  {t?.status === "listing_closed" && (
+                    <div>
+                      <p role="status" style={{ fontSize: 13, color: C.red, marginBottom: 10 }}>{t.message}</p>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                        <button type="button" onClick={() => openCustomJob("url")} className="wl-btn" style={{ ...primaryBtnStyle(false), fontSize: 12.5, padding: "9px 14px" }}><Link2 size={13} /> Bring updated posting</button>
+                        <button type="button" onClick={() => setViewFilter("all")} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, fontSize: 12.5, padding: "9px 14px" }}><Search size={13} /> Find similar roles</button>
+                      </div>
                     </div>
                   )}
                   {t?.status === "needs_posting" && (
@@ -2174,6 +2311,11 @@ export default function Gigscapes() {
                   )}
                   {t?.status === "done" && (
                     <>
+                      {item.availabilityStatus === "closed" && (
+                        <p role="status" style={{ background: "#FFF1EF", border: "1px solid #F5C7C0", borderRadius: 10, color: C.red, fontSize: 12.5, lineHeight: 1.5, margin: "0 0 10px", padding: "9px 11px" }}>
+                          This posting now appears closed. Your existing tailored draft is preserved for review, but verify the source before applying.
+                        </p>
+                      )}
                       {t.enrichment?.source && (
                         <p style={{ fontSize: 12.5, color: C.textFaint, margin: "0 0 10px" }}>
                           Full posting loaded from {t.enrichment.source === "employer_jsonld" ? "employer structured data" : "the employer page"}.
@@ -2238,7 +2380,7 @@ export default function Gigscapes() {
             <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.green, fontSize: 12.5, fontWeight: 700, marginBottom: 8 }}>
               <Sparkles size={14} /> Bring your own posting
             </div>
-            <h2 style={{ margin: "0 0 6px", color: C.text, fontSize: 16, lineHeight: 1.3 }}>Already found a job?</h2>
+            <h2 style={{ margin: "0 0 6px", color: C.text, fontSize: 16, lineHeight: 1.3 }}>Already have a job posting?</h2>
             <p style={{ margin: "0 0 14px", color: C.textSub, fontSize: 12.5, lineHeight: 1.5 }}>
               Import the posting by link, screenshots, or text. You&apos;ll review it before we tailor your résumé.
             </p>

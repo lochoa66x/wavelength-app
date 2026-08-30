@@ -11,7 +11,7 @@ export const INACTIVE_LISTING_SOURCES = ["craigslist"];
 export const INITIAL_LISTING_PAGE_LIMIT = 3;
 export const PUBLIC_LISTING_RELATION = "public_listings";
 export const PUBLIC_LISTING_BASE_RELATION = "listings";
-export const PUBLIC_LISTING_SELECT = [
+export const PUBLIC_LISTING_LEGACY_SELECT = [
   "id",
   "category",
   "tier",
@@ -28,6 +28,16 @@ export const PUBLIC_LISTING_SELECT = [
   "description_snippet",
   "url",
   "posted_at",
+].join(",");
+export const PUBLIC_LISTING_SELECT = [
+  PUBLIC_LISTING_LEGACY_SELECT,
+  "availability_status",
+  "first_seen_at",
+  "last_seen_at",
+  "last_checked_at",
+  "closed_at",
+  "availability_reason",
+  "valid_through",
 ].join(",");
 
 const TECHNOLOGY_SEARCH_ALIASES = {
@@ -153,6 +163,7 @@ export function createListingsQuery(
     page = 0,
     pageSize = LISTINGS_PAGE_SIZE,
     includeStructuredFilters = true,
+    includeAvailability = true,
     relation = PUBLIC_LISTING_RELATION,
   } = {},
 ) {
@@ -163,7 +174,7 @@ export function createListingsQuery(
 
   let query = client
     .from(relation)
-    .select(PUBLIC_LISTING_SELECT, { count: "exact" })
+    .select(includeAvailability ? PUBLIC_LISTING_SELECT : PUBLIC_LISTING_LEGACY_SELECT, { count: "exact" })
     .order("posted_at", { ascending: false, nullsFirst: false })
     .order("id", { ascending: false });
 
@@ -182,6 +193,14 @@ export function isMissingPublicListingView(error) {
   return error.code === "PGRST205"
     || error.code === "42P01"
     || (message.includes("public_listings") && message.includes("could not find"));
+}
+
+export function isMissingListingAvailabilityColumn(error) {
+  if (!error) return false;
+  const message = String(error.message || "").toLowerCase();
+  return error.code === "42703"
+    && ["availability_status", "first_seen_at", "last_seen_at", "last_checked_at", "closed_at", "availability_reason", "valid_through"]
+      .some((column) => message.includes(column));
 }
 
 export function canUseLegacyLocationFallback(error, criteria = {}) {

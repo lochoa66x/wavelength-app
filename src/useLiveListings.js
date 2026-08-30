@@ -16,7 +16,9 @@ import {
   listingQueryFingerprint,
   mergeListingPages,
   PUBLIC_LISTING_BASE_RELATION,
+  PUBLIC_LISTING_RELATION,
   isMissingPublicListingView,
+  isMissingListingAvailabilityColumn,
   shouldAutoContinueListingSearch,
 } from "./listingQuery.js";
 import { supabase } from "./supabase.js";
@@ -86,6 +88,8 @@ export function useLiveListings(criteria = {}, { resetKey = "", pageSize = LISTI
       const collectCandidateWindow = Boolean(String(keyword || "").trim() && searchIntent.recognized);
 
       do {
+        let activeRelation = PUBLIC_LISTING_RELATION;
+        let includeAvailability = true;
         result = await createListingsQuery(supabase, filters, {
           page: currentPage,
           pageSize,
@@ -96,6 +100,7 @@ export function useLiveListings(criteria = {}, { resetKey = "", pageSize = LISTI
         // narrow public view yet. Query the same explicit public columns from
         // the existing read-only listing table; never fall back to select("*").
         if (result.error && isMissingPublicListingView(result.error)) {
+          activeRelation = PUBLIC_LISTING_BASE_RELATION;
           result = await createListingsQuery(supabase, filters, {
             page: currentPage,
             pageSize,
@@ -104,11 +109,24 @@ export function useLiveListings(criteria = {}, { resetKey = "", pageSize = LISTI
           });
         }
 
+        if (result.error && isMissingListingAvailabilityColumn(result.error)) {
+          includeAvailability = false;
+          result = await createListingsQuery(supabase, filters, {
+            page: currentPage,
+            pageSize,
+            includeStructuredFilters: true,
+            includeAvailability,
+            relation: activeRelation,
+          });
+        }
+
         if (result.error && canUseLegacyLocationFallback(result.error, filters)) {
           result = await createListingsQuery(supabase, filters, {
             page: currentPage,
             pageSize,
             includeStructuredFilters: false,
+            includeAvailability,
+            relation: activeRelation,
           });
           usedLegacyFallback = true;
         }
@@ -175,6 +193,12 @@ export function useLiveListings(criteria = {}, { resetKey = "", pageSize = LISTI
     return fetchPage(page + 1, { version: requestVersion.current });
   }, [fetchPage, hasMore, page, status]);
 
+  const updateListing = useCallback((listingId, patch) => {
+    setListings((current) => current.map((listing) => (
+      listing.id === listingId ? { ...listing, ...patch } : listing
+    )));
+  }, []);
+
   return {
     listings,
     status,
@@ -185,6 +209,7 @@ export function useLiveListings(criteria = {}, { resetKey = "", pageSize = LISTI
     hasMore,
     loadMore,
     refetch,
+    updateListing,
     legacyFallback,
   };
 }

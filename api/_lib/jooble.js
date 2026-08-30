@@ -5,7 +5,8 @@ import {
   normalizeWorkArrangement,
 } from "../../src/listingCategories.js";
 import { toStructuredLocationPatch } from "../../src/listingLocations.js";
-import { assessDescriptionStatus, descriptionHash, shouldPreserveExistingDescription } from "./listingDescription.js";
+import { assessDescriptionStatus, descriptionHash } from "./listingDescription.js";
+import { LISTING_SOURCE_RUN_MODE, saveListingSourceRun } from "./listingFreshness.js";
 import { selectDailyTechnologySearches } from "./technologySearches.js";
 
 export const JOOBLE_COUNTRY = "CA";
@@ -30,14 +31,6 @@ const SEARCHES = [
   { category: "hospitality", keywords: "hospitality retail cook server" },
   { category: "care", keywords: "healthcare caregiver education teacher" },
 ];
-
-function chunk(values, size) {
-  const chunks = [];
-  for (let index = 0; index < values.length; index += size) {
-    chunks.push(values.slice(index, index + size));
-  }
-  return chunks;
-}
 
 function clean(value) {
   return String(value || "").trim();
@@ -239,46 +232,6 @@ export function mapJoobleResult(result, sourceCategory, { now = new Date() } = {
   };
 }
 
-async function loadExistingJoobleIds(supabase, externalIds) {
-  const existing = new Map();
-  for (const ids of chunk(externalIds, 200)) {
-    const { data, error } = await supabase
-      .from("listings")
-      .select("id,external_id,description,description_snippet,description_source,description_status,description_source_url,description_fetched_at,description_content_hash,description_enrichment_error_code")
-      .eq("source", "jooble")
-      .in("external_id", ids);
-    if (error) throw new Error(`Could not load existing Jooble listings: ${error.message}`);
-    for (const row of data || []) existing.set(String(row.external_id), row);
-  }
-  return existing;
-}
-
-async function upsertJoobleRows(supabase, rows) {
-  for (const batch of chunk(rows, 100)) {
-    const { error } = await supabase.from("listings").upsert(batch);
-    if (error) throw new Error(`Could not save Jooble listings: ${error.message}`);
-  }
-}
-
-async function pruneStaleJoobleRows(supabase, cutoff) {
-  const oldDated = await supabase
-    .from("listings")
-    .delete({ count: "exact" })
-    .eq("source", "jooble")
-    .lt("posted_at", cutoff);
-  if (oldDated.error) throw new Error(`Could not prune stale Jooble listings: ${oldDated.error.message}`);
-
-  const oldUndated = await supabase
-    .from("listings")
-    .delete({ count: "exact" })
-    .eq("source", "jooble")
-    .is("posted_at", null)
-    .lt("fetched_at", cutoff);
-  if (oldUndated.error) throw new Error(`Could not prune undated Jooble listings: ${oldUndated.error.message}`);
-
-  return (oldDated.count || 0) + (oldUndated.count || 0);
-}
-
 export async function runJoobleIngestion({
   supabase,
   apiKey,
@@ -295,40 +248,20 @@ export async function runJoobleIngestion({
     throw new Error("Jooble returned no valid fresh Canadian listings; existing data was left unchanged");
   }
 
-  const existing = await loadExistingJoobleIds(
+  const saved = await saveListingSourceRun({
     supabase,
-    mapped.map((row) => row.external_id),
-  );
-  const rows = mapped.map((row) => {
-    const prior = existing.get(row.external_id);
-    const preserve = shouldPreserveExistingDescription(prior, row.description);
-    return {
-      ...row,
-      id: prior?.id || deterministicJoobleListingId(row.external_id),
-      ...(preserve ? {
-        description: prior.description,
-        description_snippet: prior.description_snippet || row.description_snippet,
-        description_source: prior.description_source,
-        description_status: prior.description_status,
-        description_source_url: prior.description_source_url,
-        description_fetched_at: prior.description_fetched_at,
-        description_content_hash: prior.description_content_hash,
-        description_enrichment_error_code: prior.description_enrichment_error_code,
-      } : {}),
-    };
+    source: "jooble",
+    rows: mapped,
+    // Ranked first-page searches and rotating technology queries are positive
+    // observations, never a complete Jooble inventory.
+    runMode: feed.stats.failures.length > 0
+      ? LISTING_SOURCE_RUN_MODE.PARTIAL
+      : LISTING_SOURCE_RUN_MODE.OBSERVATION_ONLY,
+    now,
   });
-
-  await upsertJoobleRows(supabase, rows);
-  const pruned = await pruneStaleJoobleRows(
-    supabase,
-    daysBefore(now, JOOBLE_STALE_AFTER_DAYS),
-  );
 
   return {
     ...feed.stats,
-    saved: rows.length,
-    inserted: rows.length - existing.size,
-    updated: existing.size,
-    pruned,
+    ...saved,
   };
 }

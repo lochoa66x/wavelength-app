@@ -93,10 +93,15 @@ test("Jobicy listing IDs are stable and source-scoped UUIDs", () => {
   assert.match(first, /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
 });
 
-test("Jobicy ingestion preserves IDs and prunes only after a valid save", async () => {
+test("Jobicy ingestion preserves IDs but remains observation-only", async () => {
   const upserted = [];
-  let pruneCalls = 0;
+  let finalizeCalls = 0;
   const supabase = {
+    rpc: async (name) => {
+      assert.equal(name, "finalize_listing_source_run");
+      finalizeCalls += 1;
+      return { data: [{ uncertain_count: 2, closed_count: 1 }], error: null };
+    },
     from(table) {
       assert.equal(table, "listings");
       return {
@@ -116,26 +121,6 @@ test("Jobicy ingestion preserves IDs and prunes only after a valid save", async 
           upserted.push(...rows);
           return { error: null };
         },
-        delete() {
-          return {
-            eq() {
-              return {
-                lt: async () => {
-                  pruneCalls += 1;
-                  return { count: 2, error: null };
-                },
-                is() {
-                  return {
-                    lt: async () => {
-                      pruneCalls += 1;
-                      return { count: 1, error: null };
-                    },
-                  };
-                },
-              };
-            },
-          };
-        },
       };
     },
   };
@@ -151,8 +136,10 @@ test("Jobicy ingestion preserves IDs and prunes only after a valid save", async 
 
   assert.equal(summary.inserted, 1);
   assert.equal(summary.updated, 1);
-  assert.equal(summary.pruned, 3);
-  assert.equal(pruneCalls, 2);
+  assert.equal(summary.runMode, "observation_only");
+  assert.equal(summary.uncertain, 0);
+  assert.equal(summary.closed, 0);
+  assert.equal(finalizeCalls, 0);
   assert.equal(upserted.find(({ external_id: id }) => id === "4815").id, "existing-uuid");
   assert.equal(
     upserted.find(({ external_id: id }) => id === "4816").id,

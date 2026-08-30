@@ -41,6 +41,10 @@ export async function enrichListing(listingId, options = {}) {
   return authenticatedPost("/api/listing-enrichment", { listingId }, options);
 }
 
+export async function checkListingAvailability(listingId, options = {}) {
+  return authenticatedPost("/api/listing-availability", { listingId }, options);
+}
+
 export async function extractCustomJob(payload, options = {}) {
   const data = await authenticatedPost("/api/job-intake", payload, options);
   if (!data.brief?.title || !data.brief?.description) throw new Error("The posting could not be extracted completely.");

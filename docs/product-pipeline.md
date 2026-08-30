@@ -382,7 +382,7 @@ Implementation closure includes a dedicated authenticated, no-store clarificatio
 - **P4.1 résumé intake expansion:** add PDF/DOCX upload and camera/photo capture with OCR, page ordering, confidence review, explicit identity/contact confirmation, private-processing disclosure, bounded files, and no silent overwrite. Reuse the same canonical résumé schema on web before native apps.
 - **P4.2 native readiness:** stabilize authenticated sync and document intake on responsive web, then evaluate a PWA and native iOS/Android shells with secure device storage, camera/file permissions, deep links, accessibility, offline behavior, and app-store privacy disclosures.
 - **P4.3 geography and source expansion:** add countries only with country-specific location, language, work-authorization, privacy, accessibility, and source-policy rules. Expand job sources through documented APIs or permitted feeds; never bypass publisher controls.
-- **P4.4 listing freshness:** retain source-run provenance and availability status, recheck listings on a bounded schedule, treat repeated absence or a verified closed page conservatively, refresh active-source rows without overwriting richer reviewed text, and explain stale/closed states to users.
+- **P4.4 listing freshness — production migration verified, application release pending:** source-run provenance and board-scoped idempotency replace physical pruning; only authoritative, complete source snapshots move unseen jobs through uncertain → closed after repeated misses. Ranked, sampled, capped, partial, failed, and empty observations cannot create false closures. Authenticated on-demand checks reuse the guarded public-page reader, 404/410 and expired structured data are strong closure evidence, blocked/rate-limited/unreadable pages remain uncertain, richer reviewed posting text is preserved, and the app explains checked/uncertain/closed states without deleting saved history or prior tailored work. The production schema, grants, public-view boundary, service-only RPC, and anonymous denial are verified; Git/Vercel promotion and deployed smoke remain release work.
 - **P4.5 presentation growth:** add visual styles only through the existing position-independent token system. Every new style must preserve selectable single-column output, browser/DOCX/PDF parity, content hashes, accessibility, and conservative ATS fallback.
 - **P4.6 application workspace:** after the evidence workflow is stable, consider a lightweight saved → applied → interviewing → offer tracker and evidence-first cover-letter packages. Do not add automatic application submission.
 
@@ -409,7 +409,8 @@ Implementation closure includes a dedicated authenticated, no-store clarificatio
 19. P3.1 Phase A opt-in web résumé sync and production RLS verification, then native mobile after the web contract remains stable
 20. P3.9 Phase A decision tightening, then Phase B candidate-controlled Evidence Coach
 21. P4.1 PDF/DOCX/photo résumé intake, followed by P4.2 native readiness
-22. P4.3 terms-approved geography/source expansion and P4.4 listing freshness
+22. P4.4 listing freshness production migration and release verification
+23. P4.3 terms-approved geography/source expansion, followed by P4.2 native readiness
 
 ## Source constraints behind P0.1
 

@@ -21,6 +21,13 @@ test("workspace source copy does not claim unconfigured feeds are live", async (
   assert.doesNotMatch(source, /Live feeds:/);
 });
 
+test("bring-your-own-posting copy describes an open posting rather than a job already obtained", async () => {
+  const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
+
+  assert.match(source, /Already have a job posting\?/);
+  assert.doesNotMatch(source, /Already found a job\?/);
+});
+
 test("blocked source enrichment is presented as a calm preliminary-tailoring choice", async () => {
   const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
 

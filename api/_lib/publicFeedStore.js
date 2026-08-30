@@ -1,5 +1,7 @@
 import { createHash } from "node:crypto";
 
+import { LISTING_SOURCE_RUN_MODE, saveListingSourceRun } from "./listingFreshness.js";
+
 export function cleanFeedText(value) {
   return String(value || "").trim();
 }
@@ -52,87 +54,20 @@ export function deterministicFeedListingId(source, externalId) {
   return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-${hex.slice(12, 16)}-${hex.slice(16, 20)}-${hex.slice(20)}`;
 }
 
-function chunk(values, size) {
-  const chunks = [];
-  for (let index = 0; index < values.length; index += size) {
-    chunks.push(values.slice(index, index + size));
-  }
-  return chunks;
-}
-
-async function loadExistingIds(supabase, source, externalIds) {
-  const existing = new Map();
-  for (const ids of chunk(externalIds, 200)) {
-    const { data, error } = await supabase
-      .from("listings")
-      .select("id,external_id")
-      .eq("source", source)
-      .in("external_id", ids);
-    if (error) throw new Error(`Could not load existing ${source} listings: ${error.message}`);
-    for (const row of data || []) existing.set(String(row.external_id), row.id);
-  }
-  return existing;
-}
-
-async function upsertRows(supabase, source, rows) {
-  for (const batch of chunk(rows, 100)) {
-    const { error } = await supabase.from("listings").upsert(batch);
-    if (error) throw new Error(`Could not save ${source} listings: ${error.message}`);
-  }
-}
-
-async function pruneStaleRows(supabase, source, cutoff) {
-  const oldDated = await supabase
-    .from("listings")
-    .delete({ count: "exact" })
-    .eq("source", source)
-    .lt("posted_at", cutoff);
-  if (oldDated.error) throw new Error(`Could not prune stale ${source} listings: ${oldDated.error.message}`);
-
-  const oldUndated = await supabase
-    .from("listings")
-    .delete({ count: "exact" })
-    .eq("source", source)
-    .is("posted_at", null)
-    .lt("fetched_at", cutoff);
-  if (oldUndated.error) throw new Error(`Could not prune undated ${source} listings: ${oldUndated.error.message}`);
-
-  return (oldDated.count || 0) + (oldUndated.count || 0);
-}
-
 export async function savePublicFeedListings({
   supabase,
   source,
+  sourceScope = source,
   rows,
-  staleAfterDays = 60,
+  runMode = LISTING_SOURCE_RUN_MODE.OBSERVATION_ONLY,
   now = new Date(),
 }) {
-  const unique = new Map();
-  for (const row of rows || []) {
-    const externalId = cleanFeedText(row?.external_id);
-    if (externalId && row?.source === source && !unique.has(externalId)) {
-      unique.set(externalId, { ...row, external_id: externalId });
-    }
-  }
-
-  if (unique.size === 0) {
-    throw new Error(`${source} returned no valid fresh listings; existing data was left unchanged`);
-  }
-
-  const mapped = [...unique.values()];
-  const existing = await loadExistingIds(supabase, source, mapped.map((row) => row.external_id));
-  const savedRows = mapped.map((row) => ({
-    ...row,
-    id: existing.get(row.external_id) || deterministicFeedListingId(source, row.external_id),
-  }));
-
-  await upsertRows(supabase, source, savedRows);
-  const pruned = await pruneStaleRows(supabase, source, daysBefore(now, staleAfterDays));
-
-  return {
-    saved: savedRows.length,
-    inserted: savedRows.length - existing.size,
-    updated: existing.size,
-    pruned,
-  };
+  return saveListingSourceRun({
+    supabase,
+    source,
+    sourceScope,
+    rows,
+    runMode,
+    now,
+  });
 }

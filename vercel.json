@@ -12,6 +12,9 @@
     "api/listing-enrichment.js": {
       "maxDuration": 60
     },
+    "api/listing-availability.js": {
+      "maxDuration": 30
+    },
     "api/evidence-coach.js": {
       "maxDuration": 60
     },

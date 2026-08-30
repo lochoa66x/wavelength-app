@@ -392,3 +392,23 @@ Do not commit while a required check is failing. Do not push or deploy without s
 - Security and dependency gate: `git diff --check` passed, the production-only dependency audit reported 0 vulnerabilities, and generated assets contained no actual server credential, private key, or private résumé fixture. Upstream Supabase generic secret-key detectors and source-map identifier text are not credential values.
 - Tooling limits: Microsoft Word, Google Docs, an external ATS parser, and an authenticated production export session were unavailable or intentionally not invoked. LibreOffice conversion, native PDF extraction, deterministic parity checks, and full-size visual inspection provide the local compatibility evidence.
 - Release state: implementation and local verification are complete, and commit/push/Git-triggered Vercel deployment are authorized. The feature SHA is the commit containing this record; exact GitHub/Vercel binding and public post-deploy smoke are reported in the release handoff.
+
+## P4.4 listing freshness release gate — 2026-08-30
+
+- [x] Source refreshes no longer physically delete unseen listings.
+- [x] Observed rows reset to active and preserve first-seen provenance plus richer reviewed descriptions.
+- [x] Authoritative, complete source snapshots use one service-role-only, idempotent finalization RPC; sampled, ranked, capped, partial, failed, or empty observations never increment misses.
+- [x] ATS finalization is isolated by employer board, even when multiple boards share one provider.
+- [x] Adzuna, Jooble, and Jobicy ingestion is observation-only because each response is ranked, sampled, or capped rather than a complete source inventory.
+- [x] Himalayas finalizes a snapshot only after reaching an empty terminal page; exhausting the page budget or encountering a failed page remains observation-only.
+- [x] One miss is uncertain; only repeated authoritative-snapshot misses, HTTP 404/410, or expired matching JobPosting structured data close a listing.
+- [x] Publisher blocks, rate limits, timeouts, network failures, unreadable pages, and source mismatches remain uncertain.
+- [x] The authenticated availability endpoint uses the existing HTTPS/DNS/IP/redirect/size/content-type/timeout safeguards and returns no title, employer, URL, or raw page content.
+- [x] Discovery hides closed listings while saved history can retain them; stale/uncertain checks run before tailoring, and prior output is never deleted.
+- [x] Browser exposure remains an explicit security-invoker view with narrow column grants; run ids, scopes, and miss counters stay server-only.
+- [x] Apply `20260830112954_add_listing_freshness_state.sql` through the normal Supabase production migration workflow.
+- [x] Verify RLS, grants, view fields, indexes, constraints, RPC execute grants, and anonymous denial for internal lifecycle fields in Production.
+- [ ] Release the exact verified commit, run one complete scheduled source refresh, and confirm sanitized uncertain/closed/reactivated metrics.
+- [ ] Production-smoke active, stale, uncertain, closed, saved-history, manual-refresh, and pre-tailoring paths on desktop and mobile.
+
+Production database evidence: the migration completed transactionally in the `wavelength` Production project on 2026-08-30. The independent release query returned `true` for all ten RLS, grant, public-view, RPC, index, and constraint gates. The aggregate-only backfill check reported 6,843 active listings, zero unchecked rows, and zero closed rows without a closure timestamp. A publishable-key smoke returned HTTP 200 for the safe public lifecycle field, HTTP 401 for an internal miss-counter read, and a hidden/denied response for the service-only finalization RPC.
