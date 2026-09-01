@@ -448,13 +448,15 @@ Production release evidence: employment-detail hotfix `b68497d` and adjacent-exp
 - [x] Show every source citation in the change review and disable approval when citation coverage is incomplete.
 - [x] Add redacted FICO, canonical inventory, lifecycle recovery, multi-source citation, ownership escalation, count-consistency, and fallback regression tests.
 - [x] Run focused tests, the complete test suite, production build, quality evaluator, résumé/cover-letter export verifiers, and presentation-package verifier.
-- [ ] Commit the exact verified tree and push it normally.
-- [ ] Confirm the Git-triggered deployment reaches `READY`, verify the production alias, and run public route/API-boundary smoke.
+- [x] Commit the exact verified tree and push it normally.
+- [x] Confirm the Git-triggered deployment reaches `READY`, verify the production alias, and run public route/API-boundary smoke.
 - [ ] Repeat the authenticated FICO/Utilities test with the real private résumé and inspect required/full coverage, evidence citations, DOCX, and PDF.
 
 Local verification evidence: the focused integrity slice passed 50/50 and the complete suite passed 577/577 with zero failures, skips, cancellations, or todos. Vite 5.4.21 transformed 2,456 modules; only the existing large dependency-chunk advisory remains. The privacy-safe quality gate passed 11/11 redacted cases with 100% contract, readiness, export, integrity, and template accuracy and zero privacy violations. Résumé export verification passed 48 files, 16 templates, 29 PDF pages, 826 selectable text items, manifest parity, final authorization, and stale-ready rejection. Cover-letter verification passed two DOCX and two PDF files across final/preliminary states with 492 selectable tokens. All eight dormant prototype packages and 32 files passed with invariant content hashes. `git diff --check` passed on the final documentation tree.
 
 Hands-on limits remain explicit: local deterministic fixtures cannot prove how the live provider will phrase every SAP comparison, how Microsoft Word/Google Docs or an external ATS parser will render the files, or whether an employer agrees with the fit decision. No provider, model, storage, authentication, database, analytics, sync, source, or native-app contract changed in this hotfix.
+
+Production release evidence: feature commit `9e1195f` was pushed normally to `main`. Git-triggered Vercel deployment `dpl_F7apb7Q4j5WBczc1w619u59raHu7` reached `READY` on Node.js 24 with the `gigscapes.com`, `www.gigscapes.com`, project-production, and main-branch aliases. Public `/`, `/app`, `/privacy`, and `/sign-in` returned HTTP 200. Unauthenticated POST probes to `/api/tailor` and `/api/job-intake` returned HTTP 401 with `Cache-Control: no-store, max-age=0`, `Pragma: no-cache`, `Referrer-Policy: no-referrer`, and `X-Content-Type-Options: nosniff`. The deployment-scoped one-hour error-level log scan returned no entries.
 
 ## P4.H1 exporter deployment-skew resilience — 2026-08-30
 

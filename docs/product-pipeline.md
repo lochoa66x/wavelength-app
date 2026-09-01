@@ -401,7 +401,7 @@ Implementation closure includes a dedicated authenticated, no-store clarificatio
 
 ### P3.3E canonical requirement and provenance integrity hotfix
 
-**Status:** Implemented and locally verified on 2026-09-01; commit and production release remain deliberately pending.
+**Status:** Released and production-verified on 2026-09-01. Feature commit `9e1195f` reached `READY` through Git-triggered Vercel deployment `dpl_F7apb7Q4j5WBczc1w619u59raHu7`; authenticated FICO retesting remains a hands-on validation item.
 
 - The candidate-reviewed posting inventory is now the only canonical requirement set. Model-only fragments and paraphrased duplicates cannot silently expand the denominator after the candidate reviews a posting.
 - Composite tenure requirements separate the duration constraint from FI, CO, Asset Accounting, Logistics integration, and Billing capability checks. Required-qualification coverage and full-inventory coverage are calculated independently and must reconcile exactly before final export.
@@ -438,7 +438,7 @@ Implementation closure includes a dedicated authenticated, no-store clarificatio
 23. P4.H1 exporter deployment-skew resilience and authenticated stale-tab verification
 24. P4.3 terms-approved geography/source expansion, followed by P4.2 native readiness
 25. P4.5 evidence-led résumé and cover-letter design research, followed by a small original prototype set and measured tester validation
-26. P3.3E canonical requirement/provenance integrity hotfix — locally verified; commit, deployment, and authenticated FICO retest pending
+26. P3.3E canonical requirement/provenance integrity hotfix — released and publicly verified; authenticated FICO retest pending
 
 ## Source constraints behind P0.1
 
