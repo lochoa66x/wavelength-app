@@ -12,6 +12,7 @@ import {
   MAX_SCREENSHOTS,
   mergeExtractedJobBriefs,
   screenshotBatches,
+  sourceConflictFieldLabel,
 } from "./customJobIntake.js";
 import {
   candidateEvidenceForRequest,
@@ -454,13 +455,13 @@ export function CustomJobFlow({
                   <p style={{ color: C.textSub, fontSize: 12, lineHeight: 1.45, margin: "4px 0 0" }}>
                     {isScreenshotReview
                       ? <>{sourceReview.page_count || files.length} pages were reviewed. {sourceReview.completeness_notes || "Confirm that the final posting page was included before tailoring."}</>
-                      : "The page reader found conflicting posting details. Correct the editable fields below, then confirm your choices."}
+                      : "The page reader found different values for the same posting detail. Review the source values, choose the accurate value below, then confirm it."}
                   </p>
                 </div>
               </div>
               {sourceConflicts.length > 0 && (
                 <div style={{ color: C.textSub, fontSize: 12, lineHeight: 1.45, margin: "10px 0 0 26px" }}>
-                  {sourceConflicts.map((conflict) => <div key={conflict.field}><strong style={{ color: C.text }}>{conflict.field}:</strong> {conflict.values.join(" / ")}</div>)}
+                  {sourceConflicts.map((conflict) => <div key={conflict.field}><strong style={{ color: C.text }}>{sourceConflictFieldLabel(conflict.field)}:</strong> {conflict.values.join(" / ")}</div>)}
                 </div>
               )}
               {isScreenshotReview && (
@@ -472,7 +473,7 @@ export function CustomJobFlow({
               {sourceConflicts.length > 0 && (
                 <label style={{ display: "flex", gap: 8, alignItems: "flex-start", color: C.text, fontSize: 12.5, lineHeight: 1.45, margin: "8px 0 0 26px", cursor: "pointer" }}>
                   <input type="checkbox" checked={Boolean(sourceReview.conflicts_resolved)} onChange={(event) => updateSourceReview({ conflicts_resolved: event.target.checked })} style={{ marginTop: 2 }} />
-                  I corrected the conflicting values in the editable fields.
+                  I reviewed the source values and confirmed the editable fields.
                 </label>
               )}
             </div>

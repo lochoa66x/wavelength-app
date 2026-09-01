@@ -1,4 +1,5 @@
 import { normalizeListingCategory } from "../../src/listingCategories.js";
+import { reconcileEmploymentDetails } from "../../src/employmentDetails.js";
 
 const VALID_CATEGORIES = new Set([
   "tech", "design", "writing", "marketing", "sales", "admin",
@@ -85,7 +86,7 @@ export function normalizeCustomJobBrief(value) {
 
   const title = cleanString(value.title, 180);
   const description = cleanParagraph(value.description, 16000);
-  const sourceReview = cleanSourceReview(value.source_review);
+  let sourceReview = cleanSourceReview(value.source_review);
   const partialScreenshotBatch = sourceReview?.mode === "screenshots" && Boolean(title || description);
   if ((!title || !description) && !partialScreenshotBatch) return null;
 
@@ -94,11 +95,23 @@ export function normalizeCustomJobBrief(value) {
     ? proposedCategory
     : normalizeListingCategory(title, proposedCategory || "other");
 
+  const employment = reconcileEmploymentDetails(
+    cleanString(value.type || value.job_type, 80) || "Unlabeled",
+    sourceReview?.conflicts,
+  );
+  if (sourceReview && employment.reconciled) {
+    sourceReview = {
+      ...sourceReview,
+      conflicts: employment.conflicts,
+      conflicts_resolved: employment.conflicts.length === 0 || sourceReview.conflicts_resolved,
+    };
+  }
+
   const normalized = {
     title,
     company: cleanString(value.company, 180),
     location: cleanString(value.location, 180),
-    type: cleanString(value.type || value.job_type, 80) || "Unlabeled",
+    type: cleanString(employment.value, 80) || "Unlabeled",
     category: VALID_CATEGORIES.has(category) ? category : "other",
     description,
     responsibilities: cleanList(value.responsibilities),

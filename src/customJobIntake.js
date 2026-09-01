@@ -1,3 +1,5 @@
+import { reconcileEmploymentDetails } from "./employmentDetails.js";
+
 export const MAX_SCREENSHOTS = 8;
 export const SCREENSHOT_BATCH_SIZE = 4;
 
@@ -41,11 +43,11 @@ export function customJobSourceReviewState(sourceReview) {
   const needsConflictResolution = conflicts.length > 0 && review.conflicts_resolved !== true;
   const blocked = needsScreenshotConfirmation || needsConflictResolution;
   const blockingMessage = needsScreenshotConfirmation && needsConflictResolution
-    ? "Confirm screenshot coverage and resolve the conflicting source details above to unlock evidence-first tailoring."
+    ? "Confirm screenshot coverage and review the conflicting source details above to unlock evidence-first tailoring."
     : needsScreenshotConfirmation
       ? "Confirm the screenshot coverage above to unlock evidence-first tailoring."
       : needsConflictResolution
-        ? "Resolve the conflicting source details above to unlock evidence-first tailoring."
+        ? "Review and confirm the conflicting source details above to unlock evidence-first tailoring."
         : "";
 
   return {
@@ -57,6 +59,23 @@ export function customJobSourceReviewState(sourceReview) {
     blocked,
     blockingMessage,
   };
+}
+
+export function sourceConflictFieldLabel(field) {
+  const fieldKey = comparisonKey(field).replace(/\s+/g, "");
+  const known = {
+    title: "Job title",
+    company: "Company",
+    location: "Location",
+    type: "Employment type",
+    jobtype: "Employment type",
+    employment: "Employment type",
+    employmenttype: "Employment type",
+  };
+  if (known[fieldKey]) return known[fieldKey];
+  return cleanValue(field)
+    .replace(/[_-]+/g, " ")
+    .replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
 export function appendScreenshotFiles(currentFiles, incomingFiles, limit = MAX_SCREENSHOTS) {
@@ -108,14 +127,15 @@ export function mergeExtractedJobBriefs(briefs, { pageCount } = {}) {
   const category = validBriefs.map((brief) => cleanValue(brief.category)).find((value) => value && value !== "other")
     || firstKnown("category")
     || "other";
-  const conflicts = collectConflicts(validBriefs);
+  const employment = reconcileEmploymentDetails(firstKnown("type") || "Unlabeled", collectConflicts(validBriefs));
+  const conflicts = employment.conflicts;
   const finalReview = validBriefs.at(-1)?.source_review || {};
 
   const merged = {
     title: firstKnown("title"),
     company: firstKnown("company"),
     location: firstKnown("location"),
-    type: firstKnown("type") || "Unlabeled",
+    type: employment.value || "Unlabeled",
     category,
     description: descriptions.join("\n\n").slice(0, 16000),
     source_url: firstKnown("source_url"),

@@ -8,6 +8,7 @@ import {
   MAX_SCREENSHOTS,
   mergeExtractedJobBriefs,
   screenshotBatches,
+  sourceConflictFieldLabel,
 } from "./customJobIntake.js";
 
 function screenshot(name, size = 1000, lastModified = 1) {
@@ -99,6 +100,36 @@ test("paste or URL conflicts expose a resolvable source review instead of a hidd
   const flowSource = await readFile(new URL("./CustomJobFlow.jsx", import.meta.url), "utf8");
   assert.match(flowSource, /showSourceReviewPanel &&/);
   assert.match(flowSource, /Review conflicting source details/);
+  assert.match(flowSource, /I reviewed the source values and confirmed the editable fields/);
+  assert.doesNotMatch(flowSource, /I corrected the conflicting values/);
   assert.match(flowSource, /sourceReviewBlockingMessage/);
   assert.doesNotMatch(flowSource, /Complete the screenshot review above/);
+});
+
+test("screenshot merge combines compatible schedule and contract details without blocking", () => {
+  const merged = mergeExtractedJobBriefs([{
+    title: "SAP ISU FICA Consultant",
+    company: "Technitask",
+    type: "Contract (6 months)",
+    description: "Configure and implement SAP ISU solutions.",
+    source_review: {
+      conflicts: [{
+        field: "employment_type",
+        values: [
+          "Full-time (stated in header)",
+          "Contract – 6 months (stated in Additional Information)",
+        ],
+      }],
+    },
+  }], { pageCount: 1 });
+
+  assert.equal(merged.type, "Full-time contract (6 months)");
+  assert.deepEqual(merged.source_review.conflicts, []);
+  assert.equal(merged.source_review.conflicts_resolved, true);
+});
+
+test("source conflict labels are human-readable", () => {
+  assert.equal(sourceConflictFieldLabel("employment_type"), "Employment type");
+  assert.equal(sourceConflictFieldLabel("company"), "Company");
+  assert.equal(sourceConflictFieldLabel("application deadline"), "Application Deadline");
 });
