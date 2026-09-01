@@ -72,3 +72,39 @@ test("the deterministic fallback omits final unsafe claims instead of failing th
   assert.equal(report.omitted_experience_count, 1);
   assert.equal(report.removed_numeric_claim_count, 2);
 });
+
+test("the deterministic fallback restores cited wording after an ownership escalation", () => {
+  const source = "Contributed to creation of functional specifications for Contract Accounts.";
+  const proposed = "Authored functional specifications for Contract Accounts.";
+  const baseResume = `SAP Consultant — Real Corp — 2020–2024\n${source}`;
+  const analysis = {
+    posting_assessment: { status: "complete", fit_allowed: true, application_ready_allowed: true },
+    posting_readiness: { status: "reviewed_complete", fit_allowed: true, application_ready_allowed: true },
+    requirements: [{
+      id: "R1",
+      requirement: "Prepare functional specifications for Contract Accounts",
+      priority: "required",
+      evidence_match: "direct",
+      evidence: [{ source: "base_resume", line_index: 2, excerpt: source }],
+    }],
+    coverage: { direct: 1, adjacent: 0, transferable: 0, missing: 0 },
+  };
+  const rejected = {
+    name: "Luis Example",
+    profile: "SAP functional consultant.",
+    skills: [],
+    projects: [],
+    training: [],
+    experience: [{ role: "SAP Consultant", company: "Real Corp", dates: "2020–2024", bullets: [proposed] }],
+  };
+  const rejectedReview = buildAtsReview(rejected, baseResume, { keywords: [] }, { analysis });
+  const { resume, report } = createSafeResumeFallback(rejected, rejectedReview, analysis);
+  const finalReview = buildAtsReview(resume, baseResume, { keywords: [] }, { analysis });
+
+  assert.equal(rejectedReview.provenance_issues[0].issue_type, "unsupported_strengthening");
+  assert.deepEqual(resume.experience[0].bullets, [source]);
+  assert.equal(report.restored_provenance_count, 1);
+  assert.equal(report.omitted_provenance_count, 0);
+  assert.equal(finalReview.provenance_issues.length, 0);
+  assert.equal(finalReview.integrity.status, "pass");
+});

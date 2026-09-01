@@ -53,10 +53,26 @@ export function createSafeResumeFallback(resumeData, atsReview, analysis) {
   const unsupportedProjects = new Set((atsReview?.unsupported_projects || []).map((issue) => normalized(issue.name)));
   const unsupportedTraining = new Set((atsReview?.unsupported_training || []).map((issue) => normalized(issue.name)));
   const unsupportedTargetTerms = (atsReview?.unsupported_target_terms || []).map((issue) => issue.term);
+  const provenanceIssues = new Map((atsReview?.provenance_issues || []).map((issue) => [
+    `${issue.experience_index}:${issue.bullet_index}`,
+    issue,
+  ]));
+  let restoredProvenanceCount = 0;
+  let omittedProvenanceCount = 0;
 
   const experience = (resumeData?.experience || []).flatMap((entry, index) => {
     if (unsupportedExperience.has(index)) return [];
-    return [{ ...entry, bullets: cleanList(entry?.bullets, numericClaims, riskyClaims) }];
+    const bullets = (Array.isArray(entry?.bullets) ? entry.bullets : []).flatMap((bullet, bulletIndex) => {
+      const provenanceIssue = provenanceIssues.get(`${index}:${bulletIndex}`);
+      if (!provenanceIssue) return [bullet];
+      if (provenanceIssue.original) {
+        restoredProvenanceCount += 1;
+        return [provenanceIssue.original];
+      }
+      omittedProvenanceCount += 1;
+      return [];
+    });
+    return [{ ...entry, bullets: cleanList(bullets, numericClaims, riskyClaims) }];
   });
 
   const skills = (resumeData?.skills || []).filter((skill) => (
@@ -108,6 +124,8 @@ export function createSafeResumeFallback(resumeData, atsReview, analysis) {
       omitted_project_count: (resumeData?.projects || []).length - projects.length,
       omitted_training_count: (resumeData?.training || []).length - training.length,
       removed_numeric_claim_count: numericClaims.length,
+      restored_provenance_count: restoredProvenanceCount,
+      omitted_provenance_count: omittedProvenanceCount,
     },
   };
 }

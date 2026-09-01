@@ -231,6 +231,84 @@ test("senior FI-CA and PSCD evidence calibrates as adjacent IS-U expertise witho
   assert.doesNotMatch(JSON.stringify(result.fit_assessment), /career[ -](?:change|transition)|entry-level|new (?:path|journey)/i);
 });
 
+test("reviewed FICO inventory stays canonical while lifecycle evidence and module adjacency are calibrated separately", () => {
+  const structuredBrief = {
+    required_qualifications: [
+      "12–16 years of SAP Finance functional experience with strong expertise in FI, CO, Asset Accounting, integration to Logistics, and Billing",
+      "At least 2 end-to-end SAP S/4HANA implementations, including significant Utilities industry exposure",
+    ],
+    responsibilities: [
+      "Lead requirements gathering",
+      "Prepare Business Blueprint documents",
+      "Own SAP configuration activities",
+      "Lead system testing",
+      "Manage cutover activities",
+      "Support deployment activities",
+      "Facilitate workshops with senior stakeholders",
+    ],
+    preferred_qualifications: [],
+  };
+  const inventory = structuredPostingRequirementInventory(structuredBrief);
+  const baseResume = [
+    "Senior SAP Solution Architect",
+    "Configured SAP FI-CA contract accounts and delivered SAP PSCD solutions.",
+    "Led requirements gathering, AS-IS to TO-BE analysis, and Business Blueprint preparation.",
+    "Performed configuration and led UAT, regression testing, mock cutover, Go-Live, and release deployment.",
+    "Integrated SAP S/4HANA through SAP PI/PO and supported billing and payment processes.",
+    "Facilitated design workshops with senior business and technical stakeholders.",
+  ].join("\n");
+  const result = sanitizeTailoringAnalysis({
+    fit_assessment: {
+      path: "transferable",
+      recommended_level: "Senior SAP Solution Architect",
+      note: "Domain pivot required.",
+    },
+    requirements: [
+      ...inventory,
+      {
+        id: "MODEL_ONLY",
+        requirement: "Embedded analytics",
+        priority: "required",
+        evidence_match: "missing",
+        resume_evidence: "",
+        safe_language: "",
+        keywords: [],
+      },
+    ],
+  }, baseResume, {
+    status: "complete",
+    reason: "Reviewed full posting.",
+    readiness_status: "reviewed_complete",
+    readiness_reason: "Reviewed full posting.",
+    fit_allowed: true,
+    application_ready_allowed: true,
+  }, [], [], inventory);
+
+  const families = result.requirements.map((requirement) => requirement.capability_family);
+  const generalDelivery = result.requirements.filter((requirement) => requirement.target_specificity === "general_delivery");
+  const coverageTotal = Object.values(result.coverage).reduce((sum, count) => sum + count, 0);
+  const requiredCoverageTotal = ["direct", "adjacent", "transferable", "missing"]
+    .reduce((sum, key) => sum + result.core_coverage[key], 0);
+
+  assert.equal(result.requirements.filter((requirement) => requirement.capability_family === "sap_finance_experience_duration").length, 1);
+  assert.ok(families.includes("sap_fico_fi"));
+  assert.ok(families.includes("sap_fico_co"));
+  assert.ok(families.includes("sap_fico_asset_accounting"));
+  assert.ok(families.includes("sap_fico_logistics_integration"));
+  assert.ok(families.includes("sap_fico_billing"));
+  assert.equal(result.requirements.some((requirement) => /embedded analytics/i.test(requirement.requirement)), false);
+  assert.ok(generalDelivery.length >= 4);
+  assert.ok(generalDelivery.every((requirement) => ["direct", "adjacent"].includes(requirement.evidence_match)));
+  assert.ok(generalDelivery.filter((requirement) => requirement.evidence_match === "direct").length >= 6);
+  assert.equal(result.requirements.find((requirement) => requirement.capability_family === "sap_fico_fi")?.evidence_match, "adjacent");
+  assert.equal(result.requirements.find((requirement) => requirement.capability_family === "sap_fico_co")?.evidence_match, "missing");
+  assert.equal(result.fit_assessment.path, "adjacent");
+  assert.equal(result.fit_assessment.recommended_level, "Senior SAP Solution Architect");
+  assert.equal(result.requirement_consistency.status, "pass");
+  assert.equal(coverageTotal, result.requirements.length);
+  assert.equal(requiredCoverageTotal, result.core_coverage.total);
+});
+
 test("service experience for a teller role remains transferable rather than being called a professional transition", () => {
   const baseResume = [
     "Restaurant Shift Supervisor",

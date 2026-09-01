@@ -150,6 +150,21 @@ const CHANGE_STOPWORDS = new Set([
   "worked", "work", "responsible", "including", "using", "supported", "provided",
 ]);
 
+const PROVENANCE_STOPWORDS = new Set([
+  ...CHANGE_STOPWORDS,
+  "across", "also", "candidate", "company", "experience", "project", "projects", "role", "sap", "system", "systems", "team", "teams",
+  "authored", "built", "collaborated", "configured", "contributed", "coordinated", "created", "defined", "delivered", "designed", "developed",
+  "directed", "implemented", "integrated", "led", "managed", "oversaw", "participated", "performed", "prepared", "supported", "tested",
+]);
+
+const OWNERSHIP_RANK = Object.freeze({
+  assist: 1, assisted: 1, help: 1, helped: 1, support: 1, supported: 1, participate: 1, participated: 1,
+  collaborate: 2, collaborated: 2, contribute: 2, contributed: 2, coordinate: 2, coordinated: 2,
+  author: 3, authored: 3, create: 3, created: 3, define: 3, defined: 3, deliver: 3, delivered: 3,
+  design: 3, designed: 3, implement: 3, implemented: 3, own: 3, owned: 3, perform: 3, performed: 3,
+  direct: 4, directed: 4, drive: 4, drove: 4, lead: 4, led: 4, manage: 4, managed: 4, oversee: 4, oversaw: 4,
+});
+
 function changeTokens(value) {
   return new Set(normalized(value).split(" ").filter((token) => token.length > 2 && !CHANGE_STOPWORDS.has(token)));
 }
@@ -168,21 +183,84 @@ function changeSimilarity(left, right) {
   return overlap / denominator;
 }
 
+function provenanceTokens(value) {
+  return new Set(normalized(value).split(" ").filter((token) => token.length > 2 && !PROVENANCE_STOPWORDS.has(token)));
+}
+
+function sourceContribution(sourceTokens, coveredTokens, proposedTokens) {
+  return [...sourceTokens].filter((token) => proposedTokens.has(token) && !coveredTokens.has(token));
+}
+
+function firstActionVerb(value) {
+  return normalized(value).split(" ").find(Boolean) || "";
+}
+
+function unsupportedOwnershipStrengthening(proposed, citations) {
+  const proposedRank = OWNERSHIP_RANK[firstActionVerb(proposed)] || 0;
+  if (proposedRank < 3 || !citations.length) return null;
+  const sourceRanks = citations.map((citation) => OWNERSHIP_RANK[firstActionVerb(citation.excerpt)] || 0);
+  const strongestSource = Math.max(0, ...sourceRanks);
+  if (strongestSource >= proposedRank) return null;
+  return {
+    proposed_verb: firstActionVerb(proposed),
+    strongest_source_verb: citations.map((citation) => firstActionVerb(citation.excerpt)).find((verb) => (OWNERSHIP_RANK[verb] || 0) === strongestSource) || "unspecified",
+  };
+}
+
 function resumeEvidenceLines(baseResume) {
   return String(baseResume || "").split(/\r?\n/).map((raw, index) => ({
     line_index: index + 1,
     excerpt: raw.replace(/^\s*(?:[-*•]|\d+[.)])\s*/, "").replace(/\s+/g, " ").trim(),
-  })).filter(({ excerpt }) => excerpt.length >= 18 && !/^(?:profile|summary|skills|experience|professional experience|employment|projects|education|training|certifications|languages)$/i.test(excerpt));
+  })).filter(({ excerpt }) => excerpt.length >= 8 && !/^(?:profile|summary|skills|experience|professional experience|employment|projects|education|training|certifications|languages)$/i.test(excerpt));
 }
 
 function bestRequirementForBullet(bullet, requirements = []) {
-  return requirements.map((requirement) => ({
-    requirement,
-    score: Math.max(
-      changeSimilarity(bullet, requirement.requirement),
-      ...((requirement.evidence || []).map((citation) => changeSimilarity(bullet, citation.excerpt))),
-    ),
-  })).filter(({ score }) => score >= 0.28).sort((left, right) => right.score - left.score)[0]?.requirement || null;
+  return requirements.map((requirement) => {
+    const requirementScore = changeSimilarity(bullet, requirement.requirement);
+    const evidenceScore = Math.max(0, ...((requirement.evidence || []).map((citation) => changeSimilarity(bullet, citation.excerpt))));
+    return { requirement, requirementScore, score: Math.max(requirementScore, evidenceScore * 0.6) };
+  }).filter(({ score, requirementScore }) => score >= 0.28 && requirementScore >= 0.16)
+    .sort((left, right) => right.score - left.score)[0] || null;
+}
+
+function citationsForBullet(proposed, requirement, sourceLines) {
+  const proposedTokens = provenanceTokens(proposed);
+  const candidates = [];
+  for (const citation of requirement?.evidence || []) {
+    if (!citation?.excerpt) continue;
+    candidates.push({
+      source: citation.source || "base_resume",
+      section: citation.section || "base resume",
+      line_index: citation.line_index || null,
+      excerpt: citation.excerpt,
+      score: changeSimilarity(proposed, citation.excerpt),
+    });
+  }
+  for (const source of sourceLines) candidates.push({ ...source, source: "base_resume", section: "base resume", score: changeSimilarity(proposed, source.excerpt) });
+  candidates.sort((left, right) => right.score - left.score || (left.line_index || 0) - (right.line_index || 0));
+
+  const selected = [];
+  const selectedKeys = new Set();
+  const coveredTokens = new Set();
+  for (const candidate of candidates) {
+    if (candidate.score < 0.22 || selected.length >= 4) continue;
+    const key = `${candidate.source}|${candidate.line_index || ""}|${normalized(candidate.excerpt)}`;
+    if (selectedKeys.has(key)) continue;
+    const candidateTokens = provenanceTokens(candidate.excerpt);
+    const contribution = sourceContribution(candidateTokens, coveredTokens, proposedTokens);
+    if (selected.length && contribution.length < 2) continue;
+    selectedKeys.add(key);
+    selected.push({
+      source: candidate.source,
+      section: candidate.section,
+      line_index: candidate.line_index,
+      excerpt: candidate.excerpt,
+    });
+    for (const token of candidateTokens) if (proposedTokens.has(token)) coveredTokens.add(token);
+  }
+  const uncoveredTerms = [...proposedTokens].filter((token) => !coveredTokens.has(token));
+  const coverage = proposedTokens.size ? coveredTokens.size / proposedTokens.size : selected.length ? 1 : 0;
+  return { citations: selected, coverage, uncoveredTerms };
 }
 
 export function buildTailoringChangeLedger(resumeData, baseResume, analysis = {}) {
@@ -194,24 +272,11 @@ export function buildTailoringChangeLedger(resumeData, baseResume, analysis = {}
     for (const [bulletIndex, proposedValue] of (experience?.bullets || []).entries()) {
       const proposed = String(proposedValue || "").replace(/\s+/g, " ").trim();
       if (!proposed) continue;
-      const requirement = bestRequirementForBullet(proposed, requirements);
-      const requirementCitation = requirement?.evidence?.find((citation) => citation?.excerpt);
-      const rankedSources = sourceLines.map((source) => ({
-        ...source,
-        score: changeSimilarity(proposed, source.excerpt),
-      })).sort((left, right) => right.score - left.score || left.line_index - right.line_index);
-      const bestSource = requirementCitation && changeSimilarity(proposed, requirementCitation.excerpt) >= 0.24
-        ? {
-          excerpt: requirementCitation.excerpt,
-          line_index: requirementCitation.line_index || null,
-          score: changeSimilarity(proposed, requirementCitation.excerpt),
-          source: requirementCitation.source || "base_resume",
-          section: requirementCitation.section || "base resume",
-        }
-        : rankedSources[0];
-      if (!bestSource || bestSource.score < 0.3) continue;
-
-      const original = bestSource.excerpt;
+      const requirementMatch = bestRequirementForBullet(proposed, requirements);
+      const requirement = requirementMatch?.requirement || null;
+      const provenance = citationsForBullet(proposed, requirement, sourceLines);
+      const bestSource = provenance.citations[0] || null;
+      const original = bestSource?.excerpt || "";
       const exact = normalized(original) === normalized(proposed);
       const changeType = exact
         ? "retained"
@@ -220,11 +285,15 @@ export function buildTailoringChangeLedger(resumeData, baseResume, analysis = {}
           : requirement
             ? "repositioned"
             : "rephrased";
+      const ownershipStrengthening = exact ? null : unsupportedOwnershipStrengthening(proposed, provenance.citations);
+      const citationComplete = exact || Boolean(provenance.citations.length && provenance.coverage >= 0.5 && !ownershipStrengthening);
       const reason = exact
         ? "Kept this verified evidence because it is already clear and relevant."
-        : requirement
+        : requirement && requirementMatch.requirementScore >= 0.22
           ? `Rephrased verified evidence to make its connection to “${requirement.requirement}” explicit without adding a new fact.`
-          : "Clarified verified evidence for the target role without adding a new fact.";
+          : citationComplete
+            ? "Clarified the cited candidate evidence without adding a new fact."
+            : "This wording needs evidence review before it can be treated as verified.";
       changes.push({
         id: `experience-${experienceIndex}-bullet-${bulletIndex}`,
         section: "experience",
@@ -237,16 +306,54 @@ export function buildTailoringChangeLedger(resumeData, baseResume, analysis = {}
         reason,
         requirement_id: requirement?.id || null,
         requirement: requirement?.requirement || "",
-        evidence_citations: [{
-          source: bestSource.source || "base_resume",
-          section: bestSource.section || "base resume",
-          line_index: bestSource.line_index || null,
-          excerpt: original,
-        }],
+        evidence_citations: provenance.citations,
+        citation_coverage: Number(provenance.coverage.toFixed(3)),
+        citation_complete: citationComplete,
+        unsupported_strengthening: ownershipStrengthening,
+        uncovered_terms: provenance.uncoveredTerms.slice(0, 12),
       });
     }
   }
   return changes.slice(0, 60);
+}
+
+function requirementConsistencyReview(analysis = null) {
+  const requirements = Array.isArray(analysis?.requirements) ? analysis.requirements : [];
+  if (!analysis || requirements.length === 0) {
+    return {
+      status: "pass",
+      issue_count: 0,
+      issues: [],
+      canonical_total: requirements.length,
+      required_total: 0,
+    };
+  }
+  const actual = { direct: 0, adjacent: 0, transferable: 0, missing: 0 };
+  for (const requirement of requirements) {
+    if (Object.hasOwn(actual, requirement?.evidence_match)) actual[requirement.evidence_match] += 1;
+  }
+  const supplied = analysis?.coverage;
+  const required = requirements.filter((requirement) => requirement?.priority === "required");
+  const actualRequired = { direct: 0, adjacent: 0, transferable: 0, missing: 0 };
+  for (const requirement of required) {
+    if (Object.hasOwn(actualRequired, requirement?.evidence_match)) actualRequired[requirement.evidence_match] += 1;
+  }
+  const suppliedRequired = analysis?.core_coverage;
+  const issues = [];
+  for (const key of Object.keys(actual)) {
+    if (supplied && Number(supplied[key] || 0) !== actual[key]) issues.push(`coverage_${key}_mismatch`);
+    if (suppliedRequired && Number(suppliedRequired[key] || 0) !== actualRequired[key]) issues.push(`required_${key}_mismatch`);
+  }
+  if (suppliedRequired && Number(suppliedRequired.total || 0) !== required.length) issues.push("required_total_mismatch");
+  if (new Set(requirements.map((requirement) => requirement?.id)).size !== requirements.length) issues.push("duplicate_requirement_id");
+  if (analysis?.requirement_consistency?.status === "blocked") issues.push(...(analysis.requirement_consistency.issues || []));
+  return {
+    status: issues.length ? "blocked" : "pass",
+    issue_count: [...new Set(issues)].length,
+    issues: [...new Set(issues)],
+    canonical_total: requirements.length,
+    required_total: required.length,
+  };
 }
 
 export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
@@ -277,6 +384,20 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
 
   const writingReview = buildWritingReview(resumeData, baseResume, options);
   const tailoringChanges = buildTailoringChangeLedger(resumeData, baseResume, options.analysis);
+  const provenance_issues = (options.analysis ? tailoringChanges : []).filter((change) => (
+    change.change_type !== "retained" && change.citation_complete !== true
+  )).map((change) => ({
+    id: change.id,
+    experience_index: change.experience_index,
+    bullet_index: change.bullet_index,
+    original: change.original,
+    proposed: change.proposed,
+    issue_type: change.unsupported_strengthening ? "unsupported_strengthening" : "incomplete_citation",
+    unsupported_strengthening: change.unsupported_strengthening,
+    uncovered_terms: change.uncovered_terms,
+    evidence_citations: change.evidence_citations,
+  }));
+  const requirementConsistency = requirementConsistencyReview(options.analysis);
   const verb_issues = writingReview.issues
     .filter((issue) => ["weak_opener", "imprecise_verb", "unrecognized_opener", "contribution_level"].includes(issue.issue_type))
     .map((issue) => ({ experienceIndex: issue.experience_index, bulletIndex: issue.bullet_index, opening: issue.original.match(/^[A-Za-z]+/)?.[0]?.toLowerCase() || "missing" }));
@@ -331,6 +452,8 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
       || semantic.unsupported_target_terms.length
       || semantic.unsupported_positioning.length
       || semantic.risky_claims.length
+      || provenance_issues.length
+      || requirementConsistency.status === "blocked"
   );
   const writingScore = Math.max(0, 100
     - Math.min(20, verb_issues.length * 4)
@@ -369,7 +492,8 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
   const requirementCount = Array.isArray(options.analysis?.requirements) ? options.analysis.requirements.length : 0;
   const requirementAnalysisReady = requirementCount > 0
     && coverageTotal > 0
-    && requirementCount === coverageTotal;
+    && requirementCount === coverageTotal
+    && requirementConsistency.status === "pass";
   const verifiedBlockerCount = Number(options.analysis?.gap_summary?.counts?.verified_blocker || 0);
   const readiness = options.analysis?.readiness || {
     status: integrityBlocked ? "significant_gap" : "credible_stretch",
@@ -432,6 +556,8 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
     unsupported_target_terms: semantic.unsupported_target_terms,
     unsupported_positioning: semantic.unsupported_positioning,
     risky_claims: semantic.risky_claims,
+    provenance_issues,
+    requirement_consistency: requirementConsistency,
     verb_issues,
     tense_issues,
     matched_keywords,
@@ -445,7 +571,9 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
         + semantic.unsupported_training.length
         + semantic.unsupported_target_terms.length
         + semantic.unsupported_positioning.length
-        + semantic.risky_claims.length,
+        + semantic.risky_claims.length
+        + provenance_issues.length
+        + requirementConsistency.issue_count,
     },
     posting: postingAssessment,
     posting_readiness: postingReadiness,

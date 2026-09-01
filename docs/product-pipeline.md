@@ -399,6 +399,18 @@ Implementation closure includes a dedicated authenticated, no-store clarificatio
 - Visual templates remain presentation-only. No provider, storage, authentication, database, analytics, job-source, résumé-sync, or native-app contract changes are part of this phase.
 - Regression fixtures cover senior FI-CA/PSCD → IS-U FI-CA adjacency, service → teller transferable strengths, distant targets, legacy payload migration, regulated trades, semantic export repair, and cover-letter gap-disclosure rejection.
 
+### P3.3E canonical requirement and provenance integrity hotfix
+
+**Status:** Implemented and locally verified on 2026-09-01; commit and production release remain deliberately pending.
+
+- The candidate-reviewed posting inventory is now the only canonical requirement set. Model-only fragments and paraphrased duplicates cannot silently expand the denominator after the candidate reviews a posting.
+- Composite tenure requirements separate the duration constraint from FI, CO, Asset Accounting, Logistics integration, and Billing capability checks. Required-qualification coverage and full-inventory coverage are calculated independently and must reconcile exactly before final export.
+- Generic SAP delivery evidence—requirements gathering, blueprinting, configuration, testing, cutover, deployment, integration, migration, and workshops—is recovered from verified résumé lines instead of being treated as a domain gap merely because the target role is FICO or Utilities.
+- FI-CA and PSCD may support bounded adjacent evidence for FI, Billing, and integration, but do not prove CO, Asset Accounting, Utilities industry history, or an exact years-of-experience constraint. Seniority remains independent from fit and readiness.
+- Every changed experience bullet now carries clause-level provenance from as many as four base-résumé citations. Uncited clauses and contribution escalation such as *contributed* → *authored* block final readiness; deterministic fallback restores the strongest verified original or omits the unsafe bullet.
+- Change explanations mention a posting requirement only when the rewritten bullet actually aligns with that requirement. The UI exposes every supporting citation and prevents approval of wording that still needs evidence review.
+- Regression coverage includes the redacted senior FICO scenario, canonical-inventory rejection of model-only fragments, separated duration/module atoms, generic lifecycle recovery, multi-source citations, ownership escalation, count mismatches, and safe provenance restoration.
+
 ## Recommended execution order
 
 1. P0.1 posting enrichment and provenance
@@ -426,6 +438,7 @@ Implementation closure includes a dedicated authenticated, no-store clarificatio
 23. P4.H1 exporter deployment-skew resilience and authenticated stale-tab verification
 24. P4.3 terms-approved geography/source expansion, followed by P4.2 native readiness
 25. P4.5 evidence-led résumé and cover-letter design research, followed by a small original prototype set and measured tester validation
+26. P3.3E canonical requirement/provenance integrity hotfix — locally verified; commit, deployment, and authenticated FICO retest pending
 
 ## Source constraints behind P0.1
 

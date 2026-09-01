@@ -111,10 +111,18 @@ const FORBIDDEN_POSITIONING_PATTERN = /\b(?:career[ -](?:change|transition)|tran
 const CAPABILITY_FAMILIES = Object.freeze([
   { id: "sap_utilities_meter_to_cash", specificity: "target_specific", pattern: /\bmeter\s+to\s+cash\b|\bmeter\s+reading\b/i },
   { id: "sap_utilities_device_management", specificity: "target_specific", pattern: /\bdevice\s+management\b/i },
-  { id: "sap_utilities_billing", specificity: "target_specific", pattern: /\b(?:sap\s+is[- ]?u\s+)?billing\b|\butility billing\b/i },
+  { id: "sap_utilities_billing", specificity: "target_specific", pattern: /\b(?:sap\s+is[- ]?u|utilit(?:y|ies))\b[^.!?]{0,60}\bbilling\b|\butility billing\b/i },
   { id: "sap_utilities_c4c", specificity: "target_specific", pattern: /\b(?:sap\s+)?c4c\b/i },
   { id: "sap_utilities_master_data", specificity: "target_specific", pattern: /\b(?:business|technical|utility|isu)\s+master\s+data\b/i },
   { id: "sap_utilities_module_integration", specificity: "target_specific", pattern: /\bintegration\s+with\s+(?:other\s+)?(?:sap\s+)?is[- ]?u\s+modules?\b/i },
+  { id: "sap_finance_experience_duration", specificity: "constraint", pattern: /\b\d+\s*(?:[-–—]\s*\d+)?\+?\s+years?\b[^.!?]{0,100}\b(?:sap\s+)?finance\b/i },
+  { id: "sap_fico_fi", specificity: "target_specific", pattern: /\b(?:sap\s+)?fi(?![- ]?ca)\b|\bfi[- ]?(?:gl|ap|ar)\b|\bfinancial accounting\b/i },
+  { id: "sap_fico_co", specificity: "target_specific", pattern: /\b(?:sap\s+)?co\b|\bco[- ]?(?:cca|pa)\b|\bcontrolling\b|\bcost center accounting\b|\bprofitability analysis\b/i },
+  { id: "sap_fico_asset_accounting", specificity: "target_specific", pattern: /\basset accounting\b|\bfi[- ]?aa\b|\bdepreciation\b/i },
+  { id: "sap_fico_logistics_integration", specificity: "target_specific", pattern: /\b(?:integration|integrat(?:e|ed|ing))\b[^.!?]{0,70}\blogistics\b|\blogistics integration\b/i },
+  { id: "sap_fico_billing", specificity: "target_specific", pattern: /\bbilling\b/i },
+  { id: "sap_fico_financial_closing", specificity: "target_specific", pattern: /\bfinancial clos(?:e|ing)\b|\bperiod[- ]end close\b/i },
+  { id: "sap_fico_cash_management", specificity: "target_specific", pattern: /\bcash management\b/i },
   { id: "fica_clearing", specificity: "shared_foundation", pattern: /\bclearing(?:\s+control)?\b/i },
   { id: "fica_dunning_collections", specificity: "shared_foundation", pattern: /\bdunning\b|\bcollections?\b/i },
   { id: "fica_installment_plans", specificity: "shared_foundation", pattern: /\binstallment\s+plans?\b/i },
@@ -128,15 +136,23 @@ const CAPABILITY_FAMILIES = Object.freeze([
   { id: "edi", specificity: "target_specific", pattern: /\b(?:edi|edifact|ansi\s*x12|idocs?)\b/i },
   { id: "sap_data_migration", specificity: "general_delivery", pattern: /\bdata\s+migration\b/i },
   { id: "sap_as_is_to_be", specificity: "general_delivery", pattern: /\bas[- ]?is\b[^.!?]{0,70}\bto[- ]?be\b/i },
-  { id: "sap_business_blueprint", specificity: "general_delivery", pattern: /\bbusiness\s+blueprints?\b|\bblueprint\s+documents?\b/i },
+  { id: "sap_business_blueprint", specificity: "general_delivery", pattern: /\bblueprint(?:ing|s|ed)?\b|\bbusiness\s+blueprints?\b|\bblueprint\s+documents?\b/i },
   { id: "sap_functional_specifications", specificity: "general_delivery", pattern: /\bfunctional\s+specifications?\b/i },
-  { id: "sap_requirements_analysis", specificity: "general_delivery", pattern: /\brequirements?\s+(?:analysis|gathering|workshops?)\b|\bbusiness\s+requirements?\b/i },
+  { id: "sap_requirements_analysis", specificity: "general_delivery", pattern: /\brequirements?\s+(?:analysis|gathering|definition|validation|workshops?)\b|\bbusiness\s+requirements?\b|\brequirement gathering\b/i },
   { id: "sap_configuration", specificity: "general_delivery", pattern: /\bconfigur(?:ation|ations|e|ed|ing)\b/i },
   { id: "sap_integration", specificity: "general_delivery", pattern: /\bintegrat(?:e|ed|ion|ing)\b|\binterfaces?\b/i },
-  { id: "sap_testing", specificity: "general_delivery", pattern: /\b(?:unit|regression|integration|user acceptance|uat)\s+test(?:ing|s)?\b/i },
+  { id: "sap_testing", specificity: "general_delivery", pattern: /\b(?:unit|regression|integration|user acceptance|uat)?\s*test(?:ing|s|ed)?\b/i },
   { id: "sap_cutover_go_live", specificity: "general_delivery", pattern: /\bcutover\b|\bgo[- ]?live\b|\bstabili[sz]ation\b/i },
+  { id: "sap_deployment", specificity: "general_delivery", pattern: /\bdeploy(?:ment|ments|ed|ing)?\b|\brelease(?:s|d)?\b/i },
+  { id: "sap_workshops", specificity: "general_delivery", pattern: /\bworkshops?\b|\bdesign authority\b|\bsteerco\b/i },
   { id: "sap_delivery_leadership", specificity: "general_delivery", pattern: /\b(?:project|program|delivery)\s+(?:leadership|management)\b|\bstakeholder\s+(?:leadership|management)\b/i },
 ]);
+
+const ADJACENT_CAPABILITY_EVIDENCE = Object.freeze({
+  sap_fico_fi: /\bfi[- ]?ca\b|\bpscd\b|\bcontract accounts?\b|\bsap financial services\b|\bsap finance academy\b/i,
+  sap_fico_logistics_integration: /\bintegrat(?:e|ed|ion|ing)\b|\binterfaces?\b|\bpi\/?po\b/i,
+  sap_fico_billing: /\bbilling\b|\bcontract accounts?\b|\bfi[- ]?ca\b|\bpscd\b/i,
+});
 
 function normalizeFitPath(value) {
   const path = String(value || "").trim().toLowerCase();
@@ -300,6 +316,24 @@ function listItems(value) {
 function atomicRequirementValues(value, index) {
   const requirement = String(value?.requirement || "").replace(/\s+/g, " ").trim().slice(0, 500);
   if (!requirement) return [];
+  const durationWithCapabilities = requirement.match(/^(.*?\b\d+\s*(?:[-–—]\s*\d+)?\+?\s+years?\b.*?\bexperience)\s+with\s+(.+)$/i);
+  if (durationWithCapabilities) {
+    const capabilityMatch = durationWithCapabilities[2].match(/^(.*?\b(?:expertise|experience|knowledge|proficiency|familiarity|understanding)\s+(?:in|of|with)\s+)(.+)$/i);
+    const capabilityItems = capabilityMatch ? listItems(capabilityMatch[2]) : [];
+    if (capabilityItems.length >= 2) {
+      const atomicValues = [
+        durationWithCapabilities[1],
+        ...capabilityItems.map((item) => `${capabilityMatch[1]}${item}`),
+      ];
+      return atomicValues.slice(0, 12).map((requirementText, atomicIndex) => ({
+        ...value,
+        id: `${String(value?.id || `R${index + 1}`).slice(0, 14)}.${atomicIndex + 1}`,
+        requirement: requirementText,
+        parent_requirement: requirement,
+        atomic_index: atomicIndex,
+      }));
+    }
+  }
   if ((/\bsap\s+sd\b/i.test(requirement) || /\bsales and distribution\b/i.test(requirement))
     && (/\bsap\s+le\b/i.test(requirement) || /\blogistics execution\b/i.test(requirement))) {
     return ["SAP SD / Sales and Distribution capability", "SAP LE / Logistics Execution capability"].map((requirementText, atomicIndex) => ({
@@ -439,11 +473,9 @@ function mergeRequirementInventory(modelRequirements, reviewedInventory) {
       keywords: uniqueStrings([...(seed.keywords || []), ...(candidate.keywords || [])], 8),
     };
   });
-  for (const [index, candidate] of raw.entries()) {
-    if (used.has(index) || !candidate?.requirement) continue;
-    if (merged.some((seed) => requirementSimilarity(seed.requirement, candidate.requirement) >= 0.72)) continue;
-    merged.push(candidate);
-  }
+  // The reviewed posting inventory is authoritative. Model-only requirements are
+  // not appended because they may be paraphrased duplicates or fragments that
+  // never appeared in the reviewed posting.
   return merged.slice(0, 40);
 }
 
@@ -643,8 +675,25 @@ function lineScore(requirement, line) {
 
 function deterministicEvidence(requirement, baseResume) {
   const concepts = strictConceptsForRequirement(requirement);
-  if (!concepts.length) return null;
   const lines = String(baseResume || "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  if (!concepts.length) {
+    const family = capabilityFamilyFor({ requirement });
+    const directCandidates = ["general_delivery", "shared_foundation"].includes(family.specificity)
+      ? lines.filter((line) => family.pattern.test(line))
+      : [];
+    const adjacentPattern = ADJACENT_CAPABILITY_EVIDENCE[family.id];
+    const adjacentCandidates = adjacentPattern ? lines.filter((line) => adjacentPattern.test(line)) : [];
+    const candidates = [
+      ...directCandidates.map((line) => ({ line, classification: "direct", score: lineScore(requirement, line) })),
+      ...adjacentCandidates.map((line) => ({ line, classification: "adjacent", score: lineScore(requirement, line) })),
+    ].sort((left, right) => right.score - left.score || right.line.length - left.line.length);
+    if (!candidates.length) return null;
+    return {
+      excerpt: candidates[0].line,
+      classification: candidates[0].classification,
+      concepts: [family.id],
+    };
+  }
   const candidates = lines
     .filter((line) => concepts.every((concept) => concept.evidence.test(line)))
     .map((line) => ({ line, score: lineScore(requirement, line) }))
@@ -751,6 +800,23 @@ function coverageCounts(requirements) {
   return counts;
 }
 
+function canonicalInventoryConsistency(requirements, coverage) {
+  const coverageTotal = Object.values(coverage).reduce((sum, value) => sum + Number(value || 0), 0);
+  const uniqueIds = new Set(requirements.map((requirement) => requirement.id));
+  const uniqueFamilies = new Set(requirements.map((requirement) => requirement.capability_family));
+  const issues = [];
+  if (coverageTotal !== requirements.length) issues.push("coverage_total_mismatch");
+  if (uniqueIds.size !== requirements.length) issues.push("duplicate_requirement_id");
+  if (uniqueFamilies.size !== requirements.length) issues.push("duplicate_capability_family");
+  return {
+    status: issues.length ? "blocked" : "pass",
+    canonical_total: requirements.length,
+    coverage_total: coverageTotal,
+    issue_count: issues.length,
+    issues,
+  };
+}
+
 function candidateFacingText(value, fallback, limit = 700) {
   return String(value || fallback || "")
     .replace(/because\s+fit_allowed\s+is\s+false\s+per\s+the\s+deterministic\s+posting\s+assessment,?\s*/gi, "Because the posting is not yet verified as complete, ")
@@ -802,6 +868,10 @@ function calibrateFit(requirements, requestedPath) {
     .filter((requirement) => requirement.target_specificity === "general_delivery"
       && ["direct", "adjacent"].includes(requirement.evidence_match))
     .map((requirement) => requirement.capability_family));
+  const targetFamilyAdjacentEvidence = assessed.some((requirement) => (
+    requirement.target_specificity === "target_specific"
+      && requirement.evidence_match === "adjacent"
+  ));
   const normalizedRequestedPath = normalizeFitPath(requestedPath);
   let path = "transferable";
   if (directRate >= 0.6 && weightedRate >= 0.72 && missingRate <= 0.22) path = "direct";
@@ -809,6 +879,7 @@ function calibrateFit(requirements, requestedPath) {
     (weightedRate >= 0.42 && domainAdjacentEvidence >= 2)
       || (domainAdjacentEvidence >= 3)
       || (sharedFoundationEvidence && generalDeliveryFamilies.size >= 2)
+      || (targetFamilyAdjacentEvidence && generalDeliveryFamilies.size >= 2)
       || (normalizedRequestedPath === "adjacent" && domainAdjacentEvidence >= 2)
   )) path = "adjacent";
   const readinessStatus = verifiedBlockerCount > 0
@@ -828,6 +899,7 @@ function calibrateFit(requirements, requestedPath) {
     weightedRate,
     verifiedBlockerCount,
     sharedFoundationEvidence,
+    targetFamilyAdjacentEvidence,
     generalDeliveryEvidence: generalDeliveryFamilies.size,
   };
 }
@@ -835,7 +907,7 @@ function calibrateFit(requirements, requestedPath) {
 function calibratedFitReason(calibration) {
   if (!calibration.total) return "The posting did not yield enough atomic requirements for a dependable candidate-fit judgment.";
   const { counts, total, supported } = calibration;
-  return `Verified résumé evidence supports ${supported} of ${total} core requirements: ${counts.direct} direct, ${counts.adjacent} adjacent, ${counts.transferable} transferable, and ${counts.missing} unsupported.`;
+  return `Verified résumé evidence supports ${supported} of ${total} assessed requirements: ${counts.direct} direct, ${counts.adjacent} adjacent, ${counts.transferable} transferable, and ${counts.missing} unsupported.`;
 }
 
 function calibratedLevel(rawLevel, path) {
@@ -848,7 +920,7 @@ function calibratedLevel(rawLevel, path) {
 
 function applicationOutlook(requirements, gapCounts, candidateFit, postingAssessment) {
   const evidenceCounts = coverageCounts(requirements);
-  const coreRequirements = requirements.filter((requirement) => ["required", "responsibility"].includes(requirement.priority));
+  const coreRequirements = requirements.filter((requirement) => requirement.priority === "required");
   const coreInventory = coreRequirements.length ? coreRequirements : requirements;
   const coreEvidenceCounts = coverageCounts(coreInventory);
   const coreMaterialGaps = coreInventory.filter((requirement) => requirement.gap_severity === "material_gap").length;
@@ -930,6 +1002,9 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
     .map((value, index) => cleanRequirement(value, index, baseResume, candidateNotes))
     .filter(Boolean));
   const coverage = coverageCounts(requirements);
+  const requiredRequirements = requirements.filter((requirement) => requirement.priority === "required");
+  const requiredCoverage = coverageCounts(requiredRequirements);
+  const inventoryConsistency = canonicalInventoryConsistency(requirements, coverage);
 
   const transferableSkills = (Array.isArray(raw.verified_transferable_skills) ? raw.verified_transferable_skills : [])
     .slice(0, 20)
@@ -1040,15 +1115,18 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
     requirements,
     coverage,
     core_coverage: {
-      ...calibration.counts,
-      total: calibration.total,
-      supported: calibration.supported,
+      ...requiredCoverage,
+      total: requiredRequirements.length,
+      supported: requiredCoverage.direct + requiredCoverage.adjacent + requiredCoverage.transferable,
     },
     requirement_summary: {
       total: requirements.length,
-      core_total: calibration.total,
-      preferred_or_context_total: Math.max(0, requirements.length - calibration.total),
+      core_total: requiredRequirements.length,
+      required_total: requiredRequirements.length,
+      responsibility_total: requirements.filter((requirement) => requirement.priority === "responsibility").length,
+      preferred_or_context_total: requirements.filter((requirement) => ["preferred", "context"].includes(requirement.priority)).length,
     },
+    requirement_consistency: inventoryConsistency,
     gap_summary: {
       application_risk: applicationRisk,
       counts: gapCounts,

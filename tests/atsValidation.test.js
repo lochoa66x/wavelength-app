@@ -378,3 +378,69 @@ test("tailoring changes map rewritten bullets to exact candidate evidence", () =
   assert.equal(changes[0].evidence_citations[0].line_index, 2);
   assert.match(changes[0].reason, /without adding a new fact/i);
 });
+
+test("tailoring provenance can cite multiple source lines for one composite bullet", () => {
+  const firstSource = "Led user acceptance testing and mock cutover cycles.";
+  const secondSource = "Coordinated interface delivery through SAP PI/PO and production support.";
+  const proposed = `${firstSource.replace(/\.$/, "")}; ${secondSource.charAt(0).toLowerCase()}${secondSource.slice(1)}`;
+  const changes = buildTailoringChangeLedger({
+    experience: [{ role: "SAP Solution Architect", bullets: [proposed] }],
+  }, `SAP Solution Architect — Acme — 2020–2024\n${firstSource}\n${secondSource}`, { requirements: [] });
+
+  assert.equal(changes.length, 1);
+  assert.equal(changes[0].citation_complete, true);
+  assert.equal(changes[0].evidence_citations.length, 2);
+  assert.deepEqual(changes[0].evidence_citations.map((citation) => citation.line_index), [2, 3]);
+  assert.equal(changes[0].unsupported_strengthening, null);
+});
+
+test("tailoring provenance blocks contributed-to-authored ownership escalation", () => {
+  const source = "Contributed to creation of functional specifications for Contract Accounts.";
+  const proposed = "Authored functional specifications for Contract Accounts.";
+  const review = buildAtsReview({
+    name: "Luis Example",
+    profile: "SAP functional consultant.",
+    experience: [{ role: "SAP Consultant", company: "Real Corp", dates: "2020–2024", bullets: [proposed] }],
+  }, `SAP Consultant — Real Corp — 2020–2024\n${source}`, { keywords: [] }, {
+    analysis: {
+      posting_assessment: { status: "complete", fit_allowed: true, application_ready_allowed: true },
+      posting_readiness: { status: "reviewed_complete", fit_allowed: true, application_ready_allowed: true },
+      requirements: [{
+        id: "R1",
+        requirement: "Prepare functional specifications for Contract Accounts",
+        priority: "required",
+        evidence_match: "direct",
+        evidence: [{ source: "base_resume", line_index: 2, excerpt: source }],
+      }],
+      coverage: { direct: 1, adjacent: 0, transferable: 0, missing: 0 },
+    },
+  });
+
+  assert.equal(review.integrity.status, "blocked");
+  assert.equal(review.provenance_issues.length, 1);
+  assert.equal(review.provenance_issues[0].issue_type, "unsupported_strengthening");
+  assert.equal(review.provenance_issues[0].unsupported_strengthening.proposed_verb, "authored");
+  assert.equal(review.provenance_issues[0].unsupported_strengthening.strongest_source_verb, "contributed");
+});
+
+test("requirement count mismatches block application-ready export", () => {
+  const source = "Led operations.";
+  const review = buildAtsReview({
+    name: "Luis Example",
+    profile: "Operations leader.",
+    experience: [{ role: "Operations Manager", company: "Real Corp", dates: "2020–2023", bullets: [source] }],
+  }, `Operations Manager — Real Corp — 2020–2023\n${source}`, { keywords: [] }, {
+    analysis: {
+      posting_assessment: { status: "complete", fit_allowed: true, application_ready_allowed: true },
+      posting_readiness: { status: "reviewed_complete", fit_allowed: true, application_ready_allowed: true },
+      requirements: [{ id: "R1", requirement: "Lead operations", priority: "required", evidence_match: "direct" }],
+      coverage: { direct: 0, adjacent: 0, transferable: 0, missing: 1 },
+      core_coverage: { direct: 0, adjacent: 0, transferable: 0, missing: 1, total: 1 },
+    },
+  });
+
+  assert.equal(review.requirement_consistency.status, "blocked");
+  assert.ok(review.requirement_consistency.issues.includes("coverage_direct_mismatch"));
+  assert.ok(review.export_readiness.blockers.includes("requirement_analysis"));
+  assert.equal(review.application_ready, false);
+});

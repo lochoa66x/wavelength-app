@@ -254,7 +254,7 @@ export function buildApplicationRiskView(review = {}) {
     preferences: 0,
     needsReview: 0,
   });
-  const coreRequirements = requirements.filter((requirement) => ["required", "responsibility"].includes(requirement.priority));
+  const coreRequirements = requirements.filter((requirement) => requirement.priority === "required");
   const coreInventory = coreRequirements.length ? coreRequirements : requirements;
   const coreCounts = coreInventory.reduce((result, requirement) => {
     result.total += 1;
@@ -300,6 +300,8 @@ export function buildApplicationRiskView(review = {}) {
   const truthChecksPass = postingComplete
     && counts.total > 0
     && review?.integrity?.status === "pass"
+    && review?.requirement_consistency?.status !== "blocked"
+    && !(review?.provenance_issues?.length)
     && review?.identity?.status === "complete"
     && review?.parseability?.status === "pass"
     && review?.writing?.status !== "blocked"
