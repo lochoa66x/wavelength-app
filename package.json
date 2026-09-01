@@ -14,7 +14,8 @@
     "evaluate:signals": "node scripts/evaluateQualitySignals.mjs",
     "verify:privacy-release": "node scripts/verifyPrivacyRelease.mjs",
     "verify:exports": "node scripts/verifyResumeExports.mjs",
-    "verify:cover-letters": "node scripts/verifyCoverLetterExports.mjs"
+    "verify:cover-letters": "node scripts/verifyCoverLetterExports.mjs",
+    "verify:presentation-prototypes": "node scripts/verifyPresentationPrototypes.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.112.3",

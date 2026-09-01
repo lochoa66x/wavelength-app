@@ -10,6 +10,8 @@ import {
   updateCoverLetterParagraph,
   validateCoverLetterExportContext,
 } from "./coverLetterModel.js";
+import { createApplicationPresentation } from "./applicationPresentation.js";
+import { TEMPLATE_IDS, buildResumeRenderPlan, createResumePackage } from "./resumeModel.js";
 
 const baseResume = "Jordan Lee\njordan@example.com | Hamilton, Ontario\nIndustrial Electrician\nInstalled and maintained electrical panels.\nCompleted preventive maintenance in a CMMS.";
 const resumeData = {
@@ -57,6 +59,21 @@ test("cover letter plan has a stable canonical hash and application-ready gate",
   assert.match(coverLetterToPlainText(plan), /Facilities Electrician/);
   assert.doesNotMatch(coverLetterToPlainText(plan), /application-ready|preliminary/i);
   assert.equal(validateCoverLetterExportContext(createCoverLetterExportContext(plan, context)).plan.contentHash, plan.contentHash);
+});
+
+test("cover-letter authorization binds presentation without changing paragraph content or readiness", () => {
+  const context = { baseResume, resumeData, item, atsReview, candidateEvidence: [] };
+  const plan = createCoverLetterPlan(draft(), context);
+  const resumePackage = createResumePackage(resumeData, { item, atsReview });
+  const northstar = createApplicationPresentation(buildResumeRenderPlan(resumePackage, { designId: TEMPLATE_IDS.NORTHSTAR }, { allowPrototypeDesigns: true }));
+  const civic = createApplicationPresentation(buildResumeRenderPlan(resumePackage, { designId: TEMPLATE_IDS.CIVIC }, { allowPrototypeDesigns: true }));
+  const northstarContext = createCoverLetterExportContext(plan, { ...context, applicationPresentation: northstar });
+  const civicContext = createCoverLetterExportContext(plan, { ...context, applicationPresentation: civic });
+  assert.equal(northstarContext.plan.contentHash, civicContext.plan.contentHash);
+  assert.deepEqual(northstarContext.plan.paragraphs, civicContext.plan.paragraphs);
+  assert.equal(northstarContext.readiness.state, civicContext.readiness.state);
+  assert.notEqual(northstarContext.authorizationHash, civicContext.authorizationHash);
+  assert.equal(validateCoverLetterExportContext(northstarContext), northstarContext);
 });
 
 test("the same verified letter becomes preliminary when the resume assessment is preliminary", () => {

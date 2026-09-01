@@ -60,7 +60,7 @@ function contrastRatio(left, right) {
   return (lighter + 0.05) / (darker + 0.05);
 }
 
-test("seven styles, four palettes, and two densities preserve identical canonical content", () => {
+test("seven public styles plus three dormant prototypes preserve identical canonical content", () => {
   const pkg = createResumePackage(candidate, { item: target, atsReview: reviewedPosting });
   const baseline = buildResumeRenderPlan(pkg, {
     strategyId: pkg.presentation.selectedStrategyId,
@@ -70,6 +70,7 @@ test("seven styles, four palettes, and two densities preserve identical canonica
   const baselineText = manifestVisibleText(baselineManifest);
 
   assert.equal(availableResumeDesigns().length, 7);
+  assert.equal(availableResumeDesigns({ includePrototypes: true }).length, 10);
   assert.equal(availableResumePalettes().length, 4);
   assert.equal(availableResumeDensities().length, 2);
 
@@ -89,6 +90,16 @@ test("seven styles, four palettes, and two densities preserve identical canonica
         assert.equal(plan.visualTokens.densityId, density.id);
       }
     }
+  }
+
+  for (const design of availableResumeDesigns({ includePrototypes: true }).filter((entry) => entry.prototype)) {
+    const plan = buildResumeRenderPlan(pkg, {
+      strategyId: pkg.presentation.selectedStrategyId,
+      designId: design.id,
+    }, { allowPrototypeDesigns: true });
+    assert.equal(plan.contentHash, pkg.contentHash);
+    assert.deepEqual(plan.manifest, baselineManifest);
+    assert.ok(plan.visualTokens.bodyFontSizePt >= 10);
   }
 });
 

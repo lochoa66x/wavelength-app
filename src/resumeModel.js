@@ -1,3 +1,5 @@
+import { PRESENTATION_PROTOTYPES_ENABLED } from "./presentationPrototypeConfig.js";
+
 export const RESUME_SCHEMA_VERSION = 2;
 
 export const TEMPLATE_IDS = Object.freeze({
@@ -17,6 +19,9 @@ export const TEMPLATE_IDS = Object.freeze({
   STUDIO_EDITORIAL: "studio-editorial-v1",
   ESSENTIAL_ATS: "essential-ats-v1",
   FIELD_READY: "field-ready-v1",
+  NORTHSTAR: "northstar-v1",
+  CIVIC: "civic-v1",
+  STUDIO_EDITORIAL_V2: "studio-editorial-v2",
 });
 
 export const STRATEGY_IDS = Object.freeze({
@@ -39,6 +44,9 @@ export const DESIGN_IDS = Object.freeze({
   BOLD_IMPACT: TEMPLATE_IDS.BOLD_IMPACT,
   STUDIO_EDITORIAL: TEMPLATE_IDS.STUDIO_EDITORIAL,
   FIELD_READY: TEMPLATE_IDS.FIELD_READY,
+  NORTHSTAR: TEMPLATE_IDS.NORTHSTAR,
+  CIVIC: TEMPLATE_IDS.CIVIC,
+  STUDIO_EDITORIAL_V2: TEMPLATE_IDS.STUDIO_EDITORIAL_V2,
 });
 
 export const PALETTE_IDS = Object.freeze({
@@ -154,6 +162,9 @@ const TEMPLATE_ALIASES = Object.freeze({
   essential: TEMPLATE_IDS.ESSENTIAL_ATS,
   "field-ready": TEMPLATE_IDS.FIELD_READY,
   field: TEMPLATE_IDS.FIELD_READY,
+  northstar: TEMPLATE_IDS.NORTHSTAR,
+  civic: TEMPLATE_IDS.CIVIC,
+  "studio-editorial-v2": TEMPLATE_IDS.STUDIO_EDITORIAL_V2,
 });
 
 const BASE_SECTIONS = Object.freeze([
@@ -178,6 +189,12 @@ const BASE_VISUAL_TOKENS = Object.freeze({
   fontFamily: "Arial, Helvetica, sans-serif",
   docxFontFamily: "Arial",
   pdfFontFamily: "helvetica",
+  bodyFontFamily: "Arial, Helvetica, sans-serif",
+  displayFontFamily: "Arial, Helvetica, sans-serif",
+  docxBodyFontFamily: "Arial",
+  docxDisplayFontFamily: "Arial",
+  pdfBodyFontFamily: "helvetica",
+  pdfDisplayFontFamily: "helvetica",
   bodyFontSizePt: 10,
   bodyLineHeight: 1.35,
   nameFontSizePt: 18,
@@ -195,6 +212,9 @@ const BASE_VISUAL_TOKENS = Object.freeze({
   sectionTreatment: "underline",
   sectionTextTransform: "uppercase",
   sectionLetterSpacingEm: 0.04,
+  coverLetterBodyFontSizePt: 10.5,
+  coverLetterLineHeight: 1.42,
+  coverLetterParagraphAfterPt: 10,
 });
 
 function templateDefinition({
@@ -214,6 +234,8 @@ function templateDefinition({
   contentProfile = "fixed",
   contentStrategy = "Evidence-first single-column presentation of canonical resume facts.",
   recommendationMetadata = {},
+  prototype = false,
+  conservativeFallbackId = TEMPLATE_IDS.ESSENTIAL_ATS,
 }) {
   return Object.freeze({
     id,
@@ -228,6 +250,8 @@ function templateDefinition({
     supportedSections: BASE_SECTIONS,
     pageTarget: 2,
     visible,
+    prototype,
+    conservativeFallbackId,
     visualTokens: Object.freeze({
       ...BASE_VISUAL_TOKENS,
       accent,
@@ -541,10 +565,111 @@ export const RESUME_TEMPLATE_REGISTRY = Object.freeze({
     },
     sectionOrder: ["summary", "skills", "experience", "projects", "certifications", "training", "education", "languages", "safety"],
   }),
+  [TEMPLATE_IDS.NORTHSTAR]: templateDefinition({
+    id: TEMPLATE_IDS.NORTHSTAR,
+    displayName: "Northstar",
+    description: "A calm modern hierarchy with a shallow keyline and precise section labels.",
+    intendedUse: "Broad professional applications where modern clarity and restrained structure matter",
+    accent: "#245b73",
+    accentSoft: "#edf5f7",
+    group: "design-style",
+    tone: "Modern",
+    contentProfile: "adaptive",
+    prototype: true,
+    conservativeFallbackId: TEMPLATE_IDS.ESSENTIAL_ATS,
+    visualTokens: {
+      headerAlignment: "left",
+      headerTreatment: "keyline",
+      sectionTreatment: "label-rule",
+      sectionTextTransform: "uppercase",
+      sectionLetterSpacingEm: 0.055,
+      bodyFontSizePt: 10.15,
+      bodyLineHeight: 1.36,
+      nameFontSizePt: 20.5,
+      headlineFontSizePt: 11,
+      sectionFontSizePt: 10.35,
+      coverLetterBodyFontSizePt: 10.5,
+      coverLetterLineHeight: 1.44,
+      coverLetterParagraphAfterPt: 10.5,
+    },
+    sectionOrder: ["summary", "skills", "experience", "projects", "certifications", "training", "education", "languages", "safety"],
+  }),
+  [TEMPLATE_IDS.CIVIC]: templateDefinition({
+    id: TEMPLATE_IDS.CIVIC,
+    displayName: "Civic",
+    description: "A warm formal family pairing restrained serif display type with a highly readable sans-serif body.",
+    intendedUse: "Formal professional applications that benefit from warmth without decorative risk",
+    accent: "#4d5262",
+    accentSoft: "#f1f1f3",
+    group: "design-style",
+    tone: "Formal",
+    contentProfile: "adaptive",
+    prototype: true,
+    conservativeFallbackId: TEMPLATE_IDS.ESSENTIAL_ATS,
+    visualTokens: {
+      bodyFontFamily: "Arial, Helvetica, sans-serif",
+      displayFontFamily: "Georgia, 'Times New Roman', serif",
+      docxBodyFontFamily: "Arial",
+      docxDisplayFontFamily: "Georgia",
+      pdfBodyFontFamily: "helvetica",
+      pdfDisplayFontFamily: "times",
+      headerAlignment: "left",
+      headerTreatment: "civic-rule",
+      sectionTreatment: "civic-label",
+      sectionTextTransform: "none",
+      sectionLetterSpacingEm: 0.015,
+      bodyFontSizePt: 10.2,
+      bodyLineHeight: 1.38,
+      nameFontSizePt: 20,
+      headlineFontSizePt: 10.8,
+      sectionFontSizePt: 10.7,
+      coverLetterBodyFontSizePt: 10.7,
+      coverLetterLineHeight: 1.46,
+      coverLetterParagraphAfterPt: 10.5,
+    },
+    sectionOrder: ["summary", "skills", "experience", "projects", "certifications", "training", "education", "languages", "safety"],
+  }),
+  [TEMPLATE_IDS.STUDIO_EDITORIAL_V2]: templateDefinition({
+    id: TEMPLATE_IDS.STUDIO_EDITORIAL_V2,
+    displayName: "Studio Editorial v2",
+    description: "A quieter editorial rhythm with closer heading relationships and restrained colour.",
+    intendedUse: "Networking and design-welcome contexts that still require a clear semantic document",
+    accent: "#6d3f5b",
+    accentSoft: "#f8f1f5",
+    group: "design-style",
+    tone: "Editorial",
+    atsSafetyLevel: "moderate",
+    contentProfile: "adaptive",
+    prototype: true,
+    conservativeFallbackId: TEMPLATE_IDS.NORTHSTAR,
+    compatibilityNotes: "Searchable single-column text without photos, sidebars, ratings, or layout tables; use Northstar or Essential when a portal requests plain formatting.",
+    visualTokens: {
+      bodyFontFamily: "Arial, Helvetica, sans-serif",
+      displayFontFamily: "Georgia, 'Times New Roman', serif",
+      docxBodyFontFamily: "Arial",
+      docxDisplayFontFamily: "Georgia",
+      pdfBodyFontFamily: "helvetica",
+      pdfDisplayFontFamily: "times",
+      headerAlignment: "left",
+      headerTreatment: "editorial-v2",
+      sectionTreatment: "editorial-v2",
+      sectionTextTransform: "none",
+      sectionLetterSpacingEm: 0.012,
+      bodyFontSizePt: 10.1,
+      bodyLineHeight: 1.39,
+      nameFontSizePt: 20.5,
+      headlineFontSizePt: 10.9,
+      sectionFontSizePt: 10.8,
+      coverLetterBodyFontSizePt: 10.6,
+      coverLetterLineHeight: 1.48,
+      coverLetterParagraphAfterPt: 11,
+    },
+    sectionOrder: ["summary", "skills", "experience", "projects", "education", "certifications", "training", "languages", "safety"],
+  }),
 });
 
-export function availableResumeTemplates() {
-  return Object.values(RESUME_TEMPLATE_REGISTRY).filter((template) => template.visible);
+export function availableResumeTemplates({ includePrototypes = PRESENTATION_PROTOTYPES_ENABLED } = {}) {
+  return Object.values(RESUME_TEMPLATE_REGISTRY).filter((template) => template.visible && (includePrototypes || !template.prototype));
 }
 
 export const RESUME_STRATEGY_REGISTRY = Object.freeze(Object.fromEntries(
@@ -563,8 +688,8 @@ export function availableResumeStrategies() {
   return Object.values(RESUME_STRATEGY_REGISTRY).filter((strategy) => strategy.visible);
 }
 
-export function availableResumeDesigns() {
-  return Object.values(RESUME_DESIGN_REGISTRY).filter((design) => design.visible);
+export function availableResumeDesigns({ includePrototypes = PRESENTATION_PROTOTYPES_ENABLED } = {}) {
+  return Object.values(RESUME_DESIGN_REGISTRY).filter((design) => design.visible && (includePrototypes || !design.prototype));
 }
 
 export function availableResumePalettes() {
@@ -594,9 +719,10 @@ export function resolveStrategyId(value, fallback = STRATEGY_IDS.ATS_CORE) {
   return RESUME_STRATEGY_REGISTRY[resolved] ? resolved : fallback;
 }
 
-export function resolveDesignId(value, fallback = DESIGN_IDS.ESSENTIAL_ATS) {
+export function resolveDesignId(value, fallback = DESIGN_IDS.ESSENTIAL_ATS, { allowPrototypeDesigns = PRESENTATION_PROTOTYPES_ENABLED } = {}) {
   const resolved = resolveTemplateId(value, "");
-  return RESUME_DESIGN_REGISTRY[resolved] ? resolved : fallback;
+  const design = RESUME_DESIGN_REGISTRY[resolved];
+  return design && (allowPrototypeDesigns || !design.prototype) ? resolved : fallback;
 }
 
 export function resolvePaletteId(value, fallback = PALETTE_IDS.GIGSCAPES_ORANGE) {
@@ -643,6 +769,12 @@ export function composeResumeVisualTokens(designOrId, {
   const bodyReduction = compact ? 0.3 : 0;
   return Object.freeze({
     ...base,
+    bodyFontFamily: base.bodyFontFamily || base.fontFamily,
+    displayFontFamily: base.displayFontFamily || base.fontFamily,
+    docxBodyFontFamily: base.docxBodyFontFamily || base.docxFontFamily,
+    docxDisplayFontFamily: base.docxDisplayFontFamily || base.docxFontFamily,
+    pdfBodyFontFamily: base.pdfBodyFontFamily || base.pdfFontFamily,
+    pdfDisplayFontFamily: base.pdfDisplayFontFamily || base.pdfFontFamily,
     accent: palette.accent,
     accentSoft: palette.accentSoft,
     headerBackground: base.headerTreatment === "accent-band" ? palette.accent : base.headerBackground,
@@ -1504,6 +1636,7 @@ export function createResumePackage(resumeData = {}, {
   selectedDensityId,
   selectedHeaderAlignment,
   selectedLengthPreference,
+  allowPrototypeDesigns = PRESENTATION_PROTOTYPES_ENABLED,
 } = {}) {
   if (resumeData?.kind === "resume-package" && resumeData.schemaVersion !== RESUME_SCHEMA_VERSION) {
     throw new Error(`Unsupported ResumePackage schema version: ${cleanScalar(resumeData.schemaVersion) || "missing"}.`);
@@ -1519,10 +1652,12 @@ export function createResumePackage(resumeData = {}, {
     const recommendedDesignId = resolveDesignId(
       presentation.recommendedDesignId,
       recommendedResumeDesignId(recommendedStrategyId),
+      { allowPrototypeDesigns },
     );
     const designId = resolveDesignId(
       selectedDesignId || (selectedTemplateId ? legacySelection.designId : presentation.selectedDesignId) || legacySelection.designId,
       recommendedDesignId,
+      { allowPrototypeDesigns },
     );
     const paletteId = resolvePaletteId(selectedPaletteId || presentation.selectedPaletteId);
     const densityId = resolveDensityId(selectedDensityId || presentation.selectedDensityId);
@@ -1604,6 +1739,7 @@ export function createResumePackage(resumeData = {}, {
   const selectedDesign = resolveDesignId(
     selectedDesignId ?? source.presentation?.selectedDesignId ?? source.presentation?.selected_design ?? legacySelection.designId,
     recommendedDesignId,
+    { allowPrototypeDesigns },
   );
   const selectedPalette = resolvePaletteId(selectedPaletteId ?? source.presentation?.selectedPaletteId ?? source.presentation?.selected_palette);
   const selectedDensity = resolveDensityId(selectedDensityId ?? source.presentation?.selectedDensityId ?? source.presentation?.selected_density);
@@ -1822,8 +1958,9 @@ export function buildResumeRenderPlan(resumePackage, selection, {
   densityId: requestedDensityId,
   headerAlignment: requestedHeaderAlignment,
   lengthPreference: requestedLengthPreference,
+  allowPrototypeDesigns = PRESENTATION_PROTOTYPES_ENABLED,
 } = {}) {
-  const pkg = createResumePackage(resumePackage);
+  const pkg = createResumePackage(resumePackage, { allowPrototypeDesigns });
   const objectSelection = selection && typeof selection === "object" && !Array.isArray(selection) ? selection : {};
   const legacyTemplateId = typeof selection === "string" ? resolveTemplateId(selection, "") : "";
   const legacySelection = presentationSelectionFromLegacy(
@@ -1845,6 +1982,7 @@ export function buildResumeRenderPlan(resumePackage, selection, {
       || pkg.presentation.selectedDesignId
       || legacySelection.designId,
     pkg.presentation.recommendedDesignId || recommendedResumeDesignId(strategyId),
+    { allowPrototypeDesigns },
   );
   const strategy = RESUME_STRATEGY_REGISTRY[strategyId];
   const design = RESUME_DESIGN_REGISTRY[designId];

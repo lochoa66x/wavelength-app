@@ -1,5 +1,6 @@
 import { createResumePackage, stableHash } from "./resumeModel.js";
 import { getResumeExportReadiness } from "./resumeReadiness.js";
+import { createApplicationPresentation, validateApplicationPresentation } from "./applicationPresentation.js";
 
 export const COVER_LETTER_SCHEMA_VERSION = 1;
 export const COVER_LETTER_VOICES = Object.freeze([
@@ -214,12 +215,16 @@ export function createCoverLetterExportContext(plan, context = {}) {
   const readiness = getCoverLetterReadiness(plan, context);
   if (!readiness.canExport) throw new Error(readiness.message);
   const createdAt = Date.now();
+  const applicationPresentation = context.applicationPresentation
+    ? validateApplicationPresentation(context.applicationPresentation)
+    : createApplicationPresentation();
   return {
     kind: "cover-letter-export-context",
     plan,
     readiness,
     sourceFingerprint: createCoverLetterSourceFingerprint(context),
-    authorizationHash: stableHash({ contentHash: plan.contentHash, sourceFingerprint: plan.sourceFingerprint, mode: readiness.preliminary ? "preliminary" : "final" }, "cover-authorization"),
+    applicationPresentation,
+    authorizationHash: stableHash({ contentHash: plan.contentHash, sourceFingerprint: plan.sourceFingerprint, presentationHash: applicationPresentation.presentationHash, mode: readiness.preliminary ? "preliminary" : "final" }, "cover-authorization"),
     createdAt,
     expiresAt: createdAt + 5 * 60 * 1_000,
   };
@@ -231,9 +236,11 @@ export function validateCoverLetterExportContext(context, now = Date.now()) {
   if (context.plan?.sourceFingerprint !== context.sourceFingerprint) throw new Error("The cover letter is stale because its source evidence changed.");
   const expectedContentHash = stableHash(planContent(context.plan), "cover-letter");
   if (context.plan?.contentHash !== expectedContentHash) throw new Error("The cover-letter content hash is invalid or stale.");
+  const applicationPresentation = validateApplicationPresentation(context.applicationPresentation);
   const expectedAuthorization = stableHash({
     contentHash: context.plan.contentHash,
     sourceFingerprint: context.plan.sourceFingerprint,
+    presentationHash: applicationPresentation.presentationHash,
     mode: context.readiness.preliminary ? "preliminary" : "final",
   }, "cover-authorization");
   if (context.authorizationHash !== expectedAuthorization) throw new Error("The cover-letter export authorization is stale.");

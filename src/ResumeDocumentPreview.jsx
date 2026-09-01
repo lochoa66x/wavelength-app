@@ -11,12 +11,18 @@ function SectionHeading({ children, tokens }) {
         ? { paddingBottom: 3, borderBottom: `2px solid ${tokens.accent}` }
         : treatment === "editorial"
           ? { paddingBottom: 3, borderBottom: `1px solid ${tokens.accent}` }
+          : treatment === "label-rule"
+            ? { paddingBottom: 4, borderBottom: `2px solid ${tokens.accent}` }
+            : treatment === "civic-label"
+              ? { paddingBottom: 4, borderBottom: `3px double ${tokens.accent}` }
+              : treatment === "editorial-v2"
+                ? { paddingBottom: 3, borderBottom: `1px solid ${tokens.rule}` }
           : { paddingBottom: 4, borderBottom: `1px solid ${tokens.rule}` };
   return (
     <h2 style={{
       margin: treatment === "compact-rule" ? `${13 * rhythm}px 0 ${6 * rhythm}px` : `${18 * rhythm}px 0 ${8 * rhythm}px`,
       color: tokens.accent,
-      fontFamily: tokens.fontFamily,
+      fontFamily: tokens.displayFontFamily || tokens.fontFamily,
       fontSize: `${tokens.sectionFontSizePt}pt`,
       fontWeight: 700,
       letterSpacing: `${tokens.sectionLetterSpacingEm ?? 0.04}em`,
@@ -32,7 +38,7 @@ function SectionHeading({ children, tokens }) {
 const bodyStyle = (tokens) => ({
   margin: 0,
   color: tokens.ink,
-  fontFamily: tokens.fontFamily,
+  fontFamily: tokens.bodyFontFamily || tokens.fontFamily,
   fontSize: `${tokens.bodyFontSizePt}pt`,
   lineHeight: tokens.bodyLineHeight,
 });
@@ -107,9 +113,14 @@ export const ResumeDocumentPreview = forwardRef(function ResumeDocumentPreview({
         ? `3px double ${tokens.ink}`
         : tokens.headerTreatment === "editorial"
           ? `1px solid ${tokens.accent}`
+          : tokens.headerTreatment === "civic-rule"
+            ? `3px double ${tokens.accent}`
+            : ["keyline", "editorial-v2"].includes(tokens.headerTreatment)
+              ? `1px solid ${tokens.rule}`
           : `2px solid ${tokens.ink}`,
     borderLeft: tokens.headerTreatment === "accent-edge" ? `6px solid ${tokens.accent}` : 0,
-    padding: headerBand ? "14px 16px" : tokens.headerTreatment === "accent-edge" ? "2px 0 10px 14px" : "0 0 10px",
+    borderTop: ["keyline", "editorial-v2"].includes(tokens.headerTreatment) ? `${tokens.headerTreatment === "keyline" ? 4 : 2}px solid ${tokens.accent}` : 0,
+    padding: headerBand ? "14px 16px" : tokens.headerTreatment === "accent-edge" ? "2px 0 10px 14px" : ["keyline", "editorial-v2"].includes(tokens.headerTreatment) ? "10px 0" : "0 0 10px",
     background: headerBand ? tokens.headerBackground : "transparent",
     borderRadius: headerBand ? 4 : 0,
   };
@@ -136,13 +147,13 @@ export const ResumeDocumentPreview = forwardRef(function ResumeDocumentPreview({
         boxShadow: "0 1px 2px rgba(0,0,0,0.06), 0 12px 32px rgba(0,0,0,0.08)",
         boxSizing: "border-box",
         color: tokens.ink,
-        fontFamily: tokens.fontFamily,
+        fontFamily: tokens.bodyFontFamily || tokens.fontFamily,
       }}
     >
       <header style={headerStyle}>
-        <h1 style={{ margin: 0, color: headerBand ? tokens.headerText : tokens.ink, fontFamily: tokens.fontFamily, fontSize: `${tokens.nameFontSizePt}pt`, lineHeight: 1.15 }}>{renderPlan.header.fullName}</h1>
-        {renderPlan.header.headline ? <p style={{ margin: "5px 0 0", color: headerBand ? tokens.headerText : tokens.accent, fontFamily: tokens.fontFamily, fontSize: `${tokens.headlineFontSizePt}pt`, fontWeight: 700, lineHeight: 1.25 }}>{renderPlan.header.headline}</p> : null}
-        {renderPlan.header.contactLine ? <p style={{ margin: "5px 0 0", color: headerBand ? tokens.headerText : tokens.muted, fontFamily: tokens.fontFamily, fontSize: "9.2pt", lineHeight: 1.3 }}>{renderPlan.header.contactLine}</p> : null}
+        <h1 style={{ margin: 0, color: headerBand ? tokens.headerText : tokens.ink, fontFamily: tokens.displayFontFamily || tokens.fontFamily, fontSize: `${tokens.nameFontSizePt}pt`, lineHeight: 1.15 }}>{renderPlan.header.fullName}</h1>
+        {renderPlan.header.headline ? <p style={{ margin: "5px 0 0", color: headerBand ? tokens.headerText : tokens.accent, fontFamily: tokens.bodyFontFamily || tokens.fontFamily, fontSize: `${tokens.headlineFontSizePt}pt`, fontWeight: 700, lineHeight: 1.25 }}>{renderPlan.header.headline}</p> : null}
+        {renderPlan.header.contactLine ? <p style={{ margin: "5px 0 0", color: headerBand ? tokens.headerText : tokens.muted, fontFamily: tokens.bodyFontFamily || tokens.fontFamily, fontSize: "9.2pt", lineHeight: 1.3 }}>{renderPlan.header.contactLine}</p> : null}
       </header>
 
       {renderPlan.sections.map((section) => (

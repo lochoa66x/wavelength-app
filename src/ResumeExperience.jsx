@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useAuth } from "./auth.jsx";
 import { ResumeActions } from "./ResumeActions.jsx";
 import { CoverLetterWorkspace } from "./CoverLetterWorkspace.jsx";
+import { createApplicationPresentation } from "./applicationPresentation.js";
 import { ResumeDocumentPreview } from "./ResumeDocumentPreview.jsx";
 import { ResumeDesignSelector } from "./ResumeDesignSelector.jsx";
 import { QualityFeedback } from "./QualityFeedback.jsx";
@@ -86,6 +87,7 @@ export function ResumeExperience({ baseResume = "", resumeData, item, hasLink, a
   const recommendedDesign = RESUME_DESIGN_REGISTRY[resumePackage.presentation.recommendedDesignId];
   const selectedDesign = RESUME_DESIGN_REGISTRY[renderPlan.designId];
   const controlId = `design-control-${targetKey || "resume"}`;
+  const applicationPresentation = useMemo(() => createApplicationPresentation(renderPlan), [renderPlan]);
 
   const updatePresentation = (changes) => {
     const next = {
@@ -123,6 +125,7 @@ export function ResumeExperience({ baseResume = "", resumeData, item, hasLink, a
         showOptions={showOptions}
         onToggle={() => setShowOptions((value) => !value)}
         onChoose={(designId) => updatePresentation({ designId })}
+        onUseFallback={() => updatePresentation({ designId: selectedDesign.conservativeFallbackId })}
         onPresentationChange={updatePresentation}
         controlId={controlId}
         C={C}
@@ -201,6 +204,7 @@ export function ResumeExperience({ baseResume = "", resumeData, item, hasLink, a
         customJob={customJob}
         requestPrivateProcessing={requestPrivateProcessing}
         requestAccountAction={requestAccountAction}
+        applicationPresentation={applicationPresentation}
         C={C}
         primaryBtnStyle={primaryBtnStyle}
       />

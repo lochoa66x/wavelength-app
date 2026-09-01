@@ -11,17 +11,28 @@ function safeText(value) {
 }
 
 export async function createCoverLetterDocxBlob(input) {
-  const { plan } = validateCoverLetterExportContext(input);
+  const { plan, applicationPresentation } = validateCoverLetterExportContext(input);
   const { AlignmentType, BorderStyle, Document, Packer, Paragraph, TextRun } = await prepareCoverLetterDocxExport();
+  const tokens = applicationPresentation.tokens;
+  const color = (value, fallback = "17191C") => String(value || fallback).replace("#", "").toUpperCase();
+  const headerAlignment = applicationPresentation.headerAlignment === "left" ? AlignmentType.LEFT : AlignmentType.CENTER;
+  const headerTreatment = tokens.headerTreatment;
   const children = [];
-  const headerRule = { bottom: { color: "17191C", style: BorderStyle.SINGLE, size: 12, space: 1 } };
+  const headerRule = headerTreatment === "civic-rule"
+    ? { bottom: { color: color(tokens.accent), style: BorderStyle.DOUBLE, size: 10, space: 1 } }
+    : ["keyline", "editorial-v2"].includes(headerTreatment)
+      ? {
+          top: { color: color(tokens.accent), style: BorderStyle.SINGLE, size: headerTreatment === "keyline" ? 20 : 8, space: 4 },
+          bottom: { color: color(tokens.rule), style: BorderStyle.SINGLE, size: 5, space: 4 },
+        }
+      : { bottom: { color: color(tokens.ink), style: BorderStyle.SINGLE, size: 12, space: 1 } };
   const paragraph = (value, options = {}) => children.push(new Paragraph({
-    spacing: { line: 276, after: 150, ...(options.spacing || {}) },
+    spacing: { line: Math.round(tokens.coverLetterBodyFontSizePt * tokens.coverLetterLineHeight * 20), after: Math.round(tokens.coverLetterParagraphAfterPt * 20), ...(options.spacing || {}) },
     ...options,
-    children: [new TextRun({ text: safeText(value), font: "Arial", size: 22, ...(options.run || {}) })],
+    children: [new TextRun({ text: safeText(value), font: tokens.docxBodyFontFamily, size: Math.round(tokens.coverLetterBodyFontSizePt * 2), color: color(tokens.ink), ...(options.run || {}) })],
   }));
-  paragraph(plan.candidate.fullName, { alignment: AlignmentType.CENTER, spacing: { after: 45 }, ...(plan.candidate.contactLine ? {} : { border: headerRule }), run: { bold: true, size: 30 } });
-  if (plan.candidate.contactLine) paragraph(plan.candidate.contactLine, { alignment: AlignmentType.CENTER, border: headerRule, spacing: { after: 240 }, run: { color: "565B61", size: 19 } });
+  paragraph(plan.candidate.fullName, { alignment: headerAlignment, spacing: { after: 45 }, ...(plan.candidate.contactLine ? {} : { border: headerRule }), run: { bold: true, font: tokens.docxDisplayFontFamily, size: Math.round(tokens.nameFontSizePt * 2) } });
+  if (plan.candidate.contactLine) paragraph(plan.candidate.contactLine, { alignment: headerAlignment, border: headerRule, spacing: { after: 240 }, run: { color: color(tokens.muted), size: 19 } });
   paragraph(new Date(plan.createdAt).toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" }), { spacing: { after: 180 } });
   if (plan.target.company) paragraph(plan.target.company, { spacing: { after: 30 }, run: { bold: true } });
   if (plan.target.jobTitle) paragraph(`Re: ${plan.target.jobTitle}`, { spacing: { after: 210 }, run: { bold: true } });
@@ -33,9 +44,9 @@ export async function createCoverLetterDocxBlob(input) {
     creator: "Gigscapes",
     title: `${plan.candidate.fullName} - ${plan.target.jobTitle} cover letter`,
     description: "Evidence-first cover letter generated from candidate-confirmed content.",
-    styles: { default: { document: { run: { font: "Arial", size: 22 }, paragraph: { spacing: { line: 276 } } } } },
+    styles: { default: { document: { run: { font: tokens.docxBodyFontFamily, size: Math.round(tokens.coverLetterBodyFontSizePt * 2) }, paragraph: { spacing: { line: Math.round(tokens.coverLetterBodyFontSizePt * tokens.coverLetterLineHeight * 20) } } } } },
     sections: [{
-      properties: { page: { size: { width: 12240, height: 15840 }, margin: { top: 900, right: 980, bottom: 900, left: 980 } } },
+      properties: { page: { size: { width: Math.round(tokens.pageWidthIn * 1440), height: Math.round(tokens.pageHeightIn * 1440) }, margin: { top: Math.round(tokens.marginTopIn * 1440), right: Math.round(tokens.marginRightIn * 1440), bottom: Math.round(tokens.marginBottomIn * 1440), left: Math.round(tokens.marginLeftIn * 1440) } } },
       children,
     }],
   });

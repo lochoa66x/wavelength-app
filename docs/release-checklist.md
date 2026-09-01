@@ -437,3 +437,26 @@ Production application evidence: feature commit `7a6896c8b86366fe8eb0a686f3f5d4f
 No database migration, persistence change, AI-provider change, model prompt change, evidence-policy change, or production data mutation is part of this hotfix. Microsoft Word, Google Docs, an external ATS parser, and authenticated stale-tab behavior were not available to this local pass and are not claimed.
 
 Production application evidence: feature commit `860a9d93b270270bdfa4f4049ec43129898b3a81` was pushed normally to `main`. Git-triggered Vercel deployment `dpl_CDoRPR98yjrL2diSTUKRjAFQCGfP` reached `READY`, was built with Vite on Node.js 24, and carries `gigscapes.com`, `www.gigscapes.com`, the main-branch alias, and the project aliases. Public `/`, `/app`, and `/privacy` each returned HTTP 200. The live `/app` rendered meaningful discovery content with no framework overlay or recorded browser error; at 390×844 the document and viewport widths both measured 390 px, search and posting-intake controls were present, and horizontal overflow was false. The deployment-scoped one-hour error-log query returned no runtime logs. The authenticated stale-tab exercise remains deliberately unchecked because no synthetic user draft or private production processing was created for this release.
+
+## P4.5 Phase B local application-package prototypes — 2026-08-31
+
+- [x] Preserve the public seven-style registry while registering dormant `northstar-v1`, `civic-v1`, and `studio-editorial-v2` IDs.
+- [x] Keep `.env.example` fail-closed with `VITE_PRESENTATION_PROTOTYPES_ENABLED=false`; enable only the ignored local workspace value for review.
+- [x] Add a versioned, frozen, presentation-only application-package contract with explicit validation and no candidate, posting, evidence, requirement, prose, or readiness fields.
+- [x] Bind cover-letter browser/DOCX/PDF presentation to the selected résumé family without changing letter content/source hashes or readiness.
+- [x] Add paired résumé/letter chooser thumbnails, explicit application-safe/networking-forward text, and a one-action fallback for networking-forward selections.
+- [x] Focused presentation/model/export suite: 33/33 passed.
+- [x] Full suite: 560/560 passed.
+- [x] Existing résumé verifier: 48 files, 16 public compatibility templates, 29 PDF pages, 826 PDF text items, manifest parity passed.
+- [x] Existing cover-letter verifier: two states × DOCX/PDF, two PDF pages, 492 selectable text tokens, final/preliminary gates passed.
+- [x] Prototype verifier: eight matching packages, 32 files, one-page Canadian short résumés, two-page U.S. long résumés, one-page letters, identical fixture content hashes across families, and distinct presentation hashes.
+- [x] Production build: 2,455 modules transformed; résumé and cover-letter DOCX/PDF exporters remain separate lazy chunks. Existing >500 kB dependency warnings remain.
+- [x] Direct-PDF first-page renders inspected at original resolution for Northstar, Civic, Studio Editorial v2, and Essential matching packages. No clipping, overlap, blank trailing page, missing visible fixture glyph, internal warning, or serialization artifact found.
+- [x] Tagged-PDF feasibility bounded: current jsPDF path does not emit a verified structure tree. Direct PDFs remain selectable/logically ordered; no PDF/UA or accessible-PDF claim is made.
+- [ ] Run an actual 390 × 844 browser chooser/preview pass, 200% zoom, keyboard/screen-reader, and forced-colour/monochrome checks.
+- [ ] Open/convert representative DOCX files in LibreOffice, Microsoft Word, and Google Docs; run at least one external ATS parser check.
+- [ ] Run the bounded tester protocol and record scan success/time, package matching, safe-family choice, confidence, and rule/spacing feedback.
+- [ ] Review Civic rule weight and Studio Editorial v2 differentiation after tester evidence.
+- [ ] Explicitly authorize a Preview exposure before changing the flag outside the local ignored environment.
+
+Artifacts and the complete honest assessment are in `docs/p4-5-prototype-evidence.md`. No commit, push, Preview, Production deployment, database change, telemetry change, or AI-provider request is part of this local prototype pass.

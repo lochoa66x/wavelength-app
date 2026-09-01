@@ -1,6 +1,6 @@
 # Canonical résumé architecture
 
-Updated: 2026-08-28
+Updated: 2026-08-31
 
 ## Scope
 
@@ -16,6 +16,8 @@ P2.1 establishes one versioned résumé-content pipeline for browser preview, DO
 - `presentation`: recommended and selected `strategyId`/`designId`, `paletteId`, `densityId`, `headerAlignment`, and `lengthPreference`, plus legacy template aliases, human-readable reason, internal reason code/strength, page target, locale, and presentation version.
 
 The package uses `schemaVersion: 2`. New code must not pass raw AI output to an exporter.
+
+P4.5 adds a separate version-1 `ApplicationPresentation` boundary for matching résumé and cover-letter rendering. It is derived from a résumé render plan and contains presentation tokens only: stable family identity, safety/fallback metadata, page geometry, browser/DOCX/PDF body/display fonts, type sizes, colours, rules, and letter rhythm. Candidate facts, prose, evidence, requirements, and readiness are forbidden. Cover-letter content hashes remain presentation-independent; export authorization binds the presentation hash separately.
 
 The visible document supports candidate identity/contact/links, target title/company, headline, summary, grouped verified skills, experience, projects, education, certifications, training, languages, safety content retained for compatibility, and strictly shaped additional sections. Export-visible nested values are never arbitrary objects.
 
@@ -99,6 +101,14 @@ Visual-style IDs (stable IDs; current display names in parentheses):
 - `studio-editorial-v1`
 - `field-ready-v1`
 
+Dormant P4.5 prototype IDs, visible only when `VITE_PRESENTATION_PROTOTYPES_ENABLED` is exactly `true`:
+
+- `northstar-v1` (Northstar, application-safe)
+- `civic-v1` (Civic, application-safe)
+- `studio-editorial-v2` (Studio Editorial v2, networking-forward)
+
+The current `studio-editorial-v1` remains unchanged. Disabled/stale prototype selections fail closed to Essential; the Studio v2 chooser exposes Northstar as a one-action application-safe fallback. Body/display font separation is backward-compatible: absent split tokens resolve to the existing single-family browser/DOCX/PDF token.
+
 Palette IDs:
 
 - `gigscapes-orange-v1`
@@ -171,7 +181,7 @@ Exact DOCX pagination is not expected to match the PDF because Word-compatible l
 3. Render every direct PDF page to PNG and inspect it at full size.
 4. Convert every DOCX fixture with LibreOffice when installed, render every converted PDF page, and inspect it.
 5. Extract text independently from direct and converted PDFs and confirm identity, headings, section order, bullet order, labels, and artifact absence.
-6. Run desktop and 390 × 844 browser checks. Change all seven visual styles and every modifier group, verify immediate rerender, strategy/content-hash stability, keyboard focus, `aria-pressed` state, mobile touch targets, and the application-safe/networking-forward labels.
+6. Run desktop and 390 × 844 browser checks. Change all public styles and, when the dormant boundary is enabled, Northstar/Civic/Studio Editorial v2. Verify the paired résumé/letter preview, immediate rerender, strategy/content-hash stability, keyboard focus, `aria-pressed` state, mobile touch targets, safety labels, and one-action safe fallback.
 7. Test verified, partial, stale-readiness, and missing-identity cases.
 8. Remove `tmp/export-verification` and all screenshots/renders before staging.
 
@@ -179,5 +189,6 @@ Exact DOCX pagination is not expected to match the PDF because Word-compatible l
 
 - Microsoft Word and Google Docs compatibility must be reported as unverified when those applications are unavailable; LibreOffice is the automated local compatibility engine.
 - Browser and direct PDF share layout tokens but unrelated browsers may produce small font-metric differences.
+- Direct PDFs are selectable and ordered but are not currently emitted with a verified tagged structure tree; do not claim PDF/UA or accessible-PDF conformance.
 - Skilled-trades classification uses deterministic title, action, physical-context, and credential vocabularies. Jurisdiction-specific credential aliases may require future vocabulary additions, but unknown credentials always fail conservatively.
 - Marketing/communications and creative/design matching use deterministic vocabularies. Specialized role aliases may require later additions, but unknown or overlapping evidence always fails conservatively.

@@ -18,6 +18,7 @@ import {
   updateCoverLetterParagraph,
 } from "./coverLetterModel.js";
 import { loadCoverLetterDraft, removeCoverLetterDraft, saveCoverLetterDraft } from "./coverLetterStorage.js";
+import { createApplicationPresentation, validateApplicationPresentation } from "./applicationPresentation.js";
 
 const PURPOSE_LABELS = Object.freeze({ opening: "Opportunity opening", evidence: "Evidence-backed value", transition: "Honest transition boundary", closing: "Restrained closing" });
 
@@ -30,6 +31,7 @@ export function CoverLetterWorkspace({
   customJob = null,
   requestPrivateProcessing = (_scope, action) => action(),
   requestAccountAction: requestAccountActionOverride,
+  applicationPresentation: requestedApplicationPresentation,
   C,
   primaryBtnStyle,
 }) {
@@ -37,6 +39,13 @@ export function CoverLetterWorkspace({
   const requestAccountAction = requestAccountActionOverride || authRequestAccountAction;
   const userId = session?.user?.id || "";
   const context = useMemo(() => ({ baseResume, resumeData, item, atsReview, candidateEvidence }), [baseResume, resumeData, item, atsReview, candidateEvidence]);
+  const applicationPresentation = useMemo(
+    () => requestedApplicationPresentation
+      ? validateApplicationPresentation(requestedApplicationPresentation)
+      : createApplicationPresentation(),
+    [requestedApplicationPresentation],
+  );
+  const letterTokens = applicationPresentation.tokens;
   const [voice, setVoice] = useState("direct");
   const [length, setLength] = useState("standard");
   const [plan, setPlan] = useState(() => loadCoverLetterDraft(userId, item, context));
@@ -141,7 +150,7 @@ export function CoverLetterWorkspace({
   const remove = (paragraphId) => { persist(removeCoverLetterParagraph(plan, paragraphId)); setEditingId(""); setMessage({ type: "info", text: "Paragraph removed. Export readiness was recalculated." }); };
   const clearDraft = () => { removeCoverLetterDraft(userId, item); setPlan(null); setMessage({ type: "info", text: "This target-specific cover-letter draft was removed from this browser." }); };
 
-  const freshExportContext = () => createCoverLetterExportContext(plan, context);
+  const freshExportContext = () => createCoverLetterExportContext(plan, { ...context, applicationPresentation });
   const handleCopy = () => requestAccountAction("copy_cover_letter_text", { continuation: async () => {
     try { await navigator.clipboard.writeText(coverLetterToPlainText(freshExportContext().plan)); setMessage({ type: "info", text: "Cover-letter text copied." }); }
     catch { setMessage({ type: "error", text: "The cover letter could not be copied. Check this browser's clipboard permission and try again." }); }
@@ -195,8 +204,8 @@ export function CoverLetterWorkspace({
       {plan ? (
         <>
           <div role={readiness.state === "blocked" ? "alert" : "status"} data-cover-letter-readiness={readiness.state} style={{ marginTop: 16, padding: "10px 12px", borderRadius: 10, border: `1px solid ${readiness.state === "application_ready" ? (C.greenBorder || C.green) : (C.amberBorder || C.amber)}`, background: readiness.state === "application_ready" ? (C.greenTint || "#f2fbf6") : (C.amberTint || "#fff8eb"), color: readiness.state === "application_ready" ? C.green : C.amber, fontSize: 12.5, lineHeight: 1.5 }}><strong>{readiness.state === "application_ready" ? "Application-ready" : readiness.state === "preliminary" ? "Preliminary" : "Export blocked"}</strong> · {readiness.message} This guidance is not included in the letter file.</div>
-          <article data-cover-letter-preview style={{ marginTop: 14, padding: "clamp(22px, 5vw, 48px)", border: `1px solid ${C.border}`, borderRadius: 12, background: "#fff", color: "#17191c", boxShadow: "0 8px 24px rgba(0,0,0,0.05)", fontFamily: "Arial, Helvetica, sans-serif", lineHeight: 1.55 }}>
-            <header style={{ textAlign: "center", borderBottom: "2px solid #17191c", paddingBottom: 12, marginBottom: 24 }}><h4 style={{ margin: "0 0 3px", fontSize: 20 }}>{plan.candidate.fullName}</h4>{plan.candidate.contactLine ? <p style={{ margin: 0, color: "#565b61", fontSize: 12 }}>{plan.candidate.contactLine}</p> : null}</header>
+          <article data-cover-letter-preview data-application-presentation={applicationPresentation.designId} style={{ marginTop: 14, padding: `clamp(22px, 5vw, ${Math.round(letterTokens.marginTopIn * 72)}px) clamp(20px, 5vw, ${Math.round(letterTokens.marginRightIn * 72)}px)`, border: `1px solid ${C.border}`, borderRadius: 12, background: letterTokens.paper, color: letterTokens.ink, boxShadow: "0 8px 24px rgba(0,0,0,0.05)", fontFamily: letterTokens.bodyFontFamily, fontSize: `${letterTokens.coverLetterBodyFontSizePt}pt`, lineHeight: letterTokens.coverLetterLineHeight }}>
+            <header style={{ textAlign: applicationPresentation.headerAlignment, borderTop: ["keyline", "editorial-v2"].includes(letterTokens.headerTreatment) ? `4px solid ${letterTokens.accent}` : 0, borderBottom: letterTokens.headerTreatment === "civic-rule" ? `3px double ${letterTokens.accent}` : `1px solid ${letterTokens.headerTreatment === "editorial-v2" ? letterTokens.rule : letterTokens.ink}`, padding: ["keyline", "editorial-v2"].includes(letterTokens.headerTreatment) ? "10px 0 12px" : "0 0 12px", marginBottom: 24 }}><h4 style={{ margin: "0 0 3px", color: letterTokens.ink, fontFamily: letterTokens.displayFontFamily, fontSize: `${letterTokens.nameFontSizePt}pt` }}>{plan.candidate.fullName}</h4>{plan.candidate.contactLine ? <p style={{ margin: 0, color: letterTokens.muted, fontFamily: letterTokens.bodyFontFamily, fontSize: "9.5pt" }}>{plan.candidate.contactLine}</p> : null}</header>
             <p style={{ margin: "0 0 12px", fontSize: 13 }}>{new Date(plan.createdAt).toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })}</p>
             {plan.target.company ? <p style={{ margin: "0 0 3px", fontWeight: 700 }}>{plan.target.company}</p> : null}<p style={{ margin: "0 0 18px", fontWeight: 700 }}>Re: {plan.target.jobTitle}</p>
             <p style={{ margin: "0 0 14px" }}>{plan.salutation}</p>

@@ -26,7 +26,7 @@ const readableSampleSections = [
   ["Education & training", "Verified education, licence, or training when relevant."],
 ];
 
-export function ResumeDesignThumbnail({ design, selected = false, compact = false, visualTokens }) {
+export function ResumeDesignThumbnail({ design, selected = false, compact = false, miniature = false, visualTokens }) {
   const tokens = visualTokens || design.visualTokens;
   const headerBand = tokens.headerTreatment === "accent-band";
   const leftAligned = tokens.headerAlignment === "left";
@@ -34,15 +34,15 @@ export function ResumeDesignThumbnail({ design, selected = false, compact = fals
     ? { background: tokens.accentSoft, padding: "2px 3px" }
     : tokens.sectionTreatment === "accent-edge"
       ? { borderLeft: `3px solid ${tokens.accent}`, paddingLeft: 4 }
-      : { borderBottom: `${tokens.sectionTreatment === "compact-rule" ? 2 : 1}px solid ${tokens.accent}`, paddingBottom: 1 };
+      : { borderBottom: `${["compact-rule", "label-rule"].includes(tokens.sectionTreatment) ? 2 : tokens.sectionTreatment === "civic-label" ? 3 : 1}px ${tokens.sectionTreatment === "civic-label" ? "double" : "solid"} ${["editorial-v2", "underline"].includes(tokens.sectionTreatment) ? tokens.rule : tokens.accent}`, paddingBottom: 1 };
   return (
     <span
       data-design-thumbnail={design.id}
       aria-hidden="true"
       style={{
-        width: compact ? 116 : 144,
+        width: miniature ? 82 : compact ? 116 : 144,
         aspectRatio: "8.5 / 11",
-        padding: compact ? 8 : 10,
+        padding: miniature ? 6 : compact ? 8 : 10,
         border: `${selected ? 2 : 1}px solid ${selected ? tokens.accent : "#d8dadd"}`,
         borderRadius: 6,
         background: tokens.paper,
@@ -54,18 +54,19 @@ export function ResumeDesignThumbnail({ design, selected = false, compact = fals
         boxShadow: "0 5px 16px rgba(20, 23, 27, 0.08)",
         overflow: "hidden",
         flexShrink: 0,
-        fontFamily: tokens.fontFamily,
+        fontFamily: tokens.bodyFontFamily || tokens.fontFamily,
       }}
     >
       <span style={{
-        padding: headerBand ? "6px 7px" : tokens.headerTreatment === "accent-edge" ? "2px 0 5px 7px" : "0 0 5px",
+        padding: headerBand ? "6px 7px" : tokens.headerTreatment === "accent-edge" ? "2px 0 5px 7px" : ["keyline", "editorial-v2"].includes(tokens.headerTreatment) ? "4px 0 5px" : "0 0 5px",
+        borderTop: ["keyline", "editorial-v2"].includes(tokens.headerTreatment) ? `${tokens.headerTreatment === "keyline" ? 3 : 1}px solid ${tokens.accent}` : 0,
         borderLeft: tokens.headerTreatment === "accent-edge" ? `4px solid ${tokens.accent}` : 0,
-        borderBottom: headerBand ? 0 : `1px solid ${tokens.ink}`,
+        borderBottom: headerBand ? 0 : tokens.headerTreatment === "civic-rule" ? `3px double ${tokens.accent}` : `1px solid ${["keyline", "editorial-v2"].includes(tokens.headerTreatment) ? tokens.rule : tokens.ink}`,
         background: headerBand ? tokens.headerBackground : "transparent",
         color: headerBand ? tokens.headerText : tokens.ink,
         textAlign: leftAligned ? "left" : "center",
       }}>
-        <span style={{ display: "block", fontSize: compact ? 6.5 : 7.5, fontWeight: 800, lineHeight: 1.05 }}>ALEX MORGAN</span>
+        <span style={{ display: "block", fontFamily: tokens.displayFontFamily || tokens.fontFamily, fontSize: miniature ? 5.2 : compact ? 6.5 : 7.5, fontWeight: 800, lineHeight: 1.05 }}>ALEX MORGAN</span>
         <span style={{ display: "block", marginTop: 2, color: headerBand ? tokens.headerText : tokens.accent, fontSize: compact ? 4.5 : 5.5, fontWeight: 700 }}>TARGET ROLE</span>
         <span style={{ display: "block", marginTop: 2, opacity: 0.78, fontSize: compact ? 3.7 : 4.4 }}>email@example.com · Canada</span>
       </span>
@@ -75,6 +76,29 @@ export function ResumeDesignThumbnail({ design, selected = false, compact = fals
           {lines.map((line) => <span key={line} style={{ display: "block", marginTop: 2, fontSize: compact ? 3.6 : 4.25, lineHeight: 1.25 }}>{line}</span>)}
         </span>
       ))}
+    </span>
+  );
+}
+
+function CoverLetterDesignThumbnail({ design, visualTokens }) {
+  const tokens = visualTokens || design.visualTokens;
+  return (
+    <span aria-hidden="true" style={{ width: 62, aspectRatio: "8.5 / 11", padding: 6, border: `1px solid ${tokens.rule}`, borderRadius: 5, background: tokens.paper, boxShadow: "0 4px 12px rgba(20,23,27,0.12)", display: "flex", flexDirection: "column", gap: 4, boxSizing: "border-box", fontFamily: tokens.bodyFontFamily || tokens.fontFamily }}>
+      <span style={{ borderTop: ["keyline", "editorial-v2"].includes(tokens.headerTreatment) ? `2px solid ${tokens.accent}` : 0, borderBottom: tokens.headerTreatment === "civic-rule" ? `2px double ${tokens.accent}` : `1px solid ${["keyline", "editorial-v2"].includes(tokens.headerTreatment) ? tokens.rule : tokens.ink}`, padding: ["keyline", "editorial-v2"].includes(tokens.headerTreatment) ? "3px 0" : "0 0 3px", textAlign: tokens.headerAlignment }}>
+        <span style={{ display: "block", fontFamily: tokens.displayFontFamily || tokens.fontFamily, fontSize: 4.8, fontWeight: 800 }}>ALEX MORGAN</span>
+        <span style={{ display: "block", marginTop: 1, color: tokens.muted, fontSize: 2.8 }}>email · Canada</span>
+      </span>
+      <span style={{ width: "44%", height: 2, background: tokens.accent, opacity: 0.75 }} />
+      {[74, 88, 82, 65, 78].map((width, index) => <span key={`${width}-${index}`} style={{ width: `${width}%`, height: 1.5, background: tokens.ink, opacity: 0.48 }} />)}
+    </span>
+  );
+}
+
+export function ApplicationPackageThumbnail({ design, selected = false, visualTokens }) {
+  return (
+    <span aria-hidden="true" style={{ width: 124, height: 116, position: "relative", flex: "0 0 124px" }}>
+      <span style={{ position: "absolute", inset: "0 auto auto 0" }}><ResumeDesignThumbnail design={design} selected={selected} miniature visualTokens={visualTokens} /></span>
+      <span style={{ position: "absolute", right: 0, bottom: 0 }}><CoverLetterDesignThumbnail design={design} visualTokens={visualTokens} /></span>
     </span>
   );
 }
@@ -155,6 +179,7 @@ export function ResumeDesignSelector({
   showOptions,
   onToggle,
   onChoose,
+  onUseFallback,
   onPresentationChange,
   controlId,
   C,
@@ -177,15 +202,22 @@ export function ResumeDesignSelector({
       </div>
 
       <div role="status" style={{ marginTop: 10, paddingTop: 10, borderTop: `1px solid ${C.border}`, color: C.textSub, fontSize: 12 }}>
-        Résumé style: <strong style={{ color: C.text }}>{selectedDesign.displayName}</strong>
+        Matching résumé + cover-letter style: <strong style={{ color: C.text }}>{selectedDesign.displayName}</strong>
         {selectedDesign.id === recommendedDesign.id ? " · Recommended for this strategy" : ` · Gigscapes recommends ${recommendedDesign.displayName}`}
       </div>
+
+      {selectedDesign.atsSafetyLevel !== "high" ? (
+        <div role="note" style={{ marginTop: 10, padding: "10px 12px", border: `1px solid ${C.amberBorder || C.border}`, borderRadius: 10, background: C.amberTint || "#fff8eb", color: C.textSub, fontSize: 12, lineHeight: 1.45, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, flexWrap: "wrap" }}>
+          <span><strong style={{ color: C.text }}>Networking-forward selection.</strong> For an unknown application portal, use the application-safe fallback.</span>
+          <button type="button" onClick={onUseFallback} className="wl-btn" style={{ minHeight: 44, padding: "8px 12px", border: `1px solid ${C.border}`, borderRadius: 999, background: C.bgCard, color: C.text, fontSize: 12, fontWeight: 750, cursor: "pointer" }}>Use application-safe fallback</button>
+        </div>
+      ) : null}
 
       {showOptions ? (
         <div style={{ marginTop: 14 }}>
           <div style={{ marginBottom: 9 }}>
             <strong style={{ display: "block", color: C.text, fontSize: 13 }}>Choose the visual style</strong>
-            <span style={{ color: C.textFaint, fontSize: 11.5 }}>Styles are position-independent. All seven use searchable, selectable, single-column text; the usage notes are mild suggestions, not occupational rules.</span>
+            <span style={{ color: C.textFaint, fontSize: 11.5 }}>Styles are position-independent. All {designs.length} use searchable, selectable, single-column text and a matching cover letter. Switching style makes no AI request; usage notes are mild suggestions, not occupational rules.</span>
           </div>
           <ul aria-label="Available visual résumé styles" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(250px, 100%), 1fr))", gap: 10, margin: 0, padding: 0, listStyle: "none" }}>
             {designs.map((design) => {
@@ -201,10 +233,10 @@ export function ResumeDesignSelector({
                     aria-pressed={isSelected}
                     onClick={() => onChoose(design.id)}
                     className="wl-btn"
-                    style={{ width: "100%", minHeight: 194, padding: 11, border: `2px solid ${isSelected ? thumbnailTokens.accent : C.border}`, borderRadius: 12, background: isSelected ? thumbnailTokens.accentSoft : C.bg, color: C.text, textAlign: "left", cursor: "pointer", display: "flex", alignItems: "flex-start", gap: 11 }}
+                    style={{ width: "100%", minHeight: 210, padding: 11, border: `2px solid ${isSelected ? thumbnailTokens.accent : C.border}`, borderRadius: 12, background: isSelected ? thumbnailTokens.accentSoft : C.bg, color: C.text, textAlign: "left", cursor: "pointer", display: "flex", alignItems: "flex-start", flexWrap: "wrap", gap: 11 }}
                   >
-                    <ResumeDesignThumbnail design={design} selected={isSelected} compact visualTokens={thumbnailTokens} />
-                    <span style={{ minWidth: 0 }}>
+                    <ApplicationPackageThumbnail design={design} selected={isSelected} visualTokens={thumbnailTokens} />
+                    <span style={{ minWidth: 0, flex: "1 1 120px" }}>
                       <span style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12.5, fontWeight: 750 }}>
                         {design.displayName} {isSelected ? <Check size={14} aria-hidden="true" /> : null}
                       </span>
@@ -213,6 +245,7 @@ export function ResumeDesignSelector({
                       <span style={{ display: "inline-block", marginTop: 7, padding: "2px 7px", borderRadius: 99, background: thumbnailTokens.accentSoft, color: thumbnailTokens.accent, fontSize: 10.5, fontWeight: 750 }}>
                         {isRecommended ? `Recommended · ${safetyLabel}` : safetyLabel}
                       </span>
+                      <span style={{ display: "block", marginTop: 6, color: C.textFaint, fontSize: 10.5, fontWeight: 650 }}>Matching résumé + cover letter</span>
                     </span>
                   </button>
                 </li>
