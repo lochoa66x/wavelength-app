@@ -19,7 +19,7 @@ test("evidence-based fit replaces search relevance after tailoring", () => {
     listing: sapCommerceListing,
     keyword: "SAP",
     fitAssessment: { path: "career_change" },
-  }).label, "Career-change path");
+  }).label, "Transferable strengths");
 
   assert.equal(getMatchPresentation({
     listing: { title: "SAP Functional Consultant" },

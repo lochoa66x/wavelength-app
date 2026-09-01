@@ -15,6 +15,23 @@ const EMPLOYER_FACING_GAP_PATTERNS = [
   /\b(?:lacks?|seeks? to bridge)\b/i,
 ];
 
+function professionalPositioningText(value) {
+  return String(value || "")
+    .replace(/\bcareer[ -](?:change|transition)\b/gi, "transferable-strengths positioning")
+    .replace(/\btransition(?:al|ing)?\s+(?:into|to)\b/gi, "applying verified experience toward")
+    .replace(/\bnew\s+(?:career|path|journey)\b/gi, "next professional opportunity")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function professionalTitleText(value) {
+  return professionalPositioningText(value)
+    .replace(/\s*[|–—-]\s*[^|]{0,80}\b(?:transition|transferable-strengths positioning)\b.*$/i, "")
+    .replace(/\btransition\b/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 const TOKEN_STOPWORDS = new Set([
   "a", "an", "and", "are", "as", "at", "by", "for", "from", "in", "is", "of", "on", "or",
   "the", "this", "to", "with", "work", "worked", "working", "experience", "professional", "role",
@@ -186,7 +203,7 @@ function focusRelevantTraining(resumeData, analysis) {
 
 function focusResume(resumeData, analysis) {
   const weights = weightedEvidenceTokens(analysis);
-  const careerChange = analysis?.fit_assessment?.path === "career_change";
+  const transferablePositioning = ["transferable", "career_change"].includes(analysis?.fit_assessment?.path);
   const duplicateGroups = [];
   const condensed = [];
   const omittedBullets = [];
@@ -205,7 +222,7 @@ function focusResume(resumeData, analysis) {
       }))
       .filter(({ value }) => value)
       .sort((a, b) => b.score - a.score || a.bulletIndex - b.bulletIndex);
-    const defaultLimit = careerChange ? (entryIndex < 2 ? 3 : 2) : entryIndex < 2 ? 4 : entryIndex < 5 ? 3 : 2;
+    const defaultLimit = transferablePositioning ? (entryIndex < 2 ? 3 : 2) : entryIndex < 2 ? 4 : entryIndex < 5 ? 3 : 2;
     const remaining = Math.max(1, 20 - totalBullets);
     const limit = Math.min(defaultLimit, remaining);
     const kept = [];
@@ -261,8 +278,8 @@ function focusResume(resumeData, analysis) {
       omitted_bullets: omittedBullets,
       omitted_experience: [],
       duplicate_groups: duplicateGroups,
-      rationale: careerChange
-        ? "Career-change output emphasizes verified direct, adjacent, and transferable evidence while compressing unrelated detail."
+      rationale: transferablePositioning
+        ? "Transferable-strengths output emphasizes verified direct, adjacent, and transferable evidence while compressing unrelated detail."
         : "Output prioritizes recent, requirement-aligned evidence and removes repetitive or lower-signal bullets.",
     },
   };
@@ -280,7 +297,7 @@ function sanitizeIdentity(resumeData) {
   return { ...resumeData, name, contact };
 }
 
-function shapeCareerChangeResume(resumeData, analysis) {
+function shapeTransferableResume(resumeData, analysis) {
   const tokens = evidenceTokens(analysis);
   const profileSentences = sentences(resumeData?.profile)
     .filter((sentence) => !UNVERIFIED_PROGRESS_PATTERNS.some((pattern) => pattern.test(sentence)));
@@ -301,11 +318,11 @@ function shapeCareerChangeResume(resumeData, analysis) {
   }));
   const foundationRole = String(experience[0]?.role || "Experienced professional").trim();
   const fallbackSkills = verifiedSkills.slice(0, 3);
-  const fallbackProfile = `${foundationRole}${fallbackSkills.length ? ` with verified experience in ${fallbackSkills.join(", ")}` : ""}. Bringing that proven foundation to an evidence-led career transition.`;
+  const fallbackProfile = `${foundationRole}${fallbackSkills.length ? ` with verified experience in ${fallbackSkills.join(", ")}` : ""}. Focused on applying that proven foundation to this opportunity.`;
 
   return {
     ...resumeData,
-    profile: limitByCompleteSentences(profileSentences.join(" "), 90) || fallbackProfile,
+    profile: professionalPositioningText(limitByCompleteSentences(profileSentences.join(" "), 90)) || fallbackProfile,
     skills,
     experience,
   };
@@ -317,9 +334,13 @@ export function shapeTailoredResume(resumeData, analysis) {
 
 export function shapeTailoredResumeWithReview(resumeData, analysis, baseResume = "") {
   const sanitized = sanitizeIdentity(resumeData && typeof resumeData === "object" ? resumeData : {});
-  const gapSafe = { ...sanitized, profile: removeCandidateGapDisclosures(sanitized.profile) };
-  const strategyShaped = analysis?.fit_assessment?.path === "career_change"
-    ? shapeCareerChangeResume(gapSafe, analysis)
+  const gapSafe = {
+    ...sanitized,
+    title: professionalTitleText(sanitized.title),
+    profile: professionalPositioningText(removeCandidateGapDisclosures(sanitized.profile)),
+  };
+  const strategyShaped = ["transferable", "career_change"].includes(analysis?.fit_assessment?.path)
+    ? shapeTransferableResume(gapSafe, analysis)
     : gapSafe;
   const evidenceComplete = restoreRequiredEducation(strategyShaped, analysis, baseResume);
   const trainingFocused = focusRelevantTraining(evidenceComplete, analysis);

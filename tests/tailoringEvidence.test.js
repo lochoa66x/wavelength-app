@@ -96,8 +96,8 @@ test("reviewed structured qualifications remain authoritative when model analysi
   ].join("\n"), assessment, [], [], inventory);
 
   assert.ok(inventory.length >= 4);
-  assert.equal(result.requirements.length, inventory.length);
-  assert.equal(result.coverage.direct + result.coverage.adjacent + result.coverage.transferable + result.coverage.missing, inventory.length);
+  assert.ok(result.requirements.length <= inventory.length);
+  assert.equal(result.coverage.direct + result.coverage.adjacent + result.coverage.transferable + result.coverage.missing, result.requirements.length);
   assert.ok(result.coverage.missing > 0);
   assert.doesNotMatch(result.candidate_fit.reason, /did not yield enough atomic requirements/i);
 });
@@ -175,9 +175,81 @@ test("three verified neighboring SAP requirements produce adjacent positioning w
   assert.equal(result.fit_assessment.path, "adjacent");
   assert.equal(result.readiness.status, "significant_gap");
   assert.notEqual(result.fit_assessment.recommended_level, "Transitional or entry-level positioning");
-  assert.equal(result.core_coverage.total, inventory.length);
-  assert.equal(result.requirement_summary.core_total, inventory.length);
+  assert.equal(result.core_coverage.total, result.requirements.length);
+  assert.equal(result.requirement_summary.core_total, result.requirements.length);
   assert.equal(result.gap_summary.outlook.status, "high_application_risk");
+});
+
+test("senior FI-CA and PSCD evidence calibrates as adjacent IS-U expertise without downgrading seniority", () => {
+  const baseResume = [
+    "Senior SAP Solution Architect",
+    "Configured SAP FI-CA contract accounts and PSCD solutions.",
+    "Led AS-IS to TO-BE analysis and prepared Business Blueprint documents.",
+    "Authored functional specifications for SAP delivery.",
+    "Coordinated data migration and system integration across SAP finance platforms.",
+    "Led UAT, cutover, Go-Live, and post-production support.",
+  ].join("\n");
+  const requirements = [
+    ["SAP IS-U FI-CA configuration", "Configured SAP FI-CA contract accounts and PSCD solutions.", "adjacent"],
+    ["AS-IS to TO-BE analysis", "Led AS-IS to TO-BE analysis and prepared Business Blueprint documents.", "direct"],
+    ["Prepare Business Blueprint documents", "Led AS-IS to TO-BE analysis and prepared Business Blueprint documents.", "direct"],
+    ["Prepare functional specifications", "Authored functional specifications for SAP delivery.", "direct"],
+    ["Functional Specification document expertise", "Authored functional specifications for SAP delivery.", "direct"],
+    ["Support SAP data migration", "Coordinated data migration and system integration across SAP finance platforms.", "direct"],
+    ["SAP integration delivery", "Coordinated data migration and system integration across SAP finance platforms.", "adjacent"],
+    ["Meter to Cash in SAP IS-U", "", "missing"],
+    ["SAP IS-U Device Management", "", "missing"],
+    ["SAP C4C integration", "", "missing"],
+    ["Utilities billing", "", "missing"],
+  ].map(([requirement, resume_evidence, evidence_match], index) => ({
+    id: `R${index + 1}`,
+    requirement,
+    priority: "required",
+    evidence_match,
+    resume_evidence,
+    safe_language: evidence_match === "missing" ? "" : requirement,
+    keywords: [],
+  }));
+  const result = sanitizeTailoringAnalysis({
+    fit_assessment: { path: "career_change", recommended_level: "Senior SAP Solution Architect", note: "Career transition." },
+    requirements,
+  }, baseResume, {
+    status: "complete",
+    reason: "Complete posting.",
+    readiness_status: "reviewed_complete",
+    readiness_reason: "Complete posting.",
+    fit_allowed: true,
+    application_ready_allowed: true,
+  });
+
+  assert.equal(result.fit_assessment.path, "adjacent");
+  assert.equal(result.fit_assessment.recommended_level, "Senior SAP Solution Architect");
+  assert.ok(result.requirements.length < requirements.length);
+  assert.ok(result.requirements.every((requirement) => requirement.capability_family && requirement.importance_weight));
+  assert.ok(result.requirements.some((requirement) => requirement.capability_family === "fica_contract_accounts_foundation" && requirement.evidence_match === "adjacent"));
+  assert.ok(result.requirements.some((requirement) => requirement.capability_family === "sap_utilities_meter_to_cash" && requirement.evidence_match === "missing"));
+  assert.doesNotMatch(JSON.stringify(result.fit_assessment), /career[ -](?:change|transition)|entry-level|new (?:path|journey)/i);
+});
+
+test("service experience for a teller role remains transferable rather than being called a professional transition", () => {
+  const baseResume = [
+    "Restaurant Shift Supervisor",
+    "Delivered customer service in a high-volume environment.",
+    "Handled cash and reconciled tills at the end of each shift.",
+  ].join("\n");
+  const result = sanitizeTailoringAnalysis({
+    fit_assessment: { path: "career_change", recommended_level: "Restaurant Shift Supervisor", note: "New career path." },
+    requirements: [
+      { id: "R1", requirement: "Customer service", priority: "required", evidence_match: "direct", resume_evidence: "Delivered customer service in a high-volume environment.", safe_language: "Customer service", keywords: [] },
+      { id: "R2", requirement: "Cash handling", priority: "required", evidence_match: "transferable", resume_evidence: "Handled cash and reconciled tills at the end of each shift.", safe_language: "Cash handling", keywords: [] },
+      { id: "R3", requirement: "Process banking transactions", priority: "required", evidence_match: "missing", resume_evidence: "", safe_language: "", keywords: [] },
+      { id: "R4", requirement: "Know-your-customer compliance", priority: "required", evidence_match: "missing", resume_evidence: "", safe_language: "", keywords: [] },
+    ],
+  }, baseResume, { status: "complete", reason: "Complete.", fit_allowed: true, application_ready_allowed: true });
+
+  assert.equal(result.fit_assessment.path, "transferable");
+  assert.equal(result.fit_assessment.recommended_level, "Restaurant Shift Supervisor");
+  assert.doesNotMatch(JSON.stringify(result.fit_assessment), /career[ -](?:change|transition)|new (?:career|path|journey)/i);
 });
 
 test("a short provider snippet cannot produce a definitive fit or application-ready output", () => {
@@ -414,7 +486,7 @@ test("unsupported evidence excerpts are downgraded to missing", () => {
   }, "Led SAP systems integration and user acceptance testing.", { status: "complete", reason: "Complete." });
 
   assert.equal(analysis.requirements[0].evidence_match, "missing");
-  assert.equal(analysis.fit_assessment.path, "career_change");
+  assert.equal(analysis.fit_assessment.path, "transferable");
 });
 
 test("career-change target identity, unsupported skills, and equivalence language are blocked", () => {
@@ -465,7 +537,7 @@ test("adjacent-domain equivalence language is blocked for automatic repair", () 
   assert.ok(issues.risky_claims.some(({ claim }) => /share the Contract Accounts engine/i.test(claim)));
 });
 
-test("supported transferable career-change positioning passes semantic checks", () => {
+test("supported transferable professional positioning passes semantic checks", () => {
   const analysis = sanitizeTailoringAnalysis({
     fit_assessment: { path: "career_change", recommended_level: "Entry-level", note: "Career transition." },
     requirements: [{ id: "R1", requirement: "Web development", priority: "required", evidence_match: "missing", resume_evidence: "", safe_language: "", keywords: ["web development"] }],
@@ -473,8 +545,8 @@ test("supported transferable career-change positioning passes semantic checks", 
     target_keywords: ["web development"],
   }, "SAP Manager\nLed systems integration.", { status: "complete", reason: "Complete." });
   const issues = findSemanticIntegrityIssues({
-    title: "Enterprise Integration Professional | Web Transition",
-    profile: "Enterprise systems professional pursuing a transition into application delivery.",
+    title: "Enterprise Integration Professional",
+    profile: "Enterprise systems professional applying verified systems integration experience to application delivery.",
     skills: ["Systems integration"],
     experience: [{ role: "SAP Manager", bullets: ["Led systems integration."] }],
   }, "SAP Manager\nLed systems integration.", analysis, "Full Stack Web Developer");
@@ -619,7 +691,7 @@ test("strict concepts block false positives while recovering exact language, edu
   assert.equal(byText(/SAP SD/i).evidence_match, "missing");
   assert.equal(byText(/SAP LE/i).evidence_match, "missing");
   assert.equal(byText(/EDI/i).evidence_match, "missing");
-  assert.equal(result.fit_assessment.path, "career_change");
+  assert.equal(result.fit_assessment.path, "transferable");
   assert.equal(result.readiness.status, "significant_gap");
   assert.doesNotMatch(result.candidate_fit.reason, /fit_allowed|deterministic/i);
 });

@@ -42,10 +42,7 @@ function fallbackProfile(resume, analysis) {
     .filter(Boolean)
     .slice(0, 3);
   const foundation = skills.length ? ` with experience in ${skills.join(", ")}` : "";
-  const transition = analysis?.fit_assessment?.path === "career_change"
-    ? " Pursuing a career transition through verified transferable experience."
-    : " Focused on relevant, evidence-backed experience for this opportunity.";
-  return `${role}${foundation}.${transition}`;
+  return `${role}${foundation}. Focused on relevant, evidence-backed experience for this opportunity.`;
 }
 
 export function createSafeResumeFallback(resumeData, atsReview, analysis) {
@@ -85,9 +82,7 @@ export function createSafeResumeFallback(resumeData, atsReview, analysis) {
   let title = removeUnsafeSentences(resumeData?.title, numericClaims, riskyClaims);
   if ((atsReview?.unsupported_positioning || []).length || includesAny(title, unsupportedTargetTerms) || !title) {
     const baseRole = String(experience[0]?.role || "Experienced Professional").trim();
-    title = analysis?.fit_assessment?.path === "career_change"
-      ? `${baseRole} | Career Transition`
-      : baseRole;
+    title = baseRole;
   }
 
   let profile = removeUnsafeSentences(resumeData?.profile, numericClaims, riskyClaims);

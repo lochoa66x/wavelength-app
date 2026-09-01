@@ -47,4 +47,3 @@ test("job brief normalization preserves a genuine full-time versus part-time con
   assert.equal(brief.source_review.conflicts.length, 1);
   assert.equal(brief.source_review.conflicts_resolved, false);
 });
-

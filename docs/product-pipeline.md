@@ -387,6 +387,18 @@ Implementation closure includes a dedicated authenticated, no-store clarificatio
 - **P4.5 evidence-led résumé and cover-letter presentation — Phase A complete; Phase B prototypes generated locally:** Northstar and Civic (application-safe) plus Studio Editorial v2 (networking-forward) now use stable dormant IDs, a shared versioned résumé/letter presentation contract, matching browser/DOCX/PDF letter treatments, paired chooser thumbnails, textual safety labels, and a one-action safe fallback. The exact `VITE_PRESENTATION_PROTOTYPES_ENABLED=true` boundary is fail-closed; Production remains unchanged and the current Studio ID is not overwritten. Eight synthetic Canadian/U.S. short/long packages produced 32 verified DOCX/PDF files with invariant content hashes, manifest/letter parity, one-page short résumés, two-page long résumés, and one-page letters. Direct PDFs are selectable but not tagged, so no PDF/UA/accessibility claim is made. Northstar is the strongest tester candidate; Civic needs explicit rule-weight feedback; Studio v2 remains a comparison prototype. Mobile/browser assistive-tech, office-suite/ATS parser, monochrome/forced-colour, and measured tester gates remain before any public promotion. Evidence: `docs/p4-5-prototype-evidence.md`.
 - **P4.6 application workspace:** after the evidence workflow is stable, consider a lightweight saved → applied → interviewing → offer tracker and evidence-first cover-letter packages. Do not add automatic application submission.
 
+### P3.3D adjacent-expertise calibration and professional positioning
+
+**Status:** Implemented and locally verified on 2026-09-01; production release evidence is tracked in `docs/release-checklist.md`.
+
+- Candidate fit, application readiness, and professional seniority are separate decisions. Missing target-domain evidence may lower fit or readiness, but it never downgrades seniority established by verified titles, scope, leadership, or contribution.
+- The deterministic calibrator now uses canonical capability families, requirement importance, evidence relation, target specificity, provenance, and exact citations. Duplicate, overlapping, or vague requirement variants collapse before coverage and risk are calculated, preventing repeated posting language from inflating the denominator or gap count.
+- Public fit paths are role-aligned, adjacent expertise, and transferable strengths. Legacy `career_change`/transition values remain accepted only as migration inputs and render through safe professional language.
+- The bounded SAP relationship map credits FI-CA, PSCD, Contract Accounts, and verified general SAP delivery evidence as adjacent to IS-U FI-CA without treating them as utilities-specific proof. Meter-to-cash, utilities billing, device management, meter reading, C4C, utility-specific master data, and other IS-U context remain distinct unless candidate evidence states them.
+- Résumé and cover-letter validation reject transition/new-path positioning and unsolicited gap confessions. Employer-facing documents lead with verified strengths; private review continues to show missing requirements, blockers, and application risk.
+- Visual templates remain presentation-only. No provider, storage, authentication, database, analytics, job-source, résumé-sync, or native-app contract changes are part of this phase.
+- Regression fixtures cover senior FI-CA/PSCD → IS-U FI-CA adjacency, service → teller transferable strengths, distant targets, legacy payload migration, regulated trades, semantic export repair, and cover-letter gap-disclosure rejection.
+
 ## Recommended execution order
 
 1. P0.1 posting enrichment and provenance

@@ -3,7 +3,8 @@ import { titleMatchesSearchQuery } from "./listingCategories.js";
 const FIT_PRESENTATIONS = {
   direct: { kind: "fit", tone: "direct", label: "Direct résumé fit" },
   adjacent: { kind: "fit", tone: "adjacent", label: "Adjacent résumé fit" },
-  career_change: { kind: "fit", tone: "career-change", label: "Career-change path" },
+  transferable: { kind: "fit", tone: "transferable", label: "Transferable strengths" },
+  career_change: { kind: "fit", tone: "transferable", label: "Transferable strengths" },
 };
 
 export function getMatchPresentation({ listing, keyword = "", fitAssessment = null, postingReadiness = null }) {

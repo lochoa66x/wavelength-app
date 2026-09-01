@@ -213,7 +213,7 @@ test("FAQ covers the required trust, pricing, storage, and product questions", (
     "submit applications for me",
     "preliminary résumé",
     "guarantee ATS",
-    "career change",
+    "beyond my exact previous role",
     "complete job description",
   ]) {
     assert.match(faqSource, new RegExp(marker, "i"));

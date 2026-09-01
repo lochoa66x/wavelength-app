@@ -415,6 +415,25 @@ Production database evidence: the migration completed transactionally in the `wa
 
 Production application evidence: feature commit `7a6896c8b86366fe8eb0a686f3f5d4f056d08e3f` and timestamp-compatibility hotfix `ed367c1` were pushed normally to `main`. Git-triggered Vercel deployment `dpl_FnVw96A83XdTM2YaEfwotAVQBNuo` reached `READY` and carries the `gigscapes.com`, `www.gigscapes.com`, and `main` aliases. Public `/`, `/app`, and `/privacy` returned HTTP 200; the private availability endpoint rejected an anonymous request with HTTP 401 and `Cache-Control: no-store, private`. Desktop and 390×844 signed-out browser smoke had no horizontal overflow, application exception, or console error. A production cron run then reported `success` for all three companion sources: Jooble saved 451/451 fresh unique observations, Jobicy saved 100/100, and Himalayas saved 100/100 after its live Unix-second timestamps were normalized. All source logs exposed only bounded counts, run mode, durations, and zero-valued uncertain/closed/reactivated metrics. Authenticated state-transition smoke across active, stale, uncertain, closed, saved-history, manual-refresh, and pre-tailoring variants remains an explicit hands-on gate; no synthetic user or listing state was created in Production for that check.
 
+## P3.3D adjacent-expertise calibration release gate — 2026-09-01
+
+- [x] Replace the raw percentage cliff with weighted capability-family calibration.
+- [x] Normalize legacy transition paths to `transferable` at the API boundary while retaining backward-compatible internal aliases.
+- [x] Preserve verified professional seniority independently from target-role fit and readiness.
+- [x] Collapse duplicate/overlapping requirements before coverage, gap, and risk counts.
+- [x] Add bounded FI-CA/PSCD/IS-U FI-CA relationships without treating domain adjacency as direct utilities evidence.
+- [x] Keep meter-to-cash, utilities billing, device management, meter reading, C4C, and utilities-specific master data distinct unless candidate evidence states them.
+- [x] Remove candidate-facing career-change, transition, new-path, and inferred entry-level positioning from fit summaries, résumé templates, fallbacks, and application labels.
+- [x] Reject forbidden positioning and unsolicited gap confessions in résumé and cover-letter validation/repair paths.
+- [x] Preserve template choice as presentation-only and leave provider, persistence, auth, database, analytics, sync, sources, and native-app contracts unchanged.
+- [x] Add redacted senior SAP adjacency, service-to-teller transferable, legacy payload, semantic repair, and cover-letter boundary tests.
+- [x] Run the complete unit suite, production build, export verifiers, and diff check on the exact release tree.
+- [ ] Commit and deploy the exact verified tree, confirm the production alias, and run public route smoke.
+
+Hands-on limits remain explicit: a fresh authenticated production tailoring run with a real private résumé, Microsoft Word/Google Docs rendering, an external ATS parser, and employer outcome validation are not claimed by deterministic tests.
+
+Local release evidence: 572/572 tests passed; Vite 5.4.21 transformed 2,456 modules; the quality gate passed all 11 redacted cases with 100% contract/readiness/export/integrity/template accuracy and zero privacy violations; résumé export verification passed 48 files, 16 templates, 29 PDF pages, 826 selectable text items, manifest parity, final authorization, and stale-ready rejection; cover-letter verification passed two DOCX and two PDF files across final/preliminary states; all eight prototype packages and 32 files passed; and `git diff --check` reported no errors. Existing large dependency chunk warnings remain unchanged.
+
 ## P4.H1 exporter deployment-skew resilience — 2026-08-30
 
 - [x] All résumé and cover-letter DOCX/PDF dynamic imports are owned by one cached, rejection-resetting loader boundary.

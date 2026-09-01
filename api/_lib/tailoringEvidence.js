@@ -102,6 +102,65 @@ const EXPLICIT_BLOCKER_REQUIREMENT_PATTERN = /\b(?:licen[cs](?:e|ed|ure)|registe
 const SCHEDULE_LOCATION_REQUIREMENT_PATTERN = /\b(?:on[- ]?site|hybrid|remote|shift|weekends?|evenings?|overnight|travel|relocat|location|driver'?s? licen[cs]e)\b/i;
 const LANGUAGE_REQUIREMENT_PATTERN = /\b(?:english|french|spanish|bilingual|language proficiency|fluent|fluency)\b/i;
 
+const PRIORITY_WEIGHT = Object.freeze({ required: 1, responsibility: 0.72, preferred: 0.35, context: 0.2 });
+const PRIORITY_RANK = Object.freeze({ required: 4, responsibility: 3, preferred: 2, context: 1 });
+const EVIDENCE_RANK = Object.freeze({ direct: 4, adjacent: 3, transferable: 2, missing: 1 });
+const LEGACY_TRANSFERABLE_PATHS = new Set(["career_change", "career-change", "career_transition", "career-transition", "major-transition"]);
+const FORBIDDEN_POSITIONING_PATTERN = /\b(?:career[ -](?:change|transition)|transition(?:al|ing)?(?:\s+(?:into|to))?|new\s+(?:career|path|journey))\b/i;
+
+const CAPABILITY_FAMILIES = Object.freeze([
+  { id: "sap_utilities_meter_to_cash", specificity: "target_specific", pattern: /\bmeter\s+to\s+cash\b|\bmeter\s+reading\b/i },
+  { id: "sap_utilities_device_management", specificity: "target_specific", pattern: /\bdevice\s+management\b/i },
+  { id: "sap_utilities_billing", specificity: "target_specific", pattern: /\b(?:sap\s+is[- ]?u\s+)?billing\b|\butility billing\b/i },
+  { id: "sap_utilities_c4c", specificity: "target_specific", pattern: /\b(?:sap\s+)?c4c\b/i },
+  { id: "sap_utilities_master_data", specificity: "target_specific", pattern: /\b(?:business|technical|utility|isu)\s+master\s+data\b/i },
+  { id: "sap_utilities_module_integration", specificity: "target_specific", pattern: /\bintegration\s+with\s+(?:other\s+)?(?:sap\s+)?is[- ]?u\s+modules?\b/i },
+  { id: "fica_clearing", specificity: "shared_foundation", pattern: /\bclearing(?:\s+control)?\b/i },
+  { id: "fica_dunning_collections", specificity: "shared_foundation", pattern: /\bdunning\b|\bcollections?\b/i },
+  { id: "fica_installment_plans", specificity: "shared_foundation", pattern: /\binstallment\s+plans?\b/i },
+  { id: "fica_direct_debit", specificity: "shared_foundation", pattern: /\bdirect\s+debit\b/i },
+  { id: "fica_cash_journal", specificity: "shared_foundation", pattern: /\bcash\s+journals?\b/i },
+  { id: "fica_main_subtransactions", specificity: "shared_foundation", pattern: /\bmain\s+(?:and|\/)\s+sub\s*transactions?\b/i },
+  { id: "fica_account_assignment", specificity: "shared_foundation", pattern: /\baccount\s+assignment\b|\baccount determination\b/i },
+  { id: "fica_contract_accounts_foundation", specificity: "shared_foundation", pattern: /\bfi[- ]?ca\b|\bpscd\b|\bcontract accounts?\b/i },
+  { id: "sap_sd", specificity: "target_specific", pattern: /\bsap\s+sd\b|\bsales and distribution\b/i },
+  { id: "sap_le", specificity: "target_specific", pattern: /\bsap\s+le\b|\blogistics execution\b/i },
+  { id: "edi", specificity: "target_specific", pattern: /\b(?:edi|edifact|ansi\s*x12|idocs?)\b/i },
+  { id: "sap_data_migration", specificity: "general_delivery", pattern: /\bdata\s+migration\b/i },
+  { id: "sap_as_is_to_be", specificity: "general_delivery", pattern: /\bas[- ]?is\b[^.!?]{0,70}\bto[- ]?be\b/i },
+  { id: "sap_business_blueprint", specificity: "general_delivery", pattern: /\bbusiness\s+blueprints?\b|\bblueprint\s+documents?\b/i },
+  { id: "sap_functional_specifications", specificity: "general_delivery", pattern: /\bfunctional\s+specifications?\b/i },
+  { id: "sap_requirements_analysis", specificity: "general_delivery", pattern: /\brequirements?\s+(?:analysis|gathering|workshops?)\b|\bbusiness\s+requirements?\b/i },
+  { id: "sap_configuration", specificity: "general_delivery", pattern: /\bconfigur(?:ation|ations|e|ed|ing)\b/i },
+  { id: "sap_integration", specificity: "general_delivery", pattern: /\bintegrat(?:e|ed|ion|ing)\b|\binterfaces?\b/i },
+  { id: "sap_testing", specificity: "general_delivery", pattern: /\b(?:unit|regression|integration|user acceptance|uat)\s+test(?:ing|s)?\b/i },
+  { id: "sap_cutover_go_live", specificity: "general_delivery", pattern: /\bcutover\b|\bgo[- ]?live\b|\bstabili[sz]ation\b/i },
+  { id: "sap_delivery_leadership", specificity: "general_delivery", pattern: /\b(?:project|program|delivery)\s+(?:leadership|management)\b|\bstakeholder\s+(?:leadership|management)\b/i },
+]);
+
+function normalizeFitPath(value) {
+  const path = String(value || "").trim().toLowerCase();
+  if (path === "direct" || path === "adjacent" || path === "transferable") return path;
+  if (LEGACY_TRANSFERABLE_PATHS.has(path)) return "transferable";
+  return "transferable";
+}
+
+function capabilityFamilyFor(requirement) {
+  const requirementText = String(requirement?.requirement || "");
+  const parentText = String(requirement?.parent_requirement || "");
+  const contextualText = /\b(?:its|their|functionalit(?:y|ies)|configurations?)\b/i.test(requirementText)
+    ? `${requirementText} ${parentText}`
+    : requirementText;
+  const family = CAPABILITY_FAMILIES.find((entry) => entry.pattern.test(contextualText));
+  if (family) return family;
+  const normalized = normalizeEvidenceText(contextualText)
+    .split(" ")
+    .filter((term) => (term.length > 2 || ["sd", "le", "rf"].includes(term)) && !STOPWORDS.has(term))
+    .slice(0, 12)
+    .join("_");
+  return { id: `other_${normalized || requirement?.id || "capability"}`, specificity: "general" };
+}
+
 function applicationRiskForRequirement(requirement) {
   if (requirement.evidence_match !== "missing") {
     return {
@@ -640,8 +699,50 @@ function cleanRequirement(value, index, baseResume, candidateNotes = []) {
       : "",
     keywords: uniqueStrings(value?.keywords, 8),
   };
+  const family = capabilityFamilyFor(cleaned);
+  cleaned.capability_family = family.id;
+  cleaned.target_specificity = family.specificity;
+  cleaned.importance_weight = PRIORITY_WEIGHT[cleaned.priority] || PRIORITY_WEIGHT.context;
+  cleaned.provenance = uniqueStrings([
+    typeof value?.provenance === "string" ? value.provenance : "",
+    cleaned.parent_requirement ? "atomic_from_reviewed_posting" : "reviewed_posting",
+  ], 4);
+  cleaned.related_requirements = [requirement];
   const assessed = { ...cleaned, ...applicationRiskForRequirement(cleaned) };
   return { ...assessed, ...requirementAssessmentMetadata(assessed) };
+}
+
+function mergeRequirementPair(existing, incoming) {
+  const strongerPriority = PRIORITY_RANK[incoming.priority] > PRIORITY_RANK[existing.priority] ? incoming : existing;
+  const strongerEvidence = EVIDENCE_RANK[incoming.evidence_match] > EVIDENCE_RANK[existing.evidence_match] ? incoming : existing;
+  const merged = {
+    ...existing,
+    priority: strongerPriority.priority,
+    importance_weight: Math.max(existing.importance_weight || 0, incoming.importance_weight || 0),
+    evidence_match: strongerEvidence.evidence_match,
+    resume_evidence: strongerEvidence.resume_evidence,
+    evidence: strongerEvidence.evidence,
+    match_basis: strongerEvidence.match_basis,
+    safe_language: strongerEvidence.safe_language,
+    keywords: uniqueStrings([...(existing.keywords || []), ...(incoming.keywords || [])], 12),
+    provenance: uniqueStrings([...(existing.provenance || []), ...(incoming.provenance || [])], 8),
+    related_requirements: uniqueStrings([
+      ...(existing.related_requirements || [existing.requirement]),
+      ...(incoming.related_requirements || [incoming.requirement]),
+    ], 12),
+  };
+  const assessed = { ...merged, ...applicationRiskForRequirement(merged) };
+  return { ...assessed, ...requirementAssessmentMetadata(assessed) };
+}
+
+function normalizeRequirementInventory(requirements) {
+  const byCapability = new Map();
+  for (const requirement of requirements) {
+    const key = requirement.capability_family;
+    const current = byCapability.get(key);
+    byCapability.set(key, current ? mergeRequirementPair(current, requirement) : requirement);
+  }
+  return [...byCapability.values()];
 }
 
 function coverageCounts(requirements) {
@@ -656,6 +757,11 @@ function candidateFacingText(value, fallback, limit = 700) {
     .replace(/\bfit_allowed\b/gi, "posting readiness")
     .replace(/\bapplication_ready_allowed\b/gi, "application readiness")
     .replace(/\bdeterministic posting assessment\b/gi, "posting-readiness check")
+    .replace(/\bcareer[ -]change(?:\s+strategy)?\b/gi, "transferable-strengths positioning")
+    .replace(/\bcareer[ -]transition\b/gi, "transferable-strengths positioning")
+    .replace(/\btransition(?:al)?\s+or\s+entry-level\s+positioning\b/gi, "professional positioning based on verified experience")
+    .replace(/\btransitioning\s+(?:into|to)\b/gi, "applying verified experience toward")
+    .replace(/\bnew\s+(?:career|path|journey)\b/gi, "next professional opportunity")
     .replace(/\s+/g, " ")
     .trim()
     .slice(0, limit);
@@ -667,31 +773,63 @@ function calibrateFit(requirements, requestedPath) {
   const counts = coverageCounts(assessed);
   const total = assessed.length;
   const supported = counts.direct + counts.adjacent + counts.transferable;
-  const directRate = total ? counts.direct / total : 0;
-  const adjacentEvidence = counts.direct + counts.adjacent;
-  const adjacentRate = total ? adjacentEvidence / total : 0;
+  const totalWeight = assessed.reduce((sum, requirement) => sum + (requirement.importance_weight || 0.2), 0);
+  const directWeight = assessed.reduce((sum, requirement) => sum + (
+    requirement.evidence_match === "direct" ? requirement.importance_weight || 0.2 : 0
+  ), 0);
+  const supportWeight = assessed.reduce((sum, requirement) => {
+    const relationWeight = requirement.evidence_match === "direct" ? 1
+      : requirement.evidence_match === "adjacent" ? 0.72
+        : requirement.evidence_match === "transferable" ? 0.35 : 0;
+    return sum + (requirement.importance_weight || 0.2) * relationWeight;
+  }, 0);
+  const missingWeight = assessed.reduce((sum, requirement) => sum + (
+    requirement.evidence_match === "missing" ? requirement.importance_weight || 0.2 : 0
+  ), 0);
+  const directRate = totalWeight ? directWeight / totalWeight : 0;
   const domainAdjacentEvidence = assessed.filter((requirement) => (
     ["direct", "adjacent"].includes(requirement.evidence_match)
       && !/\b(?:bachelor|degree|english|communication|interpersonal|stakeholders?|diverse teams?|team player|problem solv|organized|outcomes? driven)\b/i.test(requirement.requirement)
   )).length;
-  const missingRate = total ? counts.missing / total : 1;
-  const weightedRate = total
-    ? (counts.direct + counts.adjacent * 0.72 + counts.transferable * 0.32) / total
-    : 0;
-  let path = requestedPath;
-  if (directRate >= 0.6 && weightedRate >= 0.72 && missingRate <= 0.2) path = "direct";
-  else if (weightedRate >= 0.45 && missingRate <= 0.45) path = "adjacent";
-  else if (adjacentEvidence >= 3 && adjacentRate >= 0.2 && domainAdjacentEvidence >= 2) path = "adjacent";
-  else path = "career_change";
+  const missingRate = totalWeight ? missingWeight / totalWeight : 1;
+  const weightedRate = totalWeight ? supportWeight / totalWeight : 0;
   const verifiedBlockerCount = assessed.filter((requirement) => requirement.gap_severity === "verified_blocker").length;
+  const sharedFoundationEvidence = assessed.some((requirement) => (
+    requirement.target_specificity === "shared_foundation"
+      && ["direct", "adjacent"].includes(requirement.evidence_match)
+  ));
+  const generalDeliveryFamilies = new Set(assessed
+    .filter((requirement) => requirement.target_specificity === "general_delivery"
+      && ["direct", "adjacent"].includes(requirement.evidence_match))
+    .map((requirement) => requirement.capability_family));
+  const normalizedRequestedPath = normalizeFitPath(requestedPath);
+  let path = "transferable";
+  if (directRate >= 0.6 && weightedRate >= 0.72 && missingRate <= 0.22) path = "direct";
+  else if (verifiedBlockerCount === 0 && (
+    (weightedRate >= 0.42 && domainAdjacentEvidence >= 2)
+      || (domainAdjacentEvidence >= 3)
+      || (sharedFoundationEvidence && generalDeliveryFamilies.size >= 2)
+      || (normalizedRequestedPath === "adjacent" && domainAdjacentEvidence >= 2)
+  )) path = "adjacent";
   const readinessStatus = verifiedBlockerCount > 0
     ? "significant_gap"
     : path === "direct" && counts.missing === 0
     ? "strong_fit"
-    : path !== "career_change" && missingRate <= 0.35
+    : path === "adjacent" && missingRate <= 0.42
       ? "credible_stretch"
       : "significant_gap";
-  return { path, readinessStatus, counts, total, supported, missingRate, verifiedBlockerCount };
+  return {
+    path,
+    readinessStatus,
+    counts,
+    total,
+    supported,
+    missingRate,
+    weightedRate,
+    verifiedBlockerCount,
+    sharedFoundationEvidence,
+    generalDeliveryEvidence: generalDeliveryFamilies.size,
+  };
 }
 
 function calibratedFitReason(calibration) {
@@ -701,10 +839,11 @@ function calibratedFitReason(calibration) {
 }
 
 function calibratedLevel(rawLevel, path) {
-  const level = String(rawLevel || "").replace(/\s+/g, " ").trim().slice(0, 160);
-  if (path !== "career_change") return level || "Role-aligned";
-  if (!level || /\b(?:senior|lead|principal|director|manager|expert)\b/i.test(level)) return "Transitional or entry-level positioning";
-  return level;
+  const level = candidateFacingText(rawLevel, "", 160);
+  if (level && !FORBIDDEN_POSITIONING_PATTERN.test(level) && !/\bentry-level\b/i.test(level)) return level;
+  if (path === "direct") return "Role-aligned professional positioning";
+  if (path === "adjacent") return "Experienced professional with adjacent expertise";
+  return "Professional positioning based on verified strengths";
 }
 
 function applicationOutlook(requirements, gapCounts, candidateFit, postingAssessment) {
@@ -754,7 +893,7 @@ function applicationOutlook(requirements, gapCounts, candidateFit, postingAssess
     const highRisk = coreEvidenceCounts.direct <= coreMaterialGaps || coreMissingRate >= 0.45;
     return {
       status: highRisk ? "high_application_risk" : "viable_transition_material_gaps",
-      label: highRisk ? "High application risk" : "Viable transition with material gaps",
+      label: highRisk ? "High application risk" : "Viable with material gaps",
       confidence,
       reason: `${coreMaterialGaps} core required capabilit${coreMaterialGaps === 1 ? "y remains" : "ies remain"} unsupported by exact candidate evidence.`,
       what_would_change: "Candidate-confirmed evidence that directly or honestly relates to the unsupported required capabilities.",
@@ -785,11 +924,11 @@ function applicationOutlook(requirements, gapCounts, candidateFit, postingAssess
 
 export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministicPostingAssessment, fallbackKeywords = [], candidateNotes = [], reviewedRequirementInventory = []) {
   const raw = rawAnalysis && typeof rawAnalysis === "object" ? rawAnalysis : {};
-  const requirements = mergeRequirementInventory(raw.requirements, reviewedRequirementInventory)
+  const requirements = normalizeRequirementInventory(mergeRequirementInventory(raw.requirements, reviewedRequirementInventory)
     .flatMap((value, index) => atomicRequirementValues(value, index))
     .slice(0, 40)
     .map((value, index) => cleanRequirement(value, index, baseResume, candidateNotes))
-    .filter(Boolean);
+    .filter(Boolean));
   const coverage = coverageCounts(requirements);
 
   const transferableSkills = (Array.isArray(raw.verified_transferable_skills) ? raw.verified_transferable_skills : [])
@@ -803,9 +942,7 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
       || Boolean(supportingCandidateNote(value.resume_evidence, candidateNotes))
     ));
 
-  const requestedPath = ["direct", "adjacent", "career_change"].includes(raw.fit_assessment?.path)
-    ? raw.fit_assessment.path
-    : "career_change";
+  const requestedPath = normalizeFitPath(raw.fit_assessment?.path);
   const calibration = calibrateFit(requirements, requestedPath);
   const path = calibration.path;
 
@@ -982,9 +1119,14 @@ export function findSemanticIntegrityIssues(resumeData, baseResume, analysis, ta
   }
 
   const unsupported_positioning = [];
-  if (analysis?.fit_assessment?.path === "career_change" && target && title.includes(target)) {
+  if (["transferable", "career_change"].includes(analysis?.fit_assessment?.path) && target && title.includes(target)) {
     const allowedTradeCandidate = isTrades && /\b(candidate|helper)\b/.test(title);
     if (!allowedTradeCandidate) unsupported_positioning.push({ title: resumeData?.title, target: targetTitle });
+  }
+  for (const field of [resumeData?.title, resumeData?.profile]) {
+    if (FORBIDDEN_POSITIONING_PATTERN.test(String(field || ""))) {
+      unsupported_positioning.push({ title: resumeData?.title, phrase: String(field).match(FORBIDDEN_POSITIONING_PATTERN)?.[0] });
+    }
   }
 
   const risky_claims = [];
@@ -998,6 +1140,9 @@ export function findSemanticIntegrityIssues(resumeData, baseResume, analysis, ta
     /\banalogous to\b/gi,
     /\bshare(?:s|d|ing)?\b[^.!?\n]{0,140}\b(?:sap\s+)?is[- ]?u\s+fi[- ]?ca\b/gi,
     /\b(?:same|shared)\b[^.!?\n]{0,100}\b(?:discipline|foundation|foundational structures?|engine|constructs?)\b[^.!?\n]{0,100}\b(?:sap\s+)?is[- ]?u\s+fi[- ]?ca\b/gi,
+    /\bcareer[ -](?:change|transition)\b/gi,
+    /\btransition(?:al|ing)?\s+(?:into|to)\b/gi,
+    /\bnew\s+(?:career|path|journey)\b/gi,
   ]) {
     for (const match of rawOutput.matchAll(pattern)) risky_claims.push({ claim: match[0] });
   }

@@ -67,7 +67,7 @@ test("the deterministic fallback omits final unsafe claims instead of failing th
   assert.deepEqual(finalReview.export_readiness.blockers, ["candidate_fit", "candidate_identity"]);
   assert.equal(resume.experience.length, 1);
   assert.equal(resume.experience[0].role, "Operations Manager");
-  assert.equal(resume.title, "Operations Manager | Career Transition");
+  assert.equal(resume.title, "Operations Manager");
   assert.deepEqual(resume.skills, ["Systems integration"]);
   assert.equal(report.omitted_experience_count, 1);
   assert.equal(report.removed_numeric_claim_count, 2);

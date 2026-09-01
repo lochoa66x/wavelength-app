@@ -374,7 +374,7 @@ test("tailoring falls back to verified content when the model repair still has o
   assert.notEqual(res.body.ats_review.status, "blocked");
   assert.equal(res.body.resume.experience.length, 1);
   assert.equal(res.body.resume.experience[0].role, "Operations Manager");
-  assert.equal(res.body.resume.title, "Operations Manager | Career Transition");
+  assert.equal(res.body.resume.title, "Operations Manager");
 });
 
 test("tailoring automatically retries a timed-out evidence analysis", async () => {

@@ -49,13 +49,13 @@ const ANALYSIS_TOOL = {
       fit_assessment: {
         type: "object",
         properties: {
-          path: { type: "string", enum: ["direct", "adjacent", "career_change"] },
+          path: { type: "string", enum: ["direct", "adjacent", "transferable"] },
           recommended_level: { type: "string" },
           note: { type: "string" },
         },
         required: ["path", "recommended_level", "note"],
       },
-      content_strategy: { type: "string", enum: ["direct", "adjacent", "career_change", "trades"] },
+      content_strategy: { type: "string", enum: ["direct", "adjacent", "transferable", "trades"] },
       readiness: {
         type: "object",
         properties: {
@@ -117,7 +117,7 @@ const PROFESSIONAL_TOOL = {
       },
       title: {
         type: "string",
-        description: "Truthful positioning title selected by the supplied evidence analysis. For a career change, identify the proven prior foundation plus the transition; never use the target title alone. Under 10 words.",
+        description: "Truthful professional positioning title selected by the supplied evidence analysis. Lead with the candidate's verified foundation; never imply an unsupported target identity. Under 10 words.",
       },
       contact: {
         type: "string",
@@ -131,8 +131,8 @@ const PROFESSIONAL_TOOL = {
         type: "object",
         description: "Honest comparison between the candidate's evidence and the target role.",
         properties: {
-          path: { type: "string", enum: ["direct", "adjacent", "career_change"] },
-          recommended_level: { type: "string", description: "The honest level to present, such as Senior, Intermediate, Entry-level, Helper, or Apprentice candidate." },
+          path: { type: "string", enum: ["direct", "adjacent", "transferable"] },
+          recommended_level: { type: "string", description: "The professional level supported by verified history, titles, scope, and contribution. Target-domain gaps must not downgrade established seniority." },
           note: { type: "string", description: "One short candidate-facing explanation of the positioning. Do not discourage applying or invent missing qualifications." },
         },
         required: ["path", "recommended_level", "note"],
@@ -218,7 +218,7 @@ const TRADES_TOOL = {
       },
       title: {
         type: "string",
-        description: "Truthful trade target and level. For qualified candidates, use specialty + supported credential. For career changers without trade credentials, use 'Entry-Level [Trade] Candidate' or '[Trade] Helper Candidate'. Use Apprentice only when registration or enrolment is in the base resume. Under 8 words.",
+        description: "Truthful trade target and level. For qualified candidates, use specialty plus supported credential. Without verified trade credentials, lead with the candidate's proven professional foundation or use '[Trade] Helper Candidate' only when that is the role actually sought. Use Apprentice only when registration or enrolment is in the base resume. Under 8 words.",
       },
       contact: {
         type: "string",
@@ -226,14 +226,14 @@ const TRADES_TOOL = {
       },
       profile: {
         type: "string",
-        description: "2-3 sentence profile. For direct trade candidates, lead with supported credentials, years, and specialty. For career changers, lead with an honest entry-level target and proven transferable skills while avoiding irrelevant domain jargon. Never invent trade experience or credentials.",
+        description: "2-3 sentence profile. For direct trade candidates, lead with supported credentials, years, and specialty. Otherwise lead with the candidate's proven transferable strengths while avoiding irrelevant domain jargon. Never invent trade experience or credentials.",
       },
       fit_assessment: {
         type: "object",
         description: "Honest comparison between the candidate's evidence and the target trade role.",
         properties: {
-          path: { type: "string", enum: ["direct", "adjacent", "career_change"] },
-          recommended_level: { type: "string", description: "The honest level to present. Use Apprentice only when supported; otherwise use Entry-level or Helper candidate." },
+          path: { type: "string", enum: ["direct", "adjacent", "transferable"] },
+          recommended_level: { type: "string", description: "The honest professional level supported by history and credentials. Use Apprentice only when supported; do not infer junior seniority solely from target-domain gaps." },
           note: { type: "string", description: "One short candidate-facing explanation of the positioning and any required credential gap stated in the posting." },
         },
         required: ["path", "recommended_level", "note"],
@@ -589,13 +589,13 @@ export function createTailorHandler({
     ? `
 
 CATEGORY: SKILLED TRADES
-- First classify the application as direct, adjacent, or career_change in \`fit_assessment\` by comparing the base résumé with the full posting requirements.
-- For a career change into a regulated trade, do NOT present the candidate as a qualified tradesperson. If the base résumé does not prove registration, use an honest title such as "Entry-Level Plumbing Candidate" or "Plumbing Helper Candidate". Use "Apprentice" only if the base résumé says the candidate is registered or enrolled as one.
-- If the posting requires a license, journeyperson status, or direct trade experience the candidate does not have, say so briefly in \`fit_assessment.note\` and recommend the closest entry-level path. Still produce a useful transferable-skills résumé.
+- First classify the application as direct, adjacent, or transferable in \`fit_assessment\` by comparing the base résumé with the full posting requirements.
+- Do NOT present an unlicensed candidate as a qualified tradesperson. Use "Apprentice" only if the base résumé says the candidate is registered or enrolled as one. A missing target credential is a private application boundary, not permission to erase or downgrade the candidate's established professional seniority.
+- If the posting requires a license, journeyperson status, or direct trade experience the candidate does not have, state that boundary briefly in \`fit_assessment.note\`. Still produce a useful transferable-strengths résumé without framing the person as changing careers.
 - Populate the \`certifications\` array with any trade certifications, licenses, or endorsements in the base resume — Red Seal, provincial journeyman certification, master trade licenses, apprenticeship completion, etc. If none are in the base resume, return an empty array — do NOT invent.
 - Populate \`safety_certifications\` with any safety training in the base resume — WHMIS, Working at Heights, Confined Space, First Aid, Fall Protection, etc. Empty array if none.
 - Populate \`safety_record\` with a one-sentence achievement ONLY if the base resume contains verifiable safety information (e.g. "12 years incident-free" or "OSHA-compliant across N job sites"). Leave empty if not in base resume.
-- For a direct trade candidate, the profile should lead with credential + years of experience. For a career changer, lead with the honest entry-level target and the strongest proven transferable evidence: reliability, perseverance, safety-minded work, team leadership, project coordination, client service, or problem solving. Include only qualities supported by the base résumé.
+- For a direct trade candidate, the profile should lead with credential + years of experience. Otherwise, lead with the strongest proven transferable evidence: reliability, perseverance, safety-minded work, team leadership, project coordination, client service, or problem solving. Include only qualities supported by the base résumé.
 - Experience bullets should lead with work context (residential / commercial / industrial) and name specific systems, codes, or equipment where present in the base resume.
 - Do NOT include a "portfolio" field — trades don't have portfolios.`
     : "";
@@ -634,15 +634,18 @@ ANALYSIS RULES
 - Every direct, adjacent, or transferable match MUST include a short exact excerpt copied from BASE RÉSUMÉ EVIDENCE or VERIFIED CANDIDATE NOTES. If no exact excerpt supports it, classify it as missing.
 - Direct means the candidate has performed the target capability in the target context. Adjacent means substantially similar work in a neighboring context. Transferable means a broader capability is useful but not equivalent. Do not promote transferable evidence to adjacent or direct merely to improve fit.
 - Exact domain terms are not interchangeable: generic SAP evidence does not prove SAP SD, LE, EDI, JIT/JIS, RF, shipping, logistics, or security/compliance work. Language proficiency, degrees, testing types, and ABAP evidence may be matched only to the atomic requirement they actually support.
-- When the candidate has no verified hands-on evidence for the target occupation, classify the path as career_change and recommend an honest entry or transitional level. Do not use the target title as their existing professional identity.
+- When the candidate has no verified hands-on evidence for the target occupation, classify the path as transferable. Preserve seniority from verified history, titles, scope, and contribution; never infer entry-level status solely from target-domain gaps. Do not use the target title as their existing professional identity.
+- FI-CA, PSCD, and IS-U FI-CA share a Contract Accounts foundation. Exact FI-CA or PSCD evidence may support adjacent relevance to IS-U FI-CA, but it never proves utilities-specific experience. Give separate credit to verified general SAP delivery capabilities such as requirements analysis, AS-IS/TO-BE work, Business Blueprint documents, functional specifications, configuration, data migration, integration, testing, cutover, go-live, and support.
+- Keep utilities-specific capabilities distinct unless the candidate evidence states them: meter-to-cash, utilities billing, device management, meter reading, C4C, utility-specific master data, and other IS-U context remain direct gaps when unsupported.
+- Consolidate duplicate, overlapping, or vague variants into a single canonical capability family before judging fit. Do not let repeated wording inflate either the denominator or the gap count.
 - Verified transferable skills must each include an exact supporting excerpt. Do not assume generic traits such as reliability, learning agility, communication, leadership, safety, or problem solving.
 - Target keywords come from the posting. Missing target technologies remain missing; list misleading target-role or target-technology claims in prohibited_claims.
 - Ask at most five candidate questions that could uncover real projects, courses, portfolios, licenses, credentials, or hands-on experience. Prefix each question with its most relevant requirement id in square brackets, such as "[R3] What project demonstrates this?" Questions are not evidence.
 - Candidate notes may be treated as factual evidence only after server validation and explicit user confirmation. Do not infer facts beyond the exact answer and context.
 - Respect each note's contribution level. "supported" permits supported/assisted/advised; "contributed" permits contributed/coordinated/collaborated; "owned" permits owned/delivered; "led" permits led/directed. Never upgrade responsibility beyond that level.
-- Readiness is strong_fit only when the posting is complete and required capabilities are directly supported; credible_stretch for an adjacent fit; significant_gap for a major career change or missing hard requirements; needs_full_posting when the posting cannot be assessed completely.`;
+- Readiness is strong_fit only when the posting is complete and required capabilities are directly supported; credible_stretch for an adjacent fit; significant_gap for limited verified evidence or missing hard requirements; needs_full_posting when the posting cannot be assessed completely. Fit, readiness, and professional seniority are separate judgments.`;
 
-  const prompt = `You're a resume editor helping a candidate apply to ONE specific gig. Produce a tailored version via the ${toolName} tool. The evidence analysis below is authoritative. Produce a single-column, reverse-chronological resume with roughly 450-900 words of substantive content while preserving truthful history. For a major career change, prefer a focused 350-650 word preliminary resume over padding it with unrelated history.
+  const prompt = `You're a resume editor helping a candidate apply to ONE specific gig. Produce a tailored version via the ${toolName} tool. The evidence analysis below is authoritative. Produce a single-column, reverse-chronological resume with roughly 450-900 words of substantive content while preserving truthful history. For a transferable-strengths application, prefer a focused 350-650 word preliminary resume over padding it with unrelated history.
 
 ${targetContext}
 
@@ -659,25 +662,26 @@ INSTRUCTIONS
 - Copy \`fit_assessment\` from the authoritative analysis. Do not upgrade the fit, readiness, or recommended level while drafting.
 - Verified candidate notes may add factual evidence, but never overwrite immutable base-résumé history. Use note-specific context only for the requirement it answers and preserve the note's contribution level in the action verb.
 - Copy the candidate's name and contact details exactly when present. If either is unavailable, return an empty string. Never emit placeholders such as UNKNOWN, <UNKNOWN>, Candidate, N/A, or invented contact details.
-- Use the analysis content strategy: direct for a conventional targeted resume, adjacent for a verified neighboring-role pivot, and career_change for a hybrid transition resume.
-- For a non-trades career change, the top title must identify the proven professional foundation plus an honest transition, such as "Enterprise Integration Professional | Web Development Transition". Never use the exact target title alone or imply the candidate already holds it. For trades, use Entry-Level or Helper Candidate unless registration or credentials are proven.
-- When the gap is large, position the candidate for the nearest realistic entry or transitional path rather than pretending they meet a senior posting. In regulated work, do not call someone licensed, certified, journeyperson, or registered apprentice unless the evidence proves it.
-- An adjacent SAP functional-module pivot is not an entry-level career change. Preserve seniority only in the candidate's proven modules and delivery scope, while stating the target-module gap outside the résumé. The headline must lead with verified modules or capabilities and must not insert a missing target module merely as a "transition" keyword.
+- Use the analysis content strategy: direct for a conventional targeted resume, adjacent for verified neighboring expertise, and transferable for a professional strengths-led resume.
+- The top title must identify the candidate's proven professional foundation. Never use the exact target title alone or imply the candidate already holds it when the evidence does not support that identity.
+- Preserve professional seniority from verified job titles, years, scope, leadership, and contribution. A target-domain gap changes fit and readiness, not the candidate's established level. In regulated work, do not call someone licensed, certified, journeyperson, or registered apprentice unless the evidence proves it.
+- An adjacent SAP functional-module application is professional adjacent expertise. Preserve seniority in the candidate's proven modules and delivery scope, while keeping the target-module gap in the private review. The headline must lead with verified modules or capabilities and must not insert a missing target module as a keyword.
+- Never use employer-facing or candidate-facing phrases such as "career change", "career transition", "transitioning into", "new career", "new path", "new journey", or "transitional positioning" anywhere in the résumé.
 - Treat every historical employer, official job title, and date as an IMMUTABLE EVIDENCE FIELD: copy it from the base résumé rather than paraphrasing it. The target identity belongs in the top-level title and profile, never in a historical role. Work experience MUST remain in reverse chronological order. You may reorder and rewrite bullets within a role, but never reorder roles, rename history, or create a composite role.
 - Identify the skills/requirements this specific posting cares about most and make the bullets within each role lead with the most relevant supported evidence. Compress genuinely irrelevant older detail, but do not move an older role above a newer one.
 - Transferable framing must state relevance without equivalence. Never say experience "translates directly", is "directly analogous", is "comparable to", is "equivalent to", "parallels" the target, "shares the same foundation/engine/discipline" as the target, or proves hands-on target-domain implementation when the analysis classifies it only as adjacent or transferable.
-- For a career change, lead with the proven prior foundation, state the transition honestly, map only verified transferable skills, and include proof-of-transition only when a real project, course, portfolio, or certification appears in CANDIDATE EVIDENCE.
-- For a career change, keep the profile to 60-90 words. Do not claim the candidate is "actively building", "currently learning", studying, training, or pursuing a credential unless CANDIDATE EVIDENCE explicitly proves that activity.
-- For a career change with no direct or adjacent requirement evidence, the skills section may contain only skills listed under \`verified_transferable_skills\`. Use at most 10 high-value items; never dump the candidate's unrelated software or domain inventory merely because it is truthful.
+- For transferable positioning, lead with the proven professional foundation, map only verified transferable skills, and include a project, course, portfolio, or certification only when it appears in CANDIDATE EVIDENCE.
+- For transferable positioning, keep the profile to 60-90 words. Do not claim the candidate is "actively building", "currently learning", studying, training, or pursuing a credential unless CANDIDATE EVIDENCE explicitly proves that activity.
+- When there is no direct or adjacent requirement evidence, the skills section may contain only skills listed under \`verified_transferable_skills\`. Use at most 10 high-value items; never dump unrelated software or domain inventory merely because it is truthful.
 - Common transferable abilities—planning, reliability, customer communication, team coordination, problem solving, quality, safety awareness, organization, and learning agility—may be emphasized only when a concrete statement or accomplishment in the base résumé supports them. Rewrite that evidence for relevance; do not merely assume the ability because it is common.
 - Every skills-section item must either appear in CANDIDATE EVIDENCE or be listed under verified_transferable_skills in the analysis. Never add a target technology, tool, credential, project, employer, achievement, or date merely because it appears in the posting.
 - A requirement classified as missing cannot be converted into a claimed skill, title, or accomplishment. It may only influence the candidate-facing fit note, missing-evidence list, or questions.
 - Keep candidate-fit warnings outside the résumé document. Never put a missing requirement, evidence gap, application-risk label, unsupported capability, or statement about what the candidate lacks in the title, profile, skills, experience, projects, training, education, or languages. The private review already carries that information.
-- For a major career change (for example SAP manager to a plumbing helper/apprentice path), emphasize only proven transferable capabilities such as perseverance, leading teams, safety awareness, planning, dependable execution, customer communication, and solving practical problems. De-emphasize domain-specific technical details that do not help the target role; retain only enough to keep the work history truthful.
+- For a distant target (for example an SAP manager applying to a plumbing helper role), emphasize only proven transferable capabilities such as perseverance, leading teams, safety awareness, planning, dependable execution, customer communication, and solving practical problems. De-emphasize domain-specific technical details that do not help the target role; retain enough to keep the work history truthful.
 - If the candidate's real career is long (many roles, decades), use real editorial judgment: keep the roles and bullets most relevant to THIS gig in full detail, and compress the least relevant older/unrelated roles to one or two bullets each — the way a human resume writer would for a 1-2 page document. Don't just cut off the oldest roles entirely unless truly irrelevant.
-- For a career change, use no more than three bullets for each of the two most recent roles and no more than two bullets for each older role. Rank bullets by verified relevance to the target; do not use volume to disguise a weak match.
+- For transferable positioning, use no more than three bullets for each of the two most recent roles and no more than two bullets for each older role. Rank bullets by verified relevance to the target; do not use volume to disguise a weak match.
 - Keep \`role\` to the exact official job title and \`company\` to the exact employer when the source distinguishes an employer from a client or project. Do not synthesize labels such as "Role at Client — Employer". A client or project may be mentioned in a supported bullet instead.
-- Populate projects and training only from explicit CANDIDATE EVIDENCE. Include training only when it supports at least one analyzed requirement or the candidate's verified professional foundation; omit unrelated courses rather than using them as filler. Return empty arrays when there is no verified proof-of-transition.
+- Populate projects and training only from explicit CANDIDATE EVIDENCE. Include training only when it supports at least one analyzed requirement or the candidate's verified professional foundation; omit unrelated courses rather than using them as filler.
 - Only include the education/languages fields if the base resume actually contains that information — omit them entirely rather than guessing.
 - ATS-READABLE WRITING:
   * Every experience bullet must START with a precise action verb. Use past tense for completed work in prior roles. In a current role, use present tense for ongoing responsibilities and past tense for completed achievements.
@@ -789,7 +793,7 @@ INSTRUCTIONS
           unsupported_positioning: atsReview.unsupported_positioning,
           risky_claims: atsReview.risky_claims,
         };
-        requestPrompt = `${baseDraftPrompt}\n\nEVIDENCE REPAIR PASS\nThe draft below failed validation. Return a complete corrected résumé using the ${toolName} tool. Preserve supported content, but repair every listed violation.\n- Copy unsupported historical fields from CANDIDATE EVIDENCE.\n- Remove or truthfully rewrite every unsupported number. Never estimate, calculate, or spell out a number to evade validation.\n- Remove unsupported skills and target terms rather than substituting a different unsupported synonym.\n- For career-change positioning, replace an unsupported target identity with a proven foundation plus an honest transition.\n- Remove equivalence language such as 'translates directly' and 'directly analogous'. State relevance without claiming target-domain experience.\n- Missing requirements remain missing. Do not convert them into résumé content.\n- Keep supported employment entries and reverse-chronological ordering intact.\n\nVALIDATION ISSUES\n${JSON.stringify(repairIssues)}\n\nREJECTED DRAFT\n${JSON.stringify(resumeData)}`;
+        requestPrompt = `${baseDraftPrompt}\n\nEVIDENCE REPAIR PASS\nThe draft below failed validation. Return a complete corrected résumé using the ${toolName} tool. Preserve supported content, but repair every listed violation.\n- Copy unsupported historical fields from CANDIDATE EVIDENCE.\n- Remove or truthfully rewrite every unsupported number. Never estimate, calculate, or spell out a number to evade validation.\n- Remove unsupported skills and target terms rather than substituting a different unsupported synonym.\n- For transferable positioning, replace an unsupported target identity with the candidate's proven professional foundation. Never use career-change or transition language.\n- Remove equivalence language such as 'translates directly' and 'directly analogous'. State relevance without claiming target-domain experience.\n- Missing requirements remain missing. Do not convert them into résumé content.\n- Keep supported employment entries and reverse-chronological ordering intact.\n\nVALIDATION ISSUES\n${JSON.stringify(repairIssues)}\n\nREJECTED DRAFT\n${JSON.stringify(resumeData)}`;
         continue;
       }
 

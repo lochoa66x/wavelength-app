@@ -413,10 +413,10 @@ function NavRow({ onBack, onNext, nextLabel = "Next", nextDisabled }) {
 function MatchBadge({ listing, keyword, fitAssessment, postingReadiness }) {
   const presentation = getMatchPresentation({ listing, keyword, fitAssessment, postingReadiness });
   const isDirect = presentation.tone === "direct";
-  const isCareerChange = ["career-change", "needs-posting"].includes(presentation.tone);
-  const background = isDirect ? C.greenTint : isCareerChange ? C.amberTint : C.blueTint;
-  const border = isDirect ? C.greenBorder : isCareerChange ? C.amberBorder : C.blueBorder;
-  const color = isDirect ? C.green : isCareerChange ? C.amber : C.blue;
+  const isCaution = ["transferable", "needs-posting"].includes(presentation.tone);
+  const background = isDirect ? C.greenTint : isCaution ? C.amberTint : C.blueTint;
+  const border = isDirect ? C.greenBorder : isCaution ? C.amberBorder : C.blueBorder;
+  const color = isDirect ? C.green : isCaution ? C.amber : C.blue;
   return (
     <div
       title={presentation.kind === "fit" ? "Based on evidence in your résumé and this posting" : presentation.kind === "readiness" ? "Candidate fit is unavailable until the full posting is loaded" : "Based on your search, not your résumé"}

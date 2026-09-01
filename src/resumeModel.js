@@ -293,8 +293,8 @@ export const RESUME_TEMPLATE_REGISTRY = Object.freeze({
   }),
   [TEMPLATE_IDS.CAREER_TRANSITION]: templateDefinition({
     id: TEMPLATE_IDS.CAREER_TRANSITION,
-    displayName: "Career Transition",
-    description: "Evidence-first presentation for adjacent pivots and material career changes.",
+    displayName: "Transferable Strengths",
+    description: "Evidence-first presentation for professional applications led by verified transferable strengths.",
     intendedUse: "Candidates relying on verified transferable evidence",
     accent: "#6b513d",
     sectionOrder: ["summary", "skills", "projects", "training", "experience", "certifications", "education", "languages", "safety"],
@@ -1439,20 +1439,20 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
   if (occupationFamily === "skilled-trades-field-services" && !verifiedTradeEvidence) {
     recommendedTemplateId = TEMPLATE_IDS.CAREER_TRANSITION;
     recommendationReason = adjacentTradeEvidence
-      ? "The target is field-based, but only adjacent operational or service evidence is verified, so a conservative transition presentation avoids implying hands-on trade experience."
-      : "The target is field-based, but the résumé does not establish hands-on trade or field-service evidence, so career-transition positioning is safer.";
+      ? "The target is field-based, but only adjacent operational or service evidence is verified, so a conservative transferable-strengths presentation avoids implying hands-on trade experience."
+      : "The target is field-based, but the résumé does not establish hands-on trade or field-service evidence, so transferable-strengths positioning is safer.";
     recommendationReasonCode = adjacentTradeEvidence ? "skilled_trades_adjacent_pivot" : "skilled_trades_evidence_gap";
     recommendationStrength = "conservative";
     recommendationDisposition = adjacentTradeEvidence ? "adjacent-fit" : "insufficient-evidence";
   } else if (occupationFamily === "marketing-communications" && !verifiedMarketingEvidence && !adjacentMarketingEvidence) {
     recommendedTemplateId = TEMPLATE_IDS.CAREER_TRANSITION;
-    recommendationReason = "The target is marketing or communications oriented, but the verified candidate evidence does not establish direct or adjacent work, so transition positioning is safer than implying marketing experience.";
+    recommendationReason = "The target is marketing or communications oriented, but the verified candidate evidence does not establish direct or adjacent work, so transferable-strengths positioning is safer than implying marketing experience.";
     recommendationReasonCode = "marketing_communications_evidence_gap";
     recommendationStrength = "conservative";
     recommendationDisposition = "insufficient-evidence";
   } else if (occupationFamily === "creative-design" && !verifiedCreativeEvidence && !adjacentCreativeEvidence) {
     recommendedTemplateId = TEMPLATE_IDS.CAREER_TRANSITION;
-    recommendationReason = "The target is creative or design oriented, but the verified candidate evidence does not establish direct or adjacent visual work, so transition positioning is safer than implying design experience.";
+    recommendationReason = "The target is creative or design oriented, but the verified candidate evidence does not establish direct or adjacent visual work, so transferable-strengths positioning is safer than implying design experience.";
     recommendationReasonCode = "creative_design_evidence_gap";
     recommendationStrength = "conservative";
     recommendationDisposition = "insufficient-evidence";
@@ -1461,10 +1461,10 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
     recommendationReason = technicalEvidenceGapTransition
       ? "The target is software-oriented, but the verified résumé does not contain direct development evidence, so transferable strengths and the technical gap must remain explicit."
       : occupationFamily === "marketing-communications"
-        ? "Verified transferable communications evidence can support an honest marketing transition, but it does not establish direct campaign ownership or platform experience."
+        ? "Verified transferable communications evidence can support an honest marketing application, but it does not establish direct campaign ownership or platform experience."
         : occupationFamily === "creative-design"
-          ? "Verified transferable visual-production evidence can support an honest creative transition, but it does not establish a formal design role, portfolio, tools, or creative leadership."
-      : "The evidence indicates a material transition, so transferable strengths need explicit, honest positioning.";
+          ? "Verified transferable visual-production evidence can support an honest creative application, but it does not establish a formal design role, portfolio, tools, or creative leadership."
+      : "The evidence indicates limited direct target-role support, so transferable strengths need explicit, honest positioning.";
     recommendationReasonCode = technicalEvidenceGapTransition
       ? "career_transition_technical_evidence_gap"
       : occupationFamily === "marketing-communications"
@@ -1473,7 +1473,7 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
           ? "career_transition_creative_adjacent"
       : "career_transition_explicit";
     recommendationStrength = "strong";
-    recommendationDisposition = "career-transition";
+    recommendationDisposition = "transferable-strengths";
   } else if (occupationFamily === "skilled-trades-field-services" && verifiedTradeEvidence) {
     recommendedTemplateId = TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES;
     if (missingTradeCredentials.length) {
@@ -1840,7 +1840,7 @@ function safeSectionHeading(section, templateId, classification) {
       : templateId === TEMPLATE_IDS.PROJECT_LEADERSHIP && isLeadership
         ? "Project Delivery Profile"
         : templateId === TEMPLATE_IDS.CAREER_TRANSITION && isTransition
-          ? "Career Transition Summary"
+          ? "Transferable Strengths Summary"
           : templateId === TEMPLATE_IDS.TECHNICAL_SOFTWARE && isTechnical
             ? "Technical Profile"
             : templateId === TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS && isAdminCustomer

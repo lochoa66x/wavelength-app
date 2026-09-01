@@ -18,7 +18,7 @@ const LETTER_TOOL = {
           type: "object",
           properties: {
             id: { type: "string" },
-            purpose: { type: "string", enum: ["opening", "evidence", "transition", "closing"] },
+            purpose: { type: "string", enum: ["opening", "evidence", "boundary", "closing"] },
             text: { type: "string" },
             evidence_refs: { type: "array", items: { type: "string" } },
             requirement_refs: { type: "array", items: { type: "string" } },
@@ -39,6 +39,8 @@ const LENGTHS = new Set(["short", "standard"]);
 const GENERIC_FLATTERY = /\b(?:renowned|esteemed|world[- ]class|industry[- ]leading|impressed by|admire your|dream company|thrilled|passionate|excited)\b/i;
 const UNSUPPORTED_PERSONAL = /\b(?:referred by|authorized to work|eligible to work|relocat(?:e|ing|ion)|available immediately|salary expectation|compensation expectation)\b/i;
 const PLACEHOLDER = /(?:\[|<)(?:hiring manager|name|company|address|date|insert|unknown)(?:\]|>)/i;
+const FORBIDDEN_POSITIONING = /\b(?:career[ -](?:change|transition)|transition(?:al|ing)?\s+(?:into|to)|new\s+(?:career|path|journey))\b/i;
+const UNSOLICITED_GAP_DISCLOSURE = /\b(?:I (?:do not|don't|lack)|my (?:gap|limitation)|material gap|not part of my experience|not included in my (?:résumé|resume)|does not include experience)\b/i;
 
 function clean(value, maxLength = 4_000) {
   return typeof value === "string"
@@ -64,15 +66,19 @@ function validateLetter(raw, { candidateCorpus, postingCorpus, targetTitle, targ
   const issues = [];
   const seen = new Set();
   const normalizedParagraphs = paragraphs.map((entry, index) => {
-    const purpose = ["opening", "evidence", "transition", "closing"].includes(entry?.purpose) ? entry.purpose : "evidence";
+    const rawPurpose = entry?.purpose === "transition" ? "boundary" : entry?.purpose;
+    const purpose = ["opening", "evidence", "boundary", "closing"].includes(rawPurpose) ? rawPurpose : "evidence";
     const text = clean(entry?.text, 2_400);
     const evidenceRefs = cleanRefs(entry?.evidence_refs);
     const requirementRefs = cleanRefs(entry?.requirement_refs);
+    const explanation = clean(entry?.explanation, 800) || "This paragraph connects verified candidate evidence to a stated posting requirement.";
     const id = clean(entry?.id, 80) || `${purpose}-${index + 1}`;
     if (!text || text.length < 35) issues.push(`${id}: paragraph is incomplete`);
     if (seen.has(id)) issues.push(`${id}: duplicate paragraph id`);
     seen.add(id);
     if (GENERIC_FLATTERY.test(text) || UNSUPPORTED_PERSONAL.test(text) || PLACEHOLDER.test(text)) issues.push(`${id}: contains unsupported motivation, personal, or placeholder language`);
+    if (FORBIDDEN_POSITIONING.test(text) || UNSOLICITED_GAP_DISCLOSURE.test(text)) issues.push(`${id}: contains unsolicited gap or transition positioning`);
+    if (FORBIDDEN_POSITIONING.test(explanation)) issues.push(`${id}: explanation contains transition positioning`);
     if (purpose !== "closing" && !evidenceRefs.length) issues.push(`${id}: missing candidate evidence citation`);
     if (purpose !== "closing" && !requirementRefs.length) issues.push(`${id}: missing posting requirement citation`);
     evidenceRefs.forEach((ref) => { if (!exactExcerptIn(ref, candidateCorpus)) issues.push(`${id}: candidate citation is not an exact supplied excerpt`); });
@@ -87,7 +93,7 @@ function validateLetter(raw, { candidateCorpus, postingCorpus, targetTitle, targ
       text,
       evidence_refs: evidenceRefs,
       requirement_refs: requirementRefs,
-      explanation: clean(entry?.explanation, 800) || "This paragraph connects verified candidate evidence to a stated posting requirement.",
+      explanation,
       evidence_match: ["direct", "adjacent", "transferable", "boundary", "neutral"].includes(entry?.evidence_match) ? entry.evidence_match : "neutral",
     };
   });
@@ -195,7 +201,7 @@ export function createCoverLetterHandler({
     }).slice(0, 18_000);
     const paragraphInstruction = regenerateParagraph
       ? `Regenerate exactly one paragraph with id "${regenerateParagraph}". Preserve its purpose from EXISTING DRAFT, return only that one paragraph, and give it fresh natural phrasing without changing facts.`
-      : `Return 3–5 paragraphs: a posting-specific opening, 1–2 evidence paragraphs, an honest transition/boundary paragraph when the assessment shows a gap, and a restrained closing.`;
+      : `Return 3–5 paragraphs: a posting-specific opening, 1–2 evidence paragraphs, and a restrained closing. Do not add a gap-confession or boundary paragraph unless the user explicitly supplied wording for one in CONFIRMED CANDIDATE EVIDENCE.`;
     const existingDraft = regenerateParagraph ? JSON.stringify(body.existingDraft || {}).slice(0, 10_000) : "Not supplied.";
     const wordTarget = length === "short" ? "220–300" : "320–430";
     const prompt = `Create an evidence-first cover letter for one application.
@@ -228,10 +234,11 @@ RULES
 - Humanized means natural, specific, and candidate-controlled. Do not mention AI or attempt to evade AI detectors.
 - Use only facts in the base résumé or confirmed evidence. The posting describes employer needs, never candidate history.
 - Do not infer a hiring-manager name, pronouns, referral, employer relationship, company knowledge beyond the posting, compensation, authorization, relocation, availability, start date, or motivation/enthusiasm.
-- Never turn a missing requirement into experience, motivation, or a strength. State a material transition honestly without apologizing or claiming equivalence.
+- Never turn a missing requirement into experience, motivation, or a strength. Keep missing requirements and fit gaps out of the letter unless the candidate explicitly supplied the disclosure wording in confirmed evidence.
+- Never describe the candidate as making a career change or transition, entering a new path, or starting a new journey. Position only verified professional strengths and adjacent relevance.
 - Use "Dear Hiring Team," unless a verified person name appears in the posting. Use a restrained signoff.
 - Every non-closing paragraph must cite at least one short EXACT excerpt from the candidate corpus in evidence_refs and one short EXACT excerpt from the posting in requirement_refs. Do not paraphrase citations.
-- The explanation is candidate-facing: say why the paragraph exists and whether the evidence is direct, adjacent, transferable, or a boundary.
+- The explanation is candidate-facing: say why the paragraph exists and whether the evidence is direct, adjacent, transferable, or a factual boundary explicitly supplied by the candidate.
 - Any number in prose must appear in that paragraph's exact citations. Avoid generic flattery and empty adjectives.`;
 
     try {

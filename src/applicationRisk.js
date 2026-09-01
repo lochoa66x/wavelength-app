@@ -14,7 +14,7 @@ export const APPLICATION_RISK_FILTERS = Object.freeze([
 const OUTLOOK_LABELS = Object.freeze({
   strong_verified_alignment: "Strong verified alignment",
   viable_manageable_gaps: "Viable with manageable gaps",
-  viable_transition_material_gaps: "Viable transition with material gaps",
+  viable_transition_material_gaps: "Viable with material gaps",
   high_application_risk: "High application risk",
   likely_screening_blocker: "Likely screening blocker",
   assessment_incomplete: "Assessment incomplete",

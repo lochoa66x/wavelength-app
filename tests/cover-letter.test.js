@@ -58,6 +58,7 @@ test("cover-letter generation uses reviewed sources and exact citations", async 
   assert.equal(res.body.letter.voice, "warm");
   assert.equal(res.body.letter.paragraphs.length, 3);
   assert.match(requestBody.system, /Never invent/i);
+  assert.match(requestBody.messages[0].content, /Do not add a gap-confession/i);
   assert.doesNotMatch(JSON.stringify(res.body), /application-ready|private résumé/i);
 });
 
@@ -71,6 +72,32 @@ test("unsupported flattery remains blocked after one bounded repair", async () =
   });
   const res = responseRecorder();
   await handler({ method: "POST", headers: { authorization: "Bearer valid" }, body: { resume: "Jordan Lee\nInstalled and maintained electrical panels.\nDocumented preventive maintenance work in a CMMS.", customJob, candidateEvidence: [] } }, res);
+  assert.equal(calls, 2);
+  assert.equal(res.statusCode, 422);
+});
+
+test("unsolicited career-transition and gap-confession language remains blocked after repair", async () => {
+  let calls = 0;
+  const bad = {
+    ...letter,
+    paragraphs: letter.paragraphs.map((entry, index) => index === 1 ? {
+      ...entry,
+      purpose: "boundary",
+      text: "I am making a career transition and do not have direct industrial maintenance experience.",
+      explanation: "Explains the career transition.",
+    } : entry),
+  };
+  const handler = createCoverLetterHandler({
+    authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
+    fetchImpl: async () => { calls += 1; return toolResponse(bad); },
+    getApiKey: () => "test",
+  });
+  const res = responseRecorder();
+  await handler({ method: "POST", headers: { authorization: "Bearer valid" }, body: {
+    resume: "Jordan Lee\nInstalled and maintained electrical panels.\nDocumented preventive maintenance work in a CMMS.",
+    customJob,
+    candidateEvidence: [],
+  } }, res);
   assert.equal(calls, 2);
   assert.equal(res.statusCode, 422);
 });

@@ -3,7 +3,8 @@ import { createResumePackage } from "./resumeModel.js";
 
 export function resumeTemplateKind(category, resumeData) {
   if (isTradesLikeCategory(category)) return "trades";
-  if (resumeData?.content_strategy === "career_change" || resumeData?.fit_assessment?.path === "career_change") return "career-change";
+  if (["transferable", "career_change"].includes(resumeData?.content_strategy)
+    || ["transferable", "career_change"].includes(resumeData?.fit_assessment?.path)) return "career-change";
   return "professional";
 }
 

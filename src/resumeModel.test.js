@@ -333,7 +333,7 @@ test("B3 adjacent candidates stay capped and never acquire posting metrics, plat
   assert.equal(marketing.classification.adjacentMarketingEvidence, true);
   assert.equal(marketing.classification.marketingProfileType, "adjacent-communications");
   assert.equal(marketing.presentation.recommendedTemplateId, TEMPLATE_IDS.CAREER_TRANSITION);
-  assert.equal(marketing.presentation.recommendationDisposition, "career-transition");
+  assert.equal(marketing.presentation.recommendationDisposition, "transferable-strengths");
   assert.doesNotMatch(JSON.stringify(marketing.document), /HubSpot|30%|conversion/i);
   const marketingPlan = buildResumeRenderPlan(marketing, TEMPLATE_IDS.MARKETING_COMMUNICATIONS);
   assert.ok(marketingPlan.sections.some((section) => section.heading === "Communications & Content Profile"));
