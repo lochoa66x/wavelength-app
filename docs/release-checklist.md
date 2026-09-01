@@ -428,11 +428,13 @@ Production application evidence: feature commit `7a6896c8b86366fe8eb0a686f3f5d4f
 - [x] Preserve template choice as presentation-only and leave provider, persistence, auth, database, analytics, sync, sources, and native-app contracts unchanged.
 - [x] Add redacted senior SAP adjacency, service-to-teller transferable, legacy payload, semantic repair, and cover-letter boundary tests.
 - [x] Run the complete unit suite, production build, export verifiers, and diff check on the exact release tree.
-- [ ] Commit and deploy the exact verified tree, confirm the production alias, and run public route smoke.
+- [x] Commit and deploy the exact verified tree, confirm the production alias, and run public route smoke.
 
 Hands-on limits remain explicit: a fresh authenticated production tailoring run with a real private résumé, Microsoft Word/Google Docs rendering, an external ATS parser, and employer outcome validation are not claimed by deterministic tests.
 
 Local release evidence: 572/572 tests passed; Vite 5.4.21 transformed 2,456 modules; the quality gate passed all 11 redacted cases with 100% contract/readiness/export/integrity/template accuracy and zero privacy violations; résumé export verification passed 48 files, 16 templates, 29 PDF pages, 826 selectable text items, manifest parity, final authorization, and stale-ready rejection; cover-letter verification passed two DOCX and two PDF files across final/preliminary states; all eight prototype packages and 32 files passed; and `git diff --check` reported no errors. Existing large dependency chunk warnings remain unchanged.
+
+Production release evidence: employment-detail hotfix `b68497d` and adjacent-expertise calibration `aa2f110` were pushed normally to `main`. Git-triggered Vercel deployment `dpl_3x6NUeX1cwwAZai3KNNZnJ7zHT7L` reached `READY` with the `gigscapes.com`, `www.gigscapes.com`, and `main` aliases. Public `/`, `/app`, `/privacy`, and `/sign-in` routes returned HTTP 200. Unauthenticated production POST probes to `/api/tailor` and `/api/job-intake` returned the expected HTTP 401 with `Cache-Control: no-store, max-age=0`, `Pragma: no-cache`, `Referrer-Policy: no-referrer`, and `X-Content-Type-Options: nosniff`.
 
 ## P4.H1 exporter deployment-skew resilience — 2026-08-30
 
