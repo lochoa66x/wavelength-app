@@ -2,7 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 import { createCoverLetterPlan } from "./coverLetterModel.js";
-import { coverLetterStorageKey, loadCoverLetterDraft, saveCoverLetterDraft } from "./coverLetterStorage.js";
+import { coverLetterStorageKey, loadCoverLetterDraft, loadCoverLetterDraftForReview, saveCoverLetterDraft } from "./coverLetterStorage.js";
 
 function storage() {
   const values = new Map();
@@ -23,5 +23,16 @@ test("cover-letter drafts are account- and target-scoped and reject stale source
   assert.deepEqual(loadCoverLetterDraft("user-1", item, context, local), plan);
   assert.equal(loadCoverLetterDraft("user-2", item, context, local), null);
   assert.equal(loadCoverLetterDraft("user-1", item, { ...context, baseResume: `${baseResume}\nChanged` }, local), null);
+  assert.deepEqual(loadCoverLetterDraftForReview("user-1", item, local), plan);
   assert.notEqual(coverLetterStorageKey("user-1", item), coverLetterStorageKey("user-2", item));
+});
+
+test("review loading rejects a locally corrupted letter while preserving a valid stale draft", () => {
+  const local = storage();
+  const context = { baseResume, resumeData, item, atsReview };
+  const plan = createCoverLetterPlan(raw, context);
+  saveCoverLetterDraft("user-1", item, plan, local);
+  const key = coverLetterStorageKey("user-1", item);
+  local.setItem(key, JSON.stringify({ ...plan, paragraphs: [{ ...plan.paragraphs[0], text: "tampered" }] }));
+  assert.equal(loadCoverLetterDraftForReview("user-1", item, local), null);
 });

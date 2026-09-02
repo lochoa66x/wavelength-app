@@ -72,7 +72,7 @@ For P2.3 discovery or ingestion changes:
 For P2.3 Phase B and later tailoring-session changes:
 
 1. Start screenshot extraction, switch to pasted text before it resolves, and confirm the old request is aborted and its late result is discarded. Repeat screenshots→URL, paste→screenshots, request retry, Change source, navigation away, and component disposal.
-2. Tailor a first posting, choose **Tailor another posting**, and confirm the second source starts clean without retaining the first title, company, responsibilities, qualifications, keywords, source conflicts, screenshot confirmation, evidence target, error, or tailored result.
+2. Prepare documents for a first posting, choose **Use another posting**, and confirm the second source starts clean without retaining the first title, company, responsibilities, qualifications, keywords, source conflicts, screenshot confirmation, evidence target, error, or generated result.
 3. Confirm the account-scoped base résumé and eligible reusable candidate evidence survive the source reset and remain isolated by account and target.
 4. Exercise application-ready, incomplete-posting preliminary, evidence-review preliminary, stale-readiness, and missing-identity states. Guidance must be outside the résumé preview and absent from DOCX/PDF/plain text.
 5. Force stale-chunk, invalid-context, browser-download, serialization, and unknown DOCX failures. Copy must be actionable, must not expose résumé content, and must leave the draft usable.

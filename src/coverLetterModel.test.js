@@ -61,6 +61,18 @@ test("cover letter plan has a stable canonical hash and application-ready gate",
   assert.equal(validateCoverLetterExportContext(createCoverLetterExportContext(plan, context)).plan.contentHash, plan.contentHash);
 });
 
+test("cover letter plan can use exact identity parsed from the canonical résumé without a tailored résumé artifact", () => {
+  const plan = createCoverLetterPlan(draft(), {
+    baseResume,
+    resumeData: {},
+    item,
+    atsReview,
+    candidateIdentity: { name: "Avery Chen", contact: "avery@example.com" },
+  });
+  assert.equal(plan.candidate.fullName, "Avery Chen");
+  assert.equal(plan.candidate.contactLine, "avery@example.com");
+});
+
 test("cover-letter authorization binds presentation without changing paragraph content or readiness", () => {
   const context = { baseResume, resumeData, item, atsReview, candidateEvidence: [] };
   const plan = createCoverLetterPlan(draft(), context);

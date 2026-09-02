@@ -18,6 +18,9 @@ export const ACCOUNT_ACTIONS = Object.freeze([
   "download_pdf",
   "copy_tailored_text",
   "generate_cover_letter",
+  "create_application_package",
+  "start_cover_letter_only",
+  "open_application_workspace",
   "download_cover_letter_docx",
   "download_cover_letter_pdf",
   "copy_cover_letter_text",
@@ -48,6 +51,9 @@ export const ACCOUNT_ACTION_MESSAGES = Object.freeze({
   download_pdf: "Sign in to download this tailored résumé.",
   copy_tailored_text: "Sign in to copy this tailored résumé.",
   generate_cover_letter: "Sign in to create an evidence-first cover letter.",
+  create_application_package: "Sign in to prepare private application documents.",
+  start_cover_letter_only: "Sign in to create a private evidence-first cover letter.",
+  open_application_workspace: "Sign in to open your private application workspace.",
   download_cover_letter_docx: "Sign in to download this private cover letter.",
   download_cover_letter_pdf: "Sign in to download this private cover letter.",
   copy_cover_letter_text: "Sign in to copy this private cover letter.",
@@ -228,6 +234,11 @@ export function pendingActionDestination(pending) {
       return { step: "custom_job", mode: "paste" };
     case "view_saved_jobs":
       return { step: "digest", viewFilter: "saved" };
+    case "create_application_package":
+    case "open_application_workspace":
+      return { step: "custom_job", mode: "paste", documentIntent: "package" };
+    case "start_cover_letter_only":
+      return { step: "custom_job", mode: "paste", documentIntent: "cover_letter_only" };
     case "save_job":
     case "unsave_job":
     case "tailor_resume":

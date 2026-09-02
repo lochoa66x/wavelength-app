@@ -164,7 +164,7 @@ Preliminary files use the same package, strategy, and presentation selection. Th
 
 Each URL, screenshot set, or pasted posting starts an explicit source session with monotonically increasing source and request IDs. Beginning a new source, retrying, navigating away, or unmounting aborts the active request and invalidates any response that resolves later. This prevents a prior screenshot extraction or tailoring response from restoring stale job data or a screenshot-only confirmation gate.
 
-Source reset clears only posting-specific state: source fields/files, extracted brief, conflicts and confirmation state, target-scoped evidence, tailored output, status, and errors. The account-scoped base résumé and eligible reusable candidate evidence remain intact. A completed output exposes **Tailor another posting** as the intentional new-session path.
+Source reset clears only posting-specific state: source fields/files, extracted brief, conflicts and confirmation state, target-scoped evidence, tailored output, document choice, status, and errors. The account-scoped base résumé and eligible reusable candidate evidence remain intact. A completed output exposes **Use another posting** as the intentional new-session path.
 
 ## Format parity
 

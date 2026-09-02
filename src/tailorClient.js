@@ -37,6 +37,24 @@ export async function tailorResume(resume, target, options = {}) {
   };
 }
 
+export async function analyzeResumeForApplication(resume, target, options = {}) {
+  const data = await authenticatedPost("/api/tailor", { resume, ...target, analysisOnly: true }, options);
+  if (!data.analysis_only || !data.tailoring_analysis || !data.ats_review?.requirements) {
+    throw new Error("The application analysis was incomplete.");
+  }
+  return {
+    analysisOnly: true,
+    tailoringAnalysis: data.tailoring_analysis,
+    atsReview: data.ats_review,
+    postingReadiness: data.posting_readiness || data.ats_review.posting_readiness || null,
+    candidateFit: data.candidate_fit || data.ats_review.candidate_fit || null,
+    requirements: data.requirements || data.ats_review.requirements || [],
+    evidenceQuestions: data.evidence_questions || data.ats_review.evidence_questions || [],
+    candidateEvidence: data.candidate_evidence || [],
+    outputMode: data.output_mode || "analysis_only",
+  };
+}
+
 export async function enrichListing(listingId, options = {}) {
   return authenticatedPost("/api/listing-enrichment", { listingId }, options);
 }

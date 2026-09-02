@@ -1,5 +1,5 @@
 import { createResumePackage, stableHash } from "./resumeModel.js";
-import { getResumeExportReadiness } from "./resumeReadiness.js";
+import { hasUsableResumeIdentity, hasVerifiedPosting } from "./resumeReadiness.js";
 import { createApplicationPresentation, validateApplicationPresentation } from "./applicationPresentation.js";
 
 export const COVER_LETTER_SCHEMA_VERSION = 1;
@@ -93,20 +93,27 @@ function planContent(plan) {
   };
 }
 
+export function validateStoredCoverLetterPlan(value) {
+  if (value?.kind !== "cover-letter-plan" || value.schemaVersion !== COVER_LETTER_SCHEMA_VERSION) return null;
+  if (!Array.isArray(value.paragraphs) || !value.candidate || !value.target) return null;
+  return value.contentHash === stableHash(planContent(value), "cover-letter") ? value : null;
+}
+
 export function createCoverLetterPlan(raw = {}, {
   baseResume = "",
   resumeData = {},
   item = {},
   atsReview = {},
   candidateEvidence = [],
+  candidateIdentity = null,
   voice = raw.voice,
   length = raw.length,
 } = {}) {
   const resumePackage = createResumePackage(resumeData, { item, atsReview });
   const sourceFingerprint = createCoverLetterSourceFingerprint({ baseResume, resumeData: resumePackage, item, atsReview, candidateEvidence });
   const candidate = {
-    fullName: resumePackage.document.candidate.fullName,
-    contactLine: resumePackage.document.candidate.contactLine,
+    fullName: clean(candidateIdentity?.name ?? candidateIdentity?.fullName, 180) || resumePackage.document.candidate.fullName,
+    contactLine: clean(candidateIdentity?.contact ?? candidateIdentity?.contactLine, 1_000) || resumePackage.document.candidate.contactLine,
   };
   const normalized = {
     kind: "cover-letter-plan",
@@ -181,21 +188,26 @@ export function restoreCoverLetterParagraph(plan, paragraphId) {
 }
 
 export function getCoverLetterReadiness(plan, { baseResume = "", resumeData = {}, item = {}, atsReview = {}, candidateEvidence = [] } = {}) {
-  const resumeReadiness = getResumeExportReadiness(resumeData, atsReview);
   const expectedFingerprint = createCoverLetterSourceFingerprint({ baseResume, resumeData, item, atsReview, candidateEvidence });
   const stale = !plan || plan.sourceFingerprint !== expectedFingerprint;
   const invalidHash = Boolean(plan) && plan.contentHash !== stableHash(planContent(plan), "cover-letter");
   const unverified = (plan?.paragraphs || []).some((entry) => entry.verification !== "verified");
   const incomplete = (plan?.paragraphs?.length || 0) < 2 || !plan?.candidate?.fullName || !plan?.target?.jobTitle;
-  const blocked = !resumeReadiness.canExport || stale || invalidHash || unverified || incomplete;
-  const preliminary = !blocked && resumeReadiness.preliminary;
+  const missingIdentity = !hasUsableResumeIdentity(plan?.candidate?.fullName);
+  const requirementCount = Array.isArray(atsReview?.requirements) ? atsReview.requirements.length : 0;
+  const coverageTotal = ["direct", "adjacent", "transferable", "missing"]
+    .reduce((total, key) => total + Number(atsReview?.coverage?.[key] || 0), 0);
+  const assessmentIncomplete = !hasVerifiedPosting(atsReview) || requirementCount === 0 || requirementCount !== coverageTotal;
+  const significantGap = ["significant_gap", "needs_full_posting"].includes(atsReview?.readiness?.status);
+  const blocked = missingIdentity || stale || invalidHash || unverified || incomplete;
+  const preliminary = !blocked && (assessmentIncomplete || significantGap);
   return {
     state: blocked ? "blocked" : preliminary ? "preliminary" : "application_ready",
     canExport: !blocked,
     preliminary,
     stale,
     invalidHash,
-    message: !resumeReadiness.canExport
+    message: missingIdentity
       ? "Add your real name to the saved résumé before exporting a cover letter."
       : stale
         ? "The résumé, posting, or confirmed evidence changed. Generate the letter again before exporting."
@@ -206,7 +218,7 @@ export function getCoverLetterReadiness(plan, { baseResume = "", resumeData = {}
             : incomplete
               ? "Generate a complete evidence-backed letter before exporting."
               : preliminary
-                ? "Preliminary letter — the same evidence or posting gap that limits the résumé also limits this letter."
+                ? "Preliminary letter — the reviewed evidence or posting is not yet sufficient for application-ready status."
                 : "Application-ready cover letter — identity, posting, and evidence checks passed.",
   };
 }

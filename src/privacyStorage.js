@@ -6,6 +6,7 @@ import { PRIVATE_PROCESSING_ACK_KEY } from "./privateProcessing.js";
 import { RESUME_STORAGE_PREFIX } from "./resumeStorage.js";
 import { TEMPLATE_STORAGE_PREFIX } from "./resumeTemplateStorage.js";
 import { COVER_LETTER_STORAGE_PREFIX } from "./coverLetterStorage.js";
+import { APPLICATION_PACKAGE_STORAGE_PREFIX } from "./applicationPackageStorage.js";
 import { RESUME_SYNC_STORAGE_PREFIX } from "./privateDocumentVault.js";
 
 function keysIn(storage) {
@@ -30,6 +31,7 @@ export function privateBrowserDataKeys(userId, storage = globalThis.localStorage
     `${CANDIDATE_EVIDENCE_PREFIX}${encodedUserId}:`,
     `${TEMPLATE_STORAGE_PREFIX}${encodedUserId}:`,
     `${COVER_LETTER_STORAGE_PREFIX}${encodedUserId}:`,
+    `${APPLICATION_PACKAGE_STORAGE_PREFIX}${encodedUserId}:`,
   ];
 
   return keysIn(storage).filter((key) => exactKeys.has(key) || prefixes.some((prefix) => key.startsWith(prefix)));

@@ -22,6 +22,8 @@ export const ACCOUNT_CAPABILITIES = Object.freeze([
   "download_exports",
   "copy_tailored_text",
   "view_workspace",
+  "build_application_package",
+  "create_cover_letter_only",
 ]);
 
 export function appRouteAccess(pathname) {

@@ -1,9 +1,17 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { useAuth } from "./auth.jsx";
 import { ResumeActions } from "./ResumeActions.jsx";
 import { CoverLetterWorkspace } from "./CoverLetterWorkspace.jsx";
+import { ApplicationPackageSummary } from "./ApplicationPackageSummary.jsx";
 import { createApplicationPresentation } from "./applicationPresentation.js";
+import {
+  applicationDocumentStateFromReadiness,
+  createApplicationPackageState,
+} from "./applicationPackageModel.js";
+import { saveApplicationPackageState } from "./applicationPackageStorage.js";
+import { getCoverLetterReadiness } from "./coverLetterModel.js";
+import { loadCoverLetterDraftForReview } from "./coverLetterStorage.js";
 import { ResumeDocumentPreview } from "./ResumeDocumentPreview.jsx";
 import { ResumeDesignSelector } from "./ResumeDesignSelector.jsx";
 import { QualityFeedback } from "./QualityFeedback.jsx";
@@ -25,9 +33,10 @@ import {
 
 const DESIGN_OPTIONS = availableResumeDesigns();
 
-export function ResumeExperience({ baseResume = "", resumeData, item, hasLink, atsReview, candidateEvidence = [], customJob = null, requestPrivateProcessing, onEditResume, onTailoringChangeDecision, requestAccountAction, qualityRoute = "app", qualityPostingSource = "not_applicable", C, primaryBtnStyle }) {
+export function ResumeExperience({ baseResume = "", resumeData, item, hasLink, atsReview, candidateEvidence = [], customJob = null, applicationIntent = "resume_only", initialCoverLetterOpen = false, requestPrivateProcessing, onEditResume, onTailoringChangeDecision, requestAccountAction, qualityRoute = "app", qualityPostingSource = "not_applicable", C, primaryBtnStyle }) {
   const { session } = useAuth();
   const previewRef = useRef(null);
+  const coverLetterRef = useRef(null);
   const [showOptions, setShowOptions] = useState(false);
   const userId = session?.user?.id || "";
   const targetKey = useMemo(() => resumeTemplateTargetKey(item), [item]);
@@ -88,6 +97,57 @@ export function ResumeExperience({ baseResume = "", resumeData, item, hasLink, a
   const selectedDesign = RESUME_DESIGN_REGISTRY[renderPlan.designId];
   const controlId = `design-control-${targetKey || "resume"}`;
   const applicationPresentation = useMemo(() => createApplicationPresentation(renderPlan), [renderPlan]);
+  const coverLetterContext = useMemo(
+    () => ({ baseResume, resumeData, item, atsReview, candidateEvidence }),
+    [baseResume, resumeData, item, atsReview, candidateEvidence],
+  );
+  const storedCoverLetter = useMemo(
+    () => loadCoverLetterDraftForReview(userId, item),
+    [userId, item, coverLetterContext],
+  );
+  const storedCoverLetterReadiness = useMemo(
+    () => getCoverLetterReadiness(storedCoverLetter, coverLetterContext),
+    [storedCoverLetter, coverLetterContext],
+  );
+  const [showCoverLetter, setShowCoverLetter] = useState(() => initialCoverLetterOpen || Boolean(storedCoverLetter));
+  const [coverLetterStatus, setCoverLetterStatus] = useState(() => applicationDocumentStateFromReadiness(storedCoverLetterReadiness, { exists: Boolean(storedCoverLetter) }));
+  const [focusCoverLetter, setFocusCoverLetter] = useState(false);
+  const resumeStatus = applicationDocumentStateFromReadiness(readiness);
+  const packageIntent = applicationIntent === "package" || showCoverLetter || coverLetterStatus !== "not_created" ? "package" : "resume_only";
+  const packageState = useMemo(() => createApplicationPackageState({
+    item,
+    intent: packageIntent,
+    resumeStatus,
+    coverLetterStatus,
+    sourceFingerprint: storedCoverLetter?.sourceFingerprint || resumePackage.contentHash,
+  }), [coverLetterStatus, item, packageIntent, resumePackage.contentHash, resumeStatus, storedCoverLetter?.sourceFingerprint]);
+
+  useEffect(() => {
+    setShowCoverLetter(initialCoverLetterOpen || Boolean(storedCoverLetter));
+    setCoverLetterStatus(applicationDocumentStateFromReadiness(storedCoverLetterReadiness, { exists: Boolean(storedCoverLetter) }));
+  }, [initialCoverLetterOpen, storedCoverLetter, storedCoverLetterReadiness, targetKey]);
+
+  useEffect(() => {
+    if (userId) saveApplicationPackageState(userId, packageState);
+  }, [packageState, userId]);
+
+  useEffect(() => {
+    if (!showCoverLetter || !focusCoverLetter || !coverLetterRef.current) return undefined;
+    const frame = globalThis.requestAnimationFrame?.(() => {
+      coverLetterRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+      coverLetterRef.current?.focus({ preventScroll: true });
+      setFocusCoverLetter(false);
+    });
+    return () => { if (frame !== undefined) globalThis.cancelAnimationFrame?.(frame); };
+  }, [focusCoverLetter, showCoverLetter]);
+
+  const openCoverLetter = useCallback(() => {
+    setShowCoverLetter(true);
+    setFocusCoverLetter(true);
+  }, []);
+  const handleCoverLetterStatus = useCallback(({ status }) => {
+    setCoverLetterStatus((current) => current === status ? current : status);
+  }, []);
 
   const updatePresentation = (changes) => {
     const next = {
@@ -109,6 +169,34 @@ export function ResumeExperience({ baseResume = "", resumeData, item, hasLink, a
 
   return (
     <div>
+      <ApplicationPackageSummary
+        item={item}
+        packageStatus={packageState.packageStatus}
+        resumeStatus={resumeStatus}
+        coverLetterStatus={coverLetterStatus}
+        onReviewResume={() => previewRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+        onOpenCoverLetter={openCoverLetter}
+        C={C}
+      />
+
+      {showCoverLetter ? (
+        <CoverLetterWorkspace
+          baseResume={baseResume}
+          resumeData={resumeData}
+          item={item}
+          atsReview={atsReview}
+          candidateEvidence={candidateEvidence}
+          customJob={customJob}
+          requestPrivateProcessing={requestPrivateProcessing}
+          requestAccountAction={requestAccountAction}
+          applicationPresentation={applicationPresentation}
+          workspaceRef={coverLetterRef}
+          onStatusChange={handleCoverLetterStatus}
+          C={C}
+          primaryBtnStyle={primaryBtnStyle}
+        />
+      ) : null}
+
       <ResumeDesignSelector
         designs={DESIGN_OPTIONS}
         recommendedStrategy={recommendedStrategy}
@@ -189,22 +277,11 @@ export function ResumeExperience({ baseResume = "", resumeData, item, hasLink, a
         hasLink={hasLink}
         atsReview={atsReview}
         onEditResume={onEditResume}
+        onCreateCoverLetter={openCoverLetter}
+        coverLetterStatus={coverLetterStatus}
         requestAccountAction={requestAccountAction}
         qualityRoute={qualityRoute}
         qualityPostingSource={qualityPostingSource}
-        C={C}
-        primaryBtnStyle={primaryBtnStyle}
-      />
-      <CoverLetterWorkspace
-        baseResume={baseResume}
-        resumeData={resumeData}
-        item={item}
-        atsReview={atsReview}
-        candidateEvidence={candidateEvidence}
-        customJob={customJob}
-        requestPrivateProcessing={requestPrivateProcessing}
-        requestAccountAction={requestAccountAction}
-        applicationPresentation={applicationPresentation}
         C={C}
         primaryBtnStyle={primaryBtnStyle}
       />

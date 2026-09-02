@@ -70,7 +70,7 @@ test("the custom flow binds extraction and tailoring to the active source sessio
   assert.match(source, /Alternative posting inputs/);
   assert.match(source, /resetSourceState\("paste"\)/);
   assert.match(source, /resetSourceState\("screenshots"\)/);
-  assert.match(source, /Tailor another posting/);
+  assert.match(source, /Use another posting/);
   assert.match(source, /cancelActiveWork/);
 });
 

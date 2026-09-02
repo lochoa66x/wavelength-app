@@ -1,11 +1,11 @@
 # Privacy impact assessment — foundation release
 
-Date: 2026-08-27
-Status: operator facts verified; cover-letter scope added and awaiting production release verification
+Date: 2026-09-02
+Status: operator facts verified; local application-package status scope documented; production release verification remains
 
 ## Purpose and necessity
 
-Gigscapes finds public jobs and creates editable résumé and cover-letter drafts using evidence supplied by the person. A résumé contains identity, contact, employment, education, and skills data. The job posting is necessary to compare requirements. Confirmed evidence is optional and limited to five request/reusable records. Cover-letter generation reuses the reviewed posting, canonical résumé facts, confirmed evidence, and application assessment; a minimized current draft is sent only when the person explicitly regenerates wording.
+Gigscapes finds public jobs and creates editable résumé and cover-letter drafts using evidence supplied by the person. A résumé contains identity, contact, employment, education, and skills data. The job posting is necessary to compare requirements. Confirmed evidence is optional and limited to five request/reusable records. Cover-letter generation reuses the reviewed posting, canonical résumé facts, confirmed evidence, and application assessment; a minimized current draft is sent only when the person explicitly regenerates wording. The browser also stores a minimized target-scoped application status record so résumé and letter readiness can be shown independently; this record excludes résumé and full posting text and is never synced to Supabase.
 
 ## Material risks and controls
 
@@ -14,6 +14,7 @@ Gigscapes finds public jobs and creates editable résumé and cover-letter draft
 | User does not realize an AI provider receives private content | High | One-time, versioned, scope-specific disclosure immediately before job intake, tailoring, and cover-letter generation; cancel retains work | Operator must keep provider wording current |
 | Résumé leaks into analytics or logs | High | No custom résumé events; the only market-search dimensions are country and results/empty/failed outcome; `beforeSend` strips query/hash and suppresses auth callback; APIs log only stage/status/counts; private responses are `no-store` | Verify Vercel project log retention and drain configuration |
 | Shared-device exposure | High | User-ID-scoped local keys, honest browser-only copy, scoped deletion control | Browser profile itself remains a security boundary |
+| Application history implies cloud persistence | Medium | The workspace labels application metadata and drafts as device-only; storage is user-ID- and target-scoped and included in scoped deletion | A different browser/device cannot restore these records without a future explicit sync contract |
 | Unauthorized profile access | High | RLS, own-row authenticated policies, anon revocation, server-only secret key | Run Supabase advisors after every schema change |
 | Unauthorized synced-résumé access or silent overwrite | High | Sync is opt-in; authenticated-only grants; own-user RLS for every operation; bounded payload/hash validation; revision compare-and-swap; explicit conflict choice; separate local and remote deletion | Apply the vault migration and complete anonymous/User A/User B production verification before calling sync operational |
 | AI fabricates claims | High | Evidence-first prompt, deterministic validation/repair/fallback, user review before export | Model behavior remains probabilistic; exports need user review |

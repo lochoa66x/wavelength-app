@@ -337,6 +337,27 @@ function tailoringResponseMetadata(analysis, atsReview, candidateEvidence = []) 
   };
 }
 
+function analysisOnlyReview(analysis) {
+  const significantGap = ["significant_gap", "needs_full_posting"].includes(analysis.readiness?.status);
+  return {
+    status: "analysis_only",
+    posting_readiness: analysis.posting_readiness,
+    candidate_fit: analysis.candidate_fit,
+    requirements: analysis.requirements,
+    coverage: analysis.coverage,
+    core_coverage: analysis.core_coverage,
+    readiness: analysis.readiness,
+    gap_summary: analysis.gap_summary,
+    requirement_consistency: analysis.requirement_consistency,
+    evidence_questions: analysis.evidence_questions || [],
+    integrity: { status: "pass", issue_count: 0, issues: [] },
+    writing: { status: "not_applicable", issues: [] },
+    export_readiness: { status: significantGap ? "preliminary" : "ready", blockers: [] },
+    application_ready: false,
+    output_mode: significantGap ? "preliminary" : "analysis_only",
+  };
+}
+
 async function callAnthropicTool({ fetchImpl, apiKey, tool, prompt, maxTokens, timeoutMs = 55000, stage = tool.name }) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
@@ -515,7 +536,7 @@ export function createTailorHandler({
     return res.status(500).json({ error: "Server not configured with an Anthropic API key" });
   }
 
-  const { resume, listingId, customJob, extraContext, candidateEvidence: rawCandidateEvidence } = req.body || {};
+  const { resume, listingId, customJob, extraContext, candidateEvidence: rawCandidateEvidence, analysisOnly = false } = req.body || {};
   const validListingId = typeof listingId === "string" || typeof listingId === "number";
   const normalizedCustomJob = normalizeCustomJobBrief(customJob);
   if (typeof resume !== "string" || !resume.trim() || Number(validListingId) + Number(Boolean(normalizedCustomJob)) !== 1) {
@@ -720,6 +741,16 @@ INSTRUCTIONS
       verifiedCandidateEvidence,
       reviewedRequirementInventory,
     );
+    if (analysisOnly === true) {
+      const atsReview = analysisOnlyReview(analysis);
+      logTailoringCompleted(requestStartedAt);
+      return res.status(200).json({
+        analysis_only: true,
+        ats_review: atsReview,
+        tailoring_analysis: analysis,
+        ...tailoringResponseMetadata(analysis, atsReview, verifiedCandidateEvidence),
+      });
+    }
     const baseDraftPrompt = prompt.replace("__TAILORING_ANALYSIS__", JSON.stringify(analysis, null, 2));
     let requestPrompt = baseDraftPrompt;
 

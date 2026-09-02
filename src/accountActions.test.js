@@ -74,6 +74,15 @@ test("cover-letter generation and all private letter exports are gated", () => {
   }
 });
 
+test("application workspace actions are centrally allowlisted", () => {
+  for (const action of ["create_application_package", "start_cover_letter_only", "open_application_workspace"]) {
+    assert.ok(ACCOUNT_ACTIONS.includes(action));
+    assert.match(accountActionMessage(action), /application|cover letter/i);
+  }
+  assert.deepEqual(pendingActionDestination({ action: "create_application_package" }), { step: "custom_job", mode: "paste", documentIntent: "package" });
+  assert.deepEqual(pendingActionDestination({ action: "start_cover_letter_only" }), { step: "custom_job", mode: "paste", documentIntent: "cover_letter_only" });
+});
+
 test("authenticated users continue immediately without a pending record", () => {
   const decision = accountActionGateDecision({
     session: { user: { id: "user-1" } },

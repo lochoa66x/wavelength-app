@@ -1,6 +1,6 @@
 # Privacy retention register
 
-Last reviewed: 2026-08-27
+Last reviewed: 2026-09-02
 
 | Record | Current retention behavior | User control | Owner verification |
 | --- | --- | --- | --- |
@@ -8,6 +8,7 @@ Last reviewed: 2026-08-27
 | Account-synced base résumé | Only after explicit opt-in; remains until the separate synced-copy deletion control or account deletion | Turn sync off per browser, resolve conflicts, or delete the remote copy while retaining the local copy | Apply and verify `private_documents` migration before enabling production sync |
 | Browser evidence/template choices | Until browser data is cleared or scoped deletion runs | Clear locally | None |
 | Browser cover-letter drafts | Target-scoped local storage until replaced, individually removed, browser data is cleared, or scoped deletion runs | Remove one draft or clear current account's private browser data | None |
+| Browser application-package status | Target-scoped local metadata until replaced, browser data is cleared, or scoped deletion runs; contains target summary, chosen document types, independent states, and hashes—not résumé or full posting text | Clear current account's private browser data | None |
 | Processing acknowledgement | Until policy version changes, browser data is cleared, or scoped deletion runs | Clear locally | None |
 | Supabase auth/profile | Until account/record deletion under operator process | Contact privacy operator; product account-deletion UI is not yet implemented | Define request SLA and deletion runbook owner |
 | Saved/dismissed listing IDs | In own profile row until changed or account deletion | UI changes saved/dismissed state | Define account deletion process |

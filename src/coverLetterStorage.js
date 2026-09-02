@@ -1,4 +1,4 @@
-import { createCoverLetterPlan } from "./coverLetterModel.js";
+import { createCoverLetterPlan, validateStoredCoverLetterPlan } from "./coverLetterModel.js";
 
 export const COVER_LETTER_STORAGE_PREFIX = "gigscapes:cover-letter:v1:";
 
@@ -32,6 +32,14 @@ export function loadCoverLetterDraft(userId, item, context, storage) {
     if (!raw || raw.kind !== "cover-letter-plan") return null;
     const plan = createCoverLetterPlan(raw, context);
     return plan.sourceFingerprint === raw.sourceFingerprint && plan.contentHash === raw.contentHash ? raw : null;
+  } catch { return null; }
+}
+
+export function loadCoverLetterDraftForReview(userId, item, storage) {
+  const target = storageOrNull(storage);
+  if (!target || !userId) return null;
+  try {
+    return validateStoredCoverLetterPlan(JSON.parse(target.getItem(coverLetterStorageKey(userId, item)) || "null"));
   } catch { return null; }
 }
 

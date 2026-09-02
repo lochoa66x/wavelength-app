@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Copy, Download, ExternalLink, FileText, Loader2 } from "lucide-react";
+import { Copy, Download, ExternalLink, FileText, Loader2, PenLine } from "lucide-react";
 
 import { ExportStatusNotice } from "./ExportStatusNotice.jsx";
 import { loadResumeDocxExporter, loadResumePdfExporter, preloadResumeExporters } from "./exportModules.js";
@@ -10,7 +10,7 @@ import { useAuth } from "./auth.jsx";
 import { QualityFeedback } from "./QualityFeedback.jsx";
 import { emitResumeQualitySignal } from "./qualitySignals.js";
 
-export function ResumeActions({ resumeData, resumePackage, renderPlan, selection, template, previewRef, item, hasLink, atsReview, onEditResume, requestAccountAction: requestAccountActionOverride, qualityRoute = "app", qualityPostingSource = "not_applicable", C, primaryBtnStyle }) {
+export function ResumeActions({ resumeData, resumePackage, renderPlan, selection, template, previewRef, item, hasLink, atsReview, onEditResume, onCreateCoverLetter, coverLetterStatus = "not_created", requestAccountAction: requestAccountActionOverride, qualityRoute = "app", qualityPostingSource = "not_applicable", C, primaryBtnStyle }) {
   const { requestAccountAction: requestAuthenticatedAction } = useAuth();
   const requestAccountAction = requestAccountActionOverride || requestAuthenticatedAction;
   const [docxState, setDocxState] = useState("idle");
@@ -183,6 +183,16 @@ export function ResumeActions({ resumeData, resumePackage, renderPlan, selection
         >
           <Copy size={12} /> Copy tailored text
         </button>
+        {onCreateCoverLetter ? (
+          <button
+            type="button"
+            onClick={onCreateCoverLetter}
+            className="wl-btn"
+            style={{ display: "flex", alignItems: "center", gap: 5, minHeight: 44, fontSize: 13, fontWeight: 700, padding: "9px 16px", borderRadius: 980, border: `1px solid ${C.orange || C.border}`, background: C.orangeTint || "#fff3ea", color: C.text, cursor: "pointer" }}
+          >
+            <PenLine size={13} /> {coverLetterStatus === "not_created" ? "Create matching cover letter" : "Review cover letter"}
+          </button>
+        ) : null}
         {hasLink && (
           <a
             href={item.url}

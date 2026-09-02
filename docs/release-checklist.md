@@ -503,3 +503,24 @@ Production application evidence: feature commit `860a9d93b270270bdfa4f4049ec4312
 - [ ] Explicitly authorize a Preview exposure before changing the flag outside the local ignored environment.
 
 Artifacts and the complete honest assessment are in `docs/p4-5-prototype-evidence.md`. No commit, push, Preview, Production deployment, database change, telemetry change, or AI-provider request is part of this local prototype pass.
+
+## P4.6A application-document workspace — 2026-09-02
+
+- [x] Put an explicit package, résumé-only, and cover-letter-only choice before posting intake.
+- [x] Reuse one evidence-analysis path and stop cover-letter-only before any tailored-résumé draft request.
+- [x] Keep the base résumé immutable and require exact canonical résumé identity before letter export.
+- [x] Surface a compact target-level document summary and matching-letter action before the long résumé preview.
+- [x] Auto-open the letter workspace for package flow while retaining separate user-triggered letter generation and processing disclosure.
+- [x] Keep résumé and cover-letter states independent: not created, generating, draft, preliminary, ready, stale, or failed.
+- [x] Preserve valid stale letter drafts for review while blocking export; reject locally corrupted draft hashes.
+- [x] Add account-and-target-scoped browser-only application metadata plus a legacy cover-letter adapter without rewriting old drafts.
+- [x] Include application metadata in scoped browser deletion, retention documentation, the data map, PIA, and public privacy copy.
+- [x] Add account-action and app-capability gates without changing Supabase schema, RLS, résumé sync, job sources, or automatic-submission boundaries.
+- [x] Run focused workflow/storage/privacy/API tests, the complete test suite, quality/signal evaluators, privacy release verifier, résumé/letter export verifiers, prototype package verifier, production build, and diff check.
+- [ ] Exercise all three workflows with an authenticated account at desktop and 390 × 844, including cancellation, stale draft recovery, keyboard focus, and no horizontal overflow.
+- [ ] Open representative package and standalone-letter DOCX/PDF files in Microsoft Word, Google Docs, and at least one external ATS parser.
+- [ ] Commit, push, deploy through the normal Git-triggered path, verify SHA/deployment binding and aliases, then run public and authenticated production smoke.
+
+Local verification evidence: the complete suite passed 594/594 with zero failures, skips, cancellations, or todos. Vite 5.4.21 transformed 2,461 modules; résumé and cover-letter exporters remain separate lazy chunks and only the existing large dependency-chunk advisory remains. The privacy-safe quality evaluator passed 11/11 redacted cases at 100% contract/readiness/export/integrity/template accuracy with zero privacy violations; privacy-safe signal aggregation published only cohorts of at least ten. Privacy configuration verified for Voynich Tech. Résumé export verification passed 48 files, 16 templates, 29 PDF pages, 826 selectable text items, manifest parity, final authorization, and stale-ready rejection. Cover-letter verification passed two DOCX and two PDF files across final/preliminary states with 492 selectable tokens. All eight dormant prototype packages and 32 files passed with invariant content hashes. `git diff --check` reported no errors before this evidence record.
+
+No commit, push, Preview deployment, Production deployment, database migration, résumé-sync expansion, provider switch, job-source change, automatic application submission, or cloud application-history persistence is part of this local implementation pass.

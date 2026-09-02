@@ -246,6 +246,42 @@ test("tailoring accepts a reviewed custom job without loading a database listing
   assert.match(anthropicRequest.messages[0].content, /Candidate-provided posting reviewed before tailoring|Lead operational programs/);
 });
 
+test("analysis-only mode returns shared evidence assessment without requesting a résumé draft", async () => {
+  const requestedTools = [];
+  const handler = createTailorHandler({
+    authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
+    loadListing: async (_client, id) => ({
+      id,
+      title: "Operations Lead",
+      company: "Cedar",
+      category: "business",
+      description: "Lead stakeholder programs and operational delivery across the organization.",
+    }),
+    fetchImpl: async (_url, options) => {
+      const body = JSON.parse(options.body);
+      requestedTools.push(body.tool_choice.name);
+      return toolResponse("return_tailoring_analysis", analysisInput({
+        requirements: [{ id: "R1", requirement: "Lead stakeholder programs", priority: "required", evidence_match: "direct", resume_evidence: "Led stakeholder programs.", safe_language: "Led stakeholder programs", keywords: ["stakeholder"] }],
+        target_keywords: ["stakeholder"],
+      }));
+    },
+    getApiKey: () => "test-key",
+  });
+  const res = responseRecorder();
+
+  await handler({
+    method: "POST",
+    headers: { authorization: "Bearer valid" },
+    body: { resume: "Avery Chen\nLed stakeholder programs.", listingId: "one", analysisOnly: true },
+  }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.analysis_only, true);
+  assert.equal(res.body.resume, undefined);
+  assert.deepEqual(requestedTools, ["return_tailoring_analysis"]);
+  assert.equal(res.body.ats_review.status, "analysis_only");
+});
+
 test("tailoring automatically repairs one unsafe model draft before returning it", async () => {
   const requests = [];
   const drafts = [

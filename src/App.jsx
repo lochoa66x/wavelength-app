@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { Link, useLocation, useNavigate } from "react-router";
-import { MapPin, Clock, ExternalLink, Check, ArrowRight, ArrowLeft, Pencil, Sparkles, Loader2, CheckCircle2, Circle, Search, Bookmark, X, RotateCcw, LogOut, ChevronDown, Link2, FileImage, Text, Building2, Cloud } from "lucide-react";
+import { MapPin, Clock, ExternalLink, Check, ArrowRight, ArrowLeft, Pencil, Sparkles, Loader2, CheckCircle2, Circle, Search, Bookmark, X, RotateCcw, LogOut, ChevronDown, Link2, FileImage, Text, Building2, Cloud, Files } from "lucide-react";
 import { BrandMark } from "./BrandMark.jsx";
 import { AtsReview } from "./AtsReview.jsx";
 import { EvidenceRefinementPanel } from "./EvidenceRefinementPanel.jsx";
@@ -73,6 +73,7 @@ import { durationBand, emitQualitySignal, emitResumeQualitySignal } from "./qual
 import { applyTailoringChangeDecision, reviewAfterTailoringChange } from "./tailoringChanges.js";
 import { usePrivateProcessingGate } from "./privateProcessing.js";
 import { clearPrivateBrowserData } from "./privacyStorage.js";
+import { listApplicationPackageStates } from "./applicationPackageStorage.js";
 import { useResumeVault } from "./useResumeVault.js";
 import { resumeSyncWorkspaceStatus } from "./resumeSyncPresentation.js";
 import {
@@ -737,6 +738,7 @@ export default function Gigscapes() {
   const [resumeReturnStep, setResumeReturnStep] = useState("digest");
   const [customJobMode, setCustomJobMode] = useState("url");
   const [customJobInitialUrl, setCustomJobInitialUrl] = useState("");
+  const [customJobDocumentIntent, setCustomJobDocumentIntent] = useState("resume_only");
   const [localResume, setLocalResume] = useState("");
   const [resumeLoadedForUser, setResumeLoadedForUser] = useState("");
   const [resumeStorageError, setResumeStorageError] = useState("");
@@ -896,16 +898,21 @@ export default function Gigscapes() {
     });
   };
 
-  const openCustomJob = useCallback((mode, url = "") => {
-    const action = mode === "screenshots"
-      ? "upload_posting_screenshots"
-      : mode === "paste"
-        ? "paste_posting"
-        : "import_posting";
+  const openCustomJob = useCallback((mode, url = "", documentIntent = "resume_only") => {
+    const action = documentIntent === "package"
+      ? "create_application_package"
+      : documentIntent === "cover_letter_only"
+        ? "start_cover_letter_only"
+        : mode === "screenshots"
+          ? "upload_posting_screenshots"
+          : mode === "paste"
+            ? "paste_posting"
+            : "import_posting";
     requestAccountAction(action, {
       continuation: () => {
         setCustomJobMode(mode);
         setCustomJobInitialUrl(url);
+        setCustomJobDocumentIntent(documentIntent);
         setStep("custom_job");
       },
     });
@@ -1274,6 +1281,14 @@ export default function Gigscapes() {
     if (["import_posting", "upload_posting_screenshots", "paste_posting"].includes(pending.action)) {
       setCustomJobMode(pending.action === "upload_posting_screenshots" ? "screenshots" : pending.action === "paste_posting" ? "paste" : "url");
       setCustomJobInitialUrl("");
+      setCustomJobDocumentIntent("resume_only");
+      setStep("custom_job");
+      return;
+    }
+    if (["create_application_package", "start_cover_letter_only", "open_application_workspace"].includes(pending.action)) {
+      setCustomJobMode("paste");
+      setCustomJobInitialUrl("");
+      setCustomJobDocumentIntent(pending.action === "start_cover_letter_only" ? "cover_letter_only" : "package");
       setStep("custom_job");
       return;
     }
@@ -1817,11 +1832,13 @@ export default function Gigscapes() {
         userId={session?.user?.id}
         initialMode={customJobMode}
         initialUrl={customJobInitialUrl}
+        initialDocumentIntent={customJobDocumentIntent}
         C={C}
         primaryBtnStyle={primaryBtnStyle}
         glassBtnStyle={glassBtnStyle}
         onBack={() => setStep("digest")}
         onEditResume={() => openResumeEditor("custom_job")}
+        requestAccountAction={requestAccountAction}
         requestPrivateProcessing={privateProcessing.requestPrivateProcessing}
       />,
       { showSignOut: true },
@@ -2471,6 +2488,15 @@ export default function Gigscapes() {
               >
                 <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}><Pencil size={14} /> Résumé</span>
                 <span style={{ color: resume ? C.green : C.amber }}>{resume ? "Ready" : "Add"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => openCustomJob("paste", "", "package")}
+                className="wl-btn"
+                style={{ width: "100%", display: "flex", alignItems: "center", justifyContent: "space-between", border: 0, borderTop: `1px solid ${C.border}`, padding: "11px 0 5px", marginTop: 4, background: "transparent", color: C.textSub, fontSize: 12.5, fontWeight: 650, cursor: "pointer", fontFamily: SYS_FONT }}
+              >
+                <span style={{ display: "inline-flex", alignItems: "center", gap: 7 }}><Files size={14} /> Applications</span>
+                <span>{listApplicationPackageStates(session.user.id).length || "New"}</span>
               </button>
               {RESUME_SYNC_ENABLED ? (
                 <button

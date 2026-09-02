@@ -1,11 +1,18 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, ArrowLeft, FileImage, Link2, Loader2, Pencil, Sparkles, Text, Upload, X } from "lucide-react";
 
 import { AtsReview } from "./AtsReview.jsx";
 import { EvidenceRefinementPanel } from "./EvidenceRefinementPanel.jsx";
 import { PositioningSummary } from "./PositioningSummary.jsx";
 import { ResumeExperience } from "./ResumeExperience.jsx";
-import { extractCustomJob, tailorResume } from "./tailorClient.js";
+import { ApplicationPackageSummary } from "./ApplicationPackageSummary.jsx";
+import { ApplicationWorkflowChooser } from "./ApplicationWorkflowChooser.jsx";
+import { CoverLetterWorkspace } from "./CoverLetterWorkspace.jsx";
+import { createApplicationPresentation } from "./applicationPresentation.js";
+import { createApplicationPackageState } from "./applicationPackageModel.js";
+import { saveApplicationPackageState } from "./applicationPackageStorage.js";
+import { resumeIdentityFromText } from "./resumeIdentity.js";
+import { analyzeResumeForApplication, extractCustomJob, tailorResume } from "./tailorClient.js";
 import {
   appendScreenshotFiles,
   customJobSourceReviewState,
@@ -95,6 +102,7 @@ export function CustomJobFlow({
   onEditResume,
   initialMode = "url",
   initialUrl = "",
+  initialDocumentIntent = "resume_only",
   extractPosting = extractCustomJob,
   tailorPosting = tailorResume,
   requestAccountAction,
@@ -104,6 +112,7 @@ export function CustomJobFlow({
   requestCoordinatorRef.current ||= createCustomJobRequestCoordinator(initialMode);
   const requestCoordinator = requestCoordinatorRef.current;
   const [mode, setMode] = useState(() => MODE_IDS.has(initialMode) ? initialMode : "url");
+  const [documentIntent, setDocumentIntent] = useState(initialDocumentIntent);
   const [postingText, setPostingText] = useState("");
   const [jobUrl, setJobUrl] = useState(initialUrl);
   const [files, setFiles] = useState([]);
@@ -115,6 +124,9 @@ export function CustomJobFlow({
   const [evidenceRecords, setEvidenceRecords] = useState([]);
   const [evidenceStorageError, setEvidenceStorageError] = useState("");
   const [sourceSession, setSourceSession] = useState(() => requestCoordinator.snapshot());
+  const [coverLetterStatus, setCoverLetterStatus] = useState("not_created");
+  const coverLetterRef = useRef(null);
+  const applicationPresentation = useMemo(() => createApplicationPresentation(), []);
   const sourceReview = brief?.source_review;
   const {
     conflicts: sourceConflicts,
@@ -159,6 +171,7 @@ export function CustomJobFlow({
     setEvidenceTargetKey(null);
     setEvidenceRecords([]);
     setEvidenceStorageError("");
+    setCoverLetterStatus("not_created");
     setError("");
     setStatus("idle");
   };
@@ -229,7 +242,7 @@ export function CustomJobFlow({
   const listValue = (key) => (brief?.[key] || []).join("\n");
   const updateList = (key, value) => updateBrief({ [key]: value.split("\n").map((item) => item.trim()).filter(Boolean) });
 
-  const performTailor = async (evidenceOverride = evidenceRecords) => {
+  const performTailor = async (evidenceOverride = evidenceRecords, requestedIntent = documentIntent) => {
     if (!resume) {
       setError("Add your base résumé before tailoring this posting.");
       return;
@@ -245,25 +258,31 @@ export function CustomJobFlow({
         submittableCandidateEvidence(evidenceOverride),
         submittableCandidateEvidence(loadReusableCandidateEvidence(userId)),
       );
-      const result = await tailorPosting(resume, { customJob: activeBrief, candidateEvidence }, { signal: request.signal });
+      const target = { customJob: activeBrief, candidateEvidence };
+      const result = requestedIntent === "cover_letter_only"
+        ? await analyzeResumeForApplication(resume, target, { signal: request.signal })
+        : await tailorPosting(resume, target, { signal: request.signal });
       if (!requestCoordinator.isCurrent(request)) return;
       requestCoordinator.finish(request);
       setTailored({
         ...result,
+        documentIntent: requestedIntent,
         baselineAtsReview: result.atsReview,
         baselineCoverage: previous?.baselineCoverage || previous?.atsReview?.coverage || result.atsReview?.coverage,
         previousCoverage: previous?.atsReview?.coverage || null,
       });
       setStatus("done");
-      void emitResumeQualitySignal("tailoring_completed", {
-        resumeData: result.resume,
-        item: customItem,
-        atsReview: result.atsReview,
-        route: "custom_job",
-        postingSource: postingSourceForMode(mode),
-        outcome: "completed",
-        durationMs: Date.now() - startedAt,
-      });
+      if (requestedIntent !== "cover_letter_only") {
+        void emitResumeQualitySignal("tailoring_completed", {
+          resumeData: result.resume,
+          item: customItem,
+          atsReview: result.atsReview,
+          route: "custom_job",
+          postingSource: postingSourceForMode(mode),
+          outcome: "completed",
+          durationMs: Date.now() - startedAt,
+        });
+      }
     } catch (tailorError) {
       if (!requestCoordinator.isCurrent(request) || request.signal.aborted) return;
       requestCoordinator.finish(request);
@@ -279,10 +298,19 @@ export function CustomJobFlow({
     }
   };
 
-  const handleTailor = (evidenceOverride = evidenceRecords) => requestPrivateProcessing(
+  const handleTailor = (evidenceOverride = evidenceRecords, requestedIntent = documentIntent) => requestPrivateProcessing(
     "tailor",
-    () => performTailor(evidenceOverride),
+    () => performTailor(evidenceOverride, requestedIntent),
   );
+
+  const handleCoverLetterStatus = useCallback(({ status: nextStatus }) => {
+    setCoverLetterStatus((current) => current === nextStatus ? current : nextStatus);
+  }, []);
+
+  const addTailoredResume = () => {
+    setDocumentIntent("package");
+    handleTailor(evidenceRecords, "package");
+  };
 
   const cancelActiveWork = () => {
     setSourceSession(requestCoordinator.cancelActiveRequest());
@@ -323,12 +351,26 @@ export function CustomJobFlow({
     setEvidenceStorageError(storageMessage);
   };
 
-  const customItem = brief ? {
+  const customItem = useMemo(() => brief ? {
     title: brief.title,
     company: brief.company || "Candidate-provided posting",
+    location: brief.location || "",
     category: brief.category,
     url: brief.source_url || "",
-  } : null;
+  } : null, [brief]);
+  const coverLetterOnlyPackage = useMemo(() => tailored?.documentIntent === "cover_letter_only" && customItem
+    ? createApplicationPackageState({
+        item: customItem,
+        intent: "cover_letter_only",
+        resumeStatus: "not_created",
+        coverLetterStatus,
+        sourceFingerprint: tailored.tailoringAnalysis?.requirement_consistency?.canonical_hash || "",
+      })
+    : null, [coverLetterStatus, customItem, tailored]);
+
+  useEffect(() => {
+    if (userId && coverLetterOnlyPackage) saveApplicationPackageState(userId, coverLetterOnlyPackage);
+  }, [coverLetterOnlyPackage, userId]);
   if (!resume) {
     return (
       <div style={{ maxWidth: 760, margin: "0 auto" }}>
@@ -355,11 +397,17 @@ export function CustomJobFlow({
 
       <div style={{ marginBottom: 20 }}>
         <div style={{ color: C.green, fontSize: 12, fontWeight: 700, letterSpacing: 0.4, textTransform: "uppercase", marginBottom: 5 }}>Bring your own job</div>
-        <h2 style={{ color: C.text, fontSize: 26, margin: "0 0 8px" }}>Tailor for a posting you found</h2>
+        <h2 style={{ color: C.text, fontSize: 26, margin: "0 0 8px" }}>Prepare documents for a posting you found</h2>
         <p style={{ color: C.textSub, fontSize: 14, lineHeight: 1.55, margin: 0 }}>
-          Paste the posting, share its public link, or upload screenshots. You review the extracted facts before your locally saved résumé is tailored.
+          Choose the documents you need, then paste the posting, share its public link, or upload screenshots. You review the extracted facts before Gigscapes prepares anything.
         </p>
       </div>
+
+      {!brief ? (
+        <div style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 18, padding: 16, marginBottom: 14 }}>
+          <ApplicationWorkflowChooser value={documentIntent} onChange={setDocumentIntent} disabled={status === "extracting"} C={C} />
+        </div>
+      ) : null}
 
       {!brief && (
         <div style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 18, padding: 18 }}>
@@ -499,7 +547,9 @@ export function CustomJobFlow({
           {sourceReviewBlocked && <p style={{ color: "#9A5B00", fontSize: 12, lineHeight: 1.45, margin: "12px 0 0" }}>{sourceReviewBlockingMessage}</p>}
           <button type="button" onClick={() => handleTailor()} disabled={status === "tailoring" || sourceReviewBlocked || !brief.title.trim() || !brief.description.trim()} className="wl-btn" style={{ ...primaryBtnStyle(status === "tailoring" || sourceReviewBlocked), marginTop: 16 }}>
             {status === "tailoring" ? <Loader2 size={15} className="wl-spin" /> : <Sparkles size={15} />}
-            {status === "tailoring" ? "Tailoring and checking evidence…" : "Tailor my résumé"}
+            {status === "tailoring"
+              ? documentIntent === "cover_letter_only" ? "Analyzing evidence for your letter…" : "Tailoring and checking evidence…"
+              : documentIntent === "cover_letter_only" ? "Analyze evidence for my letter" : documentIntent === "package" ? "Build my résumé first" : "Tailor my résumé"}
           </button>
           {status === "tailoring" ? <button type="button" onClick={cancelActiveWork} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, marginLeft: 8, marginTop: 16, padding: "8px 11px" }}><X size={14} /> Cancel</button> : null}
         </div>
@@ -508,16 +558,55 @@ export function CustomJobFlow({
       {brief && tailored && status === "done" && (
         <div>
           <div style={{ display: "flex", justifyContent: "space-between", gap: 12, alignItems: "center", marginBottom: 14 }}>
-            <div><h3 style={{ color: C.text, fontSize: 20, margin: "0 0 3px" }}>Tailored for {brief.title}</h3><p style={{ color: C.textSub, fontSize: 13, margin: 0 }}>{brief.company || "Candidate-provided posting"}</p></div>
+            <div><h3 style={{ color: C.text, fontSize: 20, margin: "0 0 3px" }}>{tailored.documentIntent === "cover_letter_only" ? "Cover letter" : tailored.documentIntent === "package" ? "Application package" : "Tailored résumé"} for {brief.title}</h3><p style={{ color: C.textSub, fontSize: 13, margin: 0 }}>{brief.company || "Candidate-provided posting"}</p></div>
             <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "flex-end", gap: 8 }}>
               <button type="button" onClick={() => { setTailored(null); setStatus("review"); }} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, padding: "8px 11px" }}><Pencil size={12} /> Review posting</button>
-              <button type="button" onClick={() => resetSourceState("paste")} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, padding: "8px 11px" }}><Text size={12} /> Tailor another posting</button>
+              <button type="button" onClick={() => resetSourceState("paste")} className="wl-btn" style={{ ...glassBtnStyle(), border: `1px solid ${C.border}`, padding: "8px 11px" }}><Text size={12} /> Use another posting</button>
             </div>
           </div>
-          <PositioningSummary assessment={tailored.resume.fit_assessment} C={C} />
-          <AtsReview review={tailored.atsReview} C={C} />
+          {tailored.documentIntent === "cover_letter_only" ? (() => {
+            const candidateIdentity = resumeIdentityFromText(resume);
+            const identityResumeData = { name: candidateIdentity.name, contact: candidateIdentity.contact };
+            return (
+              <>
+                <ApplicationPackageSummary
+                  item={customItem}
+                  packageStatus={coverLetterOnlyPackage.packageStatus}
+                  resumeStatus="not_created"
+                  coverLetterStatus={coverLetterStatus}
+                  onReviewResume={addTailoredResume}
+                  resumeActionLabel="Add tailored résumé"
+                  onOpenCoverLetter={() => coverLetterRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                  C={C}
+                />
+                <CoverLetterWorkspace
+                  baseResume={resume}
+                  resumeData={identityResumeData}
+                  candidateIdentity={candidateIdentity}
+                  item={customItem}
+                  atsReview={tailored.atsReview}
+                  candidateEvidence={tailored.candidateEvidence || []}
+                  customJob={brief}
+                  requestPrivateProcessing={requestPrivateProcessing}
+                  requestAccountAction={requestAccountAction}
+                  applicationPresentation={applicationPresentation}
+                  workspaceRef={coverLetterRef}
+                  onStatusChange={handleCoverLetterStatus}
+                  onAddResume={addTailoredResume}
+                  C={C}
+                  primaryBtnStyle={primaryBtnStyle}
+                />
+                <div style={{ marginTop: 18 }}><AtsReview review={tailored.atsReview} C={C} /></div>
+              </>
+            );
+          })() : (
+            <>
+              <PositioningSummary assessment={tailored.resume.fit_assessment} C={C} />
+              <AtsReview review={tailored.atsReview} C={C} />
+            </>
+          )}
           {evidenceStorageError ? <p role="alert" style={{ color: C.red, fontSize: 12, margin: "0 0 10px" }}>{evidenceStorageError}</p> : null}
-          <EvidenceRefinementPanel
+          {tailored.documentIntent !== "cover_letter_only" ? <EvidenceRefinementPanel
             questions={tailored.evidenceQuestions || tailored.atsReview?.evidence_questions || []}
             initialEvidence={evidenceRecords}
             beforeCoverage={tailored.baselineCoverage}
@@ -526,8 +615,8 @@ export function CustomJobFlow({
             onSaveAndRetailor={handleEvidenceRetailor}
             requestPrivateProcessing={requestPrivateProcessing}
             C={C}
-          />
-          <ResumeExperience baseResume={resume} resumeData={tailored.resume} item={customItem} hasLink={Boolean(brief.source_url)} atsReview={tailored.atsReview} candidateEvidence={tailored.candidateEvidence || []} customJob={brief} requestPrivateProcessing={requestPrivateProcessing} onEditResume={onEditResume} onTailoringChangeDecision={handleTailoringChangeDecision} requestAccountAction={requestAccountAction} qualityRoute="custom_job" qualityPostingSource={postingSourceForMode(mode)} C={C} primaryBtnStyle={primaryBtnStyle} />
+          /> : null}
+          {tailored.documentIntent !== "cover_letter_only" ? <ResumeExperience baseResume={resume} resumeData={tailored.resume} item={customItem} hasLink={Boolean(brief.source_url)} atsReview={tailored.atsReview} candidateEvidence={tailored.candidateEvidence || []} customJob={brief} applicationIntent={tailored.documentIntent} initialCoverLetterOpen={tailored.documentIntent === "package"} requestPrivateProcessing={requestPrivateProcessing} onEditResume={onEditResume} onTailoringChangeDecision={handleTailoringChangeDecision} requestAccountAction={requestAccountAction} qualityRoute="custom_job" qualityPostingSource={postingSourceForMode(mode)} C={C} primaryBtnStyle={primaryBtnStyle} /> : null}
         </div>
       )}
     </div>

@@ -29,7 +29,7 @@ A new posting clears job-specific input, uploaded files, extracted facts, source
 
 - Switching an intake tab starts a new source session.
 - **Change source** restarts the current mode with a clean source.
-- **Tailor another posting** starts clean pasted-text intake after a completed result.
+- **Use another posting** starts clean pasted-text intake after a completed result.
 - Back navigation invalidates active work before returning to matches.
 
 Screenshot confirmation is considered only when the active brief declares screenshot provenance. A URL or pasted posting can never be blocked by confirmation state from a previous screenshot set.

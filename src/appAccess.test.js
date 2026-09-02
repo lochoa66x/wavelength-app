@@ -30,6 +30,9 @@ test("private capabilities remain account-scoped", () => {
   for (const capability of ["save_jobs", "edit_resume", "import_posting", "tailor_resume", "generate_evidence", "download_exports", "view_workspace"]) {
     assert.ok(ACCOUNT_CAPABILITIES.includes(capability));
   }
+  for (const capability of ["build_application_package", "create_cover_letter_only"]) {
+    assert.ok(ACCOUNT_CAPABILITIES.includes(capability));
+  }
 });
 
 test("sign-out returns to public discovery", () => {

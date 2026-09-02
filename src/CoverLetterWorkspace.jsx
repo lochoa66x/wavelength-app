@@ -17,8 +17,9 @@ import {
   restoreCoverLetterParagraph,
   updateCoverLetterParagraph,
 } from "./coverLetterModel.js";
-import { loadCoverLetterDraft, removeCoverLetterDraft, saveCoverLetterDraft } from "./coverLetterStorage.js";
+import { loadCoverLetterDraftForReview, removeCoverLetterDraft, saveCoverLetterDraft } from "./coverLetterStorage.js";
 import { createApplicationPresentation, validateApplicationPresentation } from "./applicationPresentation.js";
+import { applicationDocumentStateFromReadiness } from "./applicationPackageModel.js";
 
 const PURPOSE_LABELS = Object.freeze({ opening: "Opportunity opening", evidence: "Evidence-backed value", transition: "Honest transition boundary", closing: "Restrained closing" });
 
@@ -28,17 +29,21 @@ export function CoverLetterWorkspace({
   item,
   atsReview,
   candidateEvidence = [],
+  candidateIdentity = null,
   customJob = null,
   requestPrivateProcessing = (_scope, action) => action(),
   requestAccountAction: requestAccountActionOverride,
   applicationPresentation: requestedApplicationPresentation,
+  workspaceRef,
+  onStatusChange,
+  onAddResume,
   C,
   primaryBtnStyle,
 }) {
   const { session, requestAccountAction: authRequestAccountAction } = useAuth();
   const requestAccountAction = requestAccountActionOverride || authRequestAccountAction;
   const userId = session?.user?.id || "";
-  const context = useMemo(() => ({ baseResume, resumeData, item, atsReview, candidateEvidence }), [baseResume, resumeData, item, atsReview, candidateEvidence]);
+  const context = useMemo(() => ({ baseResume, resumeData, item, atsReview, candidateEvidence, candidateIdentity }), [baseResume, resumeData, item, atsReview, candidateEvidence, candidateIdentity]);
   const applicationPresentation = useMemo(
     () => requestedApplicationPresentation
       ? validateApplicationPresentation(requestedApplicationPresentation)
@@ -48,7 +53,7 @@ export function CoverLetterWorkspace({
   const letterTokens = applicationPresentation.tokens;
   const [voice, setVoice] = useState("direct");
   const [length, setLength] = useState("standard");
-  const [plan, setPlan] = useState(() => loadCoverLetterDraft(userId, item, context));
+  const [plan, setPlan] = useState(() => loadCoverLetterDraftForReview(userId, item));
   const [state, setState] = useState("idle");
   const [message, setMessage] = useState(null);
   const [editingId, setEditingId] = useState("");
@@ -56,7 +61,7 @@ export function CoverLetterWorkspace({
   const controllerRef = useRef(null);
 
   useEffect(() => {
-    const storedPlan = loadCoverLetterDraft(userId, item, context);
+    const storedPlan = loadCoverLetterDraftForReview(userId, item);
     setPlan(storedPlan);
     if (storedPlan?.voice) setVoice(storedPlan.voice);
     if (storedPlan?.length) setLength(storedPlan.length);
@@ -81,6 +86,18 @@ export function CoverLetterWorkspace({
 
   const readiness = useMemo(() => getCoverLetterReadiness(plan, context), [plan, context]);
   const busy = state === "generating" || state === "exporting";
+
+  useEffect(() => {
+    onStatusChange?.({
+      status: applicationDocumentStateFromReadiness(readiness, {
+        exists: Boolean(plan),
+        busy: state === "generating",
+        failed: message?.type === "error" && !plan,
+      }),
+      readiness,
+      plan,
+    });
+  }, [message?.type, onStatusChange, plan, readiness, state]);
   const persist = (nextPlan) => {
     setPlan(nextPlan);
     saveCoverLetterDraft(userId, item, nextPlan);
@@ -177,7 +194,7 @@ export function CoverLetterWorkspace({
   } });
 
   return (
-    <section aria-labelledby="cover-letter-heading" style={{ marginTop: 20, padding: 18, border: `1px solid ${C.border}`, borderRadius: 16, background: C.bgCard }}>
+    <section ref={workspaceRef} aria-labelledby="cover-letter-heading" data-cover-letter-workspace tabIndex={-1} style={{ marginTop: 20, padding: 18, border: `1px solid ${C.border}`, borderRadius: 16, background: C.bgCard, scrollMarginTop: 96 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: 14, flexWrap: "wrap" }}>
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.green, fontSize: 12, fontWeight: 750, textTransform: "uppercase", letterSpacing: 0.35 }}><PenLine size={14} /> Evidence-first cover letter</div>
@@ -198,6 +215,7 @@ export function CoverLetterWorkspace({
 
       <div style={{ display: "flex", gap: 9, flexWrap: "wrap", marginTop: 14 }}>
         <button type="button" onClick={handleGenerate} disabled={busy} className="wl-btn" style={{ ...primaryBtnStyle(busy), fontSize: 13, padding: "9px 15px" }}>{state === "generating" ? <Loader2 size={13} className="wl-spin" /> : <Sparkles size={13} />}{plan ? "Generate a fresh draft" : "Create cover letter"}</button>
+        {onAddResume ? <button type="button" onClick={onAddResume} disabled={busy} className="wl-btn" style={{ minHeight: 44, border: `1px solid ${C.border}`, borderRadius: 980, background: C.bgCard, color: C.text, padding: "9px 14px", fontWeight: 700 }}>Add a tailored résumé</button> : null}
         {state === "generating" ? <button type="button" onClick={cancel} className="wl-btn" style={{ border: `1px solid ${C.border}`, borderRadius: 980, background: C.bgCard, color: C.text, padding: "9px 14px" }}><X size={13} /> Cancel</button> : null}
       </div>
 
