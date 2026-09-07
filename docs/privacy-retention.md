@@ -1,6 +1,6 @@
 # Privacy retention register
 
-Last reviewed: 2026-09-02
+Last reviewed: 2026-09-06
 
 | Record | Current retention behavior | User control | Owner verification |
 | --- | --- | --- | --- |
@@ -13,9 +13,10 @@ Last reviewed: 2026-09-02
 | Supabase auth/profile | Until account/record deletion under operator process | Contact privacy operator; product account-deletion UI is not yet implemented | Define request SLA and deletion runbook owner |
 | Saved/dismissed listing IDs | In own profile row until changed or account deletion | UI changes saved/dismissed state | Define account deletion process |
 | Custom posting and tailored résumé draft in app | Active React page/session state; no intended profile write | Navigate/reset/cancel | Confirm server function does not add payload persistence |
-| Cover-letter request and response | Request-time server processing only; no intended application database write; target-specific response persists locally only | Cancel generation, remove target draft, or clear private browser data | Confirm provider/API retention against active Anthropic account settings |
+| Cover-letter request and response | Request-time server processing only; no intended application database write; target-specific response persists locally only | Cancel generation, remove target draft, or clear private browser data | Confirm provider/API retention against active OpenAI and Anthropic account settings |
 | Quality daily aggregates | Migration deletes buckets older than 180 days when recording executes | Disable future signals | Confirm scheduled/traffic-independent cleanup strategy |
-| Anthropic API inputs/outputs | Provider-published commercial/API default and exceptions apply | Contact operator for a request | Verify active plan/data settings and record DPA terms |
+| OpenAI API inputs/outputs | Primary provider; Responses API requests set `store: false`; provider-published abuse-monitoring retention, account controls, and exceptions still apply | Contact operator for a request | Verify active API project/data settings, Zero Data Retention eligibility if applicable, and DPA terms |
+| Anthropic API inputs/outputs | Fallback provider only after primary failure; provider-published commercial/API default and exceptions apply | Contact operator for a request | Verify active plan/data settings and record DPA terms |
 | Vercel Web Analytics reports | Varies by plan/reporting window | Aggregate only; no person-level product control | Record current plan/reporting window |
 | Vercel operational logs | Varies by product and plan | Contact operator | Record current retention and any Log Drain destination |
 

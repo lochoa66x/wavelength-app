@@ -107,12 +107,12 @@ test("a stale stored expiry cannot override a currently matching publisher page"
   assert.equal(database.row.closed_at, null);
 });
 
-test("404 closes a listing while publisher blocking stays uncertain", async () => {
+test("404 closes a listing while publisher blocking stays uncertain and actionable", async () => {
   for (const scenario of [
     { httpStatus: 404, expected: "closed" },
-    { httpStatus: 403, code: "blocked", expected: "uncertain" },
+    { httpStatus: 403, code: "blocked", expected: "uncertain", message: /Jooble did not allow this automated availability check/ },
   ]) {
-    const database = createDatabase(listing);
+    const database = createDatabase({ ...listing, source: scenario.code === "blocked" ? "jooble" : listing.source });
     const handler = createListingAvailabilityHandler({
       authenticate,
       createAdmin: () => database,
@@ -127,6 +127,7 @@ test("404 closes a listing while publisher blocking stays uncertain", async () =
     const res = responseRecorder();
     await handler(request(), res);
     assert.equal(res.body.availability.status, scenario.expected);
+    if (scenario.message) assert.match(res.body.message, scenario.message);
   }
 });
 

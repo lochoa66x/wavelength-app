@@ -12,6 +12,7 @@ import { RESUME_SYNC_ENABLED } from "../resumeSyncConfig.js";
 import "./privacy.css";
 
 const ANTHROPIC_PRIVACY_URL = "https://privacy.anthropic.com/en/articles/7996868-how-long-do-you-store-personal-data";
+const OPENAI_DATA_CONTROLS_URL = "https://platform.openai.com/docs/guides/your-data";
 const SUPABASE_PRIVACY_URL = "https://supabase.com/privacy";
 const VERCEL_PRIVACY_URL = "https://vercel.com/docs/analytics/privacy-policy";
 
@@ -77,8 +78,8 @@ export default function PrivacyPage() {
         </PolicySection>
 
         <PolicySection title="4. When content is sent to an AI provider">
-          <p>Job-intake, résumé-image reading, résumé-tailoring, evidence-clarification, and cover-letter requests pass through Gigscapes server functions to Anthropic. DOCX and text-based PDF résumé imports stay on the device. When a photo or scanned PDF needs optical reading, Gigscapes sends compressed rendered pages only after a separate notice; the original binary file is not saved. Job intake sends the posting material supplied for extraction. Tailoring sends the selected résumé, the reviewed posting, and confirmed evidence needed to generate and truth-check the draft. Evidence clarification sends only one reviewed requirement and question plus the factual answer fields entered for that requirement; it does not send the full résumé, and its proposal cannot affect tailoring until the person approves it. Cover-letter generation sends those same verified sources, the current application assessment, and a minimized existing paragraph or draft only when the person asks to regenerate wording.</p>
-          <p>Gigscapes shows a just-in-time notice before each kind of processing. Generated content is returned for review and is not submitted to an employer. Anthropic describes its current commercial/API retention practices and exceptions in its <a href={ANTHROPIC_PRIVACY_URL} target="_blank" rel="noreferrer">data-retention documentation <ExternalLink size={13} /></a>.</p>
+          <p>Job-intake, résumé-image reading, résumé-tailoring, evidence-clarification, and cover-letter requests pass through Gigscapes server functions to OpenAI as the primary AI provider. If the primary request fails, Gigscapes may send the same bounded request to Anthropic as a fallback; a successful primary request is not also sent to the fallback. DOCX and text-based PDF résumé imports stay on the device. When a photo or scanned PDF needs optical reading, Gigscapes sends compressed rendered pages only after a separate notice; the original binary file is not saved. Job intake sends the posting material supplied for extraction. Tailoring sends the selected résumé, the reviewed posting, and confirmed evidence needed to generate and truth-check the draft. Evidence clarification sends only one reviewed requirement and question plus the factual answer fields entered for that requirement; it does not send the full résumé, and its proposal cannot affect tailoring until the person approves it. Cover-letter generation sends those same verified sources, the current application assessment, and a minimized existing paragraph or draft only when the person asks to regenerate wording.</p>
+          <p>Gigscapes shows a just-in-time notice before each kind of processing. Generated content is returned for review and is not submitted to an employer. Gigscapes requests that OpenAI not store Responses API output for later retrieval, while provider account settings, abuse-monitoring practices, and legal exceptions still apply. OpenAI describes these controls in its <a href={OPENAI_DATA_CONTROLS_URL} target="_blank" rel="noreferrer">API data-controls documentation <ExternalLink size={13} /></a>, and Anthropic describes its commercial/API practices in its <a href={ANTHROPIC_PRIVACY_URL} target="_blank" rel="noreferrer">data-retention documentation <ExternalLink size={13} /></a>.</p>
         </PolicySection>
 
         <PolicySection title="5. Analytics and operational logs">
@@ -89,7 +90,8 @@ export default function PrivacyPage() {
         <PolicySection title="6. Providers and purposes">
           <ul>
             <li><a href={SUPABASE_PRIVACY_URL} target="_blank" rel="noreferrer">Supabase <ExternalLink size={13} /></a> — authentication, account workspace, public listing database{RESUME_SYNC_ENABLED ? ", and the optional private base-résumé sync you enable" : ""}.</li>
-            <li><a href="https://www.anthropic.com/legal/privacy" target="_blank" rel="noreferrer">Anthropic <ExternalLink size={13} /></a> — posting extraction, opt-in résumé image transcription, résumé tailoring, cover-letter generation, and evidence/truth review.</li>
+            <li><a href="https://openai.com/policies/privacy-policy/" target="_blank" rel="noreferrer">OpenAI <ExternalLink size={13} /></a> — primary provider for posting extraction, opt-in résumé image transcription, résumé tailoring, cover-letter generation, and evidence/truth review.</li>
+            <li><a href="https://www.anthropic.com/legal/privacy" target="_blank" rel="noreferrer">Anthropic <ExternalLink size={13} /></a> — fallback provider for those AI-processing requests when the primary request fails.</li>
             <li><a href="https://vercel.com/legal/privacy-notice" target="_blank" rel="noreferrer">Vercel <ExternalLink size={13} /></a> — hosting, server functions, operational logs, and privacy-filtered aggregate analytics.</li>
           </ul>
         </PolicySection>

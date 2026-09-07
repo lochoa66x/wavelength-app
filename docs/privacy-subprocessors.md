@@ -1,6 +1,6 @@
 # Service-provider register
 
-Last reviewed: 2026-08-27
+Last reviewed: 2026-09-06
 
 ## Supabase
 
@@ -9,11 +9,19 @@ Last reviewed: 2026-08-27
 - Controls: RLS; authenticated own-row policies; anonymous revocation on profiles; `security_invoker` public view; service-role-only quality function.
 - Public policy: <https://supabase.com/privacy>
 
+## OpenAI
+
+- Purpose: primary provider for extracting supplied job postings; reading opt-in résumé images; analyzing, tailoring, and truth-checking résumé drafts; generating and evidence-checking candidate-controlled cover letters.
+- Data: supplied posting content or screenshots; résumé or compressed rendered résumé pages; verified candidate evidence; application assessment; generated résumé or cover-letter response; minimized existing draft when a paragraph is regenerated.
+- Controls: server-side API key, authenticated Gigscapes endpoints, request-size caps, untrusted-input delimiters, structured tools, evidence validation, `store: false` on Responses API requests, no response caching.
+- Data-controls reference: <https://platform.openai.com/docs/guides/your-data>
+- Owner check: verify the active API project, organization settings, Zero Data Retention eligibility if applicable, contractual terms, and any abuse-monitoring or legal exceptions.
+
 ## Anthropic
 
-- Purpose: extract supplied job postings; analyze, tailor, and truth-check résumé drafts; generate and evidence-check candidate-controlled cover letters.
+- Purpose: fallback provider for the same AI-processing operations when the OpenAI request fails.
 - Data: supplied posting content or screenshots; résumé; verified candidate evidence; application assessment; generated résumé or cover-letter response; minimized existing draft when a paragraph is regenerated.
-- Controls: server-side API key, authenticated Gigscapes endpoints, request-size caps, untrusted-input delimiters, structured tools, evidence validation, no response caching.
+- Controls: invoked only after a failed primary request; server-side API key, authenticated Gigscapes endpoints, request-size caps, untrusted-input delimiters, structured tools, evidence validation, no response caching.
 - Retention reference: <https://privacy.anthropic.com/en/articles/7996868-how-long-do-you-store-personal-data>
 - Owner check: verify the active commercial/API plan, data settings, contractual terms, and any exceptions.
 

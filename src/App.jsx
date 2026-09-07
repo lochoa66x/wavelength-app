@@ -974,7 +974,7 @@ export default function Gigscapes() {
       openSignIn();
       return;
     }
-    void runAvailabilityCheck(item);
+    void runAvailabilityCheck(item).catch(() => {});
   };
 
   const performTailor = async (item, stateKey, { skipEnrichment = false, candidateEvidenceOverride } = {}) => {
@@ -1850,6 +1850,9 @@ export default function Gigscapes() {
   const appliedWorkplaceLabel = criteria.location === "either"
     ? "All workplaces"
     : LOCATION_OPTIONS.find(({ id }) => id === criteria.location)?.label || "All workplaces";
+  const searchIsLoading = listingsStatus === "loading";
+  const searchIsDisabled = searchIsLoading || (!quickSearch.trim() && !criteria.field && !criteria.keyword);
+  const activeSearchLabel = quickSearch.trim() || criteria.keyword || criteria.field || "available positions";
   return shell(
     <div style={{ maxWidth: 1120, margin: "0 auto" }}>
       <section aria-labelledby="job-matches-heading">
@@ -1875,16 +1878,21 @@ export default function Gigscapes() {
         </div>
         </div>
         <p style={{ fontSize: 13.5, color: C.textSub, margin: "6px 0 12px" }}>
-        {filtered.length} relevant matches from {loadedCandidateCount} deduplicated candidates for {criteria.keyword ? `"${criteria.keyword}"` : criteria.field?.toLowerCase() || "any work"} · {formatLocationPreference(criteria)}. {" "}
-        {listingsStatus === "loading" && "Loading live listings…"}
-        {listingsStatus === "loading_more" && "Loading more listings…"}
-        {listingsStatus === "error" && (
+        {searchIsLoading ? (
+          <>Searching live listings for “{activeSearchLabel}” · {formatLocationPreference(criteria)}.</>
+        ) : (
           <>
-            Couldn't reach the listings database{listingsError?.message ? `: ${listingsError.message}` : "."}{" "}
-            <button onClick={refetchListings} className="wl-btn" style={{ background: "none", border: "none", padding: 0, color: C.green, fontWeight: 600, cursor: "pointer", font: "inherit" }}>Retry</button>
+            {filtered.length} relevant matches from {loadedCandidateCount} deduplicated candidates for {criteria.keyword ? `"${criteria.keyword}"` : criteria.field?.toLowerCase() || "any work"} · {formatLocationPreference(criteria)}. {" "}
+            {listingsStatus === "loading_more" && "Loading more listings…"}
+            {listingsStatus === "error" && (
+              <>
+                Couldn't reach the listings database{listingsError?.message ? `: ${listingsError.message}` : "."}{" "}
+                <button onClick={refetchListings} className="wl-btn" style={{ background: "none", border: "none", padding: 0, color: C.green, fontWeight: 600, cursor: "pointer", font: "inherit" }}>Retry</button>
+              </>
+            )}
+            {listingsStatus === "ready" && lastFetched && `Updated ${lastFetched.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.`}
           </>
         )}
-        {listingsStatus === "ready" && lastFetched && `Updated ${lastFetched.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}.`}
         </p>
         {criteria.countryCode === "US" && (
           <div role="status" style={{ margin: "0 0 14px", padding: "11px 13px", borderRadius: 12, border: `1px solid ${C.blueBorder}`, background: C.blueTint, color: C.textSub, fontSize: 12.5, lineHeight: 1.5 }}>
@@ -1894,7 +1902,7 @@ export default function Gigscapes() {
         )}
       </section>
 
-      <section aria-label="Search jobs and gigs" style={{ marginBottom: 18, padding: 16, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 16, boxShadow: "0 1px 2px rgba(0,0,0,0.025)" }}>
+      <section aria-label="Search jobs and gigs" aria-busy={searchIsLoading} style={{ marginBottom: 18, padding: 16, background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 16, boxShadow: "0 1px 2px rgba(0,0,0,0.025)" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
           <span style={{ color: C.textSub, fontSize: 12.5, fontWeight: 600 }}>Searching in</span>
           <button
@@ -2008,19 +2016,36 @@ export default function Gigscapes() {
               </div>
               <button
                 type="submit"
-                disabled={!quickSearch.trim() && !criteria.field && !criteria.keyword}
+                disabled={searchIsDisabled}
                 className="wl-btn"
-                style={{ ...primaryBtnStyle(!quickSearch.trim() && !criteria.field && !criteria.keyword), minHeight: 46, borderRadius: 12, padding: "10px 17px", fontSize: 13, whiteSpace: "nowrap" }}
+                style={{ ...primaryBtnStyle(searchIsDisabled), minHeight: 46, borderRadius: 12, padding: "10px 17px", fontSize: 13, whiteSpace: "nowrap", cursor: searchIsLoading ? "wait" : undefined }}
               >
-                Search <ArrowRight size={15} />
+                {searchIsLoading ? <Loader2 size={16} className="wl-spin" aria-hidden="true" /> : <Search size={15} aria-hidden="true" />}
+                {searchIsLoading ? "Searching…" : "Search"}
               </button>
             </div>
           </label>
         </form>
-        <div aria-live="polite" style={{ marginTop: 10, color: C.textFaint, fontSize: 12.5 }}>
-          {filtered.length} relevant {filtered.length === 1 ? "match" : "matches"} · {loadedCandidateCount} deduplicated candidates loaded · {visibleFiltered.length} shown · {formatLocationPreference(criteria)}
-          {Number.isInteger(listingsTotal) ? ` · ${listingsTotal} source rows matched the database query` : ""}
-        </div>
+        {searchIsLoading ? (
+          <div
+            role="status"
+            aria-live="polite"
+            style={{ marginTop: 12, display: "flex", alignItems: "center", gap: 11, padding: "12px 14px", borderRadius: 12, border: `1px solid ${C.blueBorder}`, background: C.blueTint, color: C.textSub }}
+          >
+            <Loader2 size={20} className="wl-spin" aria-hidden="true" style={{ flex: "0 0 auto", color: C.blue }} />
+            <div style={{ minWidth: 0, lineHeight: 1.4 }}>
+              <strong style={{ display: "block", color: C.text, fontSize: 13.5 }}>Searching for positions…</strong>
+              <span style={{ display: "block", marginTop: 2, fontSize: 12.5 }}>
+                Checking available {formatLocationPreference(criteria)} listings for “{activeSearchLabel}”. This may take a few seconds.
+              </span>
+            </div>
+          </div>
+        ) : (
+          <div aria-live="polite" style={{ marginTop: 10, color: C.textFaint, fontSize: 12.5 }}>
+            {filtered.length} relevant {filtered.length === 1 ? "match" : "matches"} · {loadedCandidateCount} deduplicated candidates loaded · {visibleFiltered.length} shown · {formatLocationPreference(criteria)}
+            {Number.isInteger(listingsTotal) ? ` · ${listingsTotal} source rows matched the database query` : ""}
+          </div>
+        )}
         {legacyLocationFallback && (
           <div role="status" style={{ marginTop: 8, color: C.amber, fontSize: 12 }}>
             Structured location columns are unavailable, so this session is using compatibility filtering.
@@ -2217,7 +2242,7 @@ export default function Gigscapes() {
                   style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12.5, fontWeight: 600, color: C.textSub, background: "none", border: "none", cursor: availabilityCheck?.status === "loading" ? "wait" : "pointer" }}
                 >
                   {availabilityCheck?.status === "loading" ? <Loader2 size={12} className="wl-spin" /> : <RotateCcw size={12} />}
-                  {availabilityCheck?.status === "loading" ? "Checking…" : "Check availability"}
+                  {availabilityCheck?.status === "loading" ? "Checking…" : availabilityCheck?.status === "done" ? "Check again" : "Check availability"}
                 </button>
                 <button
                   type="button"
@@ -2232,6 +2257,39 @@ export default function Gigscapes() {
                 </button>
               </div>
 
+              {availabilityCheck && (
+                <div
+                  role={availabilityCheck.status === "error" ? "alert" : "status"}
+                  aria-live="polite"
+                  style={{
+                    alignItems: "flex-start",
+                    background: availabilityCheck.status === "loading" ? "#F6F6F7" : availabilityTone.background,
+                    border: `1px solid ${availabilityCheck.status === "loading" ? C.border : availabilityTone.border}`,
+                    borderRadius: 12,
+                    color: availabilityCheck.status === "loading" ? C.textSub : availabilityTone.color,
+                    display: "flex",
+                    flexWrap: "wrap",
+                    fontSize: 12.5,
+                    gap: 7,
+                    lineHeight: 1.45,
+                    marginTop: 10,
+                    padding: "10px 12px",
+                  }}
+                >
+                  {availabilityCheck.status === "loading"
+                    ? <Loader2 size={14} className="wl-spin" aria-hidden="true" style={{ flex: "0 0 auto", marginTop: 2 }} />
+                    : availability.status === "active"
+                      ? <CheckCircle2 size={14} aria-hidden="true" style={{ flex: "0 0 auto", marginTop: 2 }} />
+                      : <Clock size={14} aria-hidden="true" style={{ flex: "0 0 auto", marginTop: 2 }} />}
+                  <span style={{ color: C.textSub, flex: "1 1 280px" }}>{availabilityCheck.message}</span>
+                  {availabilityCheck.status === "done" && availability.status === "uncertain" && hasLink && (
+                    <a href={item.url} target="_blank" rel="noreferrer" className="wl-btn" style={{ alignItems: "center", color: C.text, display: "inline-flex", fontWeight: 700, gap: 4, whiteSpace: "nowrap" }}>
+                      Open listing to confirm <ExternalLink size={11} />
+                    </a>
+                  )}
+                </div>
+              )}
+
               {isExpanded && (
                 <div
                   ref={(node) => setTailoringPanelRef(stateKey, node)}
@@ -2245,9 +2303,6 @@ export default function Gigscapes() {
                   <h3 id={headingId} style={{ color: C.text, fontSize: 15, lineHeight: 1.35, margin: "0 0 10px" }}>
                     Review and tailor for {item.title}
                   </h3>
-                  {availabilityCheck?.status === "error" && (
-                    <p role="status" style={{ color: C.amber, fontSize: 12.5, margin: "0 0 10px" }}>{availabilityCheck.message}</p>
-                  )}
                   {item.availabilityStatus === "closed" && !t && (
                     <div role="status" style={{ background: "#FFF1EF", border: "1px solid #F5C7C0", borderRadius: 12, padding: "12px 13px" }}>
                       <strong style={{ color: C.red, display: "block", fontSize: 13.5, marginBottom: 4 }}>This posting appears to be closed</strong>

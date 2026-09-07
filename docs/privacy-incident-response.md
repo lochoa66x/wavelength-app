@@ -5,7 +5,7 @@
 1. Stop the affected request path using the narrowest reversible control.
 2. Rotate any exposed server-only key; never rotate a public publishable key as a substitute for fixing authorization.
 3. Preserve relevant metadata without copying résumé, posting, token, or AI response bodies into tickets or chat.
-4. Confirm whether the issue affects browser-local data, Supabase rows, Anthropic requests, Vercel logs/analytics, or exports.
+4. Confirm whether the issue affects browser-local data, Supabase rows, OpenAI primary requests, Anthropic fallback requests, Vercel logs/analytics, or exports.
 
 ## Assessment
 

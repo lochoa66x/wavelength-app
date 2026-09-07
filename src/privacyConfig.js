@@ -1,5 +1,5 @@
-export const PRIVACY_POLICY_VERSION = "2026-09-02.1";
-export const PRIVACY_EFFECTIVE_DATE = "September 2, 2026";
+export const PRIVACY_POLICY_VERSION = "2026-09-06.1";
+export const PRIVACY_EFFECTIVE_DATE = "September 6, 2026";
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

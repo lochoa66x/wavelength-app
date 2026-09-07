@@ -43,9 +43,30 @@ function safePayload(listing, cached = false) {
   };
 }
 
-function availabilityMessage(status) {
+const PUBLISHER_LABELS = Object.freeze({
+  adzuna: "Adzuna",
+  jooble: "Jooble",
+  jobicy: "Jobicy",
+  himalayas: "Himalayas",
+  greenhouse: "Greenhouse",
+  lever: "Lever",
+  ashby: "Ashby",
+  wwr: "We Work Remotely",
+});
+
+function availabilityMessage(status, reason, source) {
   if (status === LISTING_AVAILABILITY.CLOSED) return "This posting appears to be closed. Your saved history and tailored documents are still available.";
-  if (status === LISTING_AVAILABILITY.UNCERTAIN) return "The publisher did not provide enough evidence to confirm whether this posting is still open.";
+  if (status === LISTING_AVAILABILITY.UNCERTAIN) {
+    if (reason === "publisher_blocked") {
+      const publisher = PUBLISHER_LABELS[source] || "The publisher";
+      return `${publisher} did not allow this automated availability check. Open the listing to confirm whether it is still available.`;
+    }
+    if (reason === "rate_limited") return "The publisher temporarily limited availability checks. Open the listing to confirm, or try again later.";
+    if (reason === "timeout" || reason === "network_error" || reason === "upstream_error") {
+      return "The publisher could not be reached reliably. The posting was not marked closed; open it to confirm or try again later.";
+    }
+    return "The publisher did not provide enough evidence to confirm whether this posting is still open. Open the listing to confirm.";
+  }
   return "This posting is currently available on the publisher's page.";
 }
 
@@ -83,7 +104,10 @@ export function createListingAvailabilityHandler({
 
     const checkedAt = now();
     if (isAvailabilityCheckFresh(listing.last_checked_at, { now: checkedAt.getTime() })) {
-      return res.status(200).json({ ...safePayload(listing, true), message: availabilityMessage(listing.availability_status) });
+      return res.status(200).json({
+        ...safePayload(listing, true),
+        message: availabilityMessage(listing.availability_status, listing.availability_reason, listing.source),
+      });
     }
 
     const startedAt = Date.now();
@@ -147,7 +171,10 @@ export function createListingAvailabilityHandler({
       durationBand: Date.now() - startedAt < 1_000 ? "under_1s" : Date.now() - startedAt < 5_000 ? "1_to_5s" : "over_5s",
     }));
 
-    return res.status(200).json({ ...safePayload(saved), message: availabilityMessage(saved.availability_status) });
+    return res.status(200).json({
+      ...safePayload(saved),
+      message: availabilityMessage(saved.availability_status, saved.availability_reason, saved.source),
+    });
   };
 }
 

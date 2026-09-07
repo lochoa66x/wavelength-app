@@ -1,6 +1,6 @@
 # Privacy impact assessment — foundation release
 
-Date: 2026-09-02
+Date: 2026-09-06
 Status: operator facts verified; local application-package status scope documented; production release verification remains
 
 ## Purpose and necessity
@@ -42,5 +42,6 @@ Gigscapes finds public jobs and creates editable résumé and cover-letter draft
 ## Remaining operational confirmations
 
 1. Vercel operational-log retention for the active plan.
-2. Anthropic commercial/API data settings for the active account.
-3. Incident commander, backup contact, and counsel/notification path.
+2. OpenAI API project data settings, retention controls, and contractual terms for the active account.
+3. Anthropic commercial/API data settings for the fallback account.
+4. Incident commander, backup contact, and counsel/notification path.

@@ -13,7 +13,11 @@ test("privacy notice is public, versioned, and covers the real processing bounda
   assert.match(page, /explicitly turn on cross-device résumé sync/i);
   assert.match(page, /not end-to-end encrypted/i);
   assert.match(page, /Supabase/);
+  assert.match(page, /OpenAI/);
   assert.match(page, /Anthropic/);
+  assert.match(page, /primary AI provider/i);
+  assert.match(page, /fallback/i);
+  assert.match(page, /successful primary request is not also sent to the fallback/i);
   assert.match(page, /Vercel Web Analytics/);
   assert.match(page, /selected country \(Canada or United States\)/i);
   assert.match(page, /whether the search returned results, returned no results, or failed/i);
@@ -34,5 +38,6 @@ test("just-in-time processing copy stays provider-neutral while the privacy noti
   assert.match(processingDialog, /configured AI processing provider/i);
   assert.match(processingDialog, /Current AI providers and their purposes are identified in the Privacy Notice/i);
   assert.doesNotMatch(processingDialog, /Anthropic|OpenAI/);
+  assert.match(page, /OpenAI/);
   assert.match(page, /Anthropic/);
 });

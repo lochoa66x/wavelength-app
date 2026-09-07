@@ -22,6 +22,29 @@ test("workspace source copy does not claim unconfigured feeds are live", async (
   assert.doesNotMatch(source, /Live feeds:/);
 });
 
+test("job search exposes a visible and accessible in-progress state", async () => {
+  const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
+
+  assert.match(source, /const searchIsLoading = listingsStatus === "loading"/);
+  assert.match(source, /aria-busy=\{searchIsLoading\}/);
+  assert.match(source, /role="status"/);
+  assert.match(source, /Searching for positions…/);
+  assert.match(source, /Searching live listings for “\{activeSearchLabel\}”/);
+  assert.match(source, /<Loader2[^>]+className="wl-spin"/);
+  assert.match(source, /disabled=\{searchIsDisabled\}/);
+  assert.match(source, /searchIsLoading \? "Searching…" : "Search"/);
+});
+
+test("availability checks render successful and uncertain feedback outside tailoring", async () => {
+  const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
+
+  assert.match(source, /availabilityCheck\?\.status === "done" \? "Check again"/);
+  assert.match(source, /\{availabilityCheck && \(/);
+  assert.match(source, /aria-live="polite"/);
+  assert.match(source, /availabilityCheck\.message/);
+  assert.match(source, /Open listing to confirm/);
+});
+
 test("bring-your-own-posting copy describes an open posting rather than a job already obtained", async () => {
   const source = await readFile(new URL("./App.jsx", import.meta.url), "utf8");
 
