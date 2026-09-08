@@ -58,7 +58,8 @@ test("cover-letter generation uses reviewed sources and exact citations", async 
   assert.equal(res.body.letter.voice, "warm");
   assert.equal(res.body.letter.paragraphs.length, 3);
   assert.match(requestBody.system, /Never invent/i);
-  assert.match(requestBody.messages[0].content, /Do not add a gap-confession/i);
+  assert.match(requestBody.messages[0].content, /employer-facing advocacy document/i);
+  assert.doesNotMatch(requestBody.messages[0].content, /APPLICATION ASSESSMENT/i);
   assert.doesNotMatch(JSON.stringify(res.body), /application-ready|private résumé/i);
 });
 
@@ -85,6 +86,57 @@ test("unsolicited career-transition and gap-confession language remains blocked 
       purpose: "boundary",
       text: "I am making a career transition and do not have direct industrial maintenance experience.",
       explanation: "Explains the career transition.",
+    } : entry),
+  };
+  const handler = createCoverLetterHandler({
+    authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
+    fetchImpl: async () => { calls += 1; return toolResponse(bad); },
+    getApiKey: () => "test",
+  });
+  const res = responseRecorder();
+  await handler({ method: "POST", headers: { authorization: "Bearer valid" }, body: {
+    resume: "Jordan Lee\nInstalled and maintained electrical panels.\nDocumented preventive maintenance work in a CMMS.",
+    customJob,
+    candidateEvidence: [],
+  } }, res);
+  assert.equal(calls, 2);
+  assert.equal(res.statusCode, 422);
+});
+
+test("self-disqualifying adjacent-experience caveats remain blocked after repair", async () => {
+  let calls = 0;
+  const bad = {
+    ...letter,
+    paragraphs: letter.paragraphs.map((entry, index) => index === 1 ? {
+      ...entry,
+      text: "My experience was in financial services rather than the utilities context the role specifies. If direct utilities history is a firm prerequisite, I understand.",
+      explanation: "Explains the candidate's limitations before the employer evaluates the application.",
+      evidence_match: "adjacent",
+    } : entry),
+  };
+  const handler = createCoverLetterHandler({
+    authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
+    fetchImpl: async () => { calls += 1; return toolResponse(bad); },
+    getApiKey: () => "test",
+  });
+  const res = responseRecorder();
+  await handler({ method: "POST", headers: { authorization: "Bearer valid" }, body: {
+    resume: "Jordan Lee\nInstalled and maintained electrical panels.\nDocumented preventive maintenance work in a CMMS.",
+    customJob,
+    candidateEvidence: [],
+  } }, res);
+  assert.equal(calls, 2);
+  assert.equal(res.statusCode, 422);
+});
+
+test("the exact material-gap confession from a legacy draft remains blocked", async () => {
+  let calls = 0;
+  const bad = {
+    ...letter,
+    paragraphs: letter.paragraphs.map((entry, index) => index === 1 ? {
+      ...entry,
+      text: "I want to be direct about a material gap: my résumé does not include experience with the SAP ISU module family. If ISU-specific project history is a firm prerequisite, I understand.",
+      evidence_match: "adjacent",
     } : entry),
   };
   const handler = createCoverLetterHandler({

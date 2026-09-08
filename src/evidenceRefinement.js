@@ -34,6 +34,18 @@ export function candidateEvidencePreview(record = {}) {
   ].filter(Boolean).join(" ");
 }
 
+export function prepareCandidateEvidenceForSubmission(records = []) {
+  return (Array.isArray(records) ? records : []).map((record) => {
+    const normalized = normalizeEvidenceDraft(record);
+    const hasUsableYesAnswer = normalized.answer_status === "yes"
+      && String(normalized.answer || "").trim().length >= 3;
+    return {
+      ...normalized,
+      user_confirmed: normalized.answer_status === "no" || hasUsableYesAnswer,
+    };
+  });
+}
+
 export function submittableCandidateEvidence(records = []) {
   return (Array.isArray(records) ? records : [])
     .map(normalizeEvidenceDraft)

@@ -1,21 +1,22 @@
 import { createResumePackage, stableHash } from "./resumeModel.js";
 import { hasUsableResumeIdentity, hasVerifiedPosting } from "./resumeReadiness.js";
 import { createApplicationPresentation, validateApplicationPresentation } from "./applicationPresentation.js";
+import { containsSelfDisqualifyingCoverLetterLanguage } from "./coverLetterLanguage.js";
 
 export const COVER_LETTER_SCHEMA_VERSION = 1;
 export const COVER_LETTER_VOICES = Object.freeze([
   { id: "direct", label: "Direct", description: "Concise and practical." },
   { id: "warm", label: "Warm", description: "Personable without invented enthusiasm." },
-  { id: "confident", label: "Confident", description: "Assured while preserving the evidence boundary." },
+  { id: "confident", label: "Confident", description: "Assured and focused on verified strengths." },
 ]);
 export const COVER_LETTER_LENGTHS = Object.freeze([
-  { id: "short", label: "Short", description: "About 220–300 words." },
-  { id: "standard", label: "Standard", description: "About 320–430 words." },
+  { id: "short", label: "Short", description: "About 180–240 words." },
+  { id: "standard", label: "Standard", description: "About 260–340 words." },
 ]);
 
 const VOICES = new Set(COVER_LETTER_VOICES.map(({ id }) => id));
 const LENGTHS = new Set(COVER_LETTER_LENGTHS.map(({ id }) => id));
-const PARAGRAPH_PURPOSES = new Set(["opening", "evidence", "transition", "closing"]);
+const PARAGRAPH_PURPOSES = new Set(["opening", "evidence", "closing"]);
 const RISKY_EDIT_PATTERNS = [
   /\b(?:referred|referral|recommended)\s+by\b/i,
   /\b(?:dream|passion(?:ate)?|thrilled|excited)\b/i,
@@ -72,7 +73,7 @@ function normalizeParagraph(raw, index) {
     evidenceRefs: cleanArray(raw?.evidenceRefs ?? raw?.evidence_refs),
     requirementRefs: cleanArray(raw?.requirementRefs ?? raw?.requirement_refs),
     explanation: clean(raw?.explanation, 800),
-    evidenceMatch: ["direct", "adjacent", "transferable", "boundary", "neutral"].includes(raw?.evidenceMatch ?? raw?.evidence_match)
+    evidenceMatch: ["direct", "adjacent", "transferable", "neutral"].includes(raw?.evidenceMatch ?? raw?.evidence_match)
       ? raw?.evidenceMatch ?? raw?.evidence_match
       : "neutral",
     verification: raw?.verification === "user_edit_unverified" ? "user_edit_unverified" : "verified",
@@ -136,6 +137,9 @@ export function createCoverLetterPlan(raw = {}, {
 export function validateCoverLetterEdit(text, paragraph, { baseResume = "", candidateEvidence = [], item = {} } = {}) {
   const next = clean(text, 2_400);
   if (next.length < 20) return { ok: false, message: "Keep at least one complete, specific sentence or remove the paragraph." };
+  if (containsSelfDisqualifyingCoverLetterLanguage(next)) {
+    return { ok: false, message: "Keep the letter focused on relevant strengths. Leave missing qualifications and fit concerns out of employer-facing wording." };
+  }
   if (RISKY_EDIT_PATTERNS.some((pattern) => pattern.test(next))) {
     return { ok: false, message: "This edit adds a motivation, relationship, availability, or compensation claim that the evidence contract cannot verify." };
   }
@@ -192,6 +196,7 @@ export function getCoverLetterReadiness(plan, { baseResume = "", resumeData = {}
   const stale = !plan || plan.sourceFingerprint !== expectedFingerprint;
   const invalidHash = Boolean(plan) && plan.contentHash !== stableHash(planContent(plan), "cover-letter");
   const unverified = (plan?.paragraphs || []).some((entry) => entry.verification !== "verified");
+  const selfDisqualifying = (plan?.paragraphs || []).some((entry) => containsSelfDisqualifyingCoverLetterLanguage(entry.text));
   const incomplete = (plan?.paragraphs?.length || 0) < 2 || !plan?.candidate?.fullName || !plan?.target?.jobTitle;
   const missingIdentity = !hasUsableResumeIdentity(plan?.candidate?.fullName);
   const requirementCount = Array.isArray(atsReview?.requirements) ? atsReview.requirements.length : 0;
@@ -199,7 +204,7 @@ export function getCoverLetterReadiness(plan, { baseResume = "", resumeData = {}
     .reduce((total, key) => total + Number(atsReview?.coverage?.[key] || 0), 0);
   const assessmentIncomplete = !hasVerifiedPosting(atsReview) || requirementCount === 0 || requirementCount !== coverageTotal;
   const significantGap = ["significant_gap", "needs_full_posting"].includes(atsReview?.readiness?.status);
-  const blocked = missingIdentity || stale || invalidHash || unverified || incomplete;
+  const blocked = missingIdentity || stale || invalidHash || unverified || selfDisqualifying || incomplete;
   const preliminary = !blocked && (assessmentIncomplete || significantGap);
   return {
     state: blocked ? "blocked" : preliminary ? "preliminary" : "application_ready",
@@ -207,6 +212,7 @@ export function getCoverLetterReadiness(plan, { baseResume = "", resumeData = {}
     preliminary,
     stale,
     invalidHash,
+    selfDisqualifying,
     message: missingIdentity
       ? "Add your real name to the saved résumé before exporting a cover letter."
       : stale
@@ -215,11 +221,13 @@ export function getCoverLetterReadiness(plan, { baseResume = "", resumeData = {}
           ? "The letter content no longer matches its trusted draft. Generate it again."
           : unverified
             ? "Recheck or restore the edited paragraph before exporting."
-            : incomplete
-              ? "Generate a complete evidence-backed letter before exporting."
-              : preliminary
-                ? "Preliminary letter — the reviewed evidence or posting is not yet sufficient for application-ready status."
-                : "Application-ready cover letter — identity, posting, and evidence checks passed.",
+            : selfDisqualifying
+              ? "This saved draft uses self-disqualifying language from an earlier version. Generate a fresh draft before exporting."
+              : incomplete
+                ? "Generate a complete evidence-backed letter before exporting."
+                : preliminary
+                  ? "Preliminary letter — the reviewed evidence or posting is not yet sufficient for application-ready status."
+                  : "Application-ready cover letter — identity, posting, and evidence checks passed.",
   };
 }
 

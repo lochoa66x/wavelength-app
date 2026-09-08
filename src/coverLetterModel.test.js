@@ -111,6 +111,27 @@ test("user edits reject invented numbers and risky personal claims", () => {
   assert.equal(safe.ok, true);
 });
 
+test("self-disqualifying edits and legacy drafts are blocked from export", () => {
+  const context = { baseResume, resumeData, item, atsReview };
+  const plan = createCoverLetterPlan(draft(), context);
+  const paragraph = plan.paragraphs[0];
+  const edit = updateCoverLetterParagraph(plan, paragraph.id, "I do not have direct utilities experience, but I would welcome the opportunity to contribute.", { baseResume, item });
+  assert.equal(edit.ok, false);
+  assert.match(edit.message, /relevant strengths/i);
+
+  const legacyDraft = draft();
+  legacyDraft.paragraphs[1] = {
+    ...legacyDraft.paragraphs[1],
+    purpose: "transition",
+    text: "I want to be direct about a material gap: my résumé does not include experience in the utilities context.",
+  };
+  const legacyPlan = createCoverLetterPlan(legacyDraft, context);
+  const readiness = getCoverLetterReadiness(legacyPlan, context);
+  assert.equal(readiness.state, "blocked");
+  assert.equal(readiness.selfDisqualifying, true);
+  assert.match(readiness.message, /fresh draft/i);
+});
+
 test("user edits cannot introduce a new unsupported capability", () => {
   const plan = createCoverLetterPlan(draft(), { baseResume, resumeData, item, atsReview });
   const paragraph = plan.paragraphs[0];

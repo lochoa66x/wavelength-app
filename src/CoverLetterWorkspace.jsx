@@ -21,7 +21,7 @@ import { loadCoverLetterDraftForReview, removeCoverLetterDraft, saveCoverLetterD
 import { createApplicationPresentation, validateApplicationPresentation } from "./applicationPresentation.js";
 import { applicationDocumentStateFromReadiness } from "./applicationPackageModel.js";
 
-const PURPOSE_LABELS = Object.freeze({ opening: "Opportunity opening", evidence: "Evidence-backed value", transition: "Honest transition boundary", closing: "Restrained closing" });
+const PURPOSE_LABELS = Object.freeze({ opening: "Relevant opening", evidence: "Evidence-backed strength", transition: "Relevant strength", closing: "Professional closing" });
 
 export function CoverLetterWorkspace({
   baseResume,
@@ -197,9 +197,9 @@ export function CoverLetterWorkspace({
     <section ref={workspaceRef} aria-labelledby="cover-letter-heading" data-cover-letter-workspace tabIndex={-1} style={{ marginTop: 20, padding: 18, border: `1px solid ${C.border}`, borderRadius: 16, background: C.bgCard, scrollMarginTop: 96 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", gap: 14, flexWrap: "wrap" }}>
         <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.green, fontSize: 12, fontWeight: 750, textTransform: "uppercase", letterSpacing: 0.35 }}><PenLine size={14} /> Evidence-first cover letter</div>
-          <h3 id="cover-letter-heading" style={{ margin: "6px 0 5px", color: C.text, fontSize: 20 }}>Write the letter from what you can prove.</h3>
-          <p style={{ margin: 0, maxWidth: 620, color: C.textSub, fontSize: 13, lineHeight: 1.55 }}>Choose a voice, then review why every paragraph exists. Gigscapes does not invent enthusiasm, relationships, qualifications, or availability.</p>
+          <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.green, fontSize: 12, fontWeight: 750, textTransform: "uppercase", letterSpacing: 0.35 }}><PenLine size={14} /> Tailored cover letter</div>
+          <h3 id="cover-letter-heading" style={{ margin: "6px 0 5px", color: C.text, fontSize: 20 }}>Put your strongest relevant experience forward.</h3>
+          <p style={{ margin: 0, maxWidth: 620, color: C.textSub, fontSize: 13, lineHeight: 1.55 }}>Choose a voice, then review the draft. Gigscapes highlights verified strengths without inventing qualifications or volunteering reasons to reject you.</p>
         </div>
         {plan ? <button type="button" onClick={clearDraft} className="wl-btn" style={{ border: `1px solid ${C.border}`, borderRadius: 980, background: C.bgCard, color: C.textSub, padding: "8px 12px", display: "flex", gap: 6, alignItems: "center" }}><Trash2 size={13} /> Remove draft</button> : null}
       </div>

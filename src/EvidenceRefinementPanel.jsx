@@ -4,6 +4,7 @@ import {
   candidateEvidencePreview,
   evidenceAnswerState,
   normalizeEvidenceDraft,
+  prepareCandidateEvidenceForSubmission,
   submittableCandidateEvidence,
 } from "./evidenceRefinement.js";
 import { clarifyCandidateEvidence } from "./tailorClient.js";
@@ -82,7 +83,7 @@ export function EvidenceRefinementPanel({
         question: record.question || "Would you like to keep or update this evidence?",
       });
     }
-    return Array.from(merged.values()).slice(0, 5);
+    return Array.from(merged.values()).slice(0, 3);
   }, [drafts, questions]);
 
   const answered = useMemo(
@@ -248,37 +249,34 @@ export function EvidenceRefinementPanel({
   };
 
   const submit = () => {
-    const records = Object.values(drafts)
+    const records = prepareCandidateEvidenceForSubmission(Object.values(drafts)
       .map(normalizeEvidenceDraft)
-      .filter((record) => evidenceAnswerState(record));
+      .filter((record) => evidenceAnswerState(record)));
     if (!records.length) {
-      setMessage("Answer at least one question with Yes, No, or Not sure.");
+      setMessage("Choose Yes or No for at least one question, or leave this optional section alone.");
       return;
     }
-    const incomplete = records.find((record) => record.answer_status === "yes" && (
-      !String(record.answer || "").trim() || record.user_confirmed !== true
-    ));
-    if (incomplete) {
-      setMessage("For each Yes answer, add a factual example and confirm the preview before re-tailoring.");
+    const candidateEvidence = submittableCandidateEvidence(records);
+    if (!candidateEvidence.length) {
+      setMessage("A Yes answer needs one short example before Gigscapes can use it. “Not sure” can simply be left unanswered.");
       return;
     }
     setMessage("");
-    onSaveAndRetailor({ records, candidateEvidence: submittableCandidateEvidence(records) });
+    onSaveAndRetailor({ records, candidateEvidence });
   };
 
   return (
-    <section aria-label="Strengthen this tailored résumé" style={{ background: C.bgCard, border: `1px solid ${C.blueBorder}`, borderRadius: 14, padding: "15px 16px", marginBottom: 14 }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 12, marginBottom: 10 }}>
-        <div>
-          <div style={{ display: "flex", alignItems: "center", gap: 7, color: C.text, fontWeight: 750, fontSize: 13.5 }}>
-            <MessageSquareText size={16} color={C.blue} /> Add evidence only you can confirm
-          </div>
-          <p style={{ margin: "4px 0 0", color: C.textSub, fontSize: 12, lineHeight: 1.5 }}>
-            Answer plainly. “Not sure” stays only on this browser/device and is never used as evidence. Your saved résumé is never changed by this step.
-          </p>
-        </div>
-        <span style={{ color: C.textFaint, fontSize: 11.5, whiteSpace: "nowrap" }}>{answered}/{visibleQuestions.length} answered</span>
-      </div>
+    <details defaultOpen={answered > 0} aria-label="Strengthen this tailored résumé" style={{ background: C.bgCard, border: `1px solid ${C.blueBorder}`, borderRadius: 14, marginBottom: 14 }}>
+      <summary style={{ alignItems: "center", cursor: "pointer", display: "flex", gap: 8, justifyContent: "space-between", listStyle: "none", padding: "14px 16px" }}>
+        <span style={{ alignItems: "center", color: C.text, display: "inline-flex", fontSize: 13.5, fontWeight: 750, gap: 7 }}>
+          <MessageSquareText size={16} color={C.blue} /> Strengthen this draft <span style={{ color: C.blue, fontSize: 10.5, textTransform: "uppercase" }}>Optional</span>
+        </span>
+        <span style={{ color: C.textFaint, fontSize: 11.5 }}>{answered ? `${answered} answered` : `Up to ${visibleQuestions.length} short questions`}</span>
+      </summary>
+      <div style={{ borderTop: `1px solid ${C.border}`, padding: "12px 16px 15px" }}>
+        <p style={{ margin: "0 0 10px", color: C.textSub, fontSize: 12, lineHeight: 1.5 }}>
+          Skip anything you do not want to answer. One short factual example is enough, and saving it here counts as your instruction to use it for this application. Your saved résumé is never changed.
+        </p>
 
       <div style={{ display: "grid", gap: 10 }}>
         {visibleQuestions.map((question) => {
@@ -324,10 +322,13 @@ export function EvidenceRefinementPanel({
                   <textarea
                     value={record.answer || ""}
                     onChange={(event) => update(question, { answer: event.target.value, user_confirmed: false })}
-                    placeholder="What did you personally do? Use your own factual words."
-                    rows={3}
+                    placeholder="In one or two sentences, what did you do?"
+                    rows={2}
                     style={{ width: "100%", resize: "vertical", marginTop: 8, padding: "9px 10px", borderRadius: 9, border: `1px solid ${C.border}`, color: C.text, background: C.bgCard, font: "inherit", fontSize: 12.5, lineHeight: 1.45 }}
                   />
+                  <p style={{ color: C.textFaint, fontSize: 11, lineHeight: 1.4, margin: "5px 2px 0" }}>Gigscapes will use only the factual words you provide.</p>
+                  <details style={{ borderTop: `1px solid ${C.border}`, marginTop: 9, paddingTop: 8 }}>
+                    <summary style={{ color: C.textSub, cursor: "pointer", fontSize: 11.5, fontWeight: 700 }}>Add project details or polish this answer (optional)</summary>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8, marginTop: 8 }}>
                     <select value={record.contribution_level || "supported"} onChange={(event) => update(question, { contribution_level: event.target.value, user_confirmed: false })} aria-label="Your responsibility level" style={{ padding: "8px 9px", borderRadius: 9, border: `1px solid ${C.border}`, background: C.bgCard, color: C.text, fontSize: 12 }}>
                       {CONTRIBUTION_OPTIONS.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
@@ -417,14 +418,11 @@ export function EvidenceRefinementPanel({
                       </div>
                     ) : null}
                   </div>
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: 12, marginTop: 9, color: C.textSub, fontSize: 11.5 }}>
-                    <label><input type="radio" name={`scope-${question.requirement_id}`} checked={record.scope !== "profile"} onChange={() => update(question, { scope: "application" })} /> This application only</label>
-                    <label><input type="radio" name={`scope-${question.requirement_id}`} checked={record.scope === "profile"} onChange={() => update(question, { scope: "profile" })} /> Reuse on this browser/device</label>
-                  </div>
-                  <label style={{ display: "flex", alignItems: "flex-start", gap: 7, marginTop: 9, color: C.text, fontSize: 11.5, lineHeight: 1.4 }}>
-                    <input type="checkbox" checked={record.user_confirmed === true} onChange={(event) => update(question, { user_confirmed: event.target.checked })} />
-                    I confirm this preview is accurate and based on my real experience.
+                  <label style={{ display: "flex", alignItems: "flex-start", gap: 7, marginTop: 9, color: C.textSub, fontSize: 11.5, lineHeight: 1.4 }}>
+                    <input type="checkbox" checked={record.scope === "profile"} onChange={(event) => update(question, { scope: event.target.checked ? "profile" : "application" })} />
+                    Remember this answer on this browser for future applications.
                   </label>
+                  </details>
                 </>
               ) : null}
             </div>
@@ -440,8 +438,9 @@ export function EvidenceRefinementPanel({
       {message ? <p role="alert" style={{ color: C.red, margin: "9px 0 0", fontSize: 12 }}>{message}</p> : null}
       <button type="button" onClick={submit} disabled={loading} className="wl-btn" style={{ display: "inline-flex", alignItems: "center", gap: 6, marginTop: 11, border: 0, borderRadius: 999, padding: "10px 15px", color: "#fff", background: loading ? "#FDD5B8" : C.green, fontWeight: 700, cursor: loading ? "wait" : "pointer" }}>
         {loading ? <Loader2 size={14} className="wl-spin" /> : <Sparkles size={14} />}
-        {loading ? "Re-tailoring…" : "Save answers & re-tailor"}
+        {loading ? "Re-tailoring…" : "Use these answers"}
       </button>
-    </section>
+      </div>
+    </details>
   );
 }

@@ -1054,7 +1054,7 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
     ...fallbackKeywords,
   ], 40);
 
-  const candidateQuestions = uniqueStrings(raw.candidate_questions, 5);
+  const candidateQuestions = uniqueStrings(raw.candidate_questions, 3);
   const missingRequirements = requirements.filter((requirement) => requirement.evidence_match === "missing");
   const gapCounts = requirements.reduce((counts, requirement) => {
     counts[requirement.gap_severity] = (counts[requirement.gap_severity] || 0) + 1;
