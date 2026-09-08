@@ -86,6 +86,7 @@ export function CoverLetterWorkspace({
 
   const readiness = useMemo(() => getCoverLetterReadiness(plan, context), [plan, context]);
   const busy = state === "generating" || state === "exporting";
+  const requiresFreshDraft = Boolean(plan && (readiness.stale || readiness.selfDisqualifying));
 
   useEffect(() => {
     onStatusChange?.({
@@ -214,12 +215,18 @@ export function CoverLetterWorkspace({
       </div>
 
       <div style={{ display: "flex", gap: 9, flexWrap: "wrap", marginTop: 14 }}>
-        <button type="button" onClick={handleGenerate} disabled={busy} className="wl-btn" style={{ ...primaryBtnStyle(busy), fontSize: 13, padding: "9px 15px" }}>{state === "generating" ? <Loader2 size={13} className="wl-spin" /> : <Sparkles size={13} />}{plan ? "Generate a fresh draft" : "Create cover letter"}</button>
+        <button type="button" onClick={handleGenerate} disabled={busy} className="wl-btn" style={{ ...primaryBtnStyle(busy), fontSize: 13, padding: "9px 15px" }}>{state === "generating" ? <Loader2 size={13} className="wl-spin" /> : <Sparkles size={13} />}{requiresFreshDraft ? "Regenerate cover letter" : plan ? "Generate a fresh draft" : "Create cover letter"}</button>
         {onAddResume ? <button type="button" onClick={onAddResume} disabled={busy} className="wl-btn" style={{ minHeight: 44, border: `1px solid ${C.border}`, borderRadius: 980, background: C.bgCard, color: C.text, padding: "9px 14px", fontWeight: 700 }}>Add a tailored résumé</button> : null}
         {state === "generating" ? <button type="button" onClick={cancel} className="wl-btn" style={{ border: `1px solid ${C.border}`, borderRadius: 980, background: C.bgCard, color: C.text, padding: "9px 14px" }}><X size={13} /> Cancel</button> : null}
       </div>
 
-      {plan ? (
+      {requiresFreshDraft ? (
+        <div role="alert" data-cover-letter-replacement-required style={{ marginTop: 16, padding: "12px 14px", borderRadius: 10, border: `1px solid ${C.amberBorder || C.amber}`, background: C.amberTint || "#fff8eb", color: C.text, fontSize: 12.5, lineHeight: 1.5 }}>
+          <strong>Fresh draft required.</strong> This browser-saved letter was created from older inputs or older employer-facing rules, so Gigscapes has hidden its text. Regenerate it to use the current résumé, candidate selections, and strengths-only cover-letter policy.
+        </div>
+      ) : null}
+
+      {plan && !requiresFreshDraft ? (
         <>
           <div role={readiness.state === "blocked" ? "alert" : "status"} data-cover-letter-readiness={readiness.state} style={{ marginTop: 16, padding: "10px 12px", borderRadius: 10, border: `1px solid ${readiness.state === "application_ready" ? (C.greenBorder || C.green) : (C.amberBorder || C.amber)}`, background: readiness.state === "application_ready" ? (C.greenTint || "#f2fbf6") : (C.amberTint || "#fff8eb"), color: readiness.state === "application_ready" ? C.green : C.amber, fontSize: 12.5, lineHeight: 1.5 }}><strong>{readiness.state === "application_ready" ? "Application-ready" : readiness.state === "preliminary" ? "Preliminary" : "Export blocked"}</strong> · {readiness.message} This guidance is not included in the letter file.</div>
           <article data-cover-letter-preview data-application-presentation={applicationPresentation.designId} style={{ marginTop: 14, padding: `clamp(22px, 5vw, ${Math.round(letterTokens.marginTopIn * 72)}px) clamp(20px, 5vw, ${Math.round(letterTokens.marginRightIn * 72)}px)`, border: `1px solid ${C.border}`, borderRadius: 12, background: letterTokens.paper, color: letterTokens.ink, boxShadow: "0 8px 24px rgba(0,0,0,0.05)", fontFamily: letterTokens.bodyFontFamily, fontSize: `${letterTokens.coverLetterBodyFontSizePt}pt`, lineHeight: letterTokens.coverLetterLineHeight }}>

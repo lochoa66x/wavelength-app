@@ -202,6 +202,13 @@ const PROVENANCE_STOPWORDS = new Set([
   "directed", "implemented", "integrated", "led", "managed", "oversaw", "participated", "performed", "prepared", "supported", "tested",
 ]);
 
+const REQUIREMENT_LINK_STOPWORDS = new Set([
+  ...CHANGE_STOPWORDS,
+  "capability", "capabilities", "configure", "configuration", "documents", "expertise", "good", "implementation",
+  "integration", "integrated", "knowledge", "module", "modules", "preparing", "process", "processes", "required",
+  "setting", "strong", "support", "supporting", "testing", "understanding", "experience",
+]);
+
 const OWNERSHIP_RANK = Object.freeze({
   assist: 1, assisted: 1, help: 1, helped: 1, support: 1, supported: 1, participate: 1, participated: 1,
   collaborate: 2, collaborated: 2, contribute: 2, contributed: 2, coordinate: 2, coordinated: 2,
@@ -259,12 +266,27 @@ function resumeEvidenceLines(baseResume) {
   })).filter(({ excerpt }) => excerpt.length >= 8 && !/^(?:profile|summary|skills|experience|professional experience|employment|projects|education|training|certifications|languages)$/i.test(excerpt));
 }
 
+function distinctiveRequirementOverlap(bullet, requirementText) {
+  const bulletTokens = changeTokens(bullet);
+  const requirementTokens = [...changeTokens(requirementText)]
+    .filter((token) => !REQUIREMENT_LINK_STOPWORDS.has(token));
+  const overlap = requirementTokens.filter((token) => bulletTokens.has(token));
+  const minimum = requirementTokens.length <= 1 ? requirementTokens.length : 2;
+  return { count: overlap.length, minimum, requirementTokenCount: requirementTokens.length };
+}
+
 function bestRequirementForBullet(bullet, requirements = []) {
   return requirements.map((requirement) => {
     const requirementScore = changeSimilarity(bullet, requirement.requirement);
     const evidenceScore = Math.max(0, ...((requirement.evidence || []).map((citation) => changeSimilarity(bullet, citation.excerpt))));
-    return { requirement, requirementScore, score: Math.max(requirementScore, evidenceScore * 0.6) };
-  }).filter(({ score, requirementScore }) => score >= 0.28 && requirementScore >= 0.16)
+    const distinctive = distinctiveRequirementOverlap(bullet, requirement.requirement);
+    return { requirement, requirementScore, score: Math.max(requirementScore, evidenceScore * 0.6), distinctive };
+  }).filter(({ score, requirementScore, distinctive }) => (
+    distinctive.requirementTokenCount > 0
+    && distinctive.count >= distinctive.minimum
+    && score >= 0.28
+    && requirementScore >= 0.16
+  ))
     .sort((left, right) => right.score - left.score)[0] || null;
 }
 
@@ -334,7 +356,7 @@ export function buildTailoringChangeLedger(resumeData, baseResume, analysis = {}
       const citationComplete = exact || Boolean(provenance.citations.length && provenance.coverage >= 0.5 && !ownershipStrengthening);
       const reason = exact
         ? "Kept this verified evidence because it is already clear and relevant."
-        : requirement && requirementMatch.requirementScore >= 0.22
+        : requirement && citationComplete
           ? `Rephrased verified evidence to make its connection to “${requirement.requirement}” explicit without adding a new fact.`
           : citationComplete
             ? "Clarified the cited candidate evidence without adding a new fact."

@@ -40,7 +40,7 @@ export function ApplicationPackageSummary({ item, packageStatus, resumeStatus, c
         <span style={{ border: `1px solid ${packageStatus === "ready" ? (C.greenBorder || C.green) : (C.amberBorder || C.border)}`, borderRadius: 980, color: packageStatus === "ready" ? C.green : C.amber, padding: "5px 9px", fontSize: 11.5, fontWeight: 750 }}>{packageLabel}</span>
       </div>
       <DocumentRow icon={ScrollText} label="Tailored résumé" status={resumeStatus} actionLabel={resumeActionLabel} onAction={onReviewResume} C={C} />
-      <DocumentRow icon={FileText} label="Cover letter" status={coverLetterStatus} actionLabel={coverLetterStatus === "not_created" ? "Create matching cover letter" : "Review cover letter"} onAction={onOpenCoverLetter} C={C} />
+      <DocumentRow icon={FileText} label="Cover letter" status={coverLetterStatus} actionLabel={coverLetterStatus === "not_created" ? "Create matching cover letter" : coverLetterStatus === "stale" ? "Regenerate cover letter" : "Review cover letter"} onAction={onOpenCoverLetter} C={C} />
       <p style={{ color: C.textFaint, fontSize: 10.5, lineHeight: 1.4, margin: "6px 0 10px" }}>These application drafts stay on this device. Your saved résumé remains unchanged.</p>
     </section>
   );

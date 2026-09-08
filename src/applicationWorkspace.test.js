@@ -44,6 +44,16 @@ test("resume results surface the application summary and cover-letter action bef
   assert.match(experience, /<CoverLetterWorkspace/);
   assert.match(actions, /Create matching cover letter/);
   assert.match(actions, /Review cover letter/);
+  assert.match(actions, /Regenerate cover letter/);
+});
+
+test("legacy or stale cover-letter prose is hidden until it is regenerated", async () => {
+  const workspace = await readFile(new URL("./CoverLetterWorkspace.jsx", import.meta.url), "utf8");
+  assert.match(workspace, /requiresFreshDraft/);
+  assert.match(workspace, /Fresh draft required/);
+  assert.match(workspace, /Gigscapes has hidden its text/);
+  assert.match(workspace, /Regenerate cover letter/);
+  assert.match(workspace, /plan && !requiresFreshDraft/);
 });
 
 test("application package metadata stays browser-local and joins scoped deletion", async () => {

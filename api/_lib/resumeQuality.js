@@ -46,7 +46,10 @@ function normalizeDateRange(value) {
 }
 
 function cleanCompanyPresentation(value) {
-  const company = normalizeSapBranding(value).replace(/\s+/g, " ").trim();
+  const rawCompany = normalizeSapBranding(value).replace(/\s+/g, " ").trim();
+  const company = /^[a-z]/.test(rawCompany)
+    ? rawCompany.split(" ").map((word) => /^[a-z]+$/.test(word) ? `${word.charAt(0).toUpperCase()}${word.slice(1)}` : word).join(" ")
+    : rawCompany;
   const parts = company.split(",").map((part) => part.trim()).filter(Boolean);
   if (parts.length !== 2) return company;
   const trailing = normalized(parts[1]);
@@ -55,7 +58,18 @@ function cleanCompanyPresentation(value) {
 }
 
 function polishedText(value) {
-  return normalizeSapBranding(value).replace(/\s+/g, " ").trim();
+  return normalizeSapBranding(value)
+    .replace(/\b(?:Contributed|Participated) as (?:a|the) ([^,.]{1,80}\bteam lead)\b/gi, "Served as $1, contributing")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function removeRedundantEmployerLocation(company, location) {
+  const cleanedLocation = polishedText(location);
+  const locationKey = normalized(cleanedLocation);
+  if (!locationKey || locationKey.includes(" ")) return cleanedLocation;
+  const companyTokens = new Set(normalized(company).split(" ").filter(Boolean));
+  return companyTokens.has(locationKey) ? "" : cleanedLocation;
 }
 
 export function polishResumePresentation(resumeData) {
@@ -69,7 +83,7 @@ export function polishResumePresentation(resumeData) {
       ...sourceEntry,
       role: polishedText(sourceEntry?.role),
       company: cleanCompanyPresentation(sourceEntry?.company),
-      location: polishedText(sourceEntry?.location),
+      location: removeRedundantEmployerLocation(cleanCompanyPresentation(sourceEntry?.company), sourceEntry?.location),
       dates: normalizeDateRange(sourceEntry?.dates),
       bullets: uniqueStrings((sourceEntry?.bullets || []).map(polishedText), Number.POSITIVE_INFINITY),
     };
@@ -253,6 +267,44 @@ function restoreRequiredEducation(resumeData, analysis, baseResume) {
 
 const SAP_TRAINING_PATTERN = /\b(?:sap|fi[- ]?ca|pscd|s\/?4hana|asap)\b/i;
 
+const TRAINING_HEADING_PATTERN = /^(?:professional\s+)?(?:training|certifications?|courses?)$/i;
+const NEXT_SECTION_HEADING_PATTERN = /^(?:professional\s+)?(?:experience|employment|education|languages?|skills?|projects?|summary|profile)$/i;
+
+function restoreRelevantTraining(resumeData, baseResume) {
+  const lines = String(baseResume || "")
+    .split(/\r?\n/)
+    .map((value) => value.replace(/^[\s•*-]+/, "").replace(/\s+/g, " ").trim());
+  const headingIndex = lines.findIndex((line) => TRAINING_HEADING_PATTERN.test(line));
+  if (headingIndex < 0) return resumeData;
+
+  const parsed = [];
+  for (const line of lines.slice(headingIndex + 1, headingIndex + 21)) {
+    if (!line) continue;
+    if (NEXT_SECTION_HEADING_PATTERN.test(line)) break;
+    if (!SAP_TRAINING_PATTERN.test(line) || line.length > 180) continue;
+    const [name, ...providerParts] = line.split("|").map((part) => part.trim()).filter(Boolean);
+    if (!name) continue;
+    parsed.push({
+      name,
+      provider: providerParts.join(" | "),
+      dates: "",
+      restored_from_verified_evidence: true,
+    });
+  }
+  if (!parsed.length) return resumeData;
+
+  const training = Array.isArray(resumeData?.training) ? [...resumeData.training] : [];
+  const existing = new Set(training.map((entry) => normalized(`${entry?.name || ""} ${entry?.provider || ""}`)).filter(Boolean));
+  for (const entry of parsed) {
+    const key = normalized(`${entry.name} ${entry.provider}`);
+    const nameKey = normalized(entry.name);
+    if ([...existing].some((value) => value === key || value.startsWith(nameKey) || key.startsWith(value))) continue;
+    training.push(entry);
+    existing.add(key);
+  }
+  return { ...resumeData, training };
+}
+
 function focusRelevantTraining(resumeData, analysis) {
   const training = Array.isArray(resumeData?.training) ? resumeData.training : [];
   if (!training.length) return { resume: resumeData, omittedTraining: [] };
@@ -423,7 +475,8 @@ export function shapeTailoredResumeWithReview(resumeData, analysis, baseResume =
     ? shapeTransferableResume(polished.resume, analysis)
     : polished.resume;
   const evidenceComplete = restoreRequiredEducation(strategyShaped, analysis, baseResume);
-  const trainingFocused = focusRelevantTraining(evidenceComplete, analysis);
+  const trainingRestored = restoreRelevantTraining(evidenceComplete, baseResume);
+  const trainingFocused = focusRelevantTraining(trainingRestored, analysis);
   const focused = focusResume(trainingFocused.resume, analysis);
   return {
     ...focused,

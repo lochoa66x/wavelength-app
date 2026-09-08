@@ -202,6 +202,47 @@ test("resume shaping consolidates duplicate history headers and normalizes safe 
   assert.equal(result.resume.experience[1].role, "Senior Consultant");
 });
 
+test("presentation removes redundant employer country and repairs contradictory lead phrasing", () => {
+  const result = shapeTailoredResumeWithReview({
+    name: "Luis Example",
+    experience: [{
+      role: "Solution Architect",
+      company: "deloitte Canada",
+      location: "Canada",
+      dates: "2022-2024",
+      bullets: ["Contributed as a Master Data team lead to user acceptance testing and cutover."],
+    }],
+  }, { fit_assessment: { path: "direct" }, requirements: [] });
+
+  assert.equal(result.resume.experience[0].company, "Deloitte Canada");
+  assert.equal(result.resume.experience[0].location, "");
+  assert.equal(result.resume.experience[0].bullets[0], "Served as Master Data team lead, contributing to user acceptance testing and cutover.");
+});
+
+test("relevant SAP training is restored from the verified base resume when the model omits it", () => {
+  const result = shapeTailoredResumeWithReview({
+    name: "Luis Example",
+    training: [{ name: "SAP Finance ECC 6 Certification", provider: "" }],
+  }, {
+    fit_assessment: { path: "adjacent" },
+    requirements: [{ requirement: "SAP FI-CA functional knowledge", evidence_match: "adjacent", keywords: ["SAP FI-CA"] }],
+  }, [
+    "PROFESSIONAL TRAINING",
+    "SAP Finance ECC 6 Certification",
+    "SAP Accounts Management | SAP Argentina",
+    "SAP Loans Management | SAP Canada",
+    "EDUCATION",
+    "Bachelor of Business Administration",
+  ].join("\n"));
+
+  assert.deepEqual(result.resume.training.map((entry) => entry.name), [
+    "SAP Finance ECC 6 Certification",
+    "SAP Accounts Management",
+    "SAP Loans Management",
+  ]);
+  assert.equal(result.resume.training[1].restored_from_verified_evidence, true);
+});
+
 test("export readiness blocks placeholder identity and labels large-gap drafts as preliminary", () => {
   assert.equal(hasUsableResumeIdentity("<UNKNOWN>"), false);
   assert.equal(hasUsableResumeIdentity("Luis Example"), true);

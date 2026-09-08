@@ -1,5 +1,7 @@
 # Evidence-First Tailoring v1 — implementation prompt
 
+Companion contract: `docs/CANDIDATE_CONTROLLED_DOCUMENT_TUNING_PROMPT.md` defines the current candidate-controlled, recruiter-positive UX and employer-facing document policy. Apply both documents; the companion contract controls if older wording here requires redundant confirmation or negative employer-facing disclosure.
+
 You are improving Gigscapes, a job-discovery and résumé-tailoring application. The résumé output is the product's core value. Implement a truthful, evidence-first tailoring pipeline that produces useful direct-match, adjacent-expertise, and transferable-strengths résumés without inventing experience or presenting transferable skills as equivalent to direct target-role experience.
 
 ## Product objective

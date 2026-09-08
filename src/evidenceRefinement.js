@@ -12,6 +12,7 @@ export function normalizeEvidenceDraft(record = {}) {
   const answerStatus = evidenceAnswerState(record);
   return {
     ...record,
+    evidence_kind: record.evidence_kind === "self_attested_capability" ? "self_attested_capability" : "candidate_example",
     answer_status: answerStatus,
     scope: EVIDENCE_SCOPES.has(record.scope) ? record.scope : "application",
     declined: answerStatus === "no",
@@ -19,14 +20,22 @@ export function normalizeEvidenceDraft(record = {}) {
   };
 }
 
+function selfAttestedCapabilityStatement(record = {}) {
+  const requirement = String(record.requirement || "").replace(/\s+/g, " ").trim();
+  return requirement ? `I have this capability: ${requirement}.` : "";
+}
+
 export function candidateEvidencePreview(record = {}) {
   const normalized = normalizeEvidenceDraft(record);
   if (normalized.answer_status === "no") return "No additional experience confirmed for this requirement.";
   if (normalized.answer_status === "unsure") return "Not sure — this will not be used as supporting evidence.";
-  if (normalized.answer_status !== "yes" || !String(normalized.answer || "").trim()) return "Add your own factual example to preview it here.";
+  if (normalized.answer_status !== "yes") return "Select this capability if it accurately describes you.";
+
+  const answer = String(normalized.answer || "").trim() || selfAttestedCapabilityStatement(normalized);
+  if (!answer) return "Select this capability if it accurately describes you.";
 
   return [
-    `Candidate statement: ${String(normalized.answer).trim()}`,
+    `Candidate statement: ${answer}`,
     `Responsibility level: ${String(normalized.contribution_level || "supported").trim()}.`,
     normalized.employer_or_project ? `Employer/project: ${String(normalized.employer_or_project).trim()}.` : "",
     normalized.approximate_date ? `Approximate date: ${String(normalized.approximate_date).trim()}.` : "",
@@ -37,10 +46,14 @@ export function candidateEvidencePreview(record = {}) {
 export function prepareCandidateEvidenceForSubmission(records = []) {
   return (Array.isArray(records) ? records : []).map((record) => {
     const normalized = normalizeEvidenceDraft(record);
-    const hasUsableYesAnswer = normalized.answer_status === "yes"
-      && String(normalized.answer || "").trim().length >= 3;
+    const selectedCapability = normalized.answer_status === "yes"
+      && normalized.evidence_kind === "self_attested_capability"
+      && String(normalized.requirement || "").trim().length >= 3;
+    const answer = String(normalized.answer || "").trim() || (selectedCapability ? selfAttestedCapabilityStatement(normalized) : "");
+    const hasUsableYesAnswer = normalized.answer_status === "yes" && answer.length >= 3;
     return {
       ...normalized,
+      answer,
       user_confirmed: normalized.answer_status === "no" || hasUsableYesAnswer,
     };
   });
@@ -52,6 +65,9 @@ export function submittableCandidateEvidence(records = []) {
     .filter((record) => record.answer_status === "no" || (
       record.answer_status === "yes"
       && record.user_confirmed === true
-      && String(record.answer || "").trim().length >= 3
+      && (String(record.answer || "").trim().length >= 3 || (
+        record.evidence_kind === "self_attested_capability"
+        && String(record.requirement || "").trim().length >= 3
+      ))
     ));
 }

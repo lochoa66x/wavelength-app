@@ -673,6 +673,46 @@ test("candidate-confirmed notes can support a requirement without being relabele
   assert.doesNotMatch(analysis.evidence_questions[0].question, /^\[R2\]/);
 });
 
+test("a candidate-selected capability may appear in skills without inventing work history", () => {
+  const analysis = {
+    fit_assessment: { path: "adjacent" },
+    verified_transferable_skills: [],
+    requirements: [{
+      id: "R1",
+      requirement: "FI-CA clearing and dunning",
+      safe_language: "FI-CA clearing and dunning",
+      keywords: ["FI-CA clearing", "dunning"],
+      evidence_match: "direct",
+      evidence: [{ source: "candidate_note", excerpt: "I have this capability: FI-CA clearing and dunning." }],
+    }],
+    prohibited_claims: [],
+  };
+
+  const issues = findSemanticIntegrityIssues({
+    title: "SAP FI-CA Consultant",
+    profile: "SAP FI-CA consultant with Contract Accounts experience.",
+    skills: ["FI-CA clearing and dunning"],
+    experience: [{ role: "SAP Consultant", bullets: ["Configured Contract Accounts."] }],
+  }, "SAP FI-CA Consultant\nConfigured Contract Accounts.", analysis, "SAP IS-U FI-CA Consultant");
+
+  assert.deepEqual(issues.unsupported_skills, []);
+});
+
+test("employer-facing resume gap disclosures are blocked as risky claims", () => {
+  const issues = findSemanticIntegrityIssues({
+    title: "SAP Consultant",
+    profile: "Senior SAP consultant. My résumé does not include utilities experience.",
+    skills: ["SAP"],
+    experience: [],
+  }, "Senior SAP consultant.", {
+    fit_assessment: { path: "adjacent" },
+    requirements: [],
+    verified_transferable_skills: [{ skill: "SAP", resume_evidence: "Senior SAP consultant." }],
+  }, "SAP Consultant");
+
+  assert.ok(issues.risky_claims.some((issue) => /does not include/i.test(issue.claim)));
+});
+
 test("invented projects and training are blocked even without unsupported numbers", () => {
   const issues = findSemanticIntegrityIssues({
     title: "Enterprise Integration Professional",

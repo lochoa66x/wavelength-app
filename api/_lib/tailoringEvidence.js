@@ -1166,9 +1166,16 @@ export function findSemanticIntegrityIssues(resumeData, baseResume, analysis, ta
   const title = normalizeEvidenceText(resumeData?.title);
   const target = normalizeEvidenceText(targetTitle);
   const verifiedSkills = new Set((analysis?.verified_transferable_skills || []).map((item) => normalizeEvidenceText(item.skill)));
+  const candidateAssertedSkills = (analysis?.requirements || []).flatMap((requirement) => {
+    const hasCandidateEvidence = (requirement?.evidence || []).some((citation) => citation?.source === "candidate_note");
+    return hasCandidateEvidence
+      ? [requirement?.requirement, requirement?.safe_language, ...(requirement?.keywords || [])].map(normalizeEvidenceText).filter(Boolean)
+      : [];
+  });
   const unsupported_skills = uniqueStrings((resumeData?.skills || []).filter((skill) => {
     const normalizedSkill = normalizeEvidenceText(skill);
-    return normalizedSkill && !base.includes(normalizedSkill) && !verifiedSkills.has(normalizedSkill);
+    const candidateSupported = candidateAssertedSkills.some((value) => value.includes(normalizedSkill) || normalizedSkill.includes(value));
+    return normalizedSkill && !base.includes(normalizedSkill) && !verifiedSkills.has(normalizedSkill) && !candidateSupported;
   }), 30).map((skill) => ({ skill }));
 
   const unsupported_projects = (resumeData?.projects || []).flatMap((project) => {
@@ -1221,6 +1228,11 @@ export function findSemanticIntegrityIssues(resumeData, baseResume, analysis, ta
     /\bcareer[ -](?:change|transition)\b/gi,
     /\btransition(?:al|ing)?\s+(?:into|to)\b/gi,
     /\bnew\s+(?:career|path|journey)\b/gi,
+    /\b(?:material|significant|major|critical)\s+(?:gap|limitation|shortcoming)\b/gi,
+    /\b(?:my\s+)?(?:r[eé]sum[eé]|resume)\s+(?:does\s+not|doesn't)\s+(?:include|show|demonstrate|contain)\b/gi,
+    /\bI\s+(?:do\s+not|don't|cannot|can't|lack)\b[^.!?\n]{0,140}\b(?:experience|expertise|knowledge|skill|qualification|background|exposure)\b/gi,
+    /\b(?:no|without)\s+(?:direct|prior|verified|specific|hands-on|relevant)?\s*(?:experience|expertise|knowledge|skill|qualification|background|exposure)\b/gi,
+    /\brather\s+than\s+(?:in|within|for|with|having)\b/gi,
   ]) {
     for (const match of rawOutput.matchAll(pattern)) risky_claims.push({ claim: match[0] });
   }

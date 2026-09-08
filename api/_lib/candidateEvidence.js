@@ -32,7 +32,12 @@ export function validateCandidateEvidence(input) {
     }
     const declined = raw.answer_status === "no" || raw.declined === true;
     const requirementId = cleanText(raw.requirement_id, 40);
-    const answer = cleanText(raw.answer, 1200);
+    const requirement = cleanText(raw.requirement, 1500);
+    const evidenceKind = raw.evidence_kind === "self_attested_capability" ? "self_attested_capability" : "candidate_example";
+    const selfAttestedAnswer = evidenceKind === "self_attested_capability" && requirement
+      ? `I have this capability: ${requirement}.`
+      : "";
+    const answer = cleanText(raw.answer, 1200) || selfAttestedAnswer;
     if (raw.user_confirmed !== true) errors.push(`Answer ${index + 1} must be confirmed by the candidate.`);
     if (!requirementId) errors.push(`Answer ${index + 1} is missing its requirement reference.`);
     if (!declined && answer.length < 3) errors.push(`Answer ${index + 1} needs a factual response or “I don't have this experience.”`);
@@ -75,7 +80,9 @@ export function validateCandidateEvidence(input) {
     evidence.push({
       id: cleanText(raw.id, 80) || `candidate-note-${index + 1}`,
       requirement_id: requirementId,
+      requirement,
       source: "candidate_note",
+      evidence_kind: evidenceKind,
       answer: declined ? "" : answer,
       context: declined ? "" : cleanText(raw.context, 500),
       approximate_date: declined ? "" : cleanText(raw.approximate_date, 80),
@@ -102,6 +109,15 @@ export function formatCandidateEvidence(evidence) {
         `Requirement: ${item.requirement_id}`,
         "Candidate response: No — do not imply or add this experience.",
       ].join("\n")
+    : item.evidence_kind === "self_attested_capability" ? [
+        `[CANDIDATE NOTE ${item.id}]`,
+        `Requirement: ${item.requirement_id}`,
+        "Candidate-selected capability: Yes.",
+        item.requirement ? `Capability: ${item.requirement}` : "",
+        item.answer && !/^I have this capability:/i.test(item.answer) ? `Optional candidate detail: ${item.answer}` : "",
+        `Scope: ${item.scope}`,
+        "Usage boundary: This selection may support the skills/profile and requirement coverage. Do not invent an employer, project, date, duration, result, or historical accomplishment unless optional candidate detail supplies it.",
+      ].filter(Boolean).join("\n")
     : [
         `[CANDIDATE NOTE ${item.id}]`,
         `Requirement: ${item.requirement_id}`,

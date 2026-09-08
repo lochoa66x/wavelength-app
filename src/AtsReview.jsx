@@ -211,7 +211,7 @@ export function AtsReview({ review, C }) {
 
       {review.missing_evidence?.length > 0 && (
         <details style={{ marginTop: 8, color: C.textSub, fontSize: 12 }}>
-          <summary style={{ color: C.text, fontWeight: 650, cursor: "pointer" }}>Important evidence still missing ({review.missing_evidence.length})</summary>
+          <summary style={{ color: C.text, fontWeight: 650, cursor: "pointer" }}>Capabilities you can add ({review.missing_evidence.length})</summary>
           <p style={{ lineHeight: 1.5, margin: "7px 0 0" }}>{review.missing_evidence.slice(0, 8).join(" · ")}</p>
         </details>
       )}

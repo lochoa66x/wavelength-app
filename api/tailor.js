@@ -150,7 +150,7 @@ const PROFESSIONAL_TOOL = {
             dates: { type: "string", description: "Copy the employment dates from the base resume. Omit only when the source omits them." },
             bullets: { type: "array", items: { type: "string" } },
           },
-          required: ["role", "bullets"],
+          required: ["role", "company", "dates", "bullets"],
         },
       },
       skills: {
@@ -274,7 +274,7 @@ const TRADES_TOOL = {
             dates: { type: "string", description: "Copy the employment dates from the base resume. Omit only when the source omits them." },
             bullets: { type: "array", items: { type: "string" } },
           },
-          required: ["role", "bullets"],
+          required: ["role", "company", "dates", "bullets"],
         },
       },
       skills: {
@@ -641,6 +641,7 @@ ANALYSIS RULES
 - The deterministic posting assessment is the fit gate. When fit_allowed is false, do not produce a definitive candidate-fit judgment: use fit_assessment only as a provisional content strategy, set readiness to needs_full_posting, and treat confidence as unavailable.
 - Never expose internal field names such as fit_allowed, application_ready_allowed, output_mode, or "deterministic posting assessment" in candidate-facing notes. Explain the same limitation in plain language.
 - For each requirement, classify the candidate evidence as direct, adjacent, transferable, or missing.
+- An explicit candidate-selected capability is candidate-owned evidence for that exact capability. It needs no second confirmation or project proof. Treat it as direct for the selected capability, but never infer an employer, project, date, duration, metric, result, or ownership level that the candidate did not supply.
 - Every direct, adjacent, or transferable match MUST include a short exact excerpt copied from BASE RÉSUMÉ EVIDENCE or VERIFIED CANDIDATE NOTES. If no exact excerpt supports it, classify it as missing.
 - Direct means the candidate has performed the target capability in the target context. Adjacent means substantially similar work in a neighboring context. Transferable means a broader capability is useful but not equivalent. Do not promote transferable evidence to adjacent or direct merely to improve fit.
 - Exact domain terms are not interchangeable: generic SAP evidence does not prove SAP SD, LE, EDI, JIT/JIS, RF, shipping, logistics, or security/compliance work. Language proficiency, degrees, testing types, and ABAP evidence may be matched only to the atomic requirement they actually support.
@@ -671,6 +672,7 @@ __TAILORING_ANALYSIS__
 INSTRUCTIONS
 - Copy \`fit_assessment\` from the authoritative analysis. Do not upgrade the fit, readiness, or recommended level while drafting.
 - Verified candidate notes may add factual evidence, but never overwrite immutable base-résumé history. Use note-specific context only for the requirement it answers and preserve the note's contribution level in the action verb.
+- A candidate-selected capability is an explicit first-person self-attestation and does not need a second confirmation or project proof. It may support requirement coverage plus concise skills/profile wording. If the selection has no optional example, never convert it into a dated employer/project accomplishment, duration, result, or ownership claim.
 - Copy the candidate's name and contact details exactly when present. If either is unavailable, return an empty string. Never emit placeholders such as UNKNOWN, <UNKNOWN>, Candidate, N/A, or invented contact details.
 - Use the analysis content strategy: direct for a conventional targeted resume, adjacent for verified neighboring expertise, and transferable for a professional strengths-led resume.
 - The top title must identify the candidate's proven professional foundation. Never use the exact target title alone or imply the candidate already holds it when the evidence does not support that identity.

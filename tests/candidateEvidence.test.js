@@ -24,6 +24,22 @@ test("validated candidate evidence is normalized and formatted separately", () =
   assert.match(formatCandidateEvidence(result.evidence), /Answer: Led SAP finance workshops\./);
 });
 
+test("a candidate-selected capability is valid without a project narrative", () => {
+  const result = validateCandidateEvidence([{
+    id: "selected-1",
+    requirement_id: "R1",
+    requirement: "FI-CA clearing, dunning, and installment plans",
+    evidence_kind: "self_attested_capability",
+    answer_status: "yes",
+    user_confirmed: true,
+  }]);
+
+  assert.deepEqual(result.errors, []);
+  assert.equal(result.evidence[0].evidence_kind, "self_attested_capability");
+  assert.match(formatCandidateEvidence(result.evidence), /Candidate-selected capability: Yes/);
+  assert.match(formatCandidateEvidence(result.evidence), /Do not invent an employer, project, date, duration, result, or historical accomplishment/);
+});
+
 test("declining a question becomes an explicit hard constraint, not supporting evidence", () => {
   const result = validateCandidateEvidence([{
     id: "n1",

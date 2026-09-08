@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { CheckCircle2, Loader2, MessageSquareText, Sparkles, Trash2, X } from "lucide-react";
+import { Loader2, MessageSquareText, Sparkles, X } from "lucide-react";
 import {
   candidateEvidencePreview,
   evidenceAnswerState,
@@ -22,12 +22,6 @@ const CONTRIBUTION_OPTIONS = [
   ["contributed", "I contributed or coordinated"],
   ["owned", "I owned or delivered it"],
   ["led", "I led or directed it"],
-];
-
-const ANSWER_OPTIONS = [
-  ["yes", "Yes"],
-  ["no", "No"],
-  ["unsure", "Not sure"],
 ];
 
 function matchedCoverage(coverage = {}) {
@@ -58,7 +52,7 @@ export function EvidenceRefinementPanel({
   useEffect(() => {
     const next = {};
     for (const record of JSON.parse(initialEvidenceSignature)) {
-      if (!record?.requirement_id) continue;
+      if (!record?.requirement_id || evidenceAnswerState(record) !== "yes") continue;
       next[record.requirement_id] = normalizeEvidenceDraft(record);
     }
     setDrafts(next);
@@ -83,7 +77,7 @@ export function EvidenceRefinementPanel({
         question: record.question || "Would you like to keep or update this evidence?",
       });
     }
-    return Array.from(merged.values()).slice(0, 3);
+    return Array.from(merged.values()).slice(0, 5);
   }, [drafts, questions]);
 
   const answered = useMemo(
@@ -136,27 +130,16 @@ export function EvidenceRefinementPanel({
     setMessage("");
   };
 
-  const selectAnswer = (question, answerStatus) => {
-    if (answerStatus === "yes") {
-      update(question, { answer_status: "yes", declined: false, user_confirmed: false });
+  const selectCapability = (question, selected) => {
+    if (!selected) {
+      remove(question.requirement_id);
       return;
     }
     update(question, {
-      answer_status: answerStatus,
-      answer: "",
-      context: "",
-      employer_or_project: "",
-      approximate_date: "",
-      declined: answerStatus === "no",
-      user_confirmed: answerStatus === "no",
-      coach_proposal: null,
-      coach_edit: "",
-      coach_editing: false,
-      coach_follow_up_answer: "",
-      coach_status: "",
-      approval_status: "",
-      evidence_hash: "",
-      raw_answer: "",
+      answer_status: "yes",
+      evidence_kind: "self_attested_capability",
+      declined: false,
+      user_confirmed: false,
     });
   };
 
@@ -253,12 +236,12 @@ export function EvidenceRefinementPanel({
       .map(normalizeEvidenceDraft)
       .filter((record) => evidenceAnswerState(record)));
     if (!records.length) {
-      setMessage("Choose Yes or No for at least one question, or leave this optional section alone.");
+      setMessage("Select at least one capability, or leave this optional section alone.");
       return;
     }
     const candidateEvidence = submittableCandidateEvidence(records);
     if (!candidateEvidence.length) {
-      setMessage("A Yes answer needs one short example before Gigscapes can use it. “Not sure” can simply be left unanswered.");
+      setMessage("Select at least one capability before using these answers.");
       return;
     }
     setMessage("");
@@ -275,7 +258,7 @@ export function EvidenceRefinementPanel({
       </summary>
       <div style={{ borderTop: `1px solid ${C.border}`, padding: "12px 16px 15px" }}>
         <p style={{ margin: "0 0 10px", color: C.textSub, fontSize: 12, lineHeight: 1.5 }}>
-          Skip anything you do not want to answer. One short factual example is enough, and saving it here counts as your instruction to use it for this application. Your saved résumé is never changed.
+          Select only capabilities that accurately describe you. Your selection is enough; examples and project details are optional and can make the wording more specific. Your saved résumé is never changed.
         </p>
 
       <div style={{ display: "grid", gap: 10 }}>
@@ -286,47 +269,29 @@ export function EvidenceRefinementPanel({
           const proposal = record.coach_proposal;
           return (
             <div key={question.id || question.requirement_id} style={{ border: `1px solid ${C.border}`, borderRadius: 12, padding: "11px 12px" }}>
-              <div style={{ color: C.textFaint, fontSize: 10.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 4 }}>{question.requirement}</div>
-              <div style={{ color: C.text, fontSize: 12.5, fontWeight: 650, lineHeight: 1.45 }}>{question.question}</div>
-              <div role="group" aria-label="Your answer" style={{ display: "flex", flexWrap: "wrap", gap: 7, marginTop: 9 }}>
-                {ANSWER_OPTIONS.map(([value, label]) => (
-                  <button
-                    key={value}
-                    type="button"
-                    aria-pressed={answerStatus === value}
-                    onClick={() => selectAnswer(question, value)}
-                    style={{ border: `1px solid ${answerStatus === value ? C.blue : C.border}`, background: answerStatus === value ? C.blueTint : C.bgCard, color: answerStatus === value ? C.blue : C.textSub, borderRadius: 999, padding: "7px 11px", cursor: "pointer", fontWeight: 700, fontSize: 11.5 }}
-                  >
-                    {label}
-                  </button>
-                ))}
-                {answerStatus ? (
-                  <button type="button" onClick={() => remove(question.requirement_id)} aria-label="Clear this answer" style={{ marginLeft: "auto", border: 0, background: "transparent", color: C.textFaint, cursor: "pointer" }}><Trash2 size={14} /></button>
-                ) : null}
-              </div>
-
-              {answerStatus === "no" ? (
-                <div style={{ marginTop: 9, padding: "9px 10px", borderRadius: 9, background: C.bgApp, color: C.textSub, fontSize: 12 }}>
-                  <CheckCircle2 size={13} style={{ verticalAlign: "-2px", marginRight: 5 }} />Recorded as not part of your experience. This prevents the résumé from implying it.
-                </div>
-              ) : null}
-
-              {answerStatus === "unsure" ? (
-                <div style={{ marginTop: 9, padding: "9px 10px", borderRadius: 9, background: C.bgApp, color: C.textSub, fontSize: 12 }}>
-                  Saved only as a reminder on this browser/device. It is not synced and will not be sent to the tailoring model.
-                </div>
-              ) : null}
+              <label style={{ alignItems: "flex-start", cursor: "pointer", display: "flex", gap: 9 }}>
+                <input
+                  type="checkbox"
+                  checked={answerStatus === "yes"}
+                  onChange={(event) => selectCapability(question, event.target.checked)}
+                  style={{ marginTop: 3 }}
+                />
+                <span>
+                  <span style={{ color: C.textFaint, display: "block", fontSize: 10.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 4 }}>{question.requirement}</span>
+                  <span style={{ color: C.text, display: "block", fontSize: 12.5, fontWeight: 650, lineHeight: 1.45 }}>I have this skill, knowledge, or experience.</span>
+                </span>
+              </label>
 
               {answerStatus === "yes" ? (
                 <>
                   <textarea
                     value={record.answer || ""}
                     onChange={(event) => update(question, { answer: event.target.value, user_confirmed: false })}
-                    placeholder="In one or two sentences, what did you do?"
+                    placeholder="Optional: add a factual example, project, or scope in your own words."
                     rows={2}
                     style={{ width: "100%", resize: "vertical", marginTop: 8, padding: "9px 10px", borderRadius: 9, border: `1px solid ${C.border}`, color: C.text, background: C.bgCard, font: "inherit", fontSize: 12.5, lineHeight: 1.45 }}
                   />
-                  <p style={{ color: C.textFaint, fontSize: 11, lineHeight: 1.4, margin: "5px 2px 0" }}>Gigscapes will use only the factual words you provide.</p>
+                  <p style={{ color: C.textFaint, fontSize: 11, lineHeight: 1.4, margin: "5px 2px 0" }}>No extra proof is required. Details help Gigscapes write a stronger accomplishment; without them, the selection is used only as a capability statement.</p>
                   <details style={{ borderTop: `1px solid ${C.border}`, marginTop: 9, paddingTop: 8 }}>
                     <summary style={{ color: C.textSub, cursor: "pointer", fontSize: 11.5, fontWeight: 700 }}>Add project details or polish this answer (optional)</summary>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8, marginTop: 8 }}>

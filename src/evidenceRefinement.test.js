@@ -68,10 +68,26 @@ test("using complete answers is the single candidate action that prepares them f
   assert.deepEqual(submittableCandidateEvidence(prepared).map((record) => record.id), ["yes", "no"]);
 });
 
+test("a selected capability needs no redundant free-text proof", () => {
+  const [prepared] = prepareCandidateEvidenceForSubmission([{
+    id: "selected",
+    requirement_id: "R1",
+    requirement: "FI-CA clearing and dunning",
+    answer_status: "yes",
+    evidence_kind: "self_attested_capability",
+  }]);
+
+  assert.equal(prepared.user_confirmed, true);
+  assert.match(prepared.answer, /I have this capability: FI-CA clearing and dunning/);
+  assert.deepEqual(submittableCandidateEvidence([prepared]).map((record) => record.id), ["selected"]);
+});
+
 test("evidence refinement is optional, compact, and has no redundant confirmation checkbox", () => {
   assert.match(panelSource, /Strengthen this draft/);
   assert.match(panelSource, /Up to \$\{visibleQuestions\.length\} short questions/);
   assert.match(panelSource, /Use these answers/);
+  assert.match(panelSource, /I have this skill, knowledge, or experience/);
+  assert.match(panelSource, /No extra proof is required/);
   assert.match(panelSource, /Remember this answer on this browser for future applications/);
   assert.doesNotMatch(panelSource, /I confirm this preview|confirm the preview before re-tailoring/);
 });

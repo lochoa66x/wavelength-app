@@ -417,6 +417,30 @@ test("tailoring changes map rewritten bullets to exact candidate evidence", () =
   assert.match(changes[0].reason, /without adding a new fact/i);
 });
 
+test("change explanations do not claim unrelated C4C or Cash Journal alignment", () => {
+  const changes = buildTailoringChangeLedger({
+    experience: [{
+      role: "SAP Banking Consultant",
+      bullets: [
+        "Oversaw customization, documentation, and testing for the Easy Open Item Management integration project.",
+        "Configured SAP Loans Management billing, payment management, and loan-product cash flow.",
+      ],
+    }],
+  }, [
+    "Oversaw the Easy Open Item Management integration project; performed customization, documentation, and testing.",
+    "Configured SAP Loans Management, including billing generation, payment management, and loan-product cash flow.",
+  ].join("\n"), {
+    requirements: [
+      { id: "C4C", requirement: "Good understanding of C4C integration with SAP ISU", evidence_match: "missing", evidence: [] },
+      { id: "CASH", requirement: "Experience with Cash Journal", evidence_match: "missing", evidence: [] },
+    ],
+  });
+
+  assert.equal(changes.length, 2);
+  assert.deepEqual(changes.map((change) => change.requirement_id), [null, null]);
+  assert.ok(changes.every((change) => /Clarified the cited candidate evidence|needs evidence review/i.test(change.reason)));
+});
+
 test("tailoring provenance can cite multiple source lines for one composite bullet", () => {
   const firstSource = "Led user acceptance testing and mock cutover cycles.";
   const secondSource = "Coordinated interface delivery through SAP PI/PO and production support.";

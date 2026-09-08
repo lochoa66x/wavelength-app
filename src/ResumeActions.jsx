@@ -190,7 +190,7 @@ export function ResumeActions({ resumeData, resumePackage, renderPlan, selection
             className="wl-btn"
             style={{ display: "flex", alignItems: "center", gap: 5, minHeight: 44, fontSize: 13, fontWeight: 700, padding: "9px 16px", borderRadius: 980, border: `1px solid ${C.orange || C.border}`, background: C.orangeTint || "#fff3ea", color: C.text, cursor: "pointer" }}
           >
-            <PenLine size={13} /> {coverLetterStatus === "not_created" ? "Create matching cover letter" : "Review cover letter"}
+            <PenLine size={13} /> {coverLetterStatus === "not_created" ? "Create matching cover letter" : coverLetterStatus === "stale" ? "Regenerate cover letter" : "Review cover letter"}
           </button>
         ) : null}
         {hasLink && (
