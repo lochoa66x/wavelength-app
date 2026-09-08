@@ -1,6 +1,6 @@
 # Evidence-First Tailoring v1 — implementation prompt
 
-You are improving Gigscapes, a job-discovery and résumé-tailoring application. The résumé output is the product's core value. Implement a truthful, evidence-first tailoring pipeline that produces useful direct-match, adjacent-pivot, and career-change résumés without inventing experience or presenting transferable skills as equivalent to direct target-role experience.
+You are improving Gigscapes, a job-discovery and résumé-tailoring application. The résumé output is the product's core value. Implement a truthful, evidence-first tailoring pipeline that produces useful direct-match, adjacent-expertise, and transferable-strengths résumés without inventing experience or presenting transferable skills as equivalent to direct target-role experience.
 
 ## Product objective
 
@@ -12,7 +12,7 @@ Given one base résumé and one job posting, create a targeted, ATS-readable ré
 4. Never turns a career changer into the target professional by implication.
 5. Tells the candidate when the posting is incomplete or when important evidence is missing.
 6. Reports evidence integrity, posting completeness, requirement coverage, writing quality, parseability, and application readiness separately instead of presenting a fictional universal ATS score.
-7. Produces a hybrid chronological career-change résumé when the candidate lacks direct experience.
+7. Produces a professional strengths-led chronological résumé when the candidate lacks direct experience, without announcing a career change or disqualifying the candidate in employer-facing copy.
 
 ## Required pipeline
 
@@ -27,7 +27,7 @@ For partial postings, allow a conservative preliminary draft but make the limita
 Before résumé generation, use a dedicated structured analysis step. Return:
 
 - posting completeness and explanation;
-- fit path: `direct`, `adjacent`, or `career_change`;
+- fit path: `direct`, `adjacent`, or `transferable`;
 - recommended candidate level;
 - content strategy;
 - application-readiness classification;
@@ -38,7 +38,7 @@ Before résumé generation, use a dedicated structured analysis step. Return:
 - truthful target keywords;
 - important missing evidence;
 - prohibited or misleading claims;
-- up to five candidate questions that could uncover real projects, training, credentials, or experience.
+- up to three optional candidate questions that could uncover material real projects, training, credentials, or experience.
 
 Reject an evidence match when its supporting excerpt cannot be found in the base résumé. Missing evidence must remain missing; absence is not permission to infer.
 
@@ -46,14 +46,16 @@ Reject an evidence match when its supporting excerpt cannot be found in the base
 
 - **Direct:** conventional targeted chronological résumé.
 - **Adjacent:** targeted summary, verified adjacent competencies, relevant accomplishments, then chronological history.
-- **Career change:** honest transition headline, career-transition profile, verified transferable strengths, real projects/training when present, then selected relevant experience in reverse chronological order.
+- **Transferable:** proven professional headline, concise strengths-led profile, verified transferable capabilities, real projects/training when present, then selected relevant experience in reverse chronological order.
 - **Trades:** retain credential-, safety-, and equipment-forward content, with entry/helper positioning when required credentials are absent.
 
-For a career change, do not use the exact target title alone as the candidate's identity. Prefer forms such as `Enterprise Integration Professional | Web Development Transition` or `Entry-Level Plumbing Candidate`, depending on the evidence and field. Never use `Apprentice`, `licensed`, `certified`, `experienced`, or a seniority level without support.
+For transferable positioning, do not use the exact target title alone as the candidate's identity and do not use phrases such as `career change`, `transition`, `new career`, `new path`, or `new journey`. Lead with the candidate's established professional foundation and relevant verified strengths. Never use `Apprentice`, `licensed`, `certified`, or a seniority level without support.
 
 ### 4. Draft only from approved evidence
 
-The draft must follow the structured analysis. It may reorder or compress bullets within a historical role, but it must not rename, combine, reorder, or invent historical roles.
+The draft must follow the structured analysis. Treat every historical job as one immutable tuple of title, employer, location, and dates. It may reorder or compress bullets within a historical role, but it must not rename, combine, reorder, split, duplicate, or invent historical roles. Never pair a real title with a different employer or date range merely because every field appears somewhere in the source.
+
+Keep employer and location in separate fields. Copy education and credentials exactly; never synthesize a more marketable degree name. Keep profiles to 55–80 words and approximately 16 experience bullets total, with progressively tighter treatment of older work.
 
 Transferable framing must describe relevance without claiming equivalence. Avoid phrases such as `translates directly`, `directly analogous`, or statements implying the candidate has built the target product when the evidence only shows an adjacent capability.
 
@@ -69,7 +71,8 @@ Every skills-section item must either occur in the base résumé or have a suppo
 Run deterministic validation for:
 
 - unsupported numbers;
-- changed employers, roles, or dates;
+- changed or incorrectly associated employers, roles, locations, or dates;
+- duplicated or fragmented history entries;
 - unsupported skills;
 - unsupported target-role positioning;
 - unsupported missing-requirement keywords;
@@ -92,12 +95,12 @@ Display separate results:
 
 Do not label the result as a guaranteed ATS score. Explain that parseability and evidence coverage are decision support, not an interview guarantee.
 
-### 7. Career-change template
+### 7. Strengths-led template
 
-Add a distinct ATS-safe, single-column career-change renderer and DOCX/plain-text ordering:
+Add a distinct ATS-safe, single-column strengths-led renderer and DOCX/plain-text ordering:
 
-1. Candidate name and honest transition headline.
-2. Career-transition profile.
+1. Candidate name and proven professional headline.
+2. Concise strengths-led profile.
 3. Transferable strengths.
 4. Projects and training, only when verified.
 5. Selected relevant experience in reverse chronological order.
@@ -107,7 +110,7 @@ Keep chronological work history visible. Do not use a purely functional résumé
 
 ## UX requirements
 
-- Show the positioning recommendation for direct, adjacent, and career-change cases, not only career changes.
+- Show the positioning recommendation for direct, adjacent, and transferable cases.
 - Make partial-posting warnings prominent and recommend the existing “Bring your own posting” flow.
 - Show missing evidence and candidate questions without treating them as résumé content.
 - Never export internal evidence mappings, validation metadata, or candidate questions.
@@ -119,11 +122,13 @@ Add automated coverage proving that:
 
 1. Database listings receive extracted keywords instead of an empty array.
 2. A short/truncated aggregator description is marked partial or insufficient.
-3. A career changer cannot receive the exact target title as an unsupported identity.
+3. A transferable candidate cannot receive the exact target title as an unsupported identity or employer-facing transition language.
 4. A skill absent from the base résumé and unsupported by the evidence analysis blocks the draft.
 5. A missing requirement cannot be copied into the résumé as a claimed skill.
 6. Supported transferable wording passes.
 7. Direct candidates retain conventional positioning.
-8. Career-change output uses the dedicated renderer and export order.
+8. Strengths-led output uses the dedicated renderer and export order.
 9. Existing history/number repair behavior remains intact.
-10. The complete test suite and production build pass.
+10. Duplicate history headers are consolidated without merging genuinely different roles.
+11. A title, employer, and date that are individually real but belong to different jobs fail history-association validation.
+12. The complete test suite and production build pass.

@@ -32,6 +32,82 @@ function professionalTitleText(value) {
     .trim();
 }
 
+function normalizeSapBranding(value) {
+  return String(value || "")
+    .replace(/\bSAP\s+S\/4\s+HANA\b/gi, "SAP S/4HANA")
+    .replace(/\bS\/4\s+HANA\b/gi, "S/4HANA");
+}
+
+function normalizeDateRange(value) {
+  return String(value || "")
+    .replace(/\b((?:19|20)\d{2})\s*(?:-|–|—|to)\s*((?:19|20)\d{2}|present|current)\b/gi, "$1 – $2")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function cleanCompanyPresentation(value) {
+  const company = normalizeSapBranding(value).replace(/\s+/g, " ").trim();
+  const parts = company.split(",").map((part) => part.trim()).filter(Boolean);
+  if (parts.length !== 2) return company;
+  const trailing = normalized(parts[1]);
+  const employerTokens = new Set(normalized(parts[0]).split(" ").filter(Boolean));
+  return trailing && !trailing.includes(" ") && employerTokens.has(trailing) ? parts[0] : company;
+}
+
+function polishedText(value) {
+  return normalizeSapBranding(value).replace(/\s+/g, " ").trim();
+}
+
+export function polishResumePresentation(resumeData) {
+  const sourceExperience = Array.isArray(resumeData?.experience) ? resumeData.experience : [];
+  const experience = [];
+  const entryByKey = new Map();
+  const consolidatedHistory = [];
+
+  for (const sourceEntry of sourceExperience) {
+    const entry = {
+      ...sourceEntry,
+      role: polishedText(sourceEntry?.role),
+      company: cleanCompanyPresentation(sourceEntry?.company),
+      location: polishedText(sourceEntry?.location),
+      dates: normalizeDateRange(sourceEntry?.dates),
+      bullets: uniqueStrings((sourceEntry?.bullets || []).map(polishedText), Number.POSITIVE_INFINITY),
+    };
+    const keyParts = [entry.role, entry.company, entry.dates].map(normalized);
+    const key = keyParts.every(Boolean) ? keyParts.join("|") : "";
+    const existingIndex = key ? entryByKey.get(key) : undefined;
+    if (existingIndex === undefined) {
+      if (key) entryByKey.set(key, experience.length);
+      experience.push(entry);
+      continue;
+    }
+
+    const existing = experience[existingIndex];
+    experience[existingIndex] = {
+      ...existing,
+      location: existing.location || entry.location,
+      bullets: uniqueStrings([...(existing.bullets || []), ...(entry.bullets || [])], Number.POSITIVE_INFINITY),
+    };
+    consolidatedHistory.push({
+      role: existing.role,
+      company: existing.company,
+      dates: existing.dates,
+      reason: "Duplicate work-history header consolidated",
+    });
+  }
+
+  return {
+    resume: {
+      ...resumeData,
+      title: polishedText(resumeData?.title),
+      profile: polishedText(resumeData?.profile),
+      skills: uniqueStrings((resumeData?.skills || []).map(polishedText), Number.POSITIVE_INFINITY),
+      experience,
+    },
+    consolidatedHistory,
+  };
+}
+
 const TOKEN_STOPWORDS = new Set([
   "a", "an", "and", "are", "as", "at", "by", "for", "from", "in", "is", "of", "on", "or",
   "the", "this", "to", "with", "work", "worked", "working", "experience", "professional", "role",
@@ -222,8 +298,8 @@ function focusResume(resumeData, analysis) {
       }))
       .filter(({ value }) => value)
       .sort((a, b) => b.score - a.score || a.bulletIndex - b.bulletIndex);
-    const defaultLimit = transferablePositioning ? (entryIndex < 2 ? 3 : 2) : entryIndex < 2 ? 4 : entryIndex < 5 ? 3 : 2;
-    const remaining = Math.max(1, 20 - totalBullets);
+    const defaultLimit = entryIndex < 2 ? 3 : entryIndex < 6 ? 2 : 1;
+    const remaining = Math.max(1, 16 - totalBullets);
     const limit = Math.min(defaultLimit, remaining);
     const kept = [];
 
@@ -337,11 +413,15 @@ export function shapeTailoredResumeWithReview(resumeData, analysis, baseResume =
   const gapSafe = {
     ...sanitized,
     title: professionalTitleText(sanitized.title),
-    profile: professionalPositioningText(removeCandidateGapDisclosures(sanitized.profile)),
+    profile: limitByCompleteSentences(
+      professionalPositioningText(removeCandidateGapDisclosures(sanitized.profile)),
+      85,
+    ),
   };
+  const polished = polishResumePresentation(gapSafe);
   const strategyShaped = ["transferable", "career_change"].includes(analysis?.fit_assessment?.path)
-    ? shapeTransferableResume(gapSafe, analysis)
-    : gapSafe;
+    ? shapeTransferableResume(polished.resume, analysis)
+    : polished.resume;
   const evidenceComplete = restoreRequiredEducation(strategyShaped, analysis, baseResume);
   const trainingFocused = focusRelevantTraining(evidenceComplete, analysis);
   const focused = focusResume(trainingFocused.resume, analysis);
@@ -350,6 +430,7 @@ export function shapeTailoredResumeWithReview(resumeData, analysis, baseResume =
     focusReview: {
       ...focused.focusReview,
       omitted_training: trainingFocused.omittedTraining,
+      consolidated_history: polished.consolidatedHistory,
     },
   };
 }

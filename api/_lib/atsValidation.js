@@ -84,6 +84,51 @@ function dateFieldSupported(value, baseResume) {
   });
 }
 
+function lineContainsHistoryField(line, value, field) {
+  const candidateTokens = historyTokens(value, field);
+  if (!candidateTokens.length) return true;
+  const sourceTokens = new Set(historyTokens(line, field));
+  return candidateTokens.every((token) => sourceTokens.has(token));
+}
+
+function lineContainsEmploymentDates(line, value) {
+  const candidate = normalized(value);
+  if (!candidate) return true;
+  const candidateYears = [...candidate.matchAll(/\b(?:19|20)\d{2}\b/g)].map((match) => match[0]);
+  const sourceYears = [...normalized(line).matchAll(/\b(?:19|20)\d{2}\b/g)].map((match) => match[0]);
+  if (!candidateYears.every((year) => sourceYears.includes(year))) return false;
+  if (isCurrent(candidate) && !isCurrent(line)) return false;
+  return sourceYears.every((year) => candidateYears.includes(year));
+}
+
+function historyEntryAssociationSupported(experience, baseResume) {
+  const role = String(experience?.role || "").trim();
+  const company = String(experience?.company || "").trim();
+  const dates = String(experience?.dates || "").trim();
+  if (!role || !company) return true;
+
+  const lines = String(baseResume || "")
+    .split(/\r?\n/)
+    .map((line) => line.replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+  const supports = (line) => lineContainsHistoryField(line, role, "role")
+    && lineContainsHistoryField(line, company, "company")
+    && (!dates || lineContainsEmploymentDates(line, dates));
+
+  if (lines.some(supports)) return true;
+  if (!dates) return false;
+
+  // Some parsers put title, employer, and dates on two or three consecutive
+  // lines. Permit that layout, but reject windows containing an extra year;
+  // an extra date normally means two adjacent jobs were accidentally combined.
+  for (let start = 0; start < lines.length; start += 1) {
+    for (let width = 2; width <= 3 && start + width <= lines.length; width += 1) {
+      if (supports(lines.slice(start, start + width).join(" "))) return true;
+    }
+  }
+  return false;
+}
+
 function numericClaims(value) {
   return [...String(value || "").matchAll(/(?:[$€£]\s*)?\b\d[\d,]*(?:\.\d+)?(?:\s*%|\+)?/g)]
     .map((match) => match[0].replace(/\s+/g, "").toLowerCase());
@@ -358,6 +403,7 @@ function requirementConsistencyReview(analysis = null) {
 
 export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
   const base = String(baseResume || "");
+  const historyBase = String(options.historyEvidence || baseResume || "");
   const allowedNumbers = new Set(numericClaims(base));
   const unsupported_metrics = [];
   const unsupported_history = [];
@@ -370,14 +416,26 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
     const company = String(experience?.company || "").trim();
     const dates = String(experience?.dates || "").trim();
 
-    if (role && !historyFieldSupported(role, base, "role")) {
+    const roleSupported = !role || historyFieldSupported(role, historyBase, "role");
+    const companySupported = !company || historyFieldSupported(company, historyBase, "company");
+    const datesSupported = !dates || dateFieldSupported(dates, historyBase);
+
+    if (!roleSupported) {
       unsupported_history.push({ field: "role", value: role, experienceIndex });
     }
-    if (company && !historyFieldSupported(company, base, "company")) {
+    if (!companySupported) {
       unsupported_history.push({ field: "company", value: company, experienceIndex });
     }
-    if (dates && !dateFieldSupported(dates, base)) {
+    if (!datesSupported) {
       unsupported_history.push({ field: "dates", value: dates, experienceIndex });
+    }
+    if (roleSupported && companySupported && datesSupported
+      && !historyEntryAssociationSupported(experience, historyBase)) {
+      unsupported_history.push({
+        field: "association",
+        value: [role, company, dates].filter(Boolean).join(" | "),
+        experienceIndex,
+      });
     }
 
   }

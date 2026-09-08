@@ -71,6 +71,44 @@ test("ATS truth check accepts cosmetic history formatting changes", () => {
   assert.equal(review.unsupported_history.length, 0);
 });
 
+test("ATS truth check blocks real history fields recombined into the wrong job", () => {
+  const review = buildAtsReview({
+    profile: "SAP functional consultant.",
+    skills: ["SAP"],
+    experience: [{
+      role: "Senior Consultant",
+      company: "North American Software",
+      dates: "2003–2009",
+      bullets: ["Supported SAP delivery."],
+    }],
+  }, [
+    "Solution Architect — Deloitte Canada — 2022–2024",
+    "Integrated SAP systems.",
+    "Senior Consultant — Axxiome Canada — 2014–2018",
+    "Designed functional specifications.",
+    "QA Consultant — North American Software — 2003–2009",
+    "Supported SAP delivery.",
+  ].join("\n"), { keywords: ["SAP"] });
+
+  assert.equal(review.status, "blocked");
+  assert.deepEqual(review.unsupported_history.map((issue) => issue.field), ["association"]);
+});
+
+test("ATS truth check accepts a history tuple split across adjacent source lines", () => {
+  const review = buildAtsReview({
+    profile: "Operations leader.",
+    skills: ["Operations"],
+    experience: [{
+      role: "Operations Manager",
+      company: "Real Corp",
+      dates: "2020–2023",
+      bullets: ["Led operations."],
+    }],
+  }, "Operations Manager\nReal Corp\n2020–2023\nLed operations.", { keywords: ["Operations"] });
+
+  assert.equal(review.unsupported_history.length, 0);
+});
+
 test("ATS truth check still blocks target-role history invented for a career change", () => {
   const review = buildAtsReview({
     profile: "Technology leader pursuing web development.",

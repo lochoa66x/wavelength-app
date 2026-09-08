@@ -154,6 +154,54 @@ test("focus review prioritizes relevant evidence, removes repetition, and leaves
   assert.equal(result.focusReview.duplicate_groups.length > 0, true);
 });
 
+test("resume shaping consolidates duplicate history headers and normalizes safe presentation details", () => {
+  const result = shapeTailoredResumeWithReview({
+    name: "Luis Example",
+    title: "SAP S/4 HANA Architect",
+    profile: "SAP S/4 HANA architect with enterprise delivery experience.",
+    skills: ["SAP S/4 HANA", "SAP S/4HANA"],
+    experience: [
+      {
+        role: "SAP Banking Consultant",
+        company: "SAP Canada, Canada",
+        dates: "2010-2014",
+        bullets: ["Configured SAP Loans Management.", "Supported go-live."],
+      },
+      {
+        role: "SAP Banking Consultant",
+        company: "SAP Canada, Canada",
+        location: "Toronto, Canada",
+        dates: "2010 – 2014",
+        bullets: ["Supported go-live.", "Executed regression tests."],
+      },
+      {
+        role: "Senior Consultant",
+        company: "SAP Canada, Canada",
+        dates: "2010-2014",
+        bullets: ["Designed a separate engagement."],
+      },
+    ],
+  }, {
+    fit_assessment: { path: "direct" },
+    requirements: [],
+  });
+
+  assert.equal(result.resume.title, "SAP S/4HANA Architect");
+  assert.match(result.resume.profile, /SAP S\/4HANA architect/);
+  assert.deepEqual(result.resume.skills, ["SAP S/4HANA"]);
+  assert.equal(result.resume.experience.length, 2);
+  assert.equal(result.resume.experience[0].company, "SAP Canada");
+  assert.equal(result.resume.experience[0].dates, "2010 – 2014");
+  assert.equal(result.resume.experience[0].location, "Toronto, Canada");
+  assert.deepEqual(new Set(result.resume.experience[0].bullets), new Set([
+    "Configured SAP Loans Management.",
+    "Supported go-live.",
+    "Executed regression tests.",
+  ]));
+  assert.equal(result.focusReview.consolidated_history.length, 1);
+  assert.equal(result.resume.experience[1].role, "Senior Consultant");
+});
+
 test("export readiness blocks placeholder identity and labels large-gap drafts as preliminary", () => {
   assert.equal(hasUsableResumeIdentity("<UNKNOWN>"), false);
   assert.equal(hasUsableResumeIdentity("Luis Example"), true);
