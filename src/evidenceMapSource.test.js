@@ -5,9 +5,9 @@ import test from "node:test";
 test("Evidence Map exposes progressive disclosure, filters, and separate readiness axes", async () => {
   const source = await readFile(new URL("./EvidenceMap.jsx", import.meta.url), "utf8");
 
-  assert.match(source, /Application outlook/);
+  assert.match(source, /Match overview/);
   assert.match(source, /Résumé document/);
-  assert.match(source, /Application risk/);
+  assert.match(source, /Match guidance/);
   assert.match(source, /Evidence Map/);
   assert.match(source, /aria-pressed/);
   assert.match(source, /aria-live="polite"/);

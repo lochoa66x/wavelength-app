@@ -216,7 +216,23 @@ test("presentation removes redundant employer country and repairs contradictory 
 
   assert.equal(result.resume.experience[0].company, "Deloitte Canada");
   assert.equal(result.resume.experience[0].location, "");
-  assert.equal(result.resume.experience[0].bullets[0], "Served as Master Data team lead, contributing to user acceptance testing and cutover.");
+  assert.equal(result.resume.experience[0].bullets[0], "Led Master Data team contributions to user acceptance testing and cutover.");
+});
+
+test("presentation removes internal audit wording, normalizes style, and restores continuation employers", () => {
+  const result = shapeTailoredResumeWithReview({
+    name: "Luis Example",
+    profile: "Brings verified SAP experience and functional-specification documentation.",
+    experience: [
+      { role: "Architect", company: "CAP GEMINI", location: "Canada", dates: "2022-2024", bullets: ["Led Mock-Cutover and Go-Live; prepared knowledge-transfer activities and GAP analysis."] },
+      { role: "Senior Designer", company: "", location: "Canada", dates: "2019-2021", bullets: ["Prepared functional-specification documentation."] },
+    ],
+  }, { fit_assessment: { path: "direct" }, requirements: [] });
+
+  assert.equal(result.resume.profile, "Brings SAP experience and functional specifications.");
+  assert.equal(result.resume.experience[0].company, "Capgemini");
+  assert.match(result.resume.experience[0].bullets[0], /mock cutover and go-live; prepared knowledge transfer activities and gap analysis/i);
+  assert.equal(result.resume.experience[1].company, "Capgemini");
 });
 
 test("relevant SAP training is restored from the verified base resume when the model omits it", () => {

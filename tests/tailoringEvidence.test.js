@@ -867,3 +867,47 @@ test("regulated-trade requirements distinguish blockers, material gaps, preferen
   assert.equal(result.readiness.status, "significant_gap");
   assert.match(result.gap_summary.note, /mandatory credentials/i);
 });
+
+test("work authorization remains a candidate-controlled application question, not a résumé blocker", () => {
+  const assessment = assessPostingCompleteness(completeSapPosting, null, {
+    source: "reviewed_paste",
+    descriptionStatus: "full_description",
+  });
+  const requirements = [
+    { id: "R1", requirement: "Legally authorized to work in Canada", priority: "required", evidence_match: "missing", resume_evidence: "", safe_language: "", keywords: [] },
+    { id: "R2", requirement: "SAP FI-CA configuration", priority: "required", evidence_match: "direct", resume_evidence: "Configured SAP FI-CA Contract Accounts.", safe_language: "SAP FI-CA configuration", keywords: ["SAP FI-CA"] },
+  ];
+  const result = sanitizeTailoringAnalysis({
+    fit_assessment: { path: "direct", recommended_level: "Senior SAP Consultant", note: "Strong foundation." },
+    requirements,
+    candidate_questions: ["Are you legally authorized to work in Canada?"],
+  }, "Configured SAP FI-CA Contract Accounts.", assessment);
+  const eligibility = result.requirements.find((entry) => /authorized to work/i.test(entry.requirement));
+
+  assert.equal(eligibility.gap_severity, "candidate_check");
+  assert.equal(eligibility.requirement_origin, "eligibility");
+  assert.equal(result.core_coverage.total, 1);
+  assert.equal(result.gap_summary.counts.verified_blocker, 0);
+  assert.equal(result.gap_summary.outlook.status, "strong_verified_alignment");
+  assert.equal(result.candidate_questions.length, 0);
+  assert.doesNotMatch(result.missing_evidence.join(" "), /authorized to work/i);
+});
+
+test("FI-CAX and financial postings recognize FI-CA and PSCD as adjacent foundations", () => {
+  const assessment = assessPostingCompleteness(completeSapPosting, null, {
+    source: "reviewed_paste",
+    descriptionStatus: "full_description",
+  });
+  const baseResume = "Configured SAP FI-CA and SAP PSCD Contract Accounts, Collections, and Open Items.";
+  const requirements = [
+    { id: "R1", requirement: "Extensive hands-on experience with FI-CAX", priority: "required", evidence_match: "missing", resume_evidence: "", safe_language: "", keywords: ["FI-CAX"] },
+    { id: "R2", requirement: "Strong understanding of financial postings", priority: "required", evidence_match: "missing", resume_evidence: "", safe_language: "", keywords: ["postings"] },
+  ];
+  const result = sanitizeTailoringAnalysis({ fit_assessment: { path: "adjacent" }, requirements }, baseResume, assessment);
+  const byId = Object.fromEntries(result.requirements.map((entry) => [entry.id, entry]));
+
+  assert.equal(byId.R1.evidence_match, "adjacent");
+  assert.equal(byId.R2.evidence_match, "adjacent");
+  assert.equal(result.readiness.status, "strong_fit");
+  assert.equal(result.gap_summary.outlook.status, "strong_verified_alignment");
+});

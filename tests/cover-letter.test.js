@@ -162,3 +162,19 @@ test("paragraph regeneration must return exactly the requested paragraph", async
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.letter.paragraphs.length, 1);
 });
+
+test("generation removes an embedded duplicate signoff and normalizes the signoff field", async () => {
+  const duplicated = {
+    ...letter,
+    paragraphs: letter.paragraphs.map((entry, index) => index === 2
+      ? { ...entry, text: `${entry.text} Sincerely, Jordan Lee` }
+      : entry),
+    signoff: "Sincerely, Jordan Lee",
+  };
+  const handler = createCoverLetterHandler({ authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }), fetchImpl: async () => toolResponse(duplicated), getApiKey: () => "test" });
+  const res = responseRecorder();
+  await handler({ method: "POST", headers: { authorization: "Bearer valid" }, body: { resume: "Jordan Lee\nInstalled and maintained electrical panels.\nDocumented preventive maintenance work in a CMMS.", customJob, candidateEvidence: [] } }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.letter.signoff, "Sincerely,");
+  assert.doesNotMatch(res.body.letter.paragraphs[2].text, /Sincerely/i);
+});

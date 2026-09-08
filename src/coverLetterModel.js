@@ -11,7 +11,7 @@ export const COVER_LETTER_VOICES = Object.freeze([
 ]);
 export const COVER_LETTER_LENGTHS = Object.freeze([
   { id: "short", label: "Short", description: "About 180–240 words." },
-  { id: "standard", label: "Standard", description: "About 260–340 words." },
+  { id: "standard", label: "Standard", description: "About 250–320 words." },
 ]);
 
 const VOICES = new Set(COVER_LETTER_VOICES.map(({ id }) => id));
@@ -40,10 +40,41 @@ function cleanArray(value, maxItems = 8, maxLength = 600) {
   return value.slice(0, maxItems).map((item) => clean(item, maxLength)).filter(Boolean);
 }
 
+function sentenceCaseOpening(value) {
+  return clean(value, 240).replace(/^([a-z])/, (letter) => letter.toUpperCase());
+}
+
+function stripEmbeddedSignoff(value) {
+  return clean(value, 2_400)
+    .replace(/\s+(?:sincerely|best regards|kind regards|regards|respectfully)\s*,(?:\s+.{0,180})?$/i, "")
+    .trim();
+}
+
+function normalizeSignoff(value) {
+  const signoff = clean(value, 200).toLowerCase();
+  if (signoff.startsWith("best regards")) return "Best regards,";
+  if (signoff.startsWith("kind regards")) return "Kind regards,";
+  if (signoff.startsWith("regards")) return "Regards,";
+  return "Sincerely,";
+}
+
+function coverLetterContactLine(candidateIdentity, candidate) {
+  const explicit = clean(candidateIdentity?.contact ?? candidateIdentity?.contactLine, 1_000);
+  const explicitParts = explicit.split(/\s*(?:\||·)\s*/).filter(Boolean);
+  const professionalLinks = Array.isArray(candidate?.professionalLinks)
+    ? candidate.professionalLinks.map((entry) => clean(entry?.url, 500)).filter(Boolean)
+    : [];
+  const direct = [candidate?.email, candidate?.phone, ...professionalLinks].map((entry) => clean(entry, 500)).filter(Boolean);
+  const safeExplicit = explicitParts.filter((part) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(part)
+    || (part.replace(/\D/g, "").length >= 7)
+    || /^https?:\/\//i.test(part));
+  return [...new Set([...direct, ...safeExplicit])].join(" · ");
+}
+
 function targetSnapshot(item = {}) {
   return {
     id: clean(item.id == null ? "" : String(item.id), 180),
-    jobTitle: clean(item.title ?? item.jobTitle, 240),
+    jobTitle: sentenceCaseOpening(item.title ?? item.jobTitle),
     company: clean(item.company, 240),
     location: clean(item.location, 240),
   };
@@ -64,7 +95,7 @@ export function createCoverLetterSourceFingerprint({ baseResume, resumeData, ite
 
 function normalizeParagraph(raw, index) {
   const purpose = PARAGRAPH_PURPOSES.has(raw?.purpose) ? raw.purpose : index === 0 ? "opening" : "evidence";
-  const text = clean(raw?.text, 2_400);
+  const text = stripEmbeddedSignoff(raw?.text);
   return {
     id: clean(raw?.id, 80) || `paragraph-${index + 1}`,
     purpose,
@@ -97,7 +128,14 @@ function planContent(plan) {
 export function validateStoredCoverLetterPlan(value) {
   if (value?.kind !== "cover-letter-plan" || value.schemaVersion !== COVER_LETTER_SCHEMA_VERSION) return null;
   if (!Array.isArray(value.paragraphs) || !value.candidate || !value.target) return null;
-  return value.contentHash === stableHash(planContent(value), "cover-letter") ? value : null;
+  if (value.contentHash !== stableHash(planContent(value), "cover-letter")) return null;
+  const normalized = {
+    ...value,
+    target: targetSnapshot(value.target),
+    paragraphs: value.paragraphs.map(normalizeParagraph).filter((entry) => entry.text),
+    signoff: normalizeSignoff(value.signoff),
+  };
+  return { ...normalized, contentHash: stableHash(planContent(normalized), "cover-letter") };
 }
 
 export function createCoverLetterPlan(raw = {}, {
@@ -114,7 +152,7 @@ export function createCoverLetterPlan(raw = {}, {
   const sourceFingerprint = createCoverLetterSourceFingerprint({ baseResume, resumeData: resumePackage, item, atsReview, candidateEvidence });
   const candidate = {
     fullName: clean(candidateIdentity?.name ?? candidateIdentity?.fullName, 180) || resumePackage.document.candidate.fullName,
-    contactLine: clean(candidateIdentity?.contact ?? candidateIdentity?.contactLine, 1_000) || resumePackage.document.candidate.contactLine,
+    contactLine: coverLetterContactLine(candidateIdentity, resumePackage.document.candidate),
   };
   const normalized = {
     kind: "cover-letter-plan",
@@ -126,7 +164,7 @@ export function createCoverLetterPlan(raw = {}, {
     length: LENGTHS.has(length) ? length : "standard",
     salutation: clean(raw.salutation, 200) || "Dear Hiring Team,",
     paragraphs: Array.isArray(raw.paragraphs) ? raw.paragraphs.slice(0, 6).map(normalizeParagraph).filter((entry) => entry.text) : [],
-    signoff: clean(raw.signoff, 200) || "Sincerely,",
+    signoff: normalizeSignoff(raw.signoff),
     sourceFingerprint,
     createdAt: clean(raw.createdAt ?? raw.created_at, 60) || new Date().toISOString(),
     updatedAt: clean(raw.updatedAt ?? raw.updated_at, 60) || new Date().toISOString(),
@@ -273,6 +311,7 @@ export function coverLetterToPlainText(plan) {
     plan?.candidate?.contactLine,
     "",
     plan?.target?.company,
+    plan?.target?.location,
     plan?.target?.jobTitle,
     "",
     plan?.salutation,

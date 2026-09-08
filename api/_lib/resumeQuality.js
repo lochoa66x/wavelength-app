@@ -47,6 +47,8 @@ function normalizeDateRange(value) {
 
 function cleanCompanyPresentation(value) {
   const rawCompany = normalizeSapBranding(value).replace(/\s+/g, " ").trim();
+  if (/^cap\s+gemini$/i.test(rawCompany)) return "Capgemini";
+  if (/^north\s+american\s+software$/i.test(rawCompany)) return "North American Software";
   const company = /^[a-z]/.test(rawCompany)
     ? rawCompany.split(" ").map((word) => /^[a-z]+$/.test(word) ? `${word.charAt(0).toUpperCase()}${word.slice(1)}` : word).join(" ")
     : rawCompany;
@@ -59,7 +61,13 @@ function cleanCompanyPresentation(value) {
 
 function polishedText(value) {
   return normalizeSapBranding(value)
-    .replace(/\b(?:Contributed|Participated) as (?:a|the) ([^,.]{1,80}\bteam lead)\b/gi, "Served as $1, contributing")
+    .replace(/\b(?:Contributed|Participated) as (?:a|the) ([^,.]{1,70}?)team lead(?:,?\s+contributing)?\s+to\b/gi, "Led $1team contributions to")
+    .replace(/\bverified\s+(?=(?:SAP|Business Partner|Contract Accounts?|Contract Objects?|experience|skills?|capabilities|background|knowledge)\b)/gi, "")
+    .replace(/\bfunctional[- ]specification documentation\b/gi, "functional specifications")
+    .replace(/\bknowledge[- ]transfer\b/gi, "knowledge transfer")
+    .replace(/\bmock[- ]cutover\b/gi, "mock cutover")
+    .replace(/\bgo[- ]live\b/gi, "go-live")
+    .replace(/\bGAP analysis\b/g, "gap analysis")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -79,11 +87,21 @@ export function polishResumePresentation(resumeData) {
   const consolidatedHistory = [];
 
   for (const sourceEntry of sourceExperience) {
+    let company = cleanCompanyPresentation(sourceEntry?.company);
+    if (!company && experience.length && sourceEntry?.role && sourceEntry?.dates) {
+      company = experience[experience.length - 1].company;
+      if (company) consolidatedHistory.push({
+        role: polishedText(sourceEntry.role),
+        company,
+        dates: normalizeDateRange(sourceEntry.dates),
+        reason: "Continuation role kept with the preceding employer",
+      });
+    }
     const entry = {
       ...sourceEntry,
       role: polishedText(sourceEntry?.role),
-      company: cleanCompanyPresentation(sourceEntry?.company),
-      location: removeRedundantEmployerLocation(cleanCompanyPresentation(sourceEntry?.company), sourceEntry?.location),
+      company,
+      location: removeRedundantEmployerLocation(company, sourceEntry?.location),
       dates: normalizeDateRange(sourceEntry?.dates),
       bullets: uniqueStrings((sourceEntry?.bullets || []).map(polishedText), Number.POSITIVE_INFINITY),
     };

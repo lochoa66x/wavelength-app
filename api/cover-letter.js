@@ -61,13 +61,27 @@ function cleanRefs(value) {
   return Array.isArray(value) ? value.slice(0, 6).map((entry) => clean(entry, 700)).filter(Boolean) : [];
 }
 
+function stripEmbeddedSignoff(value) {
+  return clean(value, 2_400)
+    .replace(/\s+(?:sincerely|best regards|kind regards|regards|respectfully)\s*,(?:\s+.{0,180})?$/i, "")
+    .trim();
+}
+
+function normalizeSignoff(value) {
+  const signoff = clean(value, 120).toLowerCase();
+  if (signoff.startsWith("best regards")) return "Best regards,";
+  if (signoff.startsWith("kind regards")) return "Kind regards,";
+  if (signoff.startsWith("regards")) return "Regards,";
+  return "Sincerely,";
+}
+
 function validateLetter(raw, { candidateCorpus, postingCorpus, targetTitle, targetCompany, expectedParagraphId = "" }) {
   const paragraphs = Array.isArray(raw?.paragraphs) ? raw.paragraphs.slice(0, 6) : [];
   const issues = [];
   const seen = new Set();
   const normalizedParagraphs = paragraphs.map((entry, index) => {
     const purpose = ["opening", "evidence", "closing"].includes(entry?.purpose) ? entry.purpose : "evidence";
-    const text = clean(entry?.text, 2_400);
+    const text = stripEmbeddedSignoff(entry?.text);
     const evidenceRefs = cleanRefs(entry?.evidence_refs);
     const requirementRefs = cleanRefs(entry?.requirement_refs);
     const explanation = clean(entry?.explanation, 800) || "This paragraph connects verified candidate evidence to a stated posting requirement.";
@@ -107,7 +121,7 @@ function validateLetter(raw, { candidateCorpus, postingCorpus, targetTitle, targ
     letter: {
       salutation: clean(raw?.salutation, 160) || "Dear Hiring Team,",
       paragraphs: normalizedParagraphs,
-      signoff: clean(raw?.signoff, 120) || "Sincerely,",
+      signoff: normalizeSignoff(raw?.signoff),
     },
   };
 }
@@ -189,7 +203,7 @@ export function createCoverLetterHandler({
       ? `Regenerate exactly one paragraph with id "${regenerateParagraph}". Preserve an opening, evidence, or closing purpose from EXISTING DRAFT, return only that one paragraph, and give it fresh natural phrasing without changing facts.`
       : `Return 3–4 paragraphs: a posting-specific opening, 1–2 strengths-and-evidence paragraphs, and a confident professional closing. Every paragraph must help the candidate's case.`;
     const existingDraft = regenerateParagraph ? JSON.stringify(body.existingDraft || {}).slice(0, 10_000) : "Not supplied.";
-    const wordTarget = length === "short" ? "180–240" : "260–340";
+    const wordTarget = length === "short" ? "180–240" : "250–320";
     const prompt = `Create an evidence-first cover letter for one application.
 
 TARGET
@@ -220,9 +234,13 @@ RULES
 - This is an employer-facing advocacy document, not a fit assessment. Never mention, enumerate, explain, or apologize for missing experience, unmet requirements, gaps, limitations, weaker fit, application risk, or reasons to reject the candidate—even if those appear in candidate notes or the existing draft.
 - Never use a boundary, disclaimer, concession, or conditional-candidacy paragraph. Do not say "although," "rather than," "I understand," "if you are open to," or that the candidate must ramp up. Do not describe a career change, transition, new path, or new journey.
 - Lead with the strongest verified experience, skills, results, scope, leadership, and relevant domain foundations. Select two or three points that best answer the posting instead of trying to discuss every requirement.
+- Open with professional value, not the generic phrase "I am applying for." Name the role naturally within the first paragraph and make the first two sentences specific enough to distinguish this candidate.
+- Build a selective argument instead of reciting the résumé. Each evidence paragraph should synthesize related proof into one clear strength, then connect that strength to the employer's stated work.
+- Prefer decisive senior phrasing supported by the source: "I led," "I configured," "I designed," and "I delivered" where those contribution levels are verified. Avoid repetitive "I contributed" constructions and generic claims such as "disciplined approach."
+- Keep paragraphs concise and readable. Avoid module inventories, semicolon chains, repeated employer names, and restating the same delivery lifecycle in more than one paragraph.
 - Adjacent experience must be framed positively: explain the shared capability, process, or domain foundation directly. Do not contrast it with an industry, module, tool, or context the candidate has not used.
 - Never turn a missing requirement into experience, motivation, or a strength. Simply omit unsupported qualifications from the letter; keep private assessment findings out of employer-facing prose.
-- Use "Dear Hiring Team," unless a verified person name appears in the posting. Use a restrained signoff.
+- Use "Dear Hiring Team," unless a verified person name appears in the posting. Use exactly one restrained signoff in the signoff field; never place a signoff, candidate name, email, or phone inside a paragraph.
 - Every non-closing paragraph must cite at least one short EXACT excerpt from the candidate corpus in evidence_refs and one short EXACT excerpt from the posting in requirement_refs. Do not paraphrase citations.
 - The explanation is candidate-facing: say which verified strength the paragraph highlights and whether the evidence is direct, adjacent, or transferable. Do not repeat private gaps in the explanation.
 - Any number in prose must appear in that paragraph's exact citations. Avoid generic flattery and empty adjectives.`;

@@ -13,6 +13,7 @@ function toneColors(tone, C) {
 function requirementTone(requirement, C) {
   if (requirement.gapSeverity === "verified_blocker") return { color: C.red, border: C.redBorder || C.amberBorder, background: C.redTint || C.amberTint };
   if (requirement.gapSeverity === "material_gap") return { color: C.amber, border: C.amberBorder, background: C.amberTint };
+  if (requirement.gapSeverity === "candidate_check") return { color: C.blue, border: C.blueBorder, background: C.blueTint || C.bgCard };
   if (requirement.evidenceMatch === "direct") return { color: C.green, border: C.greenBorder, background: C.greenTint };
   if (["adjacent", "transferable"].includes(requirement.evidenceMatch)) return { color: C.blue, border: C.blueBorder, background: C.blueTint || C.bgCard };
   return { color: C.amber, border: C.border, background: C.bgCard };
@@ -117,7 +118,7 @@ export function EvidenceMap({ review, C }) {
           <div style={{ minWidth: 0, flex: "1 1 300px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
               <OutlookIcon aria-hidden="true" size={16} color={outlookStyle.color} />
-              <h3 id={`${filterGroupId}-outlook`} style={{ fontSize: 12.75, margin: 0 }}>Application outlook</h3>
+              <h3 id={`${filterGroupId}-outlook`} style={{ fontSize: 12.75, margin: 0 }}>Match overview</h3>
             </div>
             <p style={{ color: C.textSub, fontSize: 11.75, lineHeight: 1.48, margin: "6px 0 0" }}>{view.outlook.reason}</p>
           </div>
@@ -126,10 +127,10 @@ export function EvidenceMap({ review, C }) {
           </span>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(105px, 1fr))", gap: 7, marginTop: 10 }}>
-          <CountCard value={view.coreCounts.verifiedStrengths} label="Direct required evidence" color={C.green} C={C} />
-          <CountCard value={view.coreCounts.relatedEvidence} label="Related required evidence" color={C.blue} C={C} />
-          <CountCard value={view.coreCounts.materialGaps} label="Mandatory gaps" color={C.amber} C={C} />
-          <CountCard value={view.coreCounts.blockers} label="Likely blockers" color={view.coreCounts.blockers ? C.red : C.green} C={C} />
+          <CountCard value={view.coreCounts.verifiedStrengths} label="Direct required matches" color={C.green} C={C} />
+          <CountCard value={view.coreCounts.relatedEvidence} label="Related required strengths" color={C.blue} C={C} />
+          <CountCard value={view.coreCounts.materialGaps} label="Skills to review" color={C.amber} C={C} />
+          <CountCard value={view.coreCounts.blockers} label="Credential checks" color={view.coreCounts.blockers ? C.red : C.green} C={C} />
         </div>
         <p style={{ color: C.textSub, fontSize: 10.75, lineHeight: 1.4, margin: "8px 0 0" }}>
           Required fit: <strong style={{ color: C.text }}>{view.coreCounts.total - view.coreCounts.missing} of {view.coreCounts.total} supported</strong> · Full review: {view.counts.total - view.counts.missing} of {view.counts.total} total requirements supported; {view.counts.missing} lack candidate evidence.
@@ -139,7 +140,7 @@ export function EvidenceMap({ review, C }) {
         </p>
       </section>
 
-      <section aria-label="Document readiness and application risk" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 8 }}>
+      <section aria-label="Document readiness and match guidance" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 8 }}>
         <div style={{ background: C.bgCard, border: `1px solid ${view.document.truthChecksPass ? C.greenBorder : C.amberBorder}`, borderRadius: 10, padding: "9px 10px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.text, fontSize: 11.75, fontWeight: 750 }}>
             <FileCheck2 aria-hidden="true" size={14} color={view.document.truthChecksPass ? C.green : C.amber} />
@@ -150,9 +151,9 @@ export function EvidenceMap({ review, C }) {
         <div style={{ background: C.bgCard, border: `1px solid ${outlookStyle.border}`, borderRadius: 10, padding: "9px 10px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.text, fontSize: 11.75, fontWeight: 750 }}>
             <OutlookIcon aria-hidden="true" size={14} color={outlookStyle.color} />
-            Application risk · {view.outlook.label}
+            Match guidance · {view.outlook.label}
           </div>
-          <p style={{ color: C.textSub, fontSize: 10.75, lineHeight: 1.4, margin: "5px 0 0" }}>A truthful export does not guarantee that an employer will waive uncovered requirements.</p>
+          <p style={{ color: C.textSub, fontSize: 10.75, lineHeight: 1.4, margin: "5px 0 0" }}>Use the strongest supported and candidate-selected capabilities; the employer makes the final hiring decision.</p>
         </div>
       </section>
 
@@ -185,7 +186,7 @@ export function EvidenceMap({ review, C }) {
               })}
             </div>
             <p aria-live="polite" style={{ color: C.textSub, fontSize: 10.75, margin: "8px 0 0" }}>
-              Showing {visibleRequirements.length} of {view.requirements.length} requirements. Blockers and material gaps appear first.
+              Showing {visibleRequirements.length} of {view.requirements.length} requirements. Credential checks and skills to review appear first.
             </p>
             <div style={{ display: "grid", gap: 7, marginTop: 8 }}>
               {visibleRequirements.map((requirement) => (

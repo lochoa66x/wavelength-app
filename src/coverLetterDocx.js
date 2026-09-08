@@ -35,6 +35,7 @@ export async function createCoverLetterDocxBlob(input) {
   if (plan.candidate.contactLine) paragraph(plan.candidate.contactLine, { alignment: headerAlignment, border: headerRule, spacing: { after: 240 }, run: { color: color(tokens.muted), size: 19 } });
   paragraph(new Date(plan.createdAt).toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" }), { spacing: { after: 180 } });
   if (plan.target.company) paragraph(plan.target.company, { spacing: { after: 30 }, run: { bold: true } });
+  if (plan.target.location) paragraph(plan.target.location, { spacing: { after: 30 } });
   if (plan.target.jobTitle) paragraph(`Re: ${plan.target.jobTitle}`, { spacing: { after: 210 }, run: { bold: true } });
   paragraph(plan.salutation, { spacing: { after: 170 } });
   plan.paragraphs.forEach((entry) => paragraph(entry.text, { spacing: { after: 170 } }));

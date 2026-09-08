@@ -52,6 +52,7 @@ export async function createCoverLetterPdfBlob(input) {
   y += 18;
   write(new Date(plan.createdAt).toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" }), { after: 13 });
   if (plan.target.company) write(plan.target.company, { style: "bold", after: 3 });
+  if (plan.target.location) write(plan.target.location, { after: 3 });
   if (plan.target.jobTitle) write(`Re: ${plan.target.jobTitle}`, { style: "bold", after: 16 });
   write(plan.salutation, { after: 12 });
   plan.paragraphs.forEach((entry) => write(entry.text, { after: 12 }));

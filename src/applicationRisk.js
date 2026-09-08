@@ -1,39 +1,33 @@
-const GAP_SEVERITIES = new Set(["supported", "verified_blocker", "material_gap", "development_gap", "preference", "insufficient_information"]);
+const GAP_SEVERITIES = new Set(["supported", "verified_blocker", "material_gap", "development_gap", "preference", "candidate_check", "insufficient_information"]);
 const EVIDENCE_MATCHES = new Set(["direct", "adjacent", "transferable", "missing", "unknown"]);
+const ELIGIBILITY_PATTERN = /\b(?:work authori[sz]ation|legally (?:eligible|entitled|authorized) to work|eligible to work)\b/i;
 
 export const APPLICATION_RISK_FILTERS = Object.freeze([
   { id: "all", label: "All" },
-  { id: "blockers", label: "Blockers" },
-  { id: "material", label: "Material gaps" },
-  { id: "verified", label: "Verified" },
-  { id: "related", label: "Adjacent / transferable" },
+  { id: "blockers", label: "Credential checks" },
+  { id: "material", label: "Skills to review" },
+  { id: "verified", label: "Direct matches" },
+  { id: "related", label: "Related strengths" },
+  { id: "candidate_checks", label: "Application questions" },
   { id: "preferences", label: "Preferences" },
   { id: "needs_review", label: "Needs review" },
 ]);
 
 const OUTLOOK_LABELS = Object.freeze({
-  strong_verified_alignment: "Strong verified alignment",
-  viable_manageable_gaps: "Viable with manageable gaps",
-  viable_transition_material_gaps: "Viable with material gaps",
-  high_application_risk: "High application risk",
-  likely_screening_blocker: "Likely screening blocker",
+  strong_verified_alignment: "Strong match",
+  viable_manageable_gaps: "Good match",
+  viable_transition_material_gaps: "Good match — review gaps",
+  high_application_risk: "Substantial tailoring needed",
+  likely_screening_blocker: "Credential check needed",
   assessment_incomplete: "Assessment incomplete",
-});
-
-const OUTLOOK_RISK = Object.freeze({
-  strong_verified_alignment: 0,
-  viable_manageable_gaps: 1,
-  viable_transition_material_gaps: 2,
-  high_application_risk: 3,
-  likely_screening_blocker: 4,
-  assessment_incomplete: 5,
 });
 
 const ORIGIN_LABELS = Object.freeze({
   responsibility: "Responsibility",
   mandatory_qualification: "Mandatory qualification",
   preferred_qualification: "Preferred qualification",
-  credential: "Credential or eligibility",
+  credential: "Professional credential",
+  eligibility: "Employer application question",
   schedule_location_constraint: "Schedule or location",
   language_requirement: "Language requirement",
   other: "Other requirement",
@@ -41,10 +35,11 @@ const ORIGIN_LABELS = Object.freeze({
 
 const SEVERITY_LABELS = Object.freeze({
   supported: "Supported",
-  verified_blocker: "Likely blocker",
-  material_gap: "Material gap",
+  verified_blocker: "Credential check",
+  material_gap: "Skill to review",
   development_gap: "Development gap",
   preference: "Preference gap",
+  candidate_check: "Answer when applying",
   insufficient_information: "Needs review",
 });
 
@@ -64,7 +59,8 @@ const RANK = Object.freeze({
   transferable: 4,
   development_gap: 5,
   preference: 6,
-  insufficient_information: 7,
+  candidate_check: 7,
+  insufficient_information: 8,
 });
 
 function text(value, fallback = "") {
@@ -72,6 +68,7 @@ function text(value, fallback = "") {
 }
 
 function defaultSeverity(requirement) {
+  if (ELIGIBILITY_PATTERN.test(requirement?.requirement || "")) return "candidate_check";
   if (GAP_SEVERITIES.has(requirement?.gap_severity)) return requirement.gap_severity;
   if (requirement?.evidence_match && requirement.evidence_match !== "missing") return "supported";
   if (requirement?.priority === "preferred") return "preference";
@@ -81,6 +78,7 @@ function defaultSeverity(requirement) {
 }
 
 function defaultOrigin(requirement) {
+  if (ELIGIBILITY_PATTERN.test(requirement?.requirement || "")) return "eligibility";
   const origin = text(requirement?.requirement_origin);
   if (Object.hasOwn(ORIGIN_LABELS, origin)) return origin;
   if (requirement?.priority === "required") return "mandatory_qualification";
@@ -102,6 +100,7 @@ function fallbackExplanation(requirement, evidenceMatch, severity) {
   if (evidenceMatch === "adjacent") return "Verified experience is closely related, but target-specific direct experience remains unverified.";
   if (evidenceMatch === "transferable") return "Verified experience demonstrates a relevant capability without proving equivalent target-role experience.";
   if (severity === "verified_blocker") return "An explicit mandatory credential or eligibility condition has no supporting candidate evidence.";
+  if (severity === "candidate_check") return "This belongs to the employer's application questions and is not inferred from résumé content.";
   if (severity === "material_gap") return "A required capability has no exact supporting candidate evidence.";
   if (severity === "preference") return "A preferred qualification has no supporting candidate evidence.";
   if (severity === "development_gap") return "A stated responsibility has no supporting candidate evidence.";
@@ -113,6 +112,7 @@ function fallbackNextAction(evidenceMatch, severity) {
   if (evidenceMatch === "adjacent") return "Keep the target-specific boundary visible or add only candidate-confirmed evidence.";
   if (evidenceMatch === "transferable") return "Use transferable positioning without presenting it as direct experience.";
   if (severity === "verified_blocker") return "Confirm candidate-held evidence or keep this visible as a likely screening blocker.";
+  if (severity === "candidate_check") return "Answer the employer's eligibility question directly when you apply; no résumé change is required.";
   if (severity === "material_gap") return "Add candidate-confirmed evidence if it exists, otherwise keep the material gap visible.";
   if (severity === "preference") return "Keep this visible as a preference gap; do not add it only for keyword coverage.";
   return "Review the posting and add only candidate-confirmed evidence if available.";
@@ -164,6 +164,7 @@ export function applicationRequirementMatchesFilter(requirement, filter) {
   if (filter === "material") return requirement.gapSeverity === "material_gap";
   if (filter === "verified") return requirement.evidenceMatch === "direct";
   if (filter === "related") return ["adjacent", "transferable"].includes(requirement.evidenceMatch);
+  if (filter === "candidate_checks") return requirement.gapSeverity === "candidate_check";
   if (filter === "preferences") return requirement.gapSeverity === "preference";
   if (filter === "needs_review") return ["development_gap", "insufficient_information"].includes(requirement.gapSeverity);
   return false;
@@ -191,7 +192,8 @@ function fallbackOutlook(review, counts, postingComplete) {
   }
   if (counts.materialGaps > 0) {
     const missingRate = counts.total ? counts.missing / counts.total : 1;
-    const status = counts.verifiedStrengths > counts.materialGaps && missingRate < 0.45
+    const supportedRate = counts.total ? (counts.verifiedStrengths + counts.relatedEvidence) / counts.total : 0;
+    const status = supportedRate >= 0.55 && missingRate < 0.45
       ? "viable_transition_material_gaps"
       : "high_application_risk";
     return {
@@ -215,7 +217,7 @@ function fallbackOutlook(review, counts, postingComplete) {
     status: "viable_manageable_gaps",
     label: OUTLOOK_LABELS.viable_manageable_gaps,
     confidence,
-    reason: "No explicit mandatory blocker was found; related evidence or manageable gaps remain visible.",
+    reason: "The résumé shows a credible mix of direct and related evidence. Optional refinements can strengthen the final version.",
     whatWouldChange: "Additional candidate-confirmed direct evidence may strengthen the application.",
   };
 }
@@ -236,12 +238,13 @@ export function buildApplicationRiskView(review = {}) {
     result.total += 1;
     if (requirement.evidenceMatch === "direct") result.verifiedStrengths += 1;
     if (["adjacent", "transferable"].includes(requirement.evidenceMatch)) result.relatedEvidence += 1;
-    if (requirement.evidenceMatch === "missing") result.missing += 1;
+    if (requirement.evidenceMatch === "missing" && requirement.gapSeverity !== "candidate_check") result.missing += 1;
     if (requirement.gapSeverity === "verified_blocker") result.blockers += 1;
     if (requirement.gapSeverity === "material_gap") result.materialGaps += 1;
     if (requirement.gapSeverity === "development_gap") result.developmentGaps += 1;
     if (requirement.gapSeverity === "preference") result.preferences += 1;
     if (requirement.gapSeverity === "insufficient_information") result.needsReview += 1;
+    if (requirement.gapSeverity === "candidate_check") result.candidateChecks += 1;
     return result;
   }, {
     total: 0,
@@ -253,9 +256,11 @@ export function buildApplicationRiskView(review = {}) {
     developmentGaps: 0,
     preferences: 0,
     needsReview: 0,
+    candidateChecks: 0,
   });
-  const coreRequirements = requirements.filter((requirement) => requirement.priority === "required");
-  const coreInventory = coreRequirements.length ? coreRequirements : requirements;
+  const fitRequirements = requirements.filter((requirement) => requirement.gapSeverity !== "candidate_check");
+  const coreRequirements = fitRequirements.filter((requirement) => requirement.priority === "required");
+  const coreInventory = coreRequirements.length ? coreRequirements : fitRequirements;
   const coreCounts = coreInventory.reduce((result, requirement) => {
     result.total += 1;
     if (requirement.evidenceMatch === "direct") result.verifiedStrengths += 1;
@@ -279,17 +284,13 @@ export function buildApplicationRiskView(review = {}) {
   const postingComplete = review?.posting_readiness?.fit_allowed === true;
   const suppliedOutlook = review?.gap_summary?.outlook;
   const fallback = fallbackOutlook(review, coreCounts, postingComplete);
-  const suppliedStatus = text(suppliedOutlook?.status, fallback.status);
-  const status = (OUTLOOK_RISK[suppliedStatus] ?? -1) >= (OUTLOOK_RISK[fallback.status] ?? -1)
-    ? suppliedStatus
-    : fallback.status;
-  const useSupplied = status === suppliedStatus;
+  const status = fallback.status;
   const outlook = {
     status,
-    label: useSupplied ? text(suppliedOutlook?.label, OUTLOOK_LABELS[status] || fallback.label) : fallback.label,
+    label: fallback.label,
     confidence: text(suppliedOutlook?.confidence, fallback.confidence),
-    reason: useSupplied ? text(suppliedOutlook?.reason, fallback.reason) : fallback.reason,
-    whatWouldChange: useSupplied ? text(suppliedOutlook?.what_would_change, fallback.whatWouldChange) : fallback.whatWouldChange,
+    reason: fallback.reason,
+    whatWouldChange: fallback.whatWouldChange,
     tone: outlookTone(status),
   };
 
@@ -310,13 +311,13 @@ export function buildApplicationRiskView(review = {}) {
     && review?.export_readiness?.application_ready !== false;
   const document = {
     truthChecksPass,
-    truthLabel: truthChecksPass ? "Truth checks passed" : "Document review needed",
+    truthLabel: truthChecksPass ? "Content checks passed" : "Document review needed",
     exportReady: applicationReady,
     exportLabel: applicationReady ? "Application-ready export" : "Preliminary export",
     detail: applicationReady
       ? "Posting, identity, writing, structure, evidence and application-risk gates passed."
       : truthChecksPass && exportBlockers.length === 1 && exportBlockers[0] === "candidate_fit"
-        ? "The résumé is evidence-safe; final export remains preliminary because the application has material fit risk."
+        ? "The résumé is evidence-safe; optional candidate input may strengthen requirement coverage before final export."
         : text(review?.export_readiness?.blockers?.join(", ").replaceAll("_", " "), "Complete the remaining document and evidence review."),
   };
 

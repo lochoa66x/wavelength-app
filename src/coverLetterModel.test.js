@@ -73,6 +73,19 @@ test("cover letter plan can use exact identity parsed from the canonical rÃ©sumÃ
   assert.equal(plan.candidate.contactLine, "avery@example.com");
 });
 
+test("cover-letter presentation uses employer location, omits candidate city, and keeps one signoff", () => {
+  const duplicate = draft();
+  duplicate.paragraphs[2].text = "Thank you for considering my application. I would welcome a conversation. Sincerely, Jordan Lee";
+  duplicate.signoff = "Sincerely, Jordan Lee";
+  const plan = createCoverLetterPlan(duplicate, { baseResume, resumeData, item, atsReview });
+  const plainText = coverLetterToPlainText(plan);
+  assert.equal(plan.candidate.contactLine, "jordan@example.com");
+  assert.equal(plan.target.location, "Hamilton, Ontario");
+  assert.equal(plan.target.jobTitle, "Facilities Electrician");
+  assert.equal((plainText.match(/Sincerely,/g) || []).length, 1);
+  assert.doesNotMatch(plan.paragraphs[2].text, /Sincerely/i);
+});
+
 test("cover-letter authorization binds presentation without changing paragraph content or readiness", () => {
   const context = { baseResume, resumeData, item, atsReview, candidateEvidence: [] };
   const plan = createCoverLetterPlan(draft(), context);

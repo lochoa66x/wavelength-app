@@ -73,6 +73,12 @@ const STRICT_EVIDENCE_CONCEPTS = Object.freeze([
     directEvidence: /\b(?:sap\s+)?is[- ]?u\b[^\n]{0,80}\bfi[- ]?ca\b|\b(?:sap\s+)?isu\s+fica\b/i,
   },
   {
+    id: "fi_cax",
+    requirement: /\bfi[- ]?cax\b/i,
+    evidence: /\bfi[- ]?cax?\b|\bpscd\b|\bcontract accounts?\b/i,
+    directEvidence: /\bfi[- ]?cax\b/i,
+  },
+  {
     id: "sap_utilities",
     requirement: /\b(?:sap\s+)?is[- ]?u\b|\bsap\s+s\/?4hana\s+for\s+utilities\b/i,
     evidence: /\b(?:sap\s+)?is[- ]?u\b|\bsap\s+s\/?4hana\s+for\s+utilities\b|\bfi[- ]?ca\b|\bpscd\b|\bcontract accounts?\b/i,
@@ -98,7 +104,8 @@ const STRICT_EVIDENCE_CONCEPTS = Object.freeze([
 ]);
 
 const LIST_INTRODUCTION_PATTERN = /^(.*?)(?:\bincluding\b|\bsuch as\b)\s+(.+?)(\s+to\s+(?:ensure|support|meet|deliver|provide)\b.*)?$/i;
-const EXPLICIT_BLOCKER_REQUIREMENT_PATTERN = /\b(?:licen[cs](?:e|ed|ure)|registered|registration|certified|certification|security clearance|reliability status|work authori[sz]ation|legally (?:eligible|entitled|authorized) to work|red seal|journeyperson|journeyman|first aid|cpr|whmis)\b/i;
+const ELIGIBILITY_REQUIREMENT_PATTERN = /\b(?:work authori[sz]ation|legally (?:eligible|entitled|authorized) to work|eligible to work)\b/i;
+const EXPLICIT_BLOCKER_REQUIREMENT_PATTERN = /\b(?:licen[cs](?:e|ed|ure)|registered|registration|certified|certification|security clearance|reliability status|red seal|journeyperson|journeyman|first aid|cpr|whmis)\b/i;
 const SCHEDULE_LOCATION_REQUIREMENT_PATTERN = /\b(?:on[- ]?site|hybrid|remote|shift|weekends?|evenings?|overnight|travel|relocat|location|driver'?s? licen[cs]e)\b/i;
 const LANGUAGE_REQUIREMENT_PATTERN = /\b(?:english|french|spanish|bilingual|language proficiency|fluent|fluency)\b/i;
 
@@ -130,7 +137,8 @@ const CAPABILITY_FAMILIES = Object.freeze([
   { id: "fica_cash_journal", specificity: "shared_foundation", pattern: /\bcash\s+journals?\b/i },
   { id: "fica_main_subtransactions", specificity: "shared_foundation", pattern: /\bmain\s+(?:and|\/)\s+sub\s*transactions?\b/i },
   { id: "fica_account_assignment", specificity: "shared_foundation", pattern: /\baccount\s+assignment\b|\baccount determination\b/i },
-  { id: "fica_contract_accounts_foundation", specificity: "shared_foundation", pattern: /\bfi[- ]?ca\b|\bpscd\b|\bcontract accounts?\b/i },
+  { id: "fica_postings", specificity: "shared_foundation", pattern: /\b(?:financial|account|document)?\s*postings?\b/i },
+  { id: "fica_contract_accounts_foundation", specificity: "shared_foundation", pattern: /\bfi[- ]?cax?\b|\bpscd\b|\bcontract accounts?\b/i },
   { id: "sap_sd", specificity: "target_specific", pattern: /\bsap\s+sd\b|\bsales and distribution\b/i },
   { id: "sap_le", specificity: "target_specific", pattern: /\bsap\s+le\b|\blogistics execution\b/i },
   { id: "edi", specificity: "target_specific", pattern: /\b(?:edi|edifact|ansi\s*x12|idocs?)\b/i },
@@ -149,6 +157,7 @@ const CAPABILITY_FAMILIES = Object.freeze([
 ]);
 
 const ADJACENT_CAPABILITY_EVIDENCE = Object.freeze({
+  fica_postings: /\bfi[- ]?ca\b|\bpscd\b|\bcontract accounts?\b|\bopen items?\b/i,
   sap_fico_fi: /\bfi[- ]?ca\b|\bpscd\b|\bcontract accounts?\b|\bsap financial services\b|\bsap finance academy\b/i,
   sap_fico_logistics_integration: /\bintegrat(?:e|ed|ion|ing)\b|\binterfaces?\b|\bpi\/?po\b/i,
   sap_fico_billing: /\bbilling\b|\bcontract accounts?\b|\bfi[- ]?ca\b|\bpscd\b/i,
@@ -190,6 +199,12 @@ function applicationRiskForRequirement(requirement) {
       application_impact: "This is presented as a preference. It remains visible but does not become candidate experience.",
     };
   }
+  if (ELIGIBILITY_REQUIREMENT_PATTERN.test(requirement.requirement)) {
+    return {
+      gap_severity: "candidate_check",
+      application_impact: "This is a candidate-controlled application question, not a résumé evidence gap. Answer it in the employer's application if asked.",
+    };
+  }
   if (requirement.priority === "required" && EXPLICIT_BLOCKER_REQUIREMENT_PATTERN.test(requirement.requirement)) {
     return {
       gap_severity: "verified_blocker",
@@ -209,6 +224,7 @@ function applicationRiskForRequirement(requirement) {
 }
 
 function requirementOrigin(requirement) {
+  if (ELIGIBILITY_REQUIREMENT_PATTERN.test(requirement.requirement)) return "eligibility";
   if (EXPLICIT_BLOCKER_REQUIREMENT_PATTERN.test(requirement.requirement)) return "credential";
   if (SCHEDULE_LOCATION_REQUIREMENT_PATTERN.test(requirement.requirement)) return "schedule_location_constraint";
   if (LANGUAGE_REQUIREMENT_PATTERN.test(requirement.requirement)) return "language_requirement";
@@ -275,6 +291,13 @@ function requirementAssessmentMetadata(requirement) {
       unproven: "The required credential or eligibility condition is not verified.",
       next_action: "Confirm candidate-held evidence before relying on this requirement, or keep it visible as a likely screening blocker.",
     }
+    : requirement.gap_severity === "candidate_check"
+      ? {
+        reason_code: "candidate_controlled_eligibility",
+        assessment_explanation: "This condition belongs to the employer's application questions and is not inferred from résumé content.",
+        unproven: "",
+        next_action: "Answer the employer's eligibility question directly when you apply; no résumé change is required.",
+      }
     : requirement.gap_severity === "material_gap"
       ? {
         reason_code: "missing_required_capability",
@@ -834,8 +857,9 @@ function candidateFacingText(value, fallback, limit = 700) {
 }
 
 function calibrateFit(requirements, requestedPath) {
-  const core = requirements.filter((requirement) => ["required", "responsibility"].includes(requirement.priority));
-  const assessed = core.length ? core : requirements;
+  const fitRequirements = requirements.filter((requirement) => requirement.gap_severity !== "candidate_check");
+  const core = fitRequirements.filter((requirement) => ["required", "responsibility"].includes(requirement.priority));
+  const assessed = core.length ? core : fitRequirements;
   const counts = coverageCounts(assessed);
   const total = assessed.length;
   const supported = counts.direct + counts.adjacent + counts.transferable;
@@ -882,11 +906,12 @@ function calibrateFit(requirements, requestedPath) {
       || (targetFamilyAdjacentEvidence && generalDeliveryFamilies.size >= 2)
       || (normalizedRequestedPath === "adjacent" && domainAdjacentEvidence >= 2)
   )) path = "adjacent";
+  const supportedRate = total ? supported / total : 0;
   const readinessStatus = verifiedBlockerCount > 0
     ? "significant_gap"
-    : path === "direct" && counts.missing === 0
+    : supportedRate >= 0.85 && missingRate <= 0.18
     ? "strong_fit"
-    : path === "adjacent" && missingRate <= 0.42
+    : (path === "adjacent" || path === "direct") && (missingRate <= 0.38 || weightedRate >= 0.52)
       ? "credible_stretch"
       : "significant_gap";
   return {
@@ -920,8 +945,9 @@ function calibratedLevel(rawLevel, path) {
 
 function applicationOutlook(requirements, gapCounts, candidateFit, postingAssessment) {
   const evidenceCounts = coverageCounts(requirements);
-  const coreRequirements = requirements.filter((requirement) => requirement.priority === "required");
-  const coreInventory = coreRequirements.length ? coreRequirements : requirements;
+  const fitRequirements = requirements.filter((requirement) => requirement.gap_severity !== "candidate_check");
+  const coreRequirements = fitRequirements.filter((requirement) => requirement.priority === "required");
+  const coreInventory = coreRequirements.length ? coreRequirements : fitRequirements;
   const coreEvidenceCounts = coverageCounts(coreInventory);
   const coreMaterialGaps = coreInventory.filter((requirement) => requirement.gap_severity === "material_gap").length;
   const coreBlockers = coreInventory.filter((requirement) => requirement.gap_severity === "verified_blocker").length;
@@ -933,6 +959,7 @@ function applicationOutlook(requirements, gapCounts, candidateFit, postingAssess
     likely_blockers: gapCounts.verified_blocker,
     preferences: gapCounts.preference,
     development_gaps: gapCounts.development_gap,
+    candidate_checks: gapCounts.candidate_check,
     total: requirements.length,
     core_total: coreInventory.length,
     core_supported: coreEvidenceCounts.direct + coreEvidenceCounts.adjacent + coreEvidenceCounts.transferable,
@@ -962,20 +989,23 @@ function applicationOutlook(requirements, gapCounts, candidateFit, postingAssess
     };
   }
   if (coreMaterialGaps > 0) {
-    const highRisk = coreEvidenceCounts.direct <= coreMaterialGaps || coreMissingRate >= 0.45;
+    const coreSupportedRate = coreInventory.length
+      ? (coreEvidenceCounts.direct + coreEvidenceCounts.adjacent + coreEvidenceCounts.transferable) / coreInventory.length
+      : 0;
+    const highRisk = coreSupportedRate < 0.55 || coreMissingRate >= 0.45;
     return {
       status: highRisk ? "high_application_risk" : "viable_transition_material_gaps",
-      label: highRisk ? "High application risk" : "Viable with material gaps",
+      label: highRisk ? "Substantial tailoring needed" : "Good match — review gaps",
       confidence,
       reason: `${coreMaterialGaps} core required capabilit${coreMaterialGaps === 1 ? "y remains" : "ies remain"} unsupported by exact candidate evidence.`,
       what_would_change: "Candidate-confirmed evidence that directly or honestly relates to the unsupported required capabilities.",
       counts,
     };
   }
-  if (candidateFit.status === "strong" && evidenceCounts.missing === 0) {
+  if (candidateFit.status === "strong" && coreEvidenceCounts.missing === 0) {
     return {
       status: "strong_verified_alignment",
-      label: "Strong verified alignment",
+      label: "Strong match",
       confidence,
       reason: "The analyzed requirements are supported without an explicit mandatory blocker or material gap.",
       what_would_change: "Continue reviewing wording and contribution level before applying.",
@@ -984,7 +1014,7 @@ function applicationOutlook(requirements, gapCounts, candidateFit, postingAssess
   }
   return {
     status: "viable_manageable_gaps",
-    label: "Viable with manageable gaps",
+    label: "Good match",
     confidence,
     reason: gapCounts.development_gap || gapCounts.preference
       ? "No explicit mandatory blocker was found; development or preference gaps remain visible."
@@ -1002,7 +1032,7 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
     .map((value, index) => cleanRequirement(value, index, baseResume, candidateNotes))
     .filter(Boolean));
   const coverage = coverageCounts(requirements);
-  const requiredRequirements = requirements.filter((requirement) => requirement.priority === "required");
+  const requiredRequirements = requirements.filter((requirement) => requirement.priority === "required" && requirement.gap_severity !== "candidate_check");
   const requiredCoverage = coverageCounts(requiredRequirements);
   const inventoryConsistency = canonicalInventoryConsistency(requirements, coverage);
 
@@ -1054,8 +1084,9 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
     ...fallbackKeywords,
   ], 40);
 
-  const candidateQuestions = uniqueStrings(raw.candidate_questions, 3);
-  const missingRequirements = requirements.filter((requirement) => requirement.evidence_match === "missing");
+  const candidateQuestions = uniqueStrings(raw.candidate_questions, 3)
+    .filter((question) => !ELIGIBILITY_REQUIREMENT_PATTERN.test(question));
+  const missingRequirements = requirements.filter((requirement) => requirement.evidence_match === "missing" && requirement.gap_severity !== "candidate_check");
   const gapCounts = requirements.reduce((counts, requirement) => {
     counts[requirement.gap_severity] = (counts[requirement.gap_severity] || 0) + 1;
     return counts;
@@ -1065,6 +1096,7 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
     material_gap: 0,
     development_gap: 0,
     preference: 0,
+    candidate_check: 0,
   });
   const applicationRisk = gapCounts.verified_blocker > 0
     ? "high"
@@ -1132,7 +1164,7 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
       counts: gapCounts,
       outlook,
       note: gapCounts.verified_blocker > 0
-        ? "One or more explicit mandatory credentials or eligibility requirements have no supporting evidence. The candidate may still review the opportunity, but Gigscapes will not call the résumé application-ready."
+        ? "One or more explicit mandatory credentials have no supporting evidence. The candidate may still review the opportunity, but Gigscapes will not claim the credential in the résumé."
         : gapCounts.material_gap > 0
           ? "Required capabilities remain unsupported. Employers may waive requirements, but the résumé must not claim them."
           : "No explicit mandatory blocker was detected. Review every requirement because an employer may weigh it differently.",
@@ -1140,7 +1172,7 @@ export function sanitizeTailoringAnalysis(rawAnalysis, baseResume, deterministic
     verified_transferable_skills: transferableSkills,
     target_keywords: verifiedKeywords,
     missing_evidence: uniqueStrings([
-      ...requirements.filter((requirement) => requirement.evidence_match === "missing").map((requirement) => requirement.requirement),
+      ...requirements.filter((requirement) => requirement.evidence_match === "missing" && requirement.gap_severity !== "candidate_check").map((requirement) => requirement.requirement),
       ...(Array.isArray(raw.missing_evidence) ? raw.missing_evidence : []),
     ], 12),
     prohibited_claims: uniqueStrings(raw.prohibited_claims, 12),

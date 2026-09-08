@@ -3,17 +3,17 @@ import { EvidenceMap } from "./EvidenceMap.jsx";
 import { buildApplicationRiskView } from "./applicationRisk.js";
 
 const READINESS_LABELS = {
-  strong_fit: "Strong fit",
-  credible_stretch: "Credible stretch",
-  significant_gap: "Significant gap",
+  strong_fit: "Strong match",
+  credible_stretch: "Good adjacent match",
+  significant_gap: "Candidate input available",
   needs_full_posting: "Needs full posting",
 };
 
 const FIT_LABELS = {
-  strong: "Strong evidence fit",
-  adjacent: "Adjacent evidence fit",
+  strong: "Strong evidence match",
+  adjacent: "Good adjacent match",
   transferable: "Transferable evidence",
-  gap: "Material evidence gap",
+  gap: "Candidate input can improve this match",
   not_assessed: "Not assessed",
   not_available: "Not available",
 };
@@ -146,11 +146,19 @@ export function AtsReview({ review, C }) {
     Number(safetyFallback.omitted_experience_count || 0) > 0
     || Number(safetyFallback.removed_numeric_claim_count || 0) > 0
   ));
-  const readinessLabel = postingComplete ? READINESS_LABELS[readiness.status] || "Review required" : "Needs full posting";
+  const readinessLabel = postingComplete
+    ? riskView.outlook.status === "strong_verified_alignment"
+      ? "Strong match"
+      : riskView.outlook.status === "viable_manageable_gaps"
+        ? "Good match"
+        : riskView.outlook.status === "viable_transition_material_gaps"
+          ? "Good match — review gaps"
+          : READINESS_LABELS[readiness.status] || "Review recommended"
+    : "Needs full posting";
   const panelColor = !postingComplete ? C.amber : integrityPass ? C.green : C.red;
   const panelBackground = !postingComplete ? C.amberTint : integrityPass ? C.greenTint : (C.redTint || "#FDEBEC");
   const panelBorder = !postingComplete ? C.amberBorder : integrityPass ? C.greenBorder : (C.redBorder || "#F2B8BC");
-  const reviewReason = postingComplete ? readiness.reason : postingReadiness.reason;
+  const reviewReason = postingComplete ? riskView.outlook.reason : postingReadiness.reason;
 
   return (
     <section aria-label="Tailoring quality review" style={{ background: panelBackground, border: `1px solid ${panelBorder}`, borderRadius: 14, padding: "14px 16px", marginBottom: 14 }}>
@@ -158,7 +166,7 @@ export function AtsReview({ review, C }) {
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 13, fontWeight: 750, color: C.text }}>
             {integrityPass ? <ShieldCheck size={16} color={C.green} /> : <AlertTriangle size={16} color={C.red} />}
-            Evidence-first tailoring review
+            Application readiness review
           </div>
           <p style={{ color: C.textSub, fontSize: 12, lineHeight: 1.45, margin: "4px 0 0" }}>{reviewReason}</p>
         </div>
@@ -182,7 +190,7 @@ export function AtsReview({ review, C }) {
       ) : null}
       <StatusRow label="Posting readiness" value={postingComplete ? "Reviewed complete" : postingReadiness.status === "preliminary" ? "Preliminary" : "Needs full posting"} detail={postingReadiness.reason} ok={postingComplete} C={C} />
       <StatusRow label="Candidate fit" value={FIT_LABELS[candidateFit.status] || "Review required"} detail={postingComplete ? `${candidateFit.confidence || "low"} confidence · ${candidateFit.reason || "Evidence comparison completed."}` : "Unavailable until responsibilities and qualifications are present"} ok={postingComplete && !["gap", "not_assessed", "not_available"].includes(candidateFit.status)} C={C} />
-      <StatusRow label="Required requirement coverage" value={coverage.total ? `${coverage.total} required requirements assessed` : postingComplete ? "No required requirements identified" : "Limited by posting data"} detail={`${coverage.direct || 0} direct · ${coverage.adjacent || 0} adjacent · ${coverage.transferable || 0} transferable · ${coverage.missing || 0} unsupported`} ok={Boolean(coverage.total) && (coverage.missing || 0) === 0} C={C} />
+      <StatusRow label="Required requirement coverage" value={coverage.total ? `${coverage.total} required requirements assessed` : postingComplete ? "No required requirements identified" : "Limited by posting data"} detail={`${coverage.direct || 0} direct · ${coverage.adjacent || 0} adjacent · ${coverage.transferable || 0} transferable · ${coverage.missing || 0} not yet supported or selected`} ok={Boolean(coverage.total) && (coverage.missing || 0) === 0} C={C} />
       <StatusRow label="ATS-readable structure" value={parseability.status === "pass" ? "Pass" : "Review"} detail="Single column, standard headings, chronological history" ok={parseability.status === "pass"} C={C} />
       <StatusRow label="Writing quality" value={writing.status === "pass" ? "Pass" : writing.status === "blocked" ? "Blocked" : "Review"} detail={writing.issue_count ? `${writing.issue_count} exact writing item${writing.issue_count === 1 ? "" : "s"}` : "Occupation-aware action verbs and consistent tense"} ok={writing.status === "pass"} C={C} />
       <StatusRow label="Résumé focus" value={focusReview?.status === "focused" ? "Focused" : "Review"} detail={focusReview?.estimated_pages ? `${focusReview.estimation_method === "direct_pdf_layout" ? "Direct PDF measures" : "Estimated"} ${focusReview.estimated_pages} page${focusReview.estimated_pages === 1 ? "" : "s"}; recent and requirement-aligned evidence prioritized` : "Focus estimate unavailable"} ok={focusReview?.status === "focused"} C={C} />
