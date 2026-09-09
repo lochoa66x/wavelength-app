@@ -61,7 +61,7 @@ function cleanCompanyPresentation(value) {
 
 function polishedText(value) {
   return normalizeSapBranding(value)
-    .replace(/\b(?:Contributed|Participated) as (?:a|the) ([^,.]{1,70}?)team lead(?:,?\s+contributing)?\s+to\b/gi, "Led $1team contributions to")
+    .replace(/\b(?:Contributed|Participated) as (?:a|the) ([^,.]{1,70}?)team lead(?:,?\s+contributing)?\s+to\b/gi, "Served as $1team lead, contributing to")
     .replace(/\bverified\s+(?=(?:SAP|Business Partner|Contract Accounts?|Contract Objects?|experience|skills?|capabilities|background|knowledge)\b)/gi, "")
     .replace(/\bfunctional[- ]specification documentation\b/gi, "functional specifications")
     .replace(/\bknowledge[- ]transfer\b/gi, "knowledge transfer")
@@ -271,15 +271,26 @@ const DEGREE_EVIDENCE_PATTERN = /\b(?:bachelor(?:'s)?(?:\s+of|\s+degree)?|baccal
 function restoreRequiredEducation(resumeData, analysis, baseResume) {
   if (Array.isArray(resumeData?.education) && resumeData.education.length) return resumeData;
   const requiresDegree = (analysis?.requirements || []).some((requirement) => DEGREE_REQUIREMENT_PATTERN.test(requirement?.requirement));
-  if (!requiresDegree) return resumeData;
-  const line = String(baseResume || "")
+  const lines = String(baseResume || "")
     .split(/\r?\n/)
-    .map((value) => value.replace(/^[\s•*-]+/, "").replace(/\s+/g, " ").trim())
-    .find((value) => DEGREE_EVIDENCE_PATTERN.test(value));
-  if (!line) return resumeData;
+    .map((value) => value.replace(/^[\s•*-]+/, "").replace(/\s+/g, " ").trim());
+  const educationHeadingIndex = lines.findIndex((value) => /^education$/i.test(value));
+  const section = educationHeadingIndex >= 0
+    ? lines.slice(educationHeadingIndex + 1, educationHeadingIndex + 7)
+      .filter(Boolean)
+      .filter((value) => !NEXT_SECTION_HEADING_PATTERN.test(value))
+    : [];
+  const sectionDegreeIndex = section.findIndex((value) => DEGREE_EVIDENCE_PATTERN.test(value));
+  const degree = sectionDegreeIndex >= 0
+    ? section[sectionDegreeIndex]
+    : requiresDegree ? lines.find((value) => DEGREE_EVIDENCE_PATTERN.test(value)) : "";
+  if (!degree) return resumeData;
+  const institution = sectionDegreeIndex >= 0
+    ? String(section.slice(sectionDegreeIndex + 1).find((value) => !DEGREE_EVIDENCE_PATTERN.test(value)) || "")
+    : "";
   return {
     ...resumeData,
-    education: [{ degree: line, institution: "", dates: "", restored_from_verified_evidence: true }],
+    education: [{ degree, institution, dates: "", restored_from_verified_evidence: true }],
   };
 }
 

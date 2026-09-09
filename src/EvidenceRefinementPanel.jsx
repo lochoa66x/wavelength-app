@@ -16,6 +16,7 @@ import {
   rejectEvidenceCoachProposal,
 } from "./evidenceCoachModel.js";
 import { evidenceCoachEvent } from "./evidenceCoachTelemetry.js";
+import { MAX_REQUEST_EVIDENCE } from "./candidateEvidenceStorage.js";
 
 const CONTRIBUTION_OPTIONS = [
   ["supported", "I supported or advised"],
@@ -77,7 +78,7 @@ export function EvidenceRefinementPanel({
         question: record.question || "Would you like to keep or update this evidence?",
       });
     }
-    return Array.from(merged.values()).slice(0, 5);
+    return Array.from(merged.values()).slice(0, MAX_REQUEST_EVIDENCE);
   }, [drafts, questions]);
 
   const answered = useMemo(

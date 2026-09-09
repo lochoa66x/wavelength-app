@@ -395,7 +395,7 @@ test("tailoring automatically repairs one unsafe model draft before returning it
           target_keywords: ["web applications"],
         }));
       }
-      const input = drafts[body.messages[0].content.includes("EVIDENCE REPAIR PASS") ? 1 : 0];
+      const input = drafts[body.messages[0].content.includes("CLEAN-SLATE RESUME REBUILD") ? 1 : 0];
       return toolResponse("return_tailored_resume", input);
     },
     getApiKey: () => "test-key",
@@ -415,9 +415,69 @@ test("tailoring automatically repairs one unsafe model draft before returning it
   assert.equal(res.statusCode, 200);
   assert.equal(res.body.repair_applied, true);
   assert.equal(res.body.resume.experience[0].role, "Operations Manager");
-  assert.match(requests[2].messages[0].content, /EVIDENCE REPAIR PASS/);
+  assert.match(requests[2].messages[0].content, /CLEAN-SLATE RESUME REBUILD/);
   assert.match(requests[2].messages[0].content, /unsupported_numbers.*99/);
   assert.match(requests[2].messages[0].content, /unsupported_history.*role/);
+  assert.doesNotMatch(requests[2].messages[0].content, /REJECTED DRAFT/);
+});
+
+test("tailoring rebuilds from source when a draft omits a verified employment entry", async () => {
+  const requests = [];
+  const baseResume = [
+    "Solution Architect - Deloitte Canada | 2022–2024",
+    "Integrated SAP systems.",
+    "Senior Solution Designer - Deloitte Canada | 2019–2021",
+    "Configured Contract Accounts.",
+  ].join("\n");
+  const incomplete = {
+    profile: "SAP solution architect.",
+    skills: ["SAP"],
+    experience: [{ role: "Solution Architect", company: "Deloitte Canada", dates: "2022–2024", bullets: ["Integrated SAP systems."] }],
+  };
+  const complete = {
+    ...incomplete,
+    experience: [
+      ...incomplete.experience,
+      { role: "Senior Solution Designer", company: "Deloitte Canada", dates: "2019–2021", bullets: ["Configured Contract Accounts."] },
+    ],
+  };
+  const handler = createTailorHandler({
+    authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
+    loadListing: async () => ({
+      id: 71,
+      title: "SAP Consultant",
+      company: "Target Co",
+      type: "Full-time",
+      category: "technology",
+      description: "Configure SAP Contract Accounts and support integrations.",
+      reason: "Technology role",
+    }),
+    fetchImpl: async (_url, options) => {
+      const body = JSON.parse(options.body);
+      requests.push(body);
+      if (body.tool_choice.name === "return_tailoring_analysis") {
+        return toolResponse("return_tailoring_analysis", analysisInput());
+      }
+      return toolResponse(
+        "return_tailored_resume",
+        body.messages[0].content.includes("CLEAN-SLATE RESUME REBUILD") ? complete : incomplete,
+      );
+    },
+    getApiKey: () => "test-key",
+  });
+  const res = responseRecorder();
+
+  await handler({
+    method: "POST",
+    headers: { authorization: "Bearer valid" },
+    body: { resume: baseResume, listingId: 71 },
+  }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.repair_applied, true);
+  assert.deepEqual(res.body.resume.experience.map((entry) => entry.role), ["Solution Architect", "Senior Solution Designer"]);
+  assert.match(requests[2].messages[0].content, /missing_history.*Senior Solution Designer/);
+  assert.doesNotMatch(requests[2].messages[0].content, /REJECTED DRAFT/);
 });
 
 test("tailoring falls back to verified content when the model repair still has one unsafe entry", async () => {

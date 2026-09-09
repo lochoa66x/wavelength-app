@@ -6,7 +6,7 @@ const LABELS = Object.freeze({
   draft: "Draft",
   preliminary: "Preliminary",
   ready: "Ready",
-  stale: "Stale",
+  stale: "Needs refresh",
   failed: "Needs attention",
 });
 

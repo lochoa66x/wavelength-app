@@ -1,6 +1,6 @@
 export const CANDIDATE_EVIDENCE_PREFIX = "gigscapes:candidate-evidence:v1:";
 export const REUSABLE_EVIDENCE_PREFIX = "gigscapes:reusable-candidate-evidence:v1:";
-const MAX_REQUEST_EVIDENCE = 5;
+export const MAX_REQUEST_EVIDENCE = 12;
 
 export function isVerifiedReusableEvidence(record) {
   return record?.scope === "profile"
@@ -29,7 +29,7 @@ export function loadCandidateEvidence(userId, targetKey, storage = globalThis.lo
   if (!key || !storage) return [];
   try {
     const parsed = JSON.parse(storage.getItem(key) || "[]");
-    return Array.isArray(parsed) ? parsed.slice(0, 5) : [];
+    return Array.isArray(parsed) ? parsed.slice(0, MAX_REQUEST_EVIDENCE) : [];
   } catch (error) {
     console.error("Couldn't read the candidate evidence:", error);
     return [];
@@ -40,7 +40,7 @@ export function saveCandidateEvidence(userId, targetKey, evidence, storage = glo
   const key = candidateEvidenceStorageKey(userId, targetKey);
   if (!key || !storage) return false;
   try {
-    const records = Array.isArray(evidence) ? evidence.slice(0, 5) : [];
+    const records = Array.isArray(evidence) ? evidence.slice(0, MAX_REQUEST_EVIDENCE) : [];
     if (records.length) storage.setItem(key, JSON.stringify(records));
     else storage.removeItem(key);
     return true;

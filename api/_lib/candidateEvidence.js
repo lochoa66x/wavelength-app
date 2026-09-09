@@ -1,6 +1,6 @@
 import { validateEvidenceCoachProposal } from "./evidenceCoach.js";
 
-const MAX_EVIDENCE_ITEMS = 5;
+const MAX_EVIDENCE_ITEMS = 12;
 
 const CONTRIBUTION_LEVELS = new Set(["supported", "contributed", "owned", "led"]);
 const EVIDENCE_SCOPES = new Set(["application", "profile"]);

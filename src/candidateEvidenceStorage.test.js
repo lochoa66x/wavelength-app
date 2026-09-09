@@ -82,11 +82,11 @@ test("request evidence prioritizes the current application and caps the payload"
   ];
   const reusable = [
     { id: "same", scope: "profile", answer_status: "yes", answer: "Older reusable answer", user_confirmed: true },
-    ...Array.from({ length: 6 }, (_, index) => ({ id: `profile-${index}`, scope: "profile", answer_status: "yes", answer: `Verified answer ${index}`, user_confirmed: true })),
+    ...Array.from({ length: 20 }, (_, index) => ({ id: `profile-${index}`, scope: "profile", answer_status: "yes", answer: `Verified answer ${index}`, user_confirmed: true })),
   ];
   const selected = candidateEvidenceForRequest(application, reusable);
 
-  assert.equal(selected.length, 5);
+  assert.equal(selected.length, 12);
   assert.equal(selected[0].answer, "Current application");
   assert.equal(selected.some((record) => record.id === "unsure"), false);
 });

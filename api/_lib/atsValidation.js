@@ -26,6 +26,7 @@ const HISTORY_TOKEN_ALIASES = new Map([
   ["eng", ["engineer"]],
   ["engr", ["engineer"]],
   ["spec", ["specialist"]],
+  ["capgemini", ["cap", "gemini"]],
 ]);
 
 const HISTORY_JOINERS = new Set(["a", "an", "and", "at", "for", "of", "the"]);
@@ -127,6 +128,80 @@ function historyEntryAssociationSupported(experience, baseResume) {
     }
   }
   return false;
+}
+
+const EMPLOYMENT_ROLE_HINT_PATTERN = /\b(?:architect|consultant|designer|manager|director|engineer|developer|analyst|administrator|coordinator|specialist|lead|supervisor|officer|advisor|adviser|technician|representative|associate|intern|president|principal|owner|founder)\b/i;
+const EMPLOYMENT_DATE_RANGE_PATTERN = /\b(?:19|20)\d{2}\s*(?:-|–|—|to)\s*(?:(?:19|20)\d{2}|present|current)\b/i;
+const EMPLOYMENT_SINGLE_YEAR_PATTERN = /\b(?:19|20)\d{2}\b\s*$/i;
+
+function cleanHistorySourcePart(value) {
+  return String(value || "")
+    .replace(/^[\s|•·—–-]+|[\s|•·—–-]+$/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function sourceHistoryEntries(baseResume) {
+  const lines = String(baseResume || "")
+    .split(/\r?\n/)
+    .map((line) => line.replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+  const entries = [];
+  const seen = new Set();
+
+  for (let index = 0; index < lines.length; index += 1) {
+    const line = lines[index];
+    const rangeMatch = line.match(EMPLOYMENT_DATE_RANGE_PATTERN);
+    const singleYearMatch = rangeMatch ? null : line.match(EMPLOYMENT_SINGLE_YEAR_PATTERN);
+    const dateMatch = rangeMatch || singleYearMatch;
+    if (!dateMatch) continue;
+
+    const dates = dateMatch[0];
+    const prefix = cleanHistorySourcePart(line.slice(0, dateMatch.index));
+    const parts = prefix
+      .split(/\s+(?:[|•·—–]|-)\s+/)
+      .map(cleanHistorySourcePart)
+      .filter(Boolean);
+    let role = "";
+    let company = "";
+
+    if (parts.length >= 2 && EMPLOYMENT_ROLE_HINT_PATTERN.test(parts[0])) {
+      [role, company] = parts;
+    } else if (parts.length === 1 && index > 0 && EMPLOYMENT_ROLE_HINT_PATTERN.test(lines[index - 1])) {
+      role = cleanHistorySourcePart(lines[index - 1]);
+      company = parts[0];
+    } else if (!parts.length && index > 1 && EMPLOYMENT_ROLE_HINT_PATTERN.test(lines[index - 2])) {
+      role = cleanHistorySourcePart(lines[index - 2]);
+      company = cleanHistorySourcePart(lines[index - 1]);
+    }
+
+    // A single year is common for short engagements, but it is too ambiguous
+    // to treat as employment unless the same line contains a clear job header.
+    if (!role || !company || (singleYearMatch && parts.length < 2)) continue;
+    const key = [role, company, dates].map(normalized).join("|");
+    if (seen.has(key)) continue;
+    seen.add(key);
+    entries.push({ role, company, dates, sourceLine: line });
+  }
+  return entries;
+}
+
+function roleEquivalent(candidate, source) {
+  return historyFieldSupported(candidate, source, "role")
+    && historyFieldSupported(source, candidate, "role");
+}
+
+function historyEntryCoversSource(candidate, source) {
+  return roleEquivalent(String(candidate?.role || ""), source.role)
+    && historyFieldSupported(String(candidate?.company || ""), source.company, "company")
+    && lineContainsEmploymentDates(String(candidate?.dates || ""), source.dates);
+}
+
+function missingSourceHistory(resumeData, baseResume) {
+  const output = Array.isArray(resumeData?.experience) ? resumeData.experience : [];
+  return sourceHistoryEntries(baseResume)
+    .filter((source) => !output.some((candidate) => historyEntryCoversSource(candidate, source)))
+    .map(({ role, company, dates, sourceLine }) => ({ role, company, dates, sourceLine }));
 }
 
 function numericClaims(value) {
@@ -429,6 +504,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
   const allowedNumbers = new Set(numericClaims(base));
   const unsupported_metrics = [];
   const unsupported_history = [];
+  const missing_history = missingSourceHistory(resumeData, historyBase);
 
   const unsupportedClaims = [...new Set(exportedResumeValues(resumeData).flatMap(numericClaims).filter((claim) => !allowedNumbers.has(claim)))];
   unsupported_metrics.push(...unsupportedClaims.map((claim) => ({ claim })));
@@ -517,6 +593,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
   let score = 100;
   score -= Math.min(50, unsupported_metrics.length * 20);
   score -= Math.min(40, unsupported_history.length * 15);
+  score -= Math.min(40, missing_history.length * 15);
   score -= Math.min(20, verb_issues.length * 4);
   score -= Math.min(16, tense_issues.length * 4);
   if (!reverse_chronological) score -= 10;
@@ -526,6 +603,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
   const integrityBlocked = Boolean(
     unsupported_metrics.length
       || unsupported_history.length
+      || missing_history.length
       || semantic.unsupported_skills.length
       || semantic.unsupported_projects.length
       || semantic.unsupported_training.length
@@ -630,6 +708,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
     reverse_chronological,
     unsupported_metrics,
     unsupported_history,
+    missing_history,
     unsupported_skills: semantic.unsupported_skills,
     unsupported_projects: semantic.unsupported_projects,
     unsupported_training: semantic.unsupported_training,
@@ -646,6 +725,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
       status: integrityBlocked ? "blocked" : "pass",
       issue_count: unsupported_metrics.length
         + unsupported_history.length
+        + missing_history.length
         + semantic.unsupported_skills.length
         + semantic.unsupported_projects.length
         + semantic.unsupported_training.length

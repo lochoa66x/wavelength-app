@@ -216,7 +216,7 @@ test("presentation removes redundant employer country and repairs contradictory 
 
   assert.equal(result.resume.experience[0].company, "Deloitte Canada");
   assert.equal(result.resume.experience[0].location, "");
-  assert.equal(result.resume.experience[0].bullets[0], "Led Master Data team contributions to user acceptance testing and cutover.");
+  assert.equal(result.resume.experience[0].bullets[0], "Served as Master Data team lead, contributing to user acceptance testing and cutover.");
 });
 
 test("presentation removes internal audit wording, normalizes style, and restores continuation employers", () => {
@@ -377,4 +377,24 @@ test("a verified required degree is restored when the draft model omits educatio
   assert.equal(result.resume.education.length, 1);
   assert.match(result.resume.education[0].degree, /Bachelor of Business Finance Administration/);
   assert.equal(result.resume.education[0].restored_from_verified_evidence, true);
+});
+
+test("verified education is preserved even when the posting does not explicitly require a degree", () => {
+  const result = shapeTailoredResumeWithReview({
+    name: "Luis Example",
+    profile: "SAP functional consultant.",
+    skills: ["SAP FI-CA"],
+    experience: [{ role: "SAP Consultant", company: "Real Corp", dates: "2020–2024", bullets: ["Configured SAP FI-CA."] }],
+    education: [],
+  }, {
+    fit_assessment: { path: "direct" },
+    requirements: [{ requirement: "Configure SAP FI-CA", evidence_match: "direct", keywords: ["SAP FI-CA"] }],
+  }, "SAP Consultant — Real Corp — 2020–2024\nConfigured SAP FI-CA.\n\nEDUCATION\nBachelor of Business Administration\nExample University, Toronto, Canada\n\nLANGUAGES\nEnglish");
+
+  assert.deepEqual(result.resume.education, [{
+    degree: "Bachelor of Business Administration",
+    institution: "Example University, Toronto, Canada",
+    dates: "",
+    restored_from_verified_evidence: true,
+  }]);
 });

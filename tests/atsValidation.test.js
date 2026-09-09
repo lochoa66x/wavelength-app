@@ -94,6 +94,45 @@ test("ATS truth check blocks real history fields recombined into the wrong job",
   assert.deepEqual(review.unsupported_history.map((issue) => issue.field), ["association"]);
 });
 
+test("ATS truth check blocks a tailored resume that silently omits a verified role", () => {
+  const baseResume = [
+    "Solution Architect - Deloitte Canada | 2022–2024",
+    "Integrated SAP systems.",
+    "Senior Solution Designer - Deloitte Canada | 2019–2021",
+    "Configured Contract Accounts and Contract Objects.",
+  ].join("\n");
+  const review = buildAtsReview({
+    profile: "SAP solution architect.",
+    skills: ["SAP"],
+    experience: [{
+      role: "Solution Architect",
+      company: "Deloitte Canada",
+      dates: "2022–2024",
+      bullets: ["Integrated SAP systems."],
+    }],
+  }, baseResume, { keywords: ["SAP"] });
+
+  assert.equal(review.status, "blocked");
+  assert.deepEqual(review.missing_history.map((entry) => entry.role), ["Senior Solution Designer"]);
+  assert.ok(review.export_readiness.blockers.includes("evidence_integrity"));
+});
+
+test("history completeness accepts job headers split across three adjacent lines", () => {
+  const baseResume = "Operations Manager\nReal Corp\n2020–2023\nLed operations.";
+  const review = buildAtsReview({
+    profile: "Operations leader.",
+    skills: ["Operations"],
+    experience: [{
+      role: "Operations Manager",
+      company: "Real Corp",
+      dates: "2020–2023",
+      bullets: ["Led operations."],
+    }],
+  }, baseResume, { keywords: ["Operations"] });
+
+  assert.deepEqual(review.missing_history, []);
+});
+
 test("ATS truth check accepts a history tuple split across adjacent source lines", () => {
   const review = buildAtsReview({
     profile: "Operations leader.",

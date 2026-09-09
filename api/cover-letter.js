@@ -48,6 +48,18 @@ function clean(value, maxLength = 4_000) {
     : "";
 }
 
+function cleanMultiline(value, maxLength = 24_000) {
+  return typeof value === "string"
+    ? value
+      .replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g, " ")
+      .replace(/\r\n?/g, "\n")
+      .replace(/[ \t]+/g, " ")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim()
+      .slice(0, maxLength)
+    : "";
+}
+
 function normalized(value) {
   return clean(value, 40_000).toLowerCase().replace(/[’‘]/g, "'").replace(/[–—]/g, "-");
 }
@@ -59,6 +71,41 @@ function exactExcerptIn(excerpt, corpus) {
 
 function cleanRefs(value) {
   return Array.isArray(value) ? value.slice(0, 6).map((entry) => clean(entry, 700)).filter(Boolean) : [];
+}
+
+function buildCitationCatalog(corpus, prefix) {
+  const seen = new Set();
+  const entries = [];
+  for (const rawLine of String(corpus || "").split(/\r?\n/)) {
+    const excerpt = clean(rawLine.replace(/^(?:[-*•◦▪▫]+|\d+[.)])\s*/, ""), 700);
+    const key = normalized(excerpt);
+    if (key.length < 8 || seen.has(key)) continue;
+    seen.add(key);
+    entries.push({ id: `${prefix}${entries.length + 1}`, excerpt });
+    if (entries.length >= 160) break;
+  }
+  return entries;
+}
+
+function catalogForPrompt(entries) {
+  return entries.map(({ id, excerpt }) => `${id}: ${JSON.stringify(excerpt)}`).join("\n");
+}
+
+function resolveCitationRefs(value, catalog, corpus) {
+  const byId = new Map((catalog || []).map((entry) => [entry.id.toUpperCase(), entry.excerpt]));
+  const refs = [];
+  const invalid = [];
+  for (const rawRef of cleanRefs(value)) {
+    const resolved = byId.get(rawRef.toUpperCase());
+    if (resolved) {
+      refs.push(resolved);
+    } else if (exactExcerptIn(rawRef, corpus)) {
+      refs.push(rawRef);
+    } else {
+      invalid.push(rawRef);
+    }
+  }
+  return { refs: [...new Set(refs)], invalid };
 }
 
 function stripEmbeddedSignoff(value) {
@@ -75,15 +122,25 @@ function normalizeSignoff(value) {
   return "Sincerely,";
 }
 
-function validateLetter(raw, { candidateCorpus, postingCorpus, targetTitle, targetCompany, expectedParagraphId = "" }) {
+function validateLetter(raw, {
+  candidateCorpus,
+  postingCorpus,
+  candidateCatalog = [],
+  postingCatalog = [],
+  targetTitle,
+  targetCompany,
+  expectedParagraphId = "",
+}) {
   const paragraphs = Array.isArray(raw?.paragraphs) ? raw.paragraphs.slice(0, 6) : [];
   const issues = [];
   const seen = new Set();
   const normalizedParagraphs = paragraphs.map((entry, index) => {
     const purpose = ["opening", "evidence", "closing"].includes(entry?.purpose) ? entry.purpose : "evidence";
     const text = stripEmbeddedSignoff(entry?.text);
-    const evidenceRefs = cleanRefs(entry?.evidence_refs);
-    const requirementRefs = cleanRefs(entry?.requirement_refs);
+    const resolvedEvidence = resolveCitationRefs(entry?.evidence_refs, candidateCatalog, candidateCorpus);
+    const resolvedRequirements = resolveCitationRefs(entry?.requirement_refs, postingCatalog, postingCorpus);
+    const evidenceRefs = resolvedEvidence.refs;
+    const requirementRefs = resolvedRequirements.refs;
     const explanation = clean(entry?.explanation, 800) || "This paragraph connects verified candidate evidence to a stated posting requirement.";
     const id = clean(entry?.id, 80) || `${purpose}-${index + 1}`;
     if (!text || text.length < 35) issues.push(`${id}: paragraph is incomplete`);
@@ -94,8 +151,8 @@ function validateLetter(raw, { candidateCorpus, postingCorpus, targetTitle, targ
     if (containsSelfDisqualifyingCoverLetterLanguage(explanation)) issues.push(`${id}: explanation contains self-disqualifying positioning`);
     if (purpose !== "closing" && !evidenceRefs.length) issues.push(`${id}: missing candidate evidence citation`);
     if (purpose !== "closing" && !requirementRefs.length) issues.push(`${id}: missing posting requirement citation`);
-    evidenceRefs.forEach((ref) => { if (!exactExcerptIn(ref, candidateCorpus)) issues.push(`${id}: candidate citation is not an exact supplied excerpt`); });
-    requirementRefs.forEach((ref) => { if (!exactExcerptIn(ref, postingCorpus)) issues.push(`${id}: posting citation is not an exact supplied excerpt`); });
+    if (resolvedEvidence.invalid.length) issues.push(`${id}: candidate citation must use a supplied C source id`);
+    if (resolvedRequirements.invalid.length) issues.push(`${id}: posting citation must use a supplied P source id`);
     const allowedNumericCorpus = `${evidenceRefs.join(" ")} ${requirementRefs.join(" ")} ${targetTitle} ${targetCompany}`;
     (text.match(/\b\d[\d,.%+/-]*\b/g) || []).forEach((token) => {
       if (!normalized(allowedNumericCorpus).includes(normalized(token))) issues.push(`${id}: numeric claim is not present in its cited evidence`);
@@ -194,11 +251,13 @@ export function createCoverLetterHandler({
     }
     const item = validListingId ? await loadListing(client, body.listingId) : { ...customJob, id: null };
     if (!item?.title) return res.status(404).json({ error: "Listing not found" });
-    const postingCorpus = customJob ? jobBriefToText(customJob) : clean(item.description, 24_000);
+    const postingCorpus = customJob ? jobBriefToText(customJob) : cleanMultiline(item.description, 24_000);
     if (!postingCorpus) return res.status(422).json({ error: "Add or review the full posting before generating a cover letter." });
-    const resume = clean(body.resume, 16_000);
+    const resume = cleanMultiline(body.resume, 16_000);
     const candidateNotes = formatCandidateEvidence(evidenceValidation.evidence);
     const candidateCorpus = `${resume}\n\n${candidateNotes}`;
+    const candidateCatalog = buildCitationCatalog(candidateCorpus, "C");
+    const postingCatalog = buildCitationCatalog(postingCorpus, "P");
     const paragraphInstruction = regenerateParagraph
       ? `Regenerate exactly one paragraph with id "${regenerateParagraph}". Preserve an opening, evidence, or closing purpose from EXISTING DRAFT, return only that one paragraph, and give it fresh natural phrasing without changing facts.`
       : `Return 3–4 paragraphs: a posting-specific opening, 1–2 strengths-and-evidence paragraphs, and a confident professional closing. Every paragraph must help the candidate's case.`;
@@ -219,6 +278,12 @@ ${resume}
 
 CONFIRMED CANDIDATE EVIDENCE
 ${candidateNotes}
+
+CANDIDATE CITATION CATALOG
+${catalogForPrompt(candidateCatalog)}
+
+POSTING CITATION CATALOG
+${catalogForPrompt(postingCatalog)}
 
 EXISTING DRAFT
 ${existingDraft}
@@ -241,7 +306,7 @@ RULES
 - Adjacent experience must be framed positively: explain the shared capability, process, or domain foundation directly. Do not contrast it with an industry, module, tool, or context the candidate has not used.
 - Never turn a missing requirement into experience, motivation, or a strength. Simply omit unsupported qualifications from the letter; keep private assessment findings out of employer-facing prose.
 - Use "Dear Hiring Team," unless a verified person name appears in the posting. Use exactly one restrained signoff in the signoff field; never place a signoff, candidate name, email, or phone inside a paragraph.
-- Every non-closing paragraph must cite at least one short EXACT excerpt from the candidate corpus in evidence_refs and one short EXACT excerpt from the posting in requirement_refs. Do not paraphrase citations.
+- Every non-closing paragraph must cite at least one candidate source id from the CANDIDATE CITATION CATALOG in evidence_refs and one posting source id from the POSTING CITATION CATALOG in requirement_refs. Return only ids such as C4 and P7 in those arrays; never copy or paraphrase the excerpt text. Gigscapes resolves the ids to exact excerpts after generation.
 - The explanation is candidate-facing: say which verified strength the paragraph highlights and whether the evidence is direct, adjacent, or transferable. Do not repeat private gaps in the explanation.
 - Any number in prose must appear in that paragraph's exact citations. Avoid generic flattery and empty adjectives.`;
 
@@ -254,14 +319,15 @@ RULES
         anthropicModel: getAnthropicModel(),
       };
       let raw = await callAI({ ...providerOptions, prompt });
-      let validation = validateLetter(raw, { candidateCorpus, postingCorpus, targetTitle: item.title, targetCompany: item.company, expectedParagraphId: regenerateParagraph });
+      let validation = validateLetter(raw, { candidateCorpus, postingCorpus, candidateCatalog, postingCatalog, targetTitle: item.title, targetCompany: item.company, expectedParagraphId: regenerateParagraph });
       if (validation.issues.length) {
-        const repairPrompt = `${prompt}\n\nThe first draft failed deterministic validation. Repair it without adding facts. Problems: ${validation.issues.join("; ").slice(0, 2_000)}`;
+        const repairPrompt = `${prompt}\n\nCLEAN REBUILD\nThe first draft failed deterministic validation. Write a completely fresh draft from the source catalogs above; do not imitate or repair the rejected wording. Keep all claims within the cited source ids. Problems to avoid: ${validation.issues.join("; ").slice(0, 2_000)}`;
         raw = await callAI({ ...providerOptions, prompt: repairPrompt, timeoutMs: 55_000 });
-        validation = validateLetter(raw, { candidateCorpus, postingCorpus, targetTitle: item.title, targetCompany: item.company, expectedParagraphId: regenerateParagraph });
+        validation = validateLetter(raw, { candidateCorpus, postingCorpus, candidateCatalog, postingCatalog, targetTitle: item.title, targetCompany: item.company, expectedParagraphId: regenerateParagraph });
       }
       if (validation.issues.length) {
-        console.warn("[cover-letter] validation blocked", JSON.stringify({ issueCount: validation.issues.length, durationMs: Date.now() - startedAt }));
+        const issueTypes = [...new Set(validation.issues.map((issue) => issue.replace(/^[^:]+:\s*/, "")).slice(0, 12))];
+        console.warn("[cover-letter] validation blocked", JSON.stringify({ issueCount: validation.issues.length, issueTypes, durationMs: Date.now() - startedAt }));
         return res.status(422).json({ error: "The draft could not be verified against your résumé and posting. Nothing was saved; try again." });
       }
       console.info("[cover-letter] completed", JSON.stringify({ paragraphCount: validation.letter.paragraphs.length, regenerated: Boolean(regenerateParagraph), durationMs: Date.now() - startedAt }));

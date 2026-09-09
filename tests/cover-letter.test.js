@@ -63,6 +63,34 @@ test("cover-letter generation uses reviewed sources and exact citations", async 
   assert.doesNotMatch(JSON.stringify(res.body), /application-ready|private résumé/i);
 });
 
+test("cover-letter generation resolves stable citation ids to exact source excerpts", async () => {
+  const citedById = {
+    ...letter,
+    paragraphs: letter.paragraphs.map((entry, index) => index === 0
+      ? { ...entry, evidence_refs: ["C2"], requirement_refs: ["P3"] }
+      : index === 1
+        ? { ...entry, evidence_refs: ["C3"], requirement_refs: ["P4"] }
+        : entry),
+  };
+  const handler = createCoverLetterHandler({
+    authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
+    fetchImpl: async () => toolResponse(citedById),
+    getApiKey: () => "test",
+  });
+  const res = responseRecorder();
+  await handler({ method: "POST", headers: { authorization: "Bearer valid" }, body: {
+    resume: "Jordan Lee\nInstalled and maintained electrical panels.\nDocumented preventive maintenance work in a CMMS.",
+    customJob,
+    candidateEvidence: [],
+  } }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.deepEqual(res.body.letter.paragraphs[0].evidence_refs, ["Installed and maintained electrical panels."]);
+  assert.deepEqual(res.body.letter.paragraphs[0].requirement_refs, ["Install and maintain electrical panels"]);
+  assert.deepEqual(res.body.letter.paragraphs[1].evidence_refs, ["Documented preventive maintenance work in a CMMS."]);
+  assert.deepEqual(res.body.letter.paragraphs[1].requirement_refs, ["Document work in the CMMS"]);
+});
+
 test("unsupported flattery remains blocked after one bounded repair", async () => {
   let calls = 0;
   const bad = { ...letter, paragraphs: letter.paragraphs.map((entry, index) => index === 0 ? { ...entry, text: "I am thrilled to join your renowned, world-class company." } : entry) };

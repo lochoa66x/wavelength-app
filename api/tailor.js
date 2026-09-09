@@ -454,6 +454,41 @@ function logTailoringCompleted(requestStartedAt, { repairApplied = false, safety
   }));
 }
 
+function resumeValidationIssues(atsReview) {
+  return {
+    unsupported_numbers: atsReview.unsupported_metrics.map((issue) => issue.claim),
+    unsupported_history: atsReview.unsupported_history.map(({ field, value, experienceIndex }) => ({
+      field,
+      value,
+      experienceIndex,
+    })),
+    missing_history: atsReview.missing_history,
+    unsupported_skills: atsReview.unsupported_skills,
+    unsupported_projects: atsReview.unsupported_projects,
+    unsupported_training: atsReview.unsupported_training,
+    unsupported_target_terms: atsReview.unsupported_target_terms,
+    unsupported_positioning: atsReview.unsupported_positioning,
+    risky_claims: atsReview.risky_claims,
+    provenance_issues: atsReview.provenance_issues,
+    requirement_consistency: atsReview.requirement_consistency,
+  };
+}
+
+function employerFacingResumeIsSafe(atsReview) {
+  return [
+    atsReview.unsupported_metrics,
+    atsReview.unsupported_history,
+    atsReview.missing_history,
+    atsReview.unsupported_skills,
+    atsReview.unsupported_projects,
+    atsReview.unsupported_training,
+    atsReview.unsupported_target_terms,
+    atsReview.unsupported_positioning,
+    atsReview.risky_claims,
+    atsReview.provenance_issues,
+  ].every((issues) => Array.isArray(issues) && issues.length === 0);
+}
+
 async function callAIToolWithRetry({
   deadlineAt,
   attemptTimeoutsMs,
@@ -709,6 +744,7 @@ INSTRUCTIONS
 - An adjacent SAP functional-module application is professional adjacent expertise. Preserve seniority in the candidate's proven modules and delivery scope, while keeping the target-module gap in the private review. The headline must lead with verified modules or capabilities and must not insert a missing target module as a keyword.
 - Never use employer-facing or candidate-facing phrases such as "career change", "career transition", "transitioning into", "new career", "new path", "new journey", or "transitional positioning" anywhere in the résumé.
 - Treat each historical job as an IMMUTABLE TUPLE of official title + employer + location + dates. Copy those fields from the same base-résumé entry rather than validating each one in isolation. Never pair a title found under one employer with another employer or date range. The target identity belongs in the top-level title and profile, never in a historical role.
+- Return every distinct employment entry from the base résumé exactly once, including separate roles at the same employer. Relevance controls bullet count, never whether a verified job header exists. An older or less relevant role may have one compact bullet, but its official title, employer, location, and dates must remain present.
 - Emit each historical tuple at most once. Never split one base-résumé job into two output entries merely to distribute bullets, clients, or projects. When the base résumé presents several clients or projects beneath one employment header, keep one header and place the selected project evidence in its bullets. Preserve genuinely different roles or date ranges as separate entries.
 - Keep employer and location separate. Never turn “Employer” plus “Canada” into “Employer, Canada,” and never repeat a country already contained in the employer's official name. Work experience MUST remain in reverse chronological order. You may reorder and rewrite bullets within a role, but never reorder roles, rename history, or create a composite role.
 - Identify the skills/requirements this specific posting cares about most and make the bullets within each role lead with the most relevant supported evidence. Compress genuinely irrelevant older detail, but do not move an older role above a newer one.
@@ -729,7 +765,7 @@ INSTRUCTIONS
 - If the candidate's real career is long (many roles, decades), use real editorial judgment for a 1-2 page document: use no more than three bullets for either of the two most recent roles, no more than two for the next four roles, and one for older roles, with about 16 bullets total. Rank by verified relevance rather than chronology within a role. Do not use volume to disguise a weak match, and do not cut off an older role when one compact line is needed to preserve career continuity.
 - Keep \`role\` to the exact official job title and \`company\` to the exact employer when the source distinguishes an employer from a client or project. Do not synthesize labels such as "Role at Client — Employer". A client or project may be mentioned in a supported bullet instead.
 - Populate projects and training only from explicit CANDIDATE EVIDENCE. Include training only when it supports at least one analyzed requirement or the candidate's verified professional foundation; omit unrelated courses rather than using them as filler.
-- Copy degrees, institutions, certifications, training titles, and languages exactly from the base résumé. Never merge two credentials, rewrite a degree into a more marketable name, or infer a field of study. Only include education/languages when the base résumé actually contains them; omit them rather than guessing.
+- Copy degrees, institutions, certifications, training titles, and languages exactly from the base résumé. Never merge two credentials, rewrite a degree into a more marketable name, or infer a field of study. Preserve education and languages whenever the base résumé contains them; resolve space pressure by tightening lower-value bullets before dropping those factual sections. Omit them only when the base résumé does not contain them.
 - ATS-READABLE WRITING:
   * Every experience bullet must START with a precise action verb. Use past tense for completed work in prior roles. In a current role, use present tense for ongoing responsibilities and past tense for completed achievements.
   * Match verbs to the occupation and the evidence: SAP functional work may use configured, implemented, integrated, validated, documented, facilitated, supported, coordinated, led, or delivered; software work may use built, developed, deployed, debugged, automated, integrated, tested, or optimized; leadership may use led, directed, managed, delivered, coordinated, mentored, established, or negotiated; trades may use installed, repaired, maintained, inspected, operated, troubleshot, assembled, or measured; admin work may use coordinated, organized, scheduled, processed, maintained, prepared, or documented; marketing and creative work may use launched, analyzed, optimized, produced, designed, created, developed, edited, or refined.
@@ -792,7 +828,7 @@ INSTRUCTIONS
     const baseDraftPrompt = prompt.replace("__TAILORING_ANALYSIS__", JSON.stringify(analysis, null, 2));
     let requestPrompt = baseDraftPrompt;
 
-    for (let attempt = 0; attempt < 2; attempt += 1) {
+    for (let attempt = 0; attempt < 3; attempt += 1) {
       const rawResumeData = await callAIToolWithRetry({
         fetchImpl,
         ...providerOptions,
@@ -802,7 +838,7 @@ INSTRUCTIONS
         deadlineAt: requestDeadlineAt,
         attemptTimeoutsMs: attempt === 0 ? resolvedTiming.draftAttemptsMs : resolvedTiming.repairAttemptsMs,
         minimumCallMs: resolvedTiming.minimumCallMs,
-        stage: attempt === 0 ? "resume_draft" : "evidence_repair",
+        stage: attempt === 0 ? "resume_draft" : attempt === 1 ? "resume_rebuild" : "resume_conservative_rebuild",
       });
       const shaped = shapeTailoredResumeWithReview(enforceReverseChronology({
         ...rawResumeData,
@@ -847,33 +883,24 @@ INSTRUCTIONS
       const metricCount = atsReview.unsupported_metrics.length;
       const historyCount = atsReview.unsupported_history.length;
 
-      if (attempt === 0) {
-        console.warn("[tailor:evidence_repair] Automatic repair requested", JSON.stringify({ metricCount, historyCount }));
-        const repairIssues = {
-          unsupported_numbers: atsReview.unsupported_metrics.map((issue) => issue.claim),
-          unsupported_history: atsReview.unsupported_history.map(({ field, value, experienceIndex }) => ({
-            field,
-            value,
-            experienceIndex,
-          })),
-          unsupported_skills: atsReview.unsupported_skills,
-          unsupported_projects: atsReview.unsupported_projects,
-          unsupported_training: atsReview.unsupported_training,
-          unsupported_target_terms: atsReview.unsupported_target_terms,
-          unsupported_positioning: atsReview.unsupported_positioning,
-          risky_claims: atsReview.risky_claims,
-          provenance_issues: atsReview.provenance_issues,
-          requirement_consistency: atsReview.requirement_consistency,
-        };
-        requestPrompt = `${baseDraftPrompt}\n\nEVIDENCE REPAIR PASS\nThe draft below failed validation. Return a complete corrected résumé using the ${toolName} tool. Preserve supported content, but repair every listed violation.\n- Copy unsupported historical fields from the same base-résumé job entry. An association violation means individually real title, employer, or date fields were combined into a history tuple the source does not support.\n- Remove or truthfully rewrite every unsupported number. Never estimate, calculate, or spell out a number to evade validation.\n- Remove unsupported skills and target terms rather than substituting a different unsupported synonym.\n- For transferable positioning, replace an unsupported target identity with the candidate's proven professional foundation. Never use career-change or transition language.\n- Remove equivalence language such as 'translates directly' and 'directly analogous'. State relevance without claiming target-domain experience.\n- Restore the verified original whenever tailored wording has incomplete citations or strengthens contribution level. A changed bullet may combine facts only when every substantive clause is supported by candidate evidence.\n- Never change contributed to authored, participated to led, supported to owned, or assisted to directed without explicit evidence for the stronger responsibility level.\n- Explain only a requirement that the resulting bullet actually addresses; otherwise use a neutral evidence-clarification reason.\n- Missing requirements remain missing. Do not convert them into résumé content.\n- Keep supported employment entries and reverse-chronological ordering intact.\n\nVALIDATION ISSUES\n${JSON.stringify(repairIssues)}\n\nREJECTED DRAFT\n${JSON.stringify(resumeData)}`;
+      if (attempt < 2) {
+        const repairIssues = resumeValidationIssues(atsReview);
+        console.warn("[tailor:resume_rebuild] Clean rebuild requested", JSON.stringify({
+          pass: attempt + 1,
+          metricCount,
+          historyCount,
+          provenanceCount: atsReview.provenance_issues.length,
+        }));
+        requestPrompt = `${baseDraftPrompt}\n\nCLEAN-SLATE RESUME REBUILD — PASS ${attempt + 1}\nThe previous output failed deterministic validation. Start again from the BASE RÉSUMÉ EVIDENCE, VERIFIED CANDIDATE NOTES, and AUTHORITATIVE ANALYSIS above. Do not copy, revise, summarize, or imitate the rejected output. Return a complete new résumé using the ${toolName} tool.\n- Re-read the base résumé and return every distinct employment tuple exactly once. Copy each official title, employer, location, and date range from the same source entry. Never omit a job to make validation pass.\n- Candidate-selected capabilities may appear in the title, profile, or skills when appropriate, but never as a dated employer accomplishment without candidate-supplied project history.\n- Copy all numbers exactly or omit them. Never estimate, calculate, or spell out a number to evade validation.\n- Remove unsupported skills and target terms instead of substituting a different unsupported synonym.\n- Restore exact source wording whenever a rewritten bullet would strengthen ownership or lacks complete candidate-evidence support.\n- Missing requirements remain absent from employer-facing content.\n- The final pass should prefer conservative exact source language over another validation failure.\n\nVALIDATION ISSUES TO AVOID\n${JSON.stringify(repairIssues)}`;
         continue;
       }
 
-      const { resume: fallbackResume, report: safetyReport } = createSafeResumeFallback(resumeData, atsReview, analysis);
-      const safeShaped = shapeTailoredResumeWithReview(fallbackResume, analysis, cappedResume);
-      const safeResume = safeShaped.resume;
-      const safeFocusReview = await layoutAwareFocusReview(safeResume, analysis, item, safeShaped.focusReview);
-      const safeReview = buildAtsReview(
+      const initialFallback = createSafeResumeFallback(resumeData, atsReview, analysis);
+      const safetyReport = { ...initialFallback.report };
+      const safeShaped = shapeTailoredResumeWithReview(initialFallback.resume, analysis, cappedResume);
+      let safeResume = safeShaped.resume;
+      let safeFocusReview = await layoutAwareFocusReview(safeResume, analysis, item, safeShaped.focusReview);
+      let safeReview = buildAtsReview(
         safeResume,
         candidateEvidence,
         { keywords: analysis.target_keywords },
@@ -887,7 +914,31 @@ INSTRUCTIONS
           historyEvidence: cappedResume,
         },
       );
-      if (safeReview.status !== "blocked" && safeResume.profile && safeResume.experience.length) {
+
+      for (let cleanupPass = 0; cleanupPass < 2 && !employerFacingResumeIsSafe(safeReview) && safeResume.experience.length; cleanupPass += 1) {
+        const cleaned = createSafeResumeFallback(safeResume, safeReview, analysis);
+        for (const [key, value] of Object.entries(cleaned.report)) {
+          safetyReport[key] = Number(safetyReport[key] || 0) + Number(value || 0);
+        }
+        safeResume = enforceReverseChronology(cleaned.resume);
+        safeFocusReview = await layoutAwareFocusReview(safeResume, analysis, item, safeReview.focus_review || safeShaped.focusReview);
+        safeReview = buildAtsReview(
+          safeResume,
+          candidateEvidence,
+          { keywords: analysis.target_keywords },
+          {
+            analysis,
+            postingAssessment: analysis.posting_assessment,
+            targetTitle: item.title,
+            isTrades: isTradesGig,
+            category: item.category,
+            focusReview: safeFocusReview,
+            historyEvidence: cappedResume,
+          },
+        );
+      }
+
+      if (employerFacingResumeIsSafe(safeReview) && safeResume.profile && safeResume.experience.length) {
         safeReview.safety_fallback = { applied: true, ...safetyReport };
         console.warn("[tailor:safety_fallback] Applied deterministic fallback", JSON.stringify({
           omittedExperience: safetyReport.omitted_experience_count,
@@ -904,10 +955,19 @@ INSTRUCTIONS
         });
       }
 
-      console.error("[tailor:evidence_repair] Repaired response remained blocked", JSON.stringify({ metricCount, historyCount }));
+      const finalIssues = resumeValidationIssues(safeReview);
+      console.error("[tailor:resume_rebuild] Clean rebuild remained blocked", JSON.stringify({
+        metricCount: safeReview.unsupported_metrics.length,
+        historyCount: safeReview.unsupported_history.length,
+        missingHistoryCount: safeReview.missing_history.length,
+        provenanceCount: safeReview.provenance_issues.length,
+        hasProfile: Boolean(safeResume.profile),
+        experienceCount: safeResume.experience.length,
+        issueGroups: Object.entries(finalIssues).filter(([, value]) => Array.isArray(value) ? value.length : value?.status === "blocked").map(([key]) => key),
+      }));
       return res.status(422).json({
-        error: `We could not safely repair the draft because it still changed ${historyCount} history field${historyCount === 1 ? "" : "s"} or added ${metricCount} unsupported number${metricCount === 1 ? "" : "s"}. Your original résumé is unchanged.`,
-        ats_review: atsReview,
+        error: "Gigscapes could not produce a complete evidence-safe draft from these inputs. Your original résumé and current application documents are unchanged.",
+        ats_review: safeReview,
       });
     }
   } catch (err) {

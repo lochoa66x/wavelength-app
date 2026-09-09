@@ -40,6 +40,21 @@ test("a candidate-selected capability is valid without a project narrative", () 
   assert.match(formatCandidateEvidence(result.evidence), /Do not invent an employer, project, date, duration, result, or historical accomplishment/);
 });
 
+test("all twelve visible candidate selections can reach document generation", () => {
+  const selections = Array.from({ length: 12 }, (_, index) => ({
+    id: `selected-${index + 1}`,
+    requirement_id: `R${index + 1}`,
+    requirement: `Candidate capability ${index + 1}`,
+    evidence_kind: "self_attested_capability",
+    answer_status: "yes",
+    user_confirmed: true,
+  }));
+  const result = validateCandidateEvidence(selections);
+
+  assert.deepEqual(result.errors, []);
+  assert.equal(result.evidence.length, 12);
+});
+
 test("declining a question becomes an explicit hard constraint, not supporting evidence", () => {
   const result = validateCandidateEvidence([{
     id: "n1",
