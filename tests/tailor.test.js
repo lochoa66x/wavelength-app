@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { createTailorHandler, DEFAULT_TAILOR_TIMING } from "../api/tailor.js";
+import { createTailorHandler, DEFAULT_TAILOR_TIMING, tailoringAnalysisTokenBudget } from "../api/tailor.js";
 
 function analysisInput(overrides = {}) {
   return {
@@ -24,6 +24,30 @@ function toolResponse(name, input) {
     ok: true,
     json: async () => ({ content: [{ type: "tool_use", name, input }] }),
   };
+}
+
+function openAIToolResponse(name, input) {
+  return {
+    ok: true,
+    status: 200,
+    headers: { get: () => null },
+    json: async () => ({
+      id: "resp_tailor_test",
+      model: "gpt-5.6-terra",
+      status: "completed",
+      output: [{ type: "function_call", status: "completed", name, arguments: JSON.stringify(input) }],
+      usage: { input_tokens: 100, output_tokens: 50, output_tokens_details: { reasoning_tokens: 10 } },
+    }),
+  };
+}
+
+function assertRecursivelyClosedSchema(schema) {
+  if (!schema || typeof schema !== "object") return;
+  if (schema.type === "object") {
+    assert.equal(schema.additionalProperties, false);
+    Object.values(schema.properties || {}).forEach(assertRecursivelyClosedSchema);
+  }
+  if (schema.type === "array") assertRecursivelyClosedSchema(schema.items);
 }
 
 function responseRecorder() {
@@ -51,6 +75,12 @@ test("production timing gives evidence-analysis retry a useful window without co
     reservedDraftMs >= DEFAULT_TAILOR_TIMING.draftAttemptsMs[0],
     "a full first drafting attempt must remain available after both analysis windows",
   );
+});
+
+test("evidence-analysis output budget scales for production-sized requirement inventories", () => {
+  assert.equal(tailoringAnalysisTokenBudget(29), 10_250);
+  assert.equal(tailoringAnalysisTokenBudget(50), 12_000);
+  assert.equal(tailoringAnalysisTokenBudget(0), 5_200);
 });
 
 test("tailoring rejects a missing authorization header before external work", async () => {
@@ -280,6 +310,39 @@ test("analysis-only mode returns shared evidence assessment without requesting a
   assert.equal(res.body.resume, undefined);
   assert.deepEqual(requestedTools, ["return_tailoring_analysis"]);
   assert.equal(res.body.ats_review.status, "analysis_only");
+});
+
+test("tailoring evidence analysis uses the strict OpenAI contract and explicit low reasoning", async () => {
+  let analysisRequest;
+  const handler = createTailorHandler({
+    authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
+    loadListing: async (_client, id) => ({
+      id,
+      title: "Operations Lead",
+      company: "Cedar",
+      category: "business",
+      description: "Lead stakeholder programs and operational delivery across the organization.",
+    }),
+    fetchImpl: async (_url, options) => {
+      analysisRequest = JSON.parse(options.body);
+      return openAIToolResponse("return_tailoring_analysis", analysisInput());
+    },
+    getOpenAIKey: () => "openai-test-key",
+    getApiKey: () => "",
+  });
+  const res = responseRecorder();
+
+  await handler({
+    method: "POST",
+    headers: { authorization: "Bearer valid" },
+    body: { resume: "Avery Chen\nLed stakeholder programs.", listingId: "strict", analysisOnly: true },
+  }, res);
+
+  assert.equal(res.statusCode, 200);
+  assert.equal(analysisRequest.max_output_tokens, 7_500);
+  assert.equal(analysisRequest.reasoning.effort, "low");
+  assert.equal(analysisRequest.tools[0].strict, true);
+  assertRecursivelyClosedSchema(analysisRequest.tools[0].parameters);
 });
 
 test("tailoring automatically repairs one unsafe model draft before returning it", async () => {
