@@ -1,33 +1,57 @@
+import { coverLetterLengthPolicy } from "./coverLetterControls.js";
 const words = (value) => String(value || "").trim().split(/\s+/).filter(Boolean);
-const FILLER = /\b(?:aligns? closely|provides? a practical basis|(?:this|these) (?:combination|strengths?) equips? me|disciplined approach|uniquely positioned|proven track record)\b/i;
+const FILLER = /\b(?:aligns? closely|provides? a practical basis|(?:this|these) (?:combination|strengths?) equips? me|disciplined approach|uniquely positioned|proven track record|(?:this|that) (?:experience|background|involvement) is (?:directly relevant|well suited)|equip(?:s)? me to drive|pair (?:that|this) .*discipline with)\b/i;
+const CLICHES = /\b(?:highly motivated|results[- ]driven|valuable asset|exceptional interpersonal skills|excellent communication skills|dynamic professional|extensive experience|stakeholder[- ]facing (?:technical and business )?expertise)\b/i;
+const normalizedWords = (value) => words(String(value).toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, ""));
+
+export function reviewEditorialText(text) {
+  const issues = [];
+  if (FILLER.test(text)) issues.push({ code: "generic_bridge", advice: "Cut the generic claim of relevance, or replace it with a specific connection supported by the example." });
+  if (CLICHES.test(text)) issues.push({ code: "empty_self_description", advice: "Replace broad self-description with a specific responsibility, example, or supported result; otherwise omit it." });
+  if (String(text).split(/(?<=[.!?])\s+/).some((sentence) => words(sentence).length > 40)) issues.push({ code: "long_sentence", advice: "Split the long sentence around its principal contribution; retain the source's scope and qualifications." });
+  if (words(text).length > 35 && (String(text).match(/[,;|]/g) || []).length >= 7) issues.push({ code: "technical_inventory", advice: "Select the few tools or delivery activities that explain this example instead of listing the full inventory." });
+  return issues;
+}
 
 // Editorial advice is independent of evidence validation: it must never
 // authorize a claim or force a short, factual letter to grow filler.
-export function reviewCoverLetterWriting(paragraphs, length = "standard", { partial = false } = {}) {
+export function reviewCoverLetterWriting(paragraphs, length = "standard", { partial = false, existingDraft } = {}) {
   const issues = [];
   const seen = new Map();
+  const sentencesSeen = new Set();
+  const policy = coverLetterLengthPolicy(length, existingDraft);
   let wordCount = 0;
   for (const paragraph of paragraphs || []) {
     const text = String(paragraph.text || "");
     const count = words(text).length;
     wordCount += count;
-    const add = (code, advice) => issues.push({ paragraphId: paragraph.id, code, advice });
+    const add = (code, advice) => { if (!issues.some((issue) => issue.paragraphId === paragraph.id && issue.code === code)) issues.push({ paragraphId: paragraph.id, code, advice }); };
     if (count > (paragraph.purpose === "closing" ? 45 : 95)) add("dense_paragraph", "Shorten this paragraph around one example; retain the candidate's contribution level.");
-    if (text.split(/(?<=[.!?])\s+/).some((sentence) => words(sentence).length > 45)) add("long_sentence", "Split the long sentence without repeating the same technical inventory.");
-    if (FILLER.test(text)) add("generic_bridge", "Replace the generic bridge with a specific connection to the posted work, or omit it.");
-    const tokens = words(text.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, ""));
+    for (const issue of reviewEditorialText(text)) add(issue.code, issue.advice);
+    for (const sentence of text.split(/(?<=[.!?])\s+/)) {
+      const tokens = normalizedWords(sentence);
+      if (tokens.length < 5) continue;
+      const normalized = tokens.join(" ");
+      if (sentencesSeen.has(normalized)) add("repeated_sentence", "Remove the repeated sentence; each sentence should add information, including within the same paragraph.");
+      sentencesSeen.add(normalized);
+    }
+    const tokens = normalizedWords(text);
     let repeats = false;
     for (let index = 0; index <= tokens.length - 10; index += 1) {
       const phrase = tokens.slice(index, index + 10).join(" ");
-      if (seen.has(phrase) && seen.get(phrase) !== paragraph.id) repeats = true;
-      else seen.set(phrase, paragraph.id);
+      const previous = seen.get(phrase);
+      if (previous && (previous.id !== paragraph.id || index - previous.index >= 10)) repeats = true;
+      else if (!previous) seen.set(phrase, { id: paragraph.id, index });
     }
-    if (repeats) add("repeated_language", "Use a distinct example or cut the language already used in another paragraph.");
+    if (repeats) add("repeated_language", "Use a distinct example or cut substantial phrasing already used in this letter.");
   }
-  if (!partial && wordCount > (length === "short" ? 250 : 350)) {
-    for (const paragraph of paragraphs || []) issues.push({ paragraphId: paragraph.id, code: "letter_length", advice: `Reduce the full letter toward ${length === "short" ? "180–240" : "250–320"} words; keep the strongest evidence.` });
+  if (!partial && wordCount > policy.maxWords) {
+    for (const paragraph of paragraphs || []) issues.push({ paragraphId: paragraph.id, code: "letter_length", advice: `Reduce the full letter to ${policy.maxWords} words or fewer; retain its strongest supported example and remove repeated detail.` });
   }
-  return { wordCount, issues, status: issues.length ? "review" : "pass" };
+  if (!partial && (paragraphs || []).length > policy.maxParagraphs) {
+    for (const paragraph of paragraphs || []) issues.push({ paragraphId: paragraph.id, code: "letter_structure", advice: `Use at most ${policy.maxParagraphs} paragraphs${length === "short" ? " with one principal evidence example" : " with distinct examples"}; omit a redundant paragraph rather than compressing every detail.` });
+  }
+  return { wordCount, issues, status: issues.length ? "review" : "pass", note: "Mechanical writing checks provide suggestions, not a guarantee of persuasive writing or factual accuracy." };
 }
 
 export function mergeCoverLetterParagraphRepair(original, replacement, paragraphIds) {

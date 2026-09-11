@@ -1,0 +1,37 @@
+export const COVER_LETTER_VOICES = Object.freeze([
+  { id: "direct", label: "Direct", description: "Plain, concise, and practical.", instruction: "Use plain, economical sentences. State the contribution directly and omit ceremonial transitions." },
+  { id: "warm", label: "Warm", description: "Conversational and approachable.", instruction: "Use natural first-person phrasing and an approachable conversational rhythm. A simple thank-you is enough; do not invent enthusiasm, personal motivation, admiration, or a relationship with the employer." },
+  { id: "confident", label: "Confident", description: "Assured, with concrete evidence.", instruction: "Lead with the strongest supported contribution and a concrete example. Use assured, restrained phrasing without superlatives, promises, or stronger ownership than the source establishes." },
+]);
+export const COVER_LETTER_LENGTHS = Object.freeze([
+  { id: "short", label: "Short", description: "One example; usually 120–170 words.", maxWords: 180, maxParagraphs: 3 },
+  { id: "standard", label: "Standard", description: "Room for two examples; usually 220–300 words.", maxWords: 320, maxParagraphs: 4 },
+]);
+export const countCoverLetterWords = (paragraphs) => (Array.isArray(paragraphs) ? paragraphs : []).reduce((count, paragraph) => count + String(paragraph?.text || "").trim().split(/\s+/).filter(Boolean).length, 0);
+
+export function coverLetterLengthPolicy(length, existingDraft) {
+  const policy = COVER_LETTER_LENGTHS.find((entry) => entry.id === length) || COVER_LETTER_LENGTHS[1];
+  const previousWords = countCoverLetterWords(existingDraft?.paragraphs);
+  const shortening = policy.id === "short" && existingDraft?.length !== "short" && previousWords > 180;
+  return { ...policy, previousWords: shortening ? previousWords : 0, maxWords: shortening ? Math.min(policy.maxWords, Math.floor(previousWords * 0.75)) : policy.maxWords };
+}
+
+export function coverLetterGenerationSettings({ plan, voice = "direct", length = "standard", paragraphId = "" }) {
+  const selectedVoice = paragraphId ? plan?.voice || voice : voice;
+  const selectedLength = paragraphId ? plan?.length || length : length;
+  return {
+    voice: COVER_LETTER_VOICES.some((entry) => entry.id === selectedVoice) ? selectedVoice : "direct",
+    length: COVER_LETTER_LENGTHS.some((entry) => entry.id === selectedLength) ? selectedLength : "standard",
+  };
+}
+
+export function coverLetterControlInstructions({ voice, length, existingDraft, paragraphId = "" }) {
+  const policy = coverLetterLengthPolicy(length, existingDraft);
+  const voiceRule = (COVER_LETTER_VOICES.find((entry) => entry.id === voice) || COVER_LETTER_VOICES[0]).instruction;
+  const structure = paragraphId
+    ? `Regenerate exactly one paragraph with id "${paragraphId}". Preserve its purpose from EXISTING DRAFT and return only that paragraph. Preserve the current letter's voice and length. Do not retell examples already covered by the other paragraphs.`
+    : policy.id === "short"
+      ? "Return three compact paragraphs: a brief role-specific opening, ONE principal evidence example, and a closing of at most two short sentences. Fold related supporting detail into the example only if essential."
+      : "Return three or four paragraphs: a role-specific opening, one or two DISTINCT principal evidence examples, and a brief professional closing. Add a second example only when it contributes different supported evidence.";
+  return `Voice: ${voice}. ${voiceRule}\nLength: ${policy.id}. ${policy.description} Maximum ${policy.maxWords} words for a full letter.\n${structure}\n${policy.previousWords && !paragraphId ? `The previous letter has ${policy.previousWords} words. Compress it by at least 25% toward the stated maximum, keeping its strongest example and cutting repeated detail. This is an editorial goal, never permission to change facts.\n` : ""}There is no minimum word count. Sparse evidence should produce a brief letter, never padding. An already concise draft does not need invented detail or gratuitous rewriting.`;
+}

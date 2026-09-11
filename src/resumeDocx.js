@@ -1,3 +1,4 @@
+import { resumeRoleHeading, isCompactResumeRole } from "./resumeOrganization.js";
 import { documentSectionRule, documentHeaderRules, documentDocxRule } from "./documentStyleContract.js";
 import {
   assertResumePackageIdentity,
@@ -141,12 +142,23 @@ export async function createResumeDocxBlob(input, template = "professional", opt
       addParagraph(section.items.map((item) => item.text).join(" | "), { spacing: { after: space(80) }, keepLines: true });
     } else if (section.type === "experience") {
       for (const entry of section.items) {
-        const title = [entry.title, entry.employer].filter(Boolean).join(" - ");
-        addParagraph(text(entryHeader(title, entry.location, entry.dateDisplay), { bold: true }), {
-          keepNext: entry.bullets.length > 0,
+        if (entry.groupHeading) addParagraph(text(entry.groupHeading, { bold: true }), { keepNext: true, keepLines: true, spacing: { before: space(80), after: space(40) } });
+        const addRole = (continued = false) => addParagraph(text(resumeRoleHeading(entry, { continued }), { bold: true }), {
+          keepNext: entry.bullets.length > 0 || entry.groupContinues, keepLines: true,
           spacing: { before: space(80), after: space(40) },
         });
-        for (const bullet of entry.bullets) addBullet(bullet.text);
+        addRole();
+        const compact = isCompactResumeRole(entry);
+        let chunkWords = 0;
+        entry.bullets.forEach((bullet, index) => {
+          const wordCount = bullet.text.split(/\s+/).length;
+          // Word controls its own page layout. Keep bounded chunks with their
+          // role label rather than pinning a long role to a single page.
+          if (!compact && chunkWords > 0 && chunkWords + wordCount > 180) { addRole(true); chunkWords = 0; }
+          chunkWords += wordCount;
+          const nextWords = entry.bullets[index + 1]?.text.split(/\s+/).length || 0;
+          addBullet(bullet.text, { keepNext: (index < entry.bullets.length - 1 && (compact || chunkWords + nextWords <= 180)) || (index === entry.bullets.length - 1 && entry.groupContinues), keepLines: wordCount <= 180 });
+        });
       }
     } else if (section.type === "projects") {
       for (const project of section.items) {

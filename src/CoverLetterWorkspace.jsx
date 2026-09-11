@@ -1,3 +1,4 @@
+import { coverLetterGenerationSettings } from "./coverLetterControls.js";
 import { reviewCoverLetterWriting } from "./coverLetterWriting.js";
 import { CoverLetterDocument } from "./CoverLetterDocument.jsx";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -129,18 +130,16 @@ export function CoverLetterWorkspace({
     setState("generating");
     setMessage(null);
     try {
-      const raw = await generateCoverLetter(requestPayload(regenerateParagraph ? {
-        regenerateParagraph,
-        existingDraft: plan,
-      } : {}), { signal: controller.signal });
+      const settings = coverLetterGenerationSettings({ plan, voice, length, paragraphId: regenerateParagraph });
+      const raw = await generateCoverLetter(requestPayload({ ...settings, existingDraft: requiresFreshDraft ? undefined : plan, ...(regenerateParagraph ? { regenerateParagraph } : {}) }), { signal: controller.signal });
       if (regenerateParagraph) {
         const replacement = raw.paragraphs?.[0];
         if (!replacement) throw new Error("The regenerated paragraph was incomplete.");
-        const combined = { ...plan, paragraphs: plan.paragraphs.map((entry) => entry.id === regenerateParagraph ? replacement : entry), voice, length };
-        persist(createCoverLetterPlan(combined, { ...context, voice, length }));
+        const combined = { ...plan, paragraphs: plan.paragraphs.map((entry) => entry.id === regenerateParagraph ? replacement : entry), ...settings };
+        persist(createCoverLetterPlan(combined, { ...context, ...settings }));
         setMessage({ type: "info", text: "The paragraph was regenerated from the same verified evidence." });
       } else {
-        persist(createCoverLetterPlan(raw, { ...context, voice, length }));
+        persist(createCoverLetterPlan(raw, { ...context, ...settings }));
         setMessage({ type: "info", text: "Draft ready. Read the preview; sources and editing are available above the letter." });
       }
       setEditingId("");
@@ -217,6 +216,11 @@ export function CoverLetterWorkspace({
         </label>
       </div>
 
+      {plan && !requiresFreshDraft ? <p data-cover-letter-draft-settings style={{ color: C.textSub, fontSize: 12, lineHeight: 1.5 }}>
+        Current draft: {COVER_LETTER_VOICES.find((option) => option.id === plan.voice)?.label} · {COVER_LETTER_LENGTHS.find((option) => option.id === plan.length)?.label} · {writingReview.wordCount} words.
+        {voice !== plan.voice || length !== plan.length ? " Your selections apply when you generate a fresh draft. Regenerating one paragraph keeps the current draft settings." : ""}
+      </p> : null}
+
       <div style={{ display: "flex", gap: 9, flexWrap: "wrap", marginTop: 14 }}>
         <button type="button" onClick={handleGenerate} disabled={busy} className="wl-btn" style={{ ...primaryBtnStyle(busy), fontSize: 13, padding: "9px 15px" }}>{state === "generating" ? <Loader2 size={13} className="wl-spin" /> : <Sparkles size={13} />}{requiresFreshDraft ? "Regenerate cover letter" : plan ? "Generate a fresh draft" : "Create cover letter"}</button>
         {onAddResume ? <button type="button" onClick={onAddResume} disabled={busy} className="wl-btn" style={{ minHeight: 44, border: `1px solid ${C.border}`, borderRadius: 980, background: C.bgCard, color: C.text, padding: "9px 14px", fontWeight: 700 }}>Add a tailored résumé</button> : null}
@@ -236,7 +240,7 @@ export function CoverLetterWorkspace({
             {[["preview", "Preview"], ["edit", "Edit letter"], ["sources", "Sources and relevance"]].map(([mode, label]) => <button key={mode} type="button" aria-pressed={documentMode === mode} onClick={() => setDocumentMode(mode)} className="wl-btn" style={{ border: `1px solid ${C.border}`, borderRadius: 999, background: documentMode === mode ? C.blueTint : C.bgCard, color: C.text, padding: "9px 14px" }}>{label}</button>)}
           </div>
           {documentMode === "edit" ? <div className="document-controls" aria-label="Letter editing panel" style={{ padding: 18, marginBottom: 18, border: `1px solid ${C.border}`, borderRadius: 12 }}>
-            <p style={{ color: C.textSub, fontSize: 12, margin: "0 0 14px" }}>{writingReview.wordCount} words · {writingReview.issues.length ? "There are optional writing suggestions below." : "Length and readability checks passed."}</p>
+            <p style={{ color: C.textSub, fontSize: 12, margin: "0 0 14px" }}>{writingReview.wordCount} words · {writingReview.issues.length ? "There are optional writing suggestions below." : "No issues found by the mechanical writing checks. Review the argument and facts yourself."}</p>
             {plan.paragraphs.map((paragraph) => (
               <section key={paragraph.id} aria-label={`Edit ${PURPOSE_LABELS[paragraph.purpose] || "paragraph"}`} style={{ marginBottom: 15 }}>
                 {writingReview.issues.filter((issue) => issue.paragraphId === paragraph.id).map((issue) => <p key={issue.code} style={{ color: C.textSub, fontSize: 11.5, lineHeight: 1.5, margin: "4px 0" }}>{issue.advice}</p>)}

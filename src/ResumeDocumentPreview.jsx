@@ -1,3 +1,4 @@
+import { resumeRoleHeading, isCompactResumeRole } from "./resumeOrganization.js";
 import { documentHeaderRules, documentSectionRule, documentCssRule } from "./documentStyleContract.js";
 import { forwardRef } from "react";
 
@@ -21,6 +22,7 @@ function SectionHeading({ children, tokens }) {
           : { paddingBottom: 4, borderBottom: `1px solid ${tokens.rule}` };
   return (
     <h2 style={{
+      breakAfter: "avoid-page",
       margin: treatment === "compact-rule" ? `${13 * rhythm}px 0 ${6 * rhythm}px` : `${18 * rhythm}px 0 ${8 * rhythm}px`,
       color: tokens.accent,
       fontFamily: tokens.displayFontFamily || tokens.fontFamily,
@@ -65,12 +67,9 @@ function SectionBody({ section, tokens }) {
   }
   if (section.type === "experience") {
     return section.items.map((entry) => (
-      <article key={entry.id} data-resume-entry={entry.id} style={{ marginBottom: (tokens.sectionTreatment === "compact-rule" ? 9 : 12) * rhythm, breakInside: "avoid-page" }}>
-        <p style={{ ...bodyStyle(tokens), fontWeight: 700 }}>
-          {[entry.title, entry.employer].filter(Boolean).join(" - ")}
-          {entry.location ? <span style={{ color: tokens.muted, fontWeight: 400 }}> | {entry.location}</span> : null}
-          {entry.dateDisplay ? <span style={{ color: tokens.muted, fontWeight: 400 }}> | {entry.dateDisplay}</span> : null}
-        </p>
+      <article key={entry.id} data-resume-entry={entry.id} style={{ marginBottom: (tokens.sectionTreatment === "compact-rule" ? 9 : 12) * rhythm, breakAfter: entry.groupContinues ? "avoid-page" : "auto", breakInside: isCompactResumeRole(entry) ? "avoid-page" : "auto" }}>
+        {entry.groupHeading ? <p data-resume-employer-group style={{ ...bodyStyle(tokens), fontWeight: 700, marginBottom: 5, breakAfter: "avoid-page" }}>{entry.groupHeading}</p> : null}
+        <p style={{ ...bodyStyle(tokens), fontWeight: entry.grouped ? 600 : 700, breakAfter: "avoid-page" }}>{resumeRoleHeading(entry)}</p>
         <BulletList bullets={entry.bullets} tokens={tokens} />
       </article>
     ));

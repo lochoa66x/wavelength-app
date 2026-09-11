@@ -1,3 +1,4 @@
+import { resumeRoleHeading, isCompactResumeRole } from "./resumeOrganization.js";
 import { documentSectionText, documentSectionRule, documentHeaderRules, DOCUMENT_BULLET } from "./documentStyleContract.js";
 import {
   assertResumePackageIdentity,
@@ -24,7 +25,8 @@ const PRINT_STYLES = `
   body { color: #17191c; font-family: Arial, Helvetica, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   main { width: 8.5in; min-height: 11in; margin: 0 auto; }
   [data-resume-preview] { width: 8.5in !important; min-height: 11in; margin: 0 !important; border-radius: 0 !important; box-shadow: none !important; }
-  [data-resume-section], [data-resume-entry] { break-inside: avoid-page; page-break-inside: avoid; }
+  [data-resume-section] { break-inside: auto; }
+  [data-resume-preview] h2 { break-after: avoid-page; }
   [data-resume-preview] p, [data-resume-preview] li { orphans: 2; widows: 2; }
   [data-resume-preview] li { break-inside: avoid; page-break-inside: avoid; }
   @page { size: Letter; margin: 0; }
@@ -40,7 +42,7 @@ function escapeHtml(value) {
 }
 
 function pdfSafeText(value) {
-  return cleanScalar(value)
+  return cleanScalar(value, Number.POSITIVE_INFINITY)
     .replace(/[–—]/g, "-")
     .replace(/[•·]/g, "-")
     .replace(/[“”]/g, '"')
@@ -90,7 +92,7 @@ async function createResumePdfDocument(input, template = "professional", options
     y = page.top;
   };
   const ensureSpace = (height) => {
-    if (y + height > page.height - page.bottom) newPage();
+    if (y > page.top && y + height > page.height - page.bottom) newPage();
   };
   const wrappedLines = (value, width, size = tokens.bodyFontSizePt, style = "normal", font = pdfFont) => {
     doc.setFont(font, style);
@@ -152,21 +154,36 @@ async function createResumePdfDocument(input, template = "professional", options
     y += gap(treatment === "compact-rule" ? 5 : 7);
   };
   const paragraph = (value, overrides = {}) => writeLines(value, { size: tokens.bodyFontSizePt, leading: bodyLeading, after: gap(4), ...overrides });
-  const bullet = (value) => {
+  const bullet = (value, onContinuation = () => {}) => {
     const bulletX = page.left + 2;
     const textX = page.left + 14;
-    const width = page.width - page.right - textX;
-    const lines = wrappedLines(value, width, tokens.bodyFontSizePt);
+    const lines = wrappedLines(value, contentWidth - 14, tokens.bodyFontSizePt);
     if (!lines.length) return;
-    const height = lines.length * bodyLeading;
-    ensureSpace(height + gap(4));
-    doc.setFont(pdfFont, "normal");
-    doc.setFontSize(tokens.bodyFontSizePt);
-    doc.setTextColor(23, 25, 28);
-    doc.text(DOCUMENT_BULLET, bulletX, y, { baseline: "top" });
-    doc.text(lines, textX, y, { baseline: "top", lineHeightFactor: tokens.bodyLineHeight });
-    y += height + gap(4);
+    const height = lines.length * bodyLeading + gap(4);
+    const nextPage = () => { newPage(); onContinuation(); };
+    // Keep a normal bullet together. Oversized bullets are written in bounded
+    // line batches, with the role repeated whenever a new page is required.
+    if (height <= page.height - page.top - page.bottom - 50 && y + height > page.height - page.bottom && y > page.top) nextPage();
+    let offset = 0;
+    while (offset < lines.length) {
+      let available = Math.floor((page.height - page.bottom - y - gap(4)) / bodyLeading);
+      if (available < Math.min(2, lines.length - offset)) { nextPage(); available = Math.floor((page.height - page.bottom - y - gap(4)) / bodyLeading); }
+      const count = Math.min(Math.max(1, available), lines.length - offset);
+      doc.setFont(pdfFont, "normal");
+      doc.setFontSize(tokens.bodyFontSizePt);
+      doc.setTextColor(23, 25, 28);
+      if (offset === 0) doc.text(DOCUMENT_BULLET, bulletX, y, { baseline: "top" });
+      doc.text(lines.slice(offset, offset + count), textX, y, { baseline: "top", lineHeightFactor: tokens.bodyLineHeight });
+      y += count * bodyLeading + gap(4);
+      offset += count;
+      if (offset < lines.length) nextPage();
+    }
   };
+  const roleHeadingHeight = (entry) => [entry.groupHeading, resumeRoleHeading(entry)].filter(Boolean)
+    .reduce((height, line) => height + wrappedLines(line, contentWidth, 10.2, "bold").length * 10.2 * tokens.bodyLineHeight + 3, 0);
+  const roleBlockHeight = (entry) => roleHeadingHeight(entry) + entry.bullets.reduce((height, value) => height + wrappedLines(value.text, contentWidth - 14).length * bodyLeading + gap(4), 2);
+  const roleLeadHeight = (entry) => roleHeadingHeight(entry) + Math.min(3, wrappedLines(entry.bullets[0]?.text || "", contentWidth - 14).length) * bodyLeading + gap(4);
+
   const projectBlockHeight = (project) => {
     const projectHeading = [project.name, project.organization].filter(Boolean).join(" - ");
     const dates = [project.startDate, project.endDate].filter(Boolean).join(" - ");
@@ -183,8 +200,8 @@ async function createResumePdfDocument(input, template = "professional", options
     if (section.type === "paragraph") return wrappedLines(first.text, contentWidth).length * bodyLeading + 4;
     if (section.type === "inline-list") return wrappedLines(section.items.map((item) => item.text).join(" | "), contentWidth).length * bodyLeading + 4;
     if (section.type === "experience") {
-      const firstBullet = first.bullets[0]?.text || "";
-      return 19 + wrappedLines(firstBullet, contentWidth - 14).length * bodyLeading;
+      if (first.groupSize) return section.items.slice(0, first.groupSize).reduce((height, entry) => height + roleBlockHeight(entry), 0);
+      return isCompactResumeRole(first) ? roleBlockHeight(first) : roleLeadHeight(first);
     }
     if (section.type === "projects") {
       // Keep a small renderer buffer so the section heading and the first
@@ -266,11 +283,13 @@ async function createResumePdfDocument(input, template = "professional", options
     } else if (section.type === "inline-list") {
       paragraph(section.items.map((item) => item.text).join(" | "));
     } else if (section.type === "experience") {
-      for (const entry of section.items) {
-        const firstBullet = entry.bullets[0]?.text || "";
-        ensureSpace(19 + wrappedLines(firstBullet, contentWidth - 14).length * bodyLeading);
-        writeLines(joined([[entry.title, entry.employer].filter(Boolean).join(" - "), entry.location, entry.dateDisplay]), { size: 10.2, style: "bold", leading: 10.2 * tokens.bodyLineHeight, after: 3, ensure: false });
-        for (const value of entry.bullets) bullet(value.text);
+      for (const [entryIndex, entry] of section.items.entries()) {
+        const groupHeight = entry.groupSize ? section.items.slice(entryIndex, entryIndex + entry.groupSize).reduce((height, member) => height + roleBlockHeight(member), 0) : 0;
+        ensureSpace(groupHeight || (isCompactResumeRole(entry) ? roleBlockHeight(entry) : roleLeadHeight(entry)));
+        const writeRole = (continued = false) => writeLines(resumeRoleHeading(entry, { continued }), { size: 10.2, style: "bold", leading: 10.2 * tokens.bodyLineHeight, after: 3, ensure: false });
+        if (entry.groupHeading) writeLines(entry.groupHeading, { size: 10.2, style: "bold", leading: 10.2 * tokens.bodyLineHeight, after: 3, ensure: false });
+        writeRole();
+        for (const value of entry.bullets) bullet(value.text, () => writeRole(true));
         y += 2;
       }
     } else if (section.type === "projects") {

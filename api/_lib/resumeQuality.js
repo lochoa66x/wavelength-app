@@ -1,3 +1,5 @@
+import { organizeResumeSections, readResumeSections, resumeSectionKind } from "../../src/resumeOrganization.js";
+
 const PLACEHOLDER_IDENTITY = /^(?:<\s*)?(?:unknown|unnamed|name unavailable|candidate|n\/?a|null|undefined)(?:\s*>)?$/i;
 
 const UNVERIFIED_PROGRESS_PATTERNS = [
@@ -254,12 +256,12 @@ function weightedRelevanceScore(value, weights) {
   return [...valueTokens].reduce((score, token) => score + (weights.get(token) || 0), 0);
 }
 
-function similarity(left, right) {
-  const a = new Set(normalized(left).split(" ").filter((token) => token.length > 3 && !TOKEN_STOPWORDS.has(token)));
-  const b = new Set(normalized(right).split(" ").filter((token) => token.length > 3 && !TOKEN_STOPWORDS.has(token)));
-  if (!a.size || !b.size) return 0;
-  const overlap = [...a].filter((token) => b.has(token)).length;
-  return overlap / Math.max(1, Math.min(a.size, b.size));
+function redundantBullet(candidate, kept) {
+  const proposed = normalized(candidate);
+  const existing = normalized(kept);
+  // A shared technical vocabulary does not prove redundancy. Only remove
+  // an exact duplicate or a complete opening statement already retained.
+  return proposed === existing || (proposed.split(" ").length >= 6 && existing.startsWith(`${proposed} `));
 }
 
 function entryId(entry, index) {
@@ -275,11 +277,9 @@ function restoreRequiredEducation(resumeData, analysis, baseResume) {
   const lines = String(baseResume || "")
     .split(/\r?\n/)
     .map((value) => value.replace(/^[\s•*-]+/, "").replace(/\s+/g, " ").trim());
-  const educationHeadingIndex = lines.findIndex((value) => /^education$/i.test(value));
+  const educationHeadingIndex = lines.findIndex((value) => resumeSectionKind(value) === "education");
   const section = educationHeadingIndex >= 0
-    ? lines.slice(educationHeadingIndex + 1, educationHeadingIndex + 7)
-      .filter(Boolean)
-      .filter((value) => !NEXT_SECTION_HEADING_PATTERN.test(value))
+    ? readResumeSections(baseResume).find((section) => section.kind === "education")?.lines.slice(0, 6) || []
     : [];
   const sectionDegreeIndex = section.findIndex((value) => DEGREE_EVIDENCE_PATTERN.test(value));
   const degree = sectionDegreeIndex >= 0
@@ -297,51 +297,8 @@ function restoreRequiredEducation(resumeData, analysis, baseResume) {
 
 const SAP_TRAINING_PATTERN = /\b(?:sap|fi[- ]?ca|pscd|s\/?4hana|asap)\b/i;
 
-const TRAINING_HEADING_PATTERN = /^(?:professional\s+)?(?:training|courses?)$/i;
-const NEXT_SECTION_HEADING_PATTERN = /^(?:professional\s+)?(?:experience|employment|education|certifications?|training|languages?|skills?|projects?|summary|profile)$/i;
-
 function restoreRelevantTraining(resumeData, baseResume) {
-  const lines = String(baseResume || "")
-    .split(/\r?\n/)
-    .map((value) => value.replace(/^[\s•*-]+/, "").replace(/\s+/g, " ").trim());
-  const headingIndex = lines.findIndex((line) => TRAINING_HEADING_PATTERN.test(line));
-  if (headingIndex < 0) return resumeData;
-
-  const parsed = [];
-  for (const line of lines.slice(headingIndex + 1, headingIndex + 21)) {
-    if (!line) continue;
-    if (NEXT_SECTION_HEADING_PATTERN.test(line)) break;
-    if (line.length > 180) continue;
-    const [name, ...providerParts] = line.split("|").map((part) => part.trim()).filter(Boolean);
-    if (!name) continue;
-    parsed.push({
-      name,
-      provider: providerParts.join(" | "),
-      dates: "",
-      restored_from_verified_evidence: true,
-    });
-  }
-  if (!parsed.length) return resumeData;
-
-  const training = [];
-  const courseIdentity = (entry) => {
-    const [name, ...inlineProvider] = String(entry?.name || "").split(",");
-    return {
-      name: normalized(name).replace(/^sap /, "").replace(/\bcollaterals\b/g, "collateral"),
-      provider: normalized(entry?.provider || inlineProvider.join(",")),
-      dates: normalized(entry?.dates || ""),
-    };
-  };
-  for (const entry of [...(Array.isArray(resumeData?.training) ? resumeData.training : []), ...parsed]) {
-    const key = courseIdentity(entry);
-    // Preserve distinct providers and dates; do not infer that similar courses are identical.
-    if (training.some((item) => {
-      const other = courseIdentity(item);
-      return key.name === other.name && key.provider === other.provider && key.dates === other.dates;
-    })) continue;
-    training.push(entry);
-  }
-  return { ...resumeData, training };
+  return organizeResumeSections(resumeData, baseResume);
 }
 
 function focusRelevantTraining(resumeData, analysis) {
@@ -395,9 +352,9 @@ function focusResume(resumeData, analysis) {
     const kept = [];
 
     for (const candidate of source) {
-      const duplicate = seenBullets.find((existing) => existing.experienceId === id && similarity(candidate.value, existing.value) >= 0.78);
+      const duplicate = seenBullets.find((existing) => existing.experienceId === id && redundantBullet(candidate.value, existing.value));
       if (duplicate) {
-        duplicateGroups.push({ kept: duplicate.value, omitted: candidate.value, reason: "Near-duplicate accomplishment" });
+        duplicateGroups.push({ kept: duplicate.value, omitted: candidate.value, reason: "Statement already present in the retained accomplishment" });
         omittedBullets.push({ experience_id: id, bullet: candidate.value, reason: "near_duplicate" });
         continue;
       }

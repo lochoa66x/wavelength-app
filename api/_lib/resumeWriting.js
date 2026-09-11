@@ -1,3 +1,4 @@
+import { reviewEditorialText } from "../../src/coverLetterWriting.js";
 const OCCUPATION_PROFILES = Object.freeze({
   sap_functional: {
     patterns: /\b(sap|erp|s\/4hana|s4hana|fi-ca|pscd|functional consultant|business analyst)\b/i,
@@ -174,12 +175,22 @@ export function buildWritingReview(resumeData, baseResume, options = {}) {
   });
   const preferredVerbs = OCCUPATION_PROFILES[profile].verbs;
   const issues = [];
+  for (const issue of reviewEditorialText(resumeData?.profile || "")) {
+    issues.push({ ...issueRecord({ type: issue.code, experience: {}, experienceIndex: -1, bullet: resumeData.profile, bulletIndex: -1, explanation: issue.advice, profile }), section: "summary" });
+  }
 
   for (const [experienceIndex, experience] of (resumeData?.experience || []).entries()) {
     const currentRole = isCurrent(experience?.dates);
     for (const [bulletIndex, rawBullet] of (experience?.bullets || []).entries()) {
       const bullet = String(rawBullet || "").trim();
       if (!bullet) continue;
+      for (const issue of reviewEditorialText(bullet)) {
+        issues.push(issueRecord({ type: issue.code, experience, experienceIndex, bullet, bulletIndex, explanation: issue.advice, profile }));
+      }
+      const preceding = (experience?.bullets || []).slice(0, bulletIndex);
+      if (preceding.some((previous) => normalized(previous) === normalized(bullet))) {
+        issues.push(issueRecord({ type: "repeated_bullet", experience, experienceIndex, bullet, bulletIndex, explanation: "This bullet repeats an earlier statement in the same role. Retain it once.", profile }));
+      }
       const opening = firstWord(bullet);
       const citations = bestResumeCitation(bullet, baseResume);
       const candidateCitation = matchingCandidateCitation(bullet, options.analysis);

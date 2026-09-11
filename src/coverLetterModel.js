@@ -1,3 +1,4 @@
+import { COVER_LETTER_VOICES, COVER_LETTER_LENGTHS } from "./coverLetterControls.js";
 import { hasInternalDocumentLanguage, claimMeaningIssues, contributionEditIssue, coverLetterRecipientAddress } from "./documentIntegrity.js";
 import { createResumePackage, stableHash } from "./resumeModel.js";
 import { hasUsableResumeIdentity, hasVerifiedPosting } from "./resumeReadiness.js";
@@ -5,15 +6,7 @@ import { createApplicationPresentation, validateApplicationPresentation } from "
 import { containsSelfDisqualifyingCoverLetterLanguage } from "./coverLetterLanguage.js";
 
 export const COVER_LETTER_SCHEMA_VERSION = 1;
-export const COVER_LETTER_VOICES = Object.freeze([
-  { id: "direct", label: "Direct", description: "Concise and practical." },
-  { id: "warm", label: "Warm", description: "Personable without invented enthusiasm." },
-  { id: "confident", label: "Confident", description: "Assured and focused on verified strengths." },
-]);
-export const COVER_LETTER_LENGTHS = Object.freeze([
-  { id: "short", label: "Short", description: "About 180–240 words." },
-  { id: "standard", label: "Standard", description: "About 250–320 words." },
-]);
+export { COVER_LETTER_VOICES, COVER_LETTER_LENGTHS } from "./coverLetterControls.js";
 
 const VOICES = new Set(COVER_LETTER_VOICES.map(({ id }) => id));
 const LENGTHS = new Set(COVER_LETTER_LENGTHS.map(({ id }) => id));

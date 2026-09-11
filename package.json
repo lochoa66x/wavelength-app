@@ -16,7 +16,8 @@
     "verify:exports": "node scripts/verifyResumeExports.mjs",
     "verify:cover-letters": "node scripts/verifyCoverLetterExports.mjs",
     "verify:document-quality": "node scripts/verifyDocumentQuality.mjs",
-    "verify:presentation-prototypes": "node scripts/verifyPresentationPrototypes.mjs"
+    "verify:presentation-prototypes": "node scripts/verifyPresentationPrototypes.mjs",
+    "verify:organization-editorial": "node scripts/verifyOrganizationEditorial.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.112.3",

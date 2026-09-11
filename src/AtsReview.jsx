@@ -27,7 +27,7 @@ function WritingReview({ writingReview, C }) {
         {writingReview.issues.map((issue) => (
           <article key={issue.id} style={{ background: C.bgCard, border: `1px solid ${issue.severity === "blocked" ? (C.redBorder || C.amberBorder) : C.border}`, borderRadius: 10, padding: "10px 11px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", gap: 8, alignItems: "flex-start" }}>
-              <strong style={{ color: C.text, fontSize: 12 }}>{issue.role || "Experience"} · bullet {Number(issue.bullet_index || 0) + 1}</strong>
+              <strong style={{ color: C.text, fontSize: 12 }}>{issue.section === "summary" ? "Professional summary" : `${issue.role || "Experience"} · bullet ${Number(issue.bullet_index || 0) + 1}`}</strong>
               <span style={{ color: issue.severity === "blocked" ? C.red : C.amber, fontSize: 10.5, fontWeight: 750, textTransform: "capitalize" }}>{String(issue.issue_type || "review").replaceAll("_", " ")}</span>
             </div>
             <p style={{ color: C.textSub, fontSize: 11.75, lineHeight: 1.45, margin: "6px 0 0" }}>“{issue.original}”</p>

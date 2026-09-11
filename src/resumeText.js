@@ -1,10 +1,10 @@
+import { resumeRoleHeading } from "./resumeOrganization.js";
 import { buildResumeRenderPlan, createResumePackage } from "./resumeModel.js";
 import { validateResumeExportContext } from "./resumeReadiness.js";
 
 function itemLines(section, item) {
   if (section.type === "experience") {
-    const header = [item.title, item.employer].filter(Boolean).join(" - ");
-    return [[header, item.location, item.dateDisplay].filter(Boolean).join(" | "), ...item.bullets.map((bullet) => `- ${bullet.text}`)];
+    return [item.groupHeading, resumeRoleHeading(item), ...item.bullets.map((bullet) => `- ${bullet.text}`)];
   }
   if (section.type === "projects") {
     return [[item.name, item.organization].filter(Boolean).join(" - "), [item.startDate, item.endDate].filter(Boolean).join(" - "), item.description, ...item.bullets.map((bullet) => `- ${bullet.text}`)];

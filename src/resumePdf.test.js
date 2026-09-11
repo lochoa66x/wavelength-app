@@ -94,7 +94,7 @@ test("direct PDF keeps compact project bullets together across a page boundary",
   const projectPage = extracted.pageTexts.find((page) => page.includes("Program Launch Content"));
 
   assert.ok(projectPage, "expected the second marketing project in the PDF");
-  assert.match(projectPage, /Verified Projects/i);
+  assert.match(projectPage, /Selected Projects/i);
   assert.match(projectPage, /Created approved email, landing-page, and social copy/);
   assert.match(projectPage, /Reported channel activity using documented HubSpot and Google Analytics records/);
 });

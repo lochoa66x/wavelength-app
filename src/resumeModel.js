@@ -1,3 +1,4 @@
+import { organizeResumeSections, groupResumeExperience, professionalContactLine } from "./resumeOrganization.js";
 import { PRESENTATION_PROTOTYPES_ENABLED } from "./presentationPrototypeConfig.js";
 
 export const RESUME_SCHEMA_VERSION = 2;
@@ -297,7 +298,7 @@ export const RESUME_TEMPLATE_REGISTRY = Object.freeze({
     description: "Evidence-first presentation for professional applications led by verified transferable strengths.",
     intendedUse: "Candidates relying on verified transferable evidence",
     accent: "#6b513d",
-    sectionOrder: ["summary", "skills", "projects", "training", "experience", "certifications", "education", "languages", "safety"],
+    sectionOrder: ["summary", "skills", "experience", "projects", "education", "certifications", "training", "languages", "safety"],
   }),
   [TEMPLATE_IDS.TECHNICAL_SOFTWARE]: templateDefinition({
     id: TEMPLATE_IDS.TECHNICAL_SOFTWARE,
@@ -1700,7 +1701,7 @@ export function createResumePackage(resumeData = {}, {
       },
     };
   }
-  const source = resumeData && typeof resumeData === "object" && !Array.isArray(resumeData) ? resumeData : {};
+  const source = organizeResumeSections(resumeData && typeof resumeData === "object" && !Array.isArray(resumeData) ? resumeData : {});
   const warnings = [];
   const evidenceItems = {};
   const contact = normalizeContact(source, warnings);
@@ -1842,7 +1843,7 @@ function safeSectionHeading(section, templateId, classification) {
       : templateId === TEMPLATE_IDS.PROJECT_LEADERSHIP && isLeadership
         ? "Project Delivery Profile"
         : templateId === TEMPLATE_IDS.CAREER_TRANSITION && isTransition
-          ? "Transferable Strengths Summary"
+          ? "Professional Summary"
           : templateId === TEMPLATE_IDS.TECHNICAL_SOFTWARE && isTechnical
             ? "Technical Profile"
             : templateId === TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS && isAdminCustomer
@@ -1863,7 +1864,7 @@ function safeSectionHeading(section, templateId, classification) {
       : templateId === TEMPLATE_IDS.PROJECT_LEADERSHIP && isLeadership
         ? "Core Expertise"
         : templateId === TEMPLATE_IDS.CAREER_TRANSITION && isTransition
-          ? "Transferable Strengths"
+          ? "Core Skills"
           : templateId === TEMPLATE_IDS.TECHNICAL_SOFTWARE && isTechnical
             ? "Technical Skills"
             : templateId === TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS && isAdminCustomer
@@ -1902,7 +1903,7 @@ function safeSectionHeading(section, templateId, classification) {
               ? "Selected Creative Projects"
               : templateId === TEMPLATE_IDS.CREATIVE_DESIGN && isCreativeAdjacent
                 ? "Selected Visual Content Projects"
-        : "Verified Projects",
+        : "Selected Projects",
     training: templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade ? "Training & Apprenticeship" : "Professional Training",
     certifications: templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade ? "Licences & Trade Credentials" : "Certifications",
     safety: templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade ? "Verified Safety Training" : "Safety Training",
@@ -1942,15 +1943,7 @@ function sectionOrderForTemplate(template, classification) {
 }
 
 function contactLine(candidate) {
-  if (candidate.displayLocation) return [candidate.email, candidate.phone, candidate.displayLocation, ...candidate.professionalLinks.map((link) => link.url)].filter(Boolean).join(" | ");
-  if (candidate.contactLine) {
-    const additionalLinks = candidate.professionalLinks
-      .map((link) => link.url)
-      .filter((url) => !candidate.contactLine.includes(url));
-    return [candidate.contactLine, ...additionalLinks].filter(Boolean).join(" | ");
-  }
-  const location = [candidate.city, candidate.region, candidate.country].filter(Boolean).join(", ");
-  return [candidate.email, candidate.phone, location, ...candidate.professionalLinks.map((link) => link.url)].filter(Boolean).join(" | ");
+  return professionalContactLine(candidate);
 }
 
 export function buildResumeRenderPlan(resumePackage, selection, {
@@ -2001,7 +1994,7 @@ export function buildResumeRenderPlan(resumePackage, selection, {
   const order = new Map(sectionOrder.map((id, index) => [id, index]));
   const sections = [...contentPlan.sections]
     .sort((left, right) => (order.get(left.id) ?? 10_000) - (order.get(right.id) ?? 10_000))
-    .map((section) => ({ ...section, heading: safeSectionHeading(section, contentTemplateId, pkg.classification) }));
+    .map((section) => ({ ...section, ...(section.type === "experience" ? { items: groupResumeExperience(section.items) } : {}), heading: safeSectionHeading(section, contentTemplateId, pkg.classification) }));
   const plan = {
     kind: "resume-render-plan",
     schemaVersion: pkg.schemaVersion,
@@ -2043,7 +2036,7 @@ function manifestItem(sectionType, item) {
   if (["experience"].includes(sectionType)) {
     return {
       id: item.id,
-      values: [item.title, item.employer, item.location, item.dateDisplay].filter(Boolean),
+      values: (item.grouped ? [item.groupHeading, item.title] : [item.title, item.employer, item.location, item.dateDisplay]).filter(Boolean),
       bullets: item.bullets.map((bullet) => ({ id: bullet.id, text: bullet.text })),
     };
   }
@@ -2107,6 +2100,7 @@ export function normalizeResumeForLegacyView(resumeData, context = {}) {
     safety_certifications: document.safety.certifications.map((item) => item.text),
     education: document.education.map((entry) => ({ degree: entry.credential, institution: entry.institution, dates: entry.dateDisplay })),
     languages: document.languages.map((entry) => [entry.name, entry.proficiency].filter(Boolean).join(" · ")),
+    additionalSections: document.additionalSections.map((entry) => ({ id: entry.id, title: entry.title, items: entry.items.map((item) => item.text) })),
   };
 }
 
