@@ -1821,7 +1821,7 @@ export function buildResumeContentPlan(resumePackage) {
   });
   if (document.education.length) sections.push({ id: "education", type: "education", items: document.education });
   if (document.languages.length) sections.push({ id: "languages", type: "languages", items: document.languages });
-  for (const section of document.additionalSections) sections.push({ id: `additional:${section.id}`, type: "inline-list", title: section.title, items: section.items });
+  for (const section of document.additionalSections) sections.push({ id: `additional:${section.id}`, type: /volunteer/i.test(section.title) ? "paragraph" : "inline-list", title: section.title, items: section.items });
   return Object.freeze({ kind: "resume-content-plan", schemaVersion: pkg.schemaVersion, contentHash: pkg.contentHash, sections: deepFreeze(sections) });
 }
 
@@ -1847,15 +1847,15 @@ function safeSectionHeading(section, templateId, classification) {
           : templateId === TEMPLATE_IDS.TECHNICAL_SOFTWARE && isTechnical
             ? "Technical Profile"
             : templateId === TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS && isAdminCustomer
-              ? "Operations & Service Profile"
+              ? "Professional Summary"
               : templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade
-                ? "Trade & Field Service Profile"
+                ? "Professional Summary"
                 : templateId === TEMPLATE_IDS.MARKETING_COMMUNICATIONS && isMarketing
                   ? "Marketing & Communications Profile"
                   : templateId === TEMPLATE_IDS.MARKETING_COMMUNICATIONS && isMarketingAdjacent
                     ? "Communications & Content Profile"
                     : templateId === TEMPLATE_IDS.CREATIVE_DESIGN && isCreative
-                      ? classification.verifiedCreativeLeadershipEvidence ? "Creative Leadership Profile" : "Creative & Design Profile"
+                      ? classification.verifiedCreativeLeadershipEvidence ? "Creative Leadership Profile" : "Design Profile"
                       : templateId === TEMPLATE_IDS.CREATIVE_DESIGN && isCreativeAdjacent
                         ? "Visual Content & Production Profile"
                 : "Professional Summary",
@@ -1868,28 +1868,28 @@ function safeSectionHeading(section, templateId, classification) {
           : templateId === TEMPLATE_IDS.TECHNICAL_SOFTWARE && isTechnical
             ? "Technical Skills"
             : templateId === TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS && isAdminCustomer
-              ? "Operations & Customer Service Skills"
+              ? "Skills"
               : templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade
-                ? "Trade & Field Capabilities"
+                ? "Trade Skills"
                 : templateId === TEMPLATE_IDS.MARKETING_COMMUNICATIONS && isMarketing
                   ? "Marketing & Communications Capabilities"
                   : templateId === TEMPLATE_IDS.MARKETING_COMMUNICATIONS && isMarketingAdjacent
                     ? "Communications & Transferable Capabilities"
                     : templateId === TEMPLATE_IDS.CREATIVE_DESIGN && isCreative
-                      ? "Creative Capabilities & Verified Tools"
+                      ? "Skills & Tools"
                       : templateId === TEMPLATE_IDS.CREATIVE_DESIGN && isCreativeAdjacent
                         ? "Visual Content & Production Capabilities"
                 : "Core Skills",
     experience: templateId === TEMPLATE_IDS.TECHNICAL_SOFTWARE && isTechnical
       ? "Technical Experience"
       : templateId === TEMPLATE_IDS.ADMIN_CUSTOMER_OPERATIONS && isAdminCustomer
-        ? "Administrative & Customer Operations Experience"
+        ? "Professional Experience"
         : templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade
-          ? "Trade & Field Experience"
+          ? "Professional Experience"
           : templateId === TEMPLATE_IDS.MARKETING_COMMUNICATIONS && isMarketing
             ? "Marketing & Communications Experience"
             : templateId === TEMPLATE_IDS.CREATIVE_DESIGN && isCreative
-              ? "Creative & Design Experience"
+              ? "Professional Experience"
           : "Professional Experience",
     projects: templateId === TEMPLATE_IDS.TECHNICAL_SOFTWARE && isTechnical
       ? "Technical Projects"
@@ -1906,7 +1906,7 @@ function safeSectionHeading(section, templateId, classification) {
         : "Selected Projects",
     training: templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade ? "Training & Apprenticeship" : "Professional Training",
     certifications: templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade ? "Licences & Trade Credentials" : "Certifications",
-    safety: templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade ? "Verified Safety Training" : "Safety Training",
+    safety: templateId === TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES && isTrade ? "Safety Training" : "Safety Training",
     education: "Education",
     languages: "Languages",
   };
@@ -1925,12 +1925,15 @@ function adaptiveContentTemplateId(classification) {
   return TEMPLATE_IDS.ATS_CORE;
 }
 
-function sectionOrderForTemplate(template, classification) {
+function sectionOrderForTemplate(template, classification, document) {
   const contentTemplate = template.contentProfile === "adaptive"
     ? RESUME_TEMPLATE_REGISTRY[adaptiveContentTemplateId(classification)]
     : template;
+  const heldAccountingCredential = /accountant/i.test(document?.headline || "") && (document?.certifications || []).some(entry => /\bCPA\b/.test(entry.name) && /active|current|valid/i.test(entry.name));
+  if (heldAccountingCredential) return ["summary", "certifications", "skills", "experience", "education", "training", "projects", "languages"];
   if (contentTemplate.id !== TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES || !classification.verifiedTradeEvidence) return contentTemplate.sectionOrder;
-  if (classification.tradeProfileType === "regulated-trade-professional") {
+  const heldTradeCredential = (document?.certifications || []).some(entry => /journeyperson|journeyman|licen[cs]e|registered.*apprentice/i.test(JSON.stringify(entry)) && !/expired|not held|preparation|pending/i.test(JSON.stringify(entry)));
+  if (heldTradeCredential || classification.tradeProfileType === "regulated-trade-professional") {
     return ["summary", "certifications", "safety", "skills", "experience", "projects", "training", "education", "languages"];
   }
   if (classification.tradeProfileType === "apprentice-helper") {
@@ -1990,7 +1993,7 @@ export function buildResumeRenderPlan(resumePackage, selection, {
   const resolvedTemplateId = legacyTemplateId || designId;
   const contentTemplateId = strategyId;
   const contentPlan = buildResumeContentPlan(pkg);
-  const sectionOrder = sectionOrderForTemplate(strategy, pkg.classification);
+  const sectionOrder = sectionOrderForTemplate(strategy, pkg.classification, pkg.document);
   const order = new Map(sectionOrder.map((id, index) => [id, index]));
   const sections = [...contentPlan.sections]
     .sort((left, right) => (order.get(left.id) ?? 10_000) - (order.get(right.id) ?? 10_000))

@@ -29,6 +29,7 @@ export function reviewCoverLetterWriting(paragraphs, length = "standard", { part
     if (count > (paragraph.purpose === "closing" ? 45 : 95)) add("dense_paragraph", "Shorten this paragraph around one example; retain the candidate's contribution level.");
     for (const issue of reviewEditorialText(text)) add(issue.code, issue.advice);
     for (const sentence of text.split(/(?<=[.!?])\s+/)) {
+      if (/^(?:Senior|Registered|Residential|Graphic|Administrative|Customer service|Construction|Warehouse|Finish|Bookkeeper)\b/.test(sentence.trim()) && !/\b(?:I|is|are|was|were|has|have|brings?|leads?|works?|supports?)\b/i.test(sentence)) add("sentence_fragment", "Rewrite this résumé-style fragment as a complete first-person sentence about a supported contribution.");
       const tokens = normalizedWords(sentence);
       if (tokens.length < 5) continue;
       const normalized = tokens.join(" ");

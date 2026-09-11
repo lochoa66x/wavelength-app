@@ -325,6 +325,13 @@ function focusRelevantTraining(resumeData, analysis) {
   return { resume: { ...resumeData, training: kept }, omittedTraining };
 }
 
+function editorialEvidenceBonus(value, weights) {
+  if (weightedRelevanceScore(value, weights) <= 0) return 0;
+  const outcome = /\b(?:reduced|increased|improved|saved|cut)\b/i.test(value) && /\d|\b(?:two|three|four|five|six|seven|eight|nine|ten)\b/i.test(value);
+  const crewScope = /\b(?:led|managed|coordinated|supervised)\b.*\b(?:crew|team)\b/i.test(value);
+  return outcome ? 14 : crewScope ? 10 : 0;
+}
+
 function focusResume(resumeData, analysis) {
   const weights = weightedEvidenceTokens(analysis);
   const transferablePositioning = ["transferable", "career_change"].includes(analysis?.fit_assessment?.path);
@@ -342,10 +349,11 @@ function focusResume(resumeData, analysis) {
       .map((value, bulletIndex) => ({
         value: String(value || "").replace(/\s+/g, " ").trim(),
         bulletIndex,
-        score: weightedRelevanceScore(value, weights) + Math.max(0, 4 - entryIndex),
+        editorialPriority: editorialEvidenceBonus(value, weights),
+        score: weightedRelevanceScore(value, weights) + editorialEvidenceBonus(value, weights) + Math.max(0, 4 - entryIndex),
       }))
       .filter(({ value }) => value)
-      .sort((a, b) => b.score - a.score || a.bulletIndex - b.bulletIndex);
+      .sort((a, b) => b.editorialPriority - a.editorialPriority || b.score - a.score || a.bulletIndex - b.bulletIndex);
     const defaultLimit = entryIndex < 2 ? 3 : entryIndex < 6 ? 2 : 1;
     const remaining = Math.max(1, 16 - totalBullets);
     const limit = Math.min(defaultLimit, remaining);

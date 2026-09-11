@@ -150,7 +150,7 @@ const CAPABILITY_FAMILIES = Object.freeze([
   { id: "sap_requirements_analysis", specificity: "general_delivery", pattern: /\brequirements?\s+(?:analysis|gathering|definition|validation|workshops?)\b|\bbusiness\s+requirements?\b|\brequirement gathering\b/i },
   { id: "sap_configuration", specificity: "general_delivery", pattern: /\bconfigur(?:ation|ations|e|ed|ing)\b/i },
   { id: "sap_integration", specificity: "general_delivery", pattern: /\bintegrat(?:e|ed|ion|ing)\b|\binterfaces?\b/i },
-  { id: "sap_testing", specificity: "general_delivery", pattern: /\b(?:unit|regression|integration|user acceptance|uat)?\s*test(?:ing|s|ed)?\b/i },
+  { id: "testing_inspection", specificity: "general_delivery", pattern: /\b(?:unit|regression|integration|user acceptance|uat)?\s*test(?:ing|s|ed)?\b/i },
   { id: "sap_cutover_go_live", specificity: "general_delivery", pattern: /\bcutover\b|\bgo[- ]?live\b|\bstabili[sz]ation\b/i },
   { id: "sap_deployment", specificity: "general_delivery", pattern: /\bdeploy(?:ment|ments|ed|ing)?\b|\brelease(?:s|d)?\b/i },
   { id: "sap_workshops", specificity: "general_delivery", pattern: /\bworkshops?\b|\bdesign authority\b|\bsteerco\b/i },
@@ -227,6 +227,7 @@ function applicationRiskForRequirement(requirement) {
 function requirementOrigin(requirement) {
   if (ELIGIBILITY_REQUIREMENT_PATTERN.test(requirement.requirement)) return "eligibility";
   if (EXPLICIT_BLOCKER_REQUIREMENT_PATTERN.test(requirement.requirement)) return "credential";
+  if (/\b(?:prepare|manage|own|coordinate|create|maintain)\w*\b.*\b(?:shift|staff|crew|work)\b.*\bschedul/i.test(requirement.requirement)) return requirement.priority === "required" ? "mandatory_qualification" : "responsibility";
   if (SCHEDULE_LOCATION_REQUIREMENT_PATTERN.test(requirement.requirement)) return "schedule_location_constraint";
   if (LANGUAGE_REQUIREMENT_PATTERN.test(requirement.requirement)) return "language_requirement";
   if (requirement.priority === "required") return "mandatory_qualification";

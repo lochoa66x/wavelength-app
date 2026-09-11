@@ -6,6 +6,7 @@ import { createApplicationPresentation, validateApplicationPresentation } from "
 import { containsSelfDisqualifyingCoverLetterLanguage } from "./coverLetterLanguage.js";
 
 export const COVER_LETTER_SCHEMA_VERSION = 1;
+export const COVER_LETTER_PARAGRAPH_LIMIT = 2_400;
 export { COVER_LETTER_VOICES, COVER_LETTER_LENGTHS } from "./coverLetterControls.js";
 
 const VOICES = new Set(COVER_LETTER_VOICES.map(({ id }) => id));
@@ -39,7 +40,7 @@ function sentenceCaseOpening(value) {
 }
 
 function stripEmbeddedSignoff(value) {
-  return clean(value, 2_400)
+  return clean(value, Number.POSITIVE_INFINITY)
     .replace(/\s+(?:sincerely|best regards|kind regards|regards|respectfully)\s*,(?:\s+.{0,180})?$/i, "")
     .trim();
 }
@@ -95,7 +96,7 @@ function normalizeParagraph(raw, index) {
     id: clean(raw?.id, 80) || `paragraph-${index + 1}`,
     purpose,
     text,
-    generatedText: clean(raw?.generatedText ?? raw?.generated_text ?? text, 2_400),
+    generatedText: clean(raw?.generatedText ?? raw?.generated_text ?? text, Number.POSITIVE_INFINITY),
     evidenceRefs: cleanArray(raw?.evidenceRefs ?? raw?.evidence_refs),
     requirementRefs: cleanArray(raw?.requirementRefs ?? raw?.requirement_refs),
     explanation: clean(raw?.explanation, 800),
@@ -168,9 +169,10 @@ export function createCoverLetterPlan(raw = {}, {
 }
 
 export function validateCoverLetterEdit(text, paragraph, { baseResume = "", candidateEvidence = [], item = {} } = {}) {
-  const next = clean(text, 2_400);
+  if (String(text || '').length > COVER_LETTER_PARAGRAPH_LIMIT) return { ok: false, message: `This paragraph is ${String(text).length - COVER_LETTER_PARAGRAPH_LIMIT} characters over the ${COVER_LETTER_PARAGRAPH_LIMIT.toLocaleString('en-US')}-character limit. Shorten it before saving; your draft and full input are preserved.` };
+  const next = clean(text, Number.POSITIVE_INFINITY);
   if (hasInternalDocumentLanguage(next)) return { ok: false, message: "Remove internal application terminology from the letter." };
-  const meaningIssues = claimMeaningIssues(next, paragraph?.evidenceRefs || []);
+  const meaningIssues = claimMeaningIssues(next, paragraph?.evidenceRefs || [], { candidateCorpus: baseResume });
   const contributionIssue = contributionEditIssue(next, paragraph?.evidenceRefs || []);
   if (contributionIssue) meaningIssues.push(contributionIssue);
   if (meaningIssues.length) return { ok: false, message: meaningIssues.join(" ") };
@@ -190,8 +192,6 @@ export function validateCoverLetterEdit(text, paragraph, { baseResume = "", cand
     item?.company,
     ...(candidateEvidence || []).map((entry) => `${entry?.answer || ""} ${entry?.context || ""} ${entry?.employer_or_project || ""}`),
   ].join(" ").toLowerCase();
-  const unsupportedNumbers = (next.match(/\b\d[\d,.%+/-]*\b/g) || []).filter((token) => !allowedCorpus.includes(token.toLowerCase()));
-  if (unsupportedNumbers.length) return { ok: false, message: "The edit adds a number that is not present in the verified résumé or candidate evidence." };
 
   const substantiveWordPattern = /[a-z][a-z0-9+#.-]{2,}[a-z0-9+#]/g;
   const sourceWords = new Set(allowedCorpus.match(substantiveWordPattern) || []);
@@ -235,7 +235,7 @@ export function getCoverLetterReadiness(plan, { baseResume = "", resumeData = {}
   const invalidHash = Boolean(plan) && plan.contentHash !== stableHash(planContent(plan), "cover-letter");
   const unverified = (plan?.paragraphs || []).some((entry) => entry.verification !== "verified");
   const internalLanguage = (plan?.paragraphs || []).some((entry) => hasInternalDocumentLanguage(entry.text));
-  const meaningChanged = !internalLanguage && (plan?.paragraphs || []).some((entry) => claimMeaningIssues(entry.text, entry.evidenceRefs).length > 0);
+  const meaningChanged = !internalLanguage && (plan?.paragraphs || []).some((entry) => claimMeaningIssues(entry.text, entry.evidenceRefs, { candidateCorpus: baseResume }).length > 0 || entry.text.length > COVER_LETTER_PARAGRAPH_LIMIT);
   const selfDisqualifying = (plan?.paragraphs || []).some((entry) => containsSelfDisqualifyingCoverLetterLanguage(entry.text));
   const incomplete = (plan?.paragraphs?.length || 0) < 2 || !plan?.candidate?.fullName || !plan?.target?.jobTitle;
   const missingIdentity = !hasUsableResumeIdentity(plan?.candidate?.fullName);
@@ -290,10 +290,11 @@ export function createCoverLetterExportContext(plan, context = {}) {
   return {
     kind: "cover-letter-export-context",
     plan,
+    candidateCorpus: context.baseResume || '',
     readiness,
     sourceFingerprint: createCoverLetterSourceFingerprint(context),
     applicationPresentation,
-    authorizationHash: stableHash({ contentHash: plan.contentHash, sourceFingerprint: plan.sourceFingerprint, presentationHash: applicationPresentation.presentationHash, mode: readiness.preliminary ? "preliminary" : "final" }, "cover-authorization"),
+    authorizationHash: stableHash({ contentHash: plan.contentHash, sourceFingerprint: plan.sourceFingerprint, candidateCorpusHash: stableHash(context.baseResume || '', 'candidate-evidence'), presentationHash: applicationPresentation.presentationHash, mode: readiness.preliminary ? "preliminary" : "final" }, "cover-authorization"),
     createdAt,
     expiresAt: createdAt + 5 * 60 * 1_000,
   };
@@ -306,11 +307,12 @@ export function validateCoverLetterExportContext(context, now = Date.now()) {
   const expectedContentHash = stableHash(planContent(context.plan), "cover-letter");
   if (context.plan?.contentHash !== expectedContentHash) throw new Error("The cover-letter content hash is invalid or stale.");
   if ((context.plan?.paragraphs || []).some((entry) => hasInternalDocumentLanguage(entry.text))) throw new Error("Remove internal application wording before exporting.");
-  if ((context.plan?.paragraphs || []).some((entry) => claimMeaningIssues(entry.text, entry.evidenceRefs).length)) throw new Error("Correct wording that changes the scope or responsibility in its sources before exporting.");
+  if ((context.plan?.paragraphs || []).some((entry) => claimMeaningIssues(entry.text, entry.evidenceRefs, { candidateCorpus: context.candidateCorpus }).length || entry.text.length > COVER_LETTER_PARAGRAPH_LIMIT)) throw new Error("Correct wording that changes the scope or responsibility in its sources before exporting.");
   const applicationPresentation = validateApplicationPresentation(context.applicationPresentation);
   const expectedAuthorization = stableHash({
     contentHash: context.plan.contentHash,
     sourceFingerprint: context.plan.sourceFingerprint,
+    candidateCorpusHash: stableHash(context.candidateCorpus || '', 'candidate-evidence'),
     presentationHash: applicationPresentation.presentationHash,
     mode: context.readiness.preliminary ? "preliminary" : "final",
   }, "cover-authorization");

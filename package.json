@@ -17,7 +17,8 @@
     "verify:cover-letters": "node scripts/verifyCoverLetterExports.mjs",
     "verify:document-quality": "node scripts/verifyDocumentQuality.mjs",
     "verify:presentation-prototypes": "node scripts/verifyPresentationPrototypes.mjs",
-    "verify:organization-editorial": "node scripts/verifyOrganizationEditorial.mjs"
+    "verify:organization-editorial": "node scripts/verifyOrganizationEditorial.mjs",
+    "verify:professions": "node scripts/verifyProfessions.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "2.112.3",

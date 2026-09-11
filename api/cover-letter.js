@@ -138,6 +138,7 @@ function validateLetter(raw, {
   const normalizedParagraphs = paragraphs.map((entry, index) => {
     const purpose = ["opening", "evidence", "closing"].includes(entry?.purpose) ? entry.purpose : "evidence";
     const text = stripEmbeddedSignoff(entry?.text);
+    if (String(entry?.text || '').length > 2400) issues.push(`${entry?.id || index}: paragraph exceeds the 2400-character limit; shorten it without truncation`);
     const resolvedEvidence = resolveCitationRefs(entry?.evidence_refs, candidateCatalog, candidateCorpus);
     const resolvedRequirements = resolveCitationRefs(entry?.requirement_refs, postingCatalog, postingCorpus);
     const evidenceRefs = resolvedEvidence.refs;
@@ -148,7 +149,7 @@ function validateLetter(raw, {
     if (seen.has(id)) issues.push(`${id}: duplicate paragraph id`);
     seen.add(id);
     if (hasInternalDocumentLanguage(text)) issues.push(`${id}: internal application terminology must not appear in the letter`);
-    for (const issue of claimMeaningIssues(text, evidenceRefs)) issues.push(`${id}: ${issue}`);
+    for (const issue of claimMeaningIssues(text, evidenceRefs, { candidateCorpus })) issues.push(`${id}: ${issue}`);
     if (GENERIC_FLATTERY.test(text) || UNSUPPORTED_PERSONAL.test(text) || PLACEHOLDER.test(text)) issues.push(`${id}: contains unsupported motivation, personal, or placeholder language`);
     if (containsSelfDisqualifyingCoverLetterLanguage(text)) issues.push(`${id}: contains self-disqualifying or gap-focused positioning`);
     if (containsSelfDisqualifyingCoverLetterLanguage(explanation)) issues.push(`${id}: explanation contains self-disqualifying positioning`);
@@ -156,10 +157,8 @@ function validateLetter(raw, {
     if (purpose !== "closing" && !requirementRefs.length) issues.push(`${id}: missing posting requirement citation`);
     if (resolvedEvidence.invalid.length) issues.push(`${id}: candidate citation must use a supplied C source id`);
     if (resolvedRequirements.invalid.length) issues.push(`${id}: posting citation must use a supplied P source id`);
-    const allowedNumericCorpus = `${evidenceRefs.join(" ")} ${requirementRefs.join(" ")} ${targetTitle} ${targetCompany}`;
-    (text.match(/\b\d[\d,.%+/-]*\b/g) || []).forEach((token) => {
-      if (!normalized(allowedNumericCorpus).includes(normalized(token))) issues.push(`${id}: numeric claim is not present in its cited evidence`);
-    });
+    // Candidate quantities and tenure are checked against cited facts by the shared
+    // contract above. A requirement number or target employer is never evidence.
     return {
       id,
       purpose,

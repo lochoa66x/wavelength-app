@@ -1,3 +1,5 @@
+import { configurePdfFonts } from "./pdfFonts.js";
+import { coverLetterToPlainText } from "./coverLetterModel.js";
 import { documentHeaderRules } from "./documentStyleContract.js";
 import { coverLetterRecipientAddress } from "./documentIntegrity.js";
 import { safeCoverLetterFilename, validateCoverLetterExportContext } from "./coverLetterModel.js";
@@ -13,7 +15,7 @@ export function prepareCoverLetterPdfExport() {
 }
 
 function pdfText(value) {
-  return String(value || "").replace(/[–—]/g, "-").replace(/[“”]/g, '"').replace(/[‘’]/g, "'").replace(/\u00a0/g, " ");
+  return String(value || "").normalize("NFC");
 }
 
 export async function createCoverLetterPdfBlob(input) {
@@ -22,8 +24,7 @@ export async function createCoverLetterPdfBlob(input) {
   const tokens = applicationPresentation.tokens;
   const doc = new jsPDF({ unit: "pt", format: "letter", orientation: "portrait", compress: true, putOnlyUsedFonts: true });
   const rgb = (value, fallback = [23, 25, 28]) => String(value || "").match(/[a-f\d]{2}/gi)?.slice(0, 3).map((entry) => Number.parseInt(entry, 16)) || fallback;
-  const bodyFont = ["helvetica", "times", "courier"].includes(tokens.pdfBodyFontFamily) ? tokens.pdfBodyFontFamily : "helvetica";
-  const displayFont = ["helvetica", "times", "courier"].includes(tokens.pdfDisplayFontFamily) ? tokens.pdfDisplayFontFamily : bodyFont;
+  const { bodyFont, displayFont } = await configurePdfFonts(doc, coverLetterToPlainText(plan), tokens);
   const left = tokens.marginLeftIn * 72;
   const width = tokens.pageWidthIn * 72 - left - tokens.marginRightIn * 72;
   const bottom = tokens.marginBottomIn * 72;

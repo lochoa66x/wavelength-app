@@ -231,7 +231,7 @@ const TRADES_TOOL = {
       },
       contact: {
         type: "string",
-        description: "One-line contact info from the base resume (email, phone, city). Format like: 'email@example.com · 555-123-4567 · City, Province'. No portfolio URL — trades don't need one.",
+        description: "One-line contact info from the base resume (email, phone, city). Format like: 'email@example.com · 555-123-4567 · City, Province'. Retain candidate-provided professional portfolio or work-sample URLs; never invent links.",
       },
       profile: {
         type: "string",
@@ -682,7 +682,7 @@ CATEGORY: SKILLED TRADES
 - Populate \`safety_record\` with a one-sentence achievement ONLY if the base resume contains verifiable safety information (e.g. "12 years incident-free" or "OSHA-compliant across N job sites"). Leave empty if not in base resume.
 - For a direct trade candidate, the profile should lead with credential + years of experience. Otherwise, lead with the strongest proven transferable evidence: reliability, perseverance, safety-minded work, team leadership, project coordination, client service, or problem solving. Include only qualities supported by the base résumé.
 - Experience bullets should lead with work context (residential / commercial / industrial) and name specific systems, codes, or equipment where present in the base resume.
-- Do NOT include a "portfolio" field — trades don't have portfolios.`
+- Preserve candidate-provided portfolio and work-sample URLs in contact or professionalLinks. Trade work samples can be relevant; never fabricate a URL.`
     : "";
 
   const targetContext = `TARGET GIG

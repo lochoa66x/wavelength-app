@@ -1,3 +1,4 @@
+import { candidateClaimIssues, credentialEvidenceIssues, normalizeClaimNumbers } from './candidateClaims.js';
 // Shared by generation, saved-draft review, and export authorization.
 // These checks catch specific meaning changes; they are not a general fact checker.
 export const INTERNAL_DOCUMENT_LANGUAGE = /\b(?:candidate[- ](?:selected|confirmed) (?:capabilit(?:y|ies)|evidence)|evidence-backed strength|why this paragraph exists|usage boundary|candidate citation catalog)\b|\[(?:CANDIDATE NOTE|C\d+|P\d+)[^\]]*\]/i;
@@ -6,7 +7,7 @@ export function hasInternalDocumentLanguage(text) {
   return INTERNAL_DOCUMENT_LANGUAGE.test(String(text || ""));
 }
 
-export function claimMeaningIssues(proposed, sources = []) {
+export function claimMeaningIssues(proposed, sources = [], context = {}) {
   const text = String(proposed || "");
   const source = sources.map((entry) => typeof entry === "string" ? entry : entry?.excerpt || "").join(" ");
   const issues = [];
@@ -36,7 +37,7 @@ export function claimMeaningIssues(proposed, sources = []) {
     }
   }
   if (hasInternalDocumentLanguage(text)) issues.push("Remove internal document-generation terminology.");
-  return issues;
+  return [...new Set([...issues, ...candidateClaimIssues(proposed, sources, context)])];
 }
 
 // An edit is scoped to the paragraph's citations. A leadership verb elsewhere
@@ -60,14 +61,17 @@ const OWNERSHIP_PARTS = [
 export function requirementEvidenceBoundary(requirement, evidence) {
   const target = String(requirement || "");
   const source = String(evidence || "");
-  if (/\b(?:certification|certified|credential)\b/i.test(target)) {
-    const named = [/\bPMP\b/i, /\bSAP Activate\b/i].filter((pattern) => pattern.test(target));
-    const credentialClauses = source.split(/[.;\n]/);
-    const notHeld = /\b(?:not|no|without|lack(?:s|ing)?|studying|pursuing|towards?|prepar(?:ing|ation)|prep|planning|pending|expired|intend|aspir(?:ing|ation)|candidate for)\b/i;
-    if (named.length && !named.some((pattern) => credentialClauses.some((clause) => pattern.test(clause)
-        && /\b(?:PMP|certified|certification|credential)\b/i.test(clause) && !notHeld.test(clause)))) {
-      return { valid: false, reason: "Project experience does not establish the named credential." };
-    }
+  const credentials = credentialEvidenceIssues(target, source);
+  if (credentials.length) return { valid: false, reason: credentials[0] };
+  const tenure = normalizeClaimNumbers(target).match(/\b(\d+)\s*\+?\s*years?\b/i);
+  if (tenure) {
+    const actual = normalizeClaimNumbers(source).match(/\b(\d+)\s*\+?\s*years?\b/i);
+    if (!actual || Number(actual[1]) < Number(tenure[1])) return { valid: false, reason: 'This excerpt does not establish the required duration of experience.' };
+  }
+  if (/\b(?:lead|own|manage|direct|supervise|independently)\b/i.test(target)
+      && /\b(?:observed|assisted|supported|helped|knowledge|under supervision)\b/i.test(source)
+      && !/\b(?:led|owned|managed|directed|supervised|accountable)\b/i.test(source)) {
+    return { valid: true, classification: 'adjacent', reason: 'Related experience is supported; independent leadership or ownership is not established.' };
   }
   const requiredParts = OWNERSHIP_PARTS.filter(([pattern]) => pattern.test(target));
   if (/\b(?:own|lead|manage|direct)\b/i.test(target) && requiredParts.length) {

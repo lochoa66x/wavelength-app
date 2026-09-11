@@ -1,3 +1,5 @@
+import { configurePdfFonts } from "./pdfFonts.js";
+import { resumeRenderPlanToPlainText } from "./resumeText.js";
 import { resumeRoleHeading, isCompactResumeRole } from "./resumeOrganization.js";
 import { documentSectionText, documentSectionRule, documentHeaderRules, DOCUMENT_BULLET } from "./documentStyleContract.js";
 import {
@@ -42,12 +44,7 @@ function escapeHtml(value) {
 }
 
 function pdfSafeText(value) {
-  return cleanScalar(value, Number.POSITIVE_INFINITY)
-    .replace(/[–—]/g, "-")
-    .replace(/[•·]/g, "-")
-    .replace(/[“”]/g, '"')
-    .replace(/[‘’]/g, "'")
-    .replace(/\u00a0/g, " ");
+  return cleanScalar(value, Number.POSITIVE_INFINITY).normalize("NFC");
 }
 
 function joined(values, separator = " | ") {
@@ -80,8 +77,7 @@ async function createResumePdfDocument(input, template = "professional", options
   const accentSoft = rgb(tokens.accentSoft, [237, 244, 247]);
   const headerBackground = rgb(tokens.headerBackground, accent);
   const headerText = rgb(tokens.headerText, [255, 255, 255]);
-  const pdfFont = tokens.pdfBodyFontFamily || tokens.pdfFontFamily || "helvetica";
-  const pdfDisplayFont = tokens.pdfDisplayFontFamily || tokens.pdfFontFamily || pdfFont;
+  const { bodyFont: pdfFont, displayFont: pdfDisplayFont } = await configurePdfFonts(doc, resumeRenderPlanToPlainText(renderPlan), tokens);
   const rhythm = tokens.verticalRhythmScale || 1;
   const gap = (value) => value * rhythm;
   const bodyLeading = tokens.bodyFontSizePt * tokens.bodyLineHeight;

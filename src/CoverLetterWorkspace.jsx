@@ -10,6 +10,7 @@ import { generateCoverLetter } from "./coverLetterClient.js";
 import { loadCoverLetterDocxExporter, loadCoverLetterPdfExporter, preloadCoverLetterExporters } from "./exportModules.js";
 import { classifyExportError, createExportErrorNotice } from "./exportRecovery.js";
 import {
+  COVER_LETTER_PARAGRAPH_LIMIT,
   COVER_LETTER_LENGTHS,
   COVER_LETTER_VOICES,
   coverLetterToPlainText,
@@ -250,7 +251,8 @@ export function CoverLetterWorkspace({
                 {writingReview.issues.filter((issue) => issue.paragraphId === paragraph.id).map((issue) => <p key={issue.code} style={{ color: C.textSub, fontSize: 11.5, lineHeight: 1.5, margin: "4px 0" }}>{issue.advice}</p>)}
                 {editingId === paragraph.id ? (
                   <div style={{ padding: 12, border: `1px solid ${C.amberBorder || C.amber}`, borderRadius: 10, background: C.amberTint }}>
-                    <label style={{ display: "grid", gap: 6, fontSize: 12, fontWeight: 700 }}>Edit paragraph<textarea value={editText} onChange={(event) => setEditText(event.target.value)} rows={6} style={{ width: "100%", resize: "vertical", border: `1px solid ${C.border}`, borderRadius: 8, padding: 10, font: "inherit", lineHeight: 1.5 }} /></label>
+                    <label style={{ display: "grid", gap: 6, fontSize: 12, fontWeight: 700 }}>Edit paragraph<textarea aria-describedby="paragraph-length" aria-invalid={editText.length > COVER_LETTER_PARAGRAPH_LIMIT} value={editText} onChange={(event) => setEditText(event.target.value)} rows={6} style={{ width: "100%", resize: "vertical", border: `1px solid ${C.border}`, borderRadius: 8, padding: 10, font: "inherit", lineHeight: 1.5 }} /></label>
+                    <p id="paragraph-length" aria-live="polite" style={{ fontSize: 12, color: editText.length > COVER_LETTER_PARAGRAPH_LIMIT ? C.danger || "#b42318" : C.textMuted }}>{editText.length.toLocaleString("en-US")} / {COVER_LETTER_PARAGRAPH_LIMIT.toLocaleString("en-US")} characters{editText.length > COVER_LETTER_PARAGRAPH_LIMIT ? " — shorten before saving. Your full text is preserved." : ""}</p>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 9 }}><button type="button" onClick={() => saveEdit(paragraph)} className="wl-btn" style={{ ...primaryBtnStyle(false), padding: "7px 11px", fontSize: 12 }}>Save & recheck</button><button type="button" onClick={() => setEditingId("")} className="wl-btn" style={{ border: `1px solid ${C.border}`, borderRadius: 980, background: C.bgCard, padding: "7px 11px" }}>Cancel</button></div>
                   </div>
                 ) : <p style={{ margin: 0 }}>{paragraph.text}</p>}

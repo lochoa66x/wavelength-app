@@ -1,3 +1,5 @@
+import { resumeSectionKind } from "../../src/resumeOrganization.js";
+import { resumeDataToPlainText } from "../../src/resumeText.js";
 import { findSemanticIntegrityIssues } from "./tailoringEvidence.js";
 import { isPlaceholderIdentity } from "./resumeQuality.js";
 import { buildWritingReview } from "./resumeWriting.js";
@@ -179,7 +181,9 @@ export function sourceHistoryEntries(baseResume) {
     }
   }
 
+  let sectionKind = "";
   for (let index = 0; index < lines.length; index += 1) {
+    sectionKind = resumeSectionKind(lines[index]) || sectionKind;
     if (grouped.has(index)) { entries.push(grouped.get(index)); continue; }
     if (employerHeadings.has(index)) continue;
     const line = lines[index];
@@ -199,7 +203,7 @@ export function sourceHistoryEntries(baseResume) {
     let role = "";
     let company = "";
 
-    if (parts.length >= 2 && EMPLOYMENT_ROLE_HINT_PATTERN.test(parts[0])) {
+    if (parts.length >= 2 && (EMPLOYMENT_ROLE_HINT_PATTERN.test(parts[0]) || (sectionKind === "experience" && !EMPLOYMENT_ROLE_HINT_PATTERN.test(parts[1]) && /\s[-–—]\s/.test(prefix) && parts[0].length <= 80 && !/[.!?]$/.test(parts[0])))) {
       [role, company] = parts;
     } else if (parts.length >= 2 && EMPLOYMENT_ROLE_HINT_PATTERN.test(parts[1])) {
       [company, role] = parts;
@@ -679,12 +683,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
 
   const years = (resumeData.experience || []).map((entry) => endYear(entry?.dates)).filter((year) => year !== null);
   const reverse_chronological = years.every((year, index) => index === 0 || years[index - 1] >= year);
-  const searchableOutput = normalized([
-    resumeData.title,
-    resumeData.profile,
-    ...(resumeData.skills || []),
-    ...(resumeData.experience || []).flatMap((entry) => entry.bullets || []),
-  ].join(" "));
+  const searchableOutput = normalized(resumeDataToPlainText(resumeData));
   const keywords = [...new Set((jobBrief?.keywords || []).map((keyword) => String(keyword).trim()).filter(Boolean))];
   const matched_keywords = keywords.filter((keyword) => searchableOutput.includes(normalized(keyword)));
   const missing_keywords = keywords.filter((keyword) => !searchableOutput.includes(normalized(keyword)));
