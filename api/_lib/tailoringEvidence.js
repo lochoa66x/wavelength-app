@@ -1,3 +1,4 @@
+import { hasInternalDocumentLanguage, requirementEvidenceBoundary } from "../../src/documentIntegrity.js";
 const STOPWORDS = new Set([
   "a", "an", "and", "are", "as", "at", "be", "by", "for", "from", "in", "is", "it",
   "of", "on", "or", "our", "that", "the", "their", "this", "to", "we", "will", "with", "you",
@@ -678,6 +679,8 @@ function strictConceptsForRequirement(requirement) {
 }
 
 function semanticEvidenceMatch(requirement, excerpt) {
+  const boundary = requirementEvidenceBoundary(requirement, excerpt);
+  if (!boundary.valid || boundary.classification) return { ...boundary, concepts: ["responsibility_or_credential_boundary"] };
   const concepts = strictConceptsForRequirement(requirement);
   if (!concepts.length) return { valid: true, classification: null, concepts: [] };
   const valid = concepts.every((concept) => concept.evidence.test(excerpt));
@@ -711,9 +714,11 @@ function deterministicEvidence(requirement, baseResume) {
       ...adjacentCandidates.map((line) => ({ line, classification: "adjacent", score: lineScore(requirement, line) })),
     ].sort((left, right) => right.score - left.score || right.line.length - left.line.length);
     if (!candidates.length) return null;
+    const boundary = requirementEvidenceBoundary(requirement, candidates[0].line);
+    if (!boundary.valid) return null;
     return {
       excerpt: candidates[0].line,
-      classification: candidates[0].classification,
+      classification: boundary.classification || candidates[0].classification,
       concepts: [family.id],
     };
   }
@@ -743,13 +748,25 @@ function cleanRequirement(value, index, baseResume, candidateNotes = []) {
   const semantic = semanticEvidenceMatch(requirement, resumeEvidence);
   const deterministic = deterministicEvidence(requirement, baseResume);
   const requestedSupported = requestedMatch !== "missing" && excerptIsSupported && semantic.valid;
-  const evidenceMatch = requestedSupported
+  let evidenceMatch = requestedSupported
     ? semantic.classification || requestedMatch
     : deterministic?.classification || "missing";
   const supportedEvidence = requestedSupported ? resumeEvidence : deterministic?.excerpt || "";
   const citation = evidenceMatch !== "missing"
     ? evidenceCitation(supportedEvidence, baseResume, candidateNotes)
     : null;
+  const note = citation?.source === "candidate_note" ? candidateNotes.find((entry) => entry.id === citation.evidence_id) : null;
+  if (note?.evidence_kind === "self_attested_capability") {
+    if (["knowledge", "unspecified", undefined].includes(note.capability_level)) evidenceMatch = "transferable";
+    else if (note.capability_level === "applied" && /\b(?:lead|own|direct|manage)\b/i.test(requirement)) evidenceMatch = "adjacent";
+    if (/\b(?:certification|certified|credential)\b/i.test(requirement)) {
+      // A generated capability statement echoes the posting; it is not a credential declaration.
+      const declaredCredential = /\b(?:I (?:am|hold)|earned|obtained|certified (?:as|in)|PMP certified)\b/i.test(note.answer || "")
+        && /\b(?:certification|certified|credential|PMP)\b/i.test(note.answer || "")
+        && requirementEvidenceBoundary(requirement, note.answer).valid;
+      evidenceMatch = declaredCredential ? requestedMatch : "missing";
+    }
+  }
   const cleaned = {
     id: String(value?.id || `R${index + 1}`).slice(0, 20),
     requirement,
@@ -760,7 +777,7 @@ function cleanRequirement(value, index, baseResume, candidateNotes = []) {
       : "context",
     evidence_match: evidenceMatch,
     resume_evidence: evidenceMatch !== "missing" ? supportedEvidence : "",
-    evidence: citation ? [citation] : [],
+    evidence: evidenceMatch !== "missing" && citation ? [citation] : [],
     match_basis: evidenceMatch === "missing"
       ? "No exact candidate evidence satisfies this atomic requirement."
       : deterministic && !requestedSupported
@@ -909,7 +926,7 @@ function calibrateFit(requirements, requestedPath) {
   const supportedRate = total ? supported / total : 0;
   const readinessStatus = verifiedBlockerCount > 0
     ? "significant_gap"
-    : supportedRate >= 0.85 && missingRate <= 0.18
+    : path === "direct" && supportedRate >= 0.85 && missingRate <= 0.18
     ? "strong_fit"
     : (path === "adjacent" || path === "direct") && (missingRate <= 0.38 || weightedRate >= 0.52)
       ? "credible_stretch"
@@ -946,10 +963,10 @@ function calibratedLevel(rawLevel, path) {
 function applicationOutlook(requirements, gapCounts, candidateFit, postingAssessment) {
   const evidenceCounts = coverageCounts(requirements);
   const fitRequirements = requirements.filter((requirement) => requirement.gap_severity !== "candidate_check");
-  const coreRequirements = fitRequirements.filter((requirement) => requirement.priority === "required");
+  const coreRequirements = fitRequirements.filter((requirement) => ["required", "responsibility"].includes(requirement.priority));
   const coreInventory = coreRequirements.length ? coreRequirements : fitRequirements;
   const coreEvidenceCounts = coverageCounts(coreInventory);
-  const coreMaterialGaps = coreInventory.filter((requirement) => requirement.gap_severity === "material_gap").length;
+  const coreMaterialGaps = coreInventory.filter((requirement) => requirement.evidence_match === "missing" && requirement.gap_severity !== "verified_blocker").length;
   const coreBlockers = coreInventory.filter((requirement) => requirement.gap_severity === "verified_blocker").length;
   const coreMissingRate = coreInventory.length ? coreEvidenceCounts.missing / coreInventory.length : 1;
   const counts = {
@@ -995,14 +1012,14 @@ function applicationOutlook(requirements, gapCounts, candidateFit, postingAssess
     const highRisk = coreSupportedRate < 0.55 || coreMissingRate >= 0.45;
     return {
       status: highRisk ? "high_application_risk" : "viable_transition_material_gaps",
-      label: highRisk ? "Substantial tailoring needed" : "Good match — review gaps",
+      label: highRisk ? "Central experience needs review" : "Related experience — review gaps",
       confidence,
-      reason: `${coreMaterialGaps} core required capabilit${coreMaterialGaps === 1 ? "y remains" : "ies remain"} unsupported by exact candidate evidence.`,
+      reason: `${coreMaterialGaps} central qualification or responsibilit${coreMaterialGaps === 1 ? "y lacks" : "ies lack"} supporting candidate evidence.`,
       what_would_change: "Candidate-confirmed evidence that directly or honestly relates to the unsupported required capabilities.",
       counts,
     };
   }
-  if (candidateFit.status === "strong" && coreEvidenceCounts.missing === 0) {
+  if (candidateFit.status === "strong" && coreEvidenceCounts.direct === coreInventory.length) {
     return {
       status: "strong_verified_alignment",
       label: "Strong match",
@@ -1014,7 +1031,7 @@ function applicationOutlook(requirements, gapCounts, candidateFit, postingAssess
   }
   return {
     status: "viable_manageable_gaps",
-    label: "Good match",
+    label: "Related experience",
     confidence,
     reason: gapCounts.development_gap || gapCounts.preference
       ? "No explicit mandatory blocker was found; development or preference gaps remain visible."
@@ -1248,6 +1265,7 @@ export function findSemanticIntegrityIssues(resumeData, baseResume, analysis, ta
 
   const risky_claims = [];
   const rawOutput = exportedResumeText(resumeData);
+  if (hasInternalDocumentLanguage(rawOutput)) risky_claims.push({ claim: "Internal generation terminology must not appear in the document." });
   for (const pattern of [
     /\btranslat(?:e|es|ed|ing) directly\b/gi,
     /\bdirectly analogous\b/gi,

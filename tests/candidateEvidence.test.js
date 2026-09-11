@@ -36,8 +36,8 @@ test("a candidate-selected capability is valid without a project narrative", () 
 
   assert.deepEqual(result.errors, []);
   assert.equal(result.evidence[0].evidence_kind, "self_attested_capability");
-  assert.match(formatCandidateEvidence(result.evidence), /Candidate-selected capability: Yes/);
-  assert.match(formatCandidateEvidence(result.evidence), /Do not invent an employer, project, date, duration, result, or historical accomplishment/);
+  assert.match(formatCandidateEvidence(result.evidence), /Confirmed experience level: unspecified/);
+  assert.match(formatCandidateEvidence(result.evidence), /Do not invent an employer, project, date, duration, result, credential, or historical accomplishment/);
 });
 
 test("all twelve visible candidate selections can reach document generation", () => {

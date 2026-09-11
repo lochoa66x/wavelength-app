@@ -7,7 +7,7 @@ test("Evidence Map exposes progressive disclosure, filters, and separate readine
 
   assert.match(source, /Match overview/);
   assert.match(source, /Résumé document/);
-  assert.match(source, /Match guidance/);
+  assert.match(source, /Evidence basis/);
   assert.match(source, /Evidence Map/);
   assert.match(source, /aria-pressed/);
   assert.match(source, /aria-live="polite"/);

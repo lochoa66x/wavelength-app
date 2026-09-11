@@ -127,16 +127,16 @@ export function EvidenceMap({ review, C }) {
           </span>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(105px, 1fr))", gap: 7, marginTop: 10 }}>
-          <CountCard value={view.coreCounts.verifiedStrengths} label="Direct required matches" color={C.green} C={C} />
-          <CountCard value={view.coreCounts.relatedEvidence} label="Related required strengths" color={C.blue} C={C} />
+          <CountCard value={view.coreCounts.verifiedStrengths} label="Direct central matches" color={C.green} C={C} />
+          <CountCard value={view.coreCounts.relatedEvidence} label="Related central experience" color={C.blue} C={C} />
           <CountCard value={view.coreCounts.materialGaps} label="Skills to review" color={C.amber} C={C} />
           <CountCard value={view.coreCounts.blockers} label="Credential checks" color={view.coreCounts.blockers ? C.red : C.green} C={C} />
         </div>
         <p style={{ color: C.textSub, fontSize: 10.75, lineHeight: 1.4, margin: "8px 0 0" }}>
-          Required fit: <strong style={{ color: C.text }}>{view.coreCounts.total - view.coreCounts.missing} of {view.coreCounts.total} supported</strong> · Full review: {view.counts.total - view.counts.missing} of {view.counts.total} total requirements supported; {view.counts.missing} lack candidate evidence.
+          Central qualifications and responsibilities: <strong style={{ color: C.text }}>{view.coreCounts.verifiedStrengths} direct · {view.coreCounts.relatedEvidence} related · {view.coreCounts.missing} unsupported</strong> · Full review: {view.counts.verifiedStrengths} direct, {view.counts.relatedEvidence} related, {view.counts.missing} unsupported, and {view.counts.candidateChecks} application questions.
         </p>
         <p style={{ color: C.textSub, fontSize: 10.75, lineHeight: 1.4, margin: "8px 0 0" }}>
-          Assessment confidence: <strong style={{ color: C.text, textTransform: "capitalize" }}>{view.outlook.confidence}</strong>. What could change this: {view.outlook.whatWouldChange}
+          Confidence in evidence classification: <strong style={{ color: C.text, textTransform: "capitalize" }}>{view.outlook.confidence}</strong>. This is not a hiring probability. What could change this: {view.outlook.whatWouldChange}
         </p>
       </section>
 
@@ -151,15 +151,15 @@ export function EvidenceMap({ review, C }) {
         <div style={{ background: C.bgCard, border: `1px solid ${outlookStyle.border}`, borderRadius: 10, padding: "9px 10px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.text, fontSize: 11.75, fontWeight: 750 }}>
             <OutlookIcon aria-hidden="true" size={14} color={outlookStyle.color} />
-            Match guidance · {view.outlook.label}
+            Evidence basis
           </div>
-          <p style={{ color: C.textSub, fontSize: 10.75, lineHeight: 1.4, margin: "5px 0 0" }}>Use the strongest supported and candidate-selected capabilities; the employer makes the final hiring decision.</p>
+          <p style={{ color: C.textSub, fontSize: 10.75, lineHeight: 1.4, margin: "5px 0 0" }}>Sources identify résumé evidence and candidate confirmations. Related experience supports part of a requirement; it does not establish equivalent ownership.</p>
         </div>
       </section>
 
       <details style={{ borderTop: `1px solid ${C.border}`, paddingTop: 9 }}>
         <summary style={{ color: C.text, cursor: "pointer", fontSize: 12.5, fontWeight: 750 }}>
-          Requirement evidence · {view.counts.total} total ({view.coreCounts.total} required)
+          Requirement evidence · {view.counts.total} total ({view.coreCounts.total} central)
         </summary>
         {!view.requirements.length ? (
           <div role="status" style={{ color: C.textSub, background: C.amberTint, border: `1px solid ${C.amberBorder}`, borderRadius: 9, fontSize: 11.5, lineHeight: 1.45, marginTop: 9, padding: "8px 9px" }}>

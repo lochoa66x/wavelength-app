@@ -1,3 +1,4 @@
+import { CoverLetterDocument } from "./CoverLetterDocument.jsx";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CheckCircle2, Copy, Download, FileText, Loader2, PenLine, RotateCcw, Sparkles, Trash2, X } from "lucide-react";
 
@@ -50,12 +51,12 @@ export function CoverLetterWorkspace({
       : createApplicationPresentation(),
     [requestedApplicationPresentation],
   );
-  const letterTokens = applicationPresentation.tokens;
   const [voice, setVoice] = useState("direct");
   const [length, setLength] = useState("standard");
   const [plan, setPlan] = useState(() => loadCoverLetterDraftForReview(userId, item));
   const [state, setState] = useState("idle");
   const [message, setMessage] = useState(null);
+  const [documentMode, setDocumentMode] = useState("preview");
   const [editingId, setEditingId] = useState("");
   const [editText, setEditText] = useState("");
   const controllerRef = useRef(null);
@@ -138,7 +139,7 @@ export function CoverLetterWorkspace({
         setMessage({ type: "info", text: "The paragraph was regenerated from the same verified evidence." });
       } else {
         persist(createCoverLetterPlan(raw, { ...context, voice, length }));
-        setMessage({ type: "info", text: "Draft ready. Review every paragraph and its evidence before exporting." });
+        setMessage({ type: "info", text: "Draft ready. Read the preview; sources and editing are available above the letter." });
       }
       setEditingId("");
       setState("idle");
@@ -206,11 +207,11 @@ export function CoverLetterWorkspace({
       </div>
 
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 12, marginTop: 16 }}>
-        <label style={{ display: "grid", gap: 6, color: C.textSub, fontSize: 12, fontWeight: 650 }}>Voice
-          <select value={voice} onChange={(event) => setVoice(event.target.value)} disabled={busy} style={{ border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 11px", color: C.text, background: C.bgCard, font: "inherit" }}>{COVER_LETTER_VOICES.map((option) => <option value={option.id} key={option.id}>{option.label} — {option.description}</option>)}</select>
+        <label style={{ display: "grid", minWidth: 0, gap: 6, color: C.textSub, fontSize: 12, fontWeight: 650 }}>Voice
+          <select value={voice} onChange={(event) => setVoice(event.target.value)} disabled={busy} style={{ width: "100%", minWidth: 0, boxSizing: "border-box", border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 11px", color: C.text, background: C.bgCard, font: "inherit" }}>{COVER_LETTER_VOICES.map((option) => <option value={option.id} key={option.id}>{option.label} — {option.description}</option>)}</select>
         </label>
-        <label style={{ display: "grid", gap: 6, color: C.textSub, fontSize: 12, fontWeight: 650 }}>Length
-          <select value={length} onChange={(event) => setLength(event.target.value)} disabled={busy} style={{ border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 11px", color: C.text, background: C.bgCard, font: "inherit" }}>{COVER_LETTER_LENGTHS.map((option) => <option value={option.id} key={option.id}>{option.label} — {option.description}</option>)}</select>
+        <label style={{ display: "grid", minWidth: 0, gap: 6, color: C.textSub, fontSize: 12, fontWeight: 650 }}>Length
+          <select value={length} onChange={(event) => setLength(event.target.value)} disabled={busy} style={{ width: "100%", minWidth: 0, boxSizing: "border-box", border: `1px solid ${C.border}`, borderRadius: 10, padding: "9px 11px", color: C.text, background: C.bgCard, font: "inherit" }}>{COVER_LETTER_LENGTHS.map((option) => <option value={option.id} key={option.id}>{option.label} — {option.description}</option>)}</select>
         </label>
       </div>
 
@@ -229,28 +230,34 @@ export function CoverLetterWorkspace({
       {plan && !requiresFreshDraft ? (
         <>
           <div role={readiness.state === "blocked" ? "alert" : "status"} data-cover-letter-readiness={readiness.state} style={{ marginTop: 16, padding: "10px 12px", borderRadius: 10, border: `1px solid ${readiness.state === "application_ready" ? (C.greenBorder || C.green) : (C.amberBorder || C.amber)}`, background: readiness.state === "application_ready" ? (C.greenTint || "#f2fbf6") : (C.amberTint || "#fff8eb"), color: readiness.state === "application_ready" ? C.green : C.amber, fontSize: 12.5, lineHeight: 1.5 }}><strong>{readiness.state === "application_ready" ? "Application-ready" : readiness.state === "preliminary" ? "Preliminary" : "Export blocked"}</strong> · {readiness.message} This guidance is not included in the letter file.</div>
-          <article data-cover-letter-preview data-application-presentation={applicationPresentation.designId} style={{ marginTop: 14, padding: `clamp(22px, 5vw, ${Math.round(letterTokens.marginTopIn * 72)}px) clamp(20px, 5vw, ${Math.round(letterTokens.marginRightIn * 72)}px)`, border: `1px solid ${C.border}`, borderRadius: 12, background: letterTokens.paper, color: letterTokens.ink, boxShadow: "0 8px 24px rgba(0,0,0,0.05)", fontFamily: letterTokens.bodyFontFamily, fontSize: `${letterTokens.coverLetterBodyFontSizePt}pt`, lineHeight: letterTokens.coverLetterLineHeight }}>
-            <header style={{ textAlign: applicationPresentation.headerAlignment, borderTop: ["keyline", "editorial-v2"].includes(letterTokens.headerTreatment) ? `4px solid ${letterTokens.accent}` : 0, borderBottom: letterTokens.headerTreatment === "civic-rule" ? `3px double ${letterTokens.accent}` : `1px solid ${letterTokens.headerTreatment === "editorial-v2" ? letterTokens.rule : letterTokens.ink}`, padding: ["keyline", "editorial-v2"].includes(letterTokens.headerTreatment) ? "10px 0 12px" : "0 0 12px", marginBottom: 24 }}><h4 style={{ margin: "0 0 3px", color: letterTokens.ink, fontFamily: letterTokens.displayFontFamily, fontSize: `${letterTokens.nameFontSizePt}pt` }}>{plan.candidate.fullName}</h4>{plan.candidate.contactLine ? <p style={{ margin: 0, color: letterTokens.muted, fontFamily: letterTokens.bodyFontFamily, fontSize: "9.5pt" }}>{plan.candidate.contactLine}</p> : null}</header>
-            <p style={{ margin: "0 0 12px", fontSize: 13 }}>{new Date(plan.createdAt).toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" })}</p>
-            {plan.target.company ? <p style={{ margin: "0 0 3px", fontWeight: 700 }}>{plan.target.company}</p> : null}{plan.target.location ? <p style={{ margin: "0 0 3px" }}>{plan.target.location}</p> : null}<p style={{ margin: "0 0 18px", fontWeight: 700 }}>Re: {plan.target.jobTitle}</p>
-            <p style={{ margin: "0 0 14px" }}>{plan.salutation}</p>
+          <div className="document-controls" role="group" aria-label="Cover letter view" style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
+            {[["preview", "Preview"], ["edit", "Edit letter"], ["sources", "Sources and relevance"]].map(([mode, label]) => <button key={mode} type="button" aria-pressed={documentMode === mode} onClick={() => setDocumentMode(mode)} className="wl-btn" style={{ border: `1px solid ${C.border}`, borderRadius: 999, background: documentMode === mode ? C.blueTint : C.bgCard, color: C.text, padding: "9px 14px" }}>{label}</button>)}
+          </div>
+          {documentMode === "edit" ? <div className="document-controls" aria-label="Letter editing panel" style={{ padding: 18, marginBottom: 18, border: `1px solid ${C.border}`, borderRadius: 12 }}>
             {plan.paragraphs.map((paragraph) => (
-              <section key={paragraph.id} data-cover-letter-paragraph={paragraph.id} style={{ marginBottom: 15 }}>
+              <section key={paragraph.id} aria-label={`Edit ${PURPOSE_LABELS[paragraph.purpose] || "paragraph"}`} style={{ marginBottom: 15 }}>
                 {editingId === paragraph.id ? (
                   <div style={{ padding: 12, border: `1px solid ${C.amberBorder || C.amber}`, borderRadius: 10, background: C.amberTint }}>
                     <label style={{ display: "grid", gap: 6, fontSize: 12, fontWeight: 700 }}>Edit paragraph<textarea value={editText} onChange={(event) => setEditText(event.target.value)} rows={6} style={{ width: "100%", resize: "vertical", border: `1px solid ${C.border}`, borderRadius: 8, padding: 10, font: "inherit", lineHeight: 1.5 }} /></label>
                     <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 9 }}><button type="button" onClick={() => saveEdit(paragraph)} className="wl-btn" style={{ ...primaryBtnStyle(false), padding: "7px 11px", fontSize: 12 }}>Save & recheck</button><button type="button" onClick={() => setEditingId("")} className="wl-btn" style={{ border: `1px solid ${C.border}`, borderRadius: 980, background: C.bgCard, padding: "7px 11px" }}>Cancel</button></div>
                   </div>
                 ) : <p style={{ margin: 0 }}>{paragraph.text}</p>}
-                <details style={{ marginTop: 7, color: C.textSub, fontSize: 12 }}><summary style={{ cursor: "pointer", fontWeight: 700, color: C.green }}>{PURPOSE_LABELS[paragraph.purpose] || "Evidence explanation"} · Why this paragraph exists</summary><div style={{ marginTop: 7, padding: 10, borderRadius: 9, background: C.bgSoft }}><p style={{ margin: "0 0 6px" }}>{paragraph.explanation}</p>{paragraph.evidenceRefs.length ? <p style={{ margin: "0 0 5px" }}><strong>Candidate evidence:</strong> “{paragraph.evidenceRefs.join("” · “")}”</p> : null}{paragraph.requirementRefs.length ? <p style={{ margin: 0 }}><strong>Posting requirement:</strong> “{paragraph.requirementRefs.join("” · “")}”</p> : null}</div></details>
                 <div aria-label={`Actions for ${PURPOSE_LABELS[paragraph.purpose] || "paragraph"}`} style={{ display: "flex", flexWrap: "wrap", gap: 7, marginTop: 7 }}><button type="button" onClick={() => startEdit(paragraph)} className="wl-btn" style={{ border: 0, background: "transparent", color: C.textSub, padding: "4px 0", fontSize: 12 }}><PenLine size={12} /> Edit</button><button type="button" onClick={() => handleRegenerate(paragraph.id)} disabled={busy} className="wl-btn" style={{ border: 0, background: "transparent", color: C.textSub, padding: "4px 0", fontSize: 12 }}><RotateCcw size={12} /> Regenerate</button>{paragraph.text !== paragraph.generatedText ? <button type="button" onClick={() => restore(paragraph.id)} className="wl-btn" style={{ border: 0, background: "transparent", color: C.textSub, padding: "4px 0", fontSize: 12 }}><CheckCircle2 size={12} /> Restore verified</button> : null}<button type="button" onClick={() => remove(paragraph.id)} className="wl-btn" style={{ border: 0, background: "transparent", color: C.red, padding: "4px 0", fontSize: 12 }}><Trash2 size={12} /> Remove</button></div>
               </section>
             ))}
-            <p style={{ margin: "20px 0 3px" }}>{plan.signoff}</p><p style={{ margin: 0, fontWeight: 700 }}>{plan.candidate.fullName}</p>
-          </article>
+          </div> : null}
+          {documentMode === "sources" ? <aside className="document-controls" aria-label="Sources and relevance" style={{ padding: 18, marginBottom: 18, border: `1px solid ${C.border}`, borderRadius: 12 }}>
+            {plan.paragraphs.map((paragraph, index) => <section key={paragraph.id} style={{ marginBottom: 18 }}>
+              <h4 style={{ margin: "0 0 6px" }}>Paragraph {index + 1}</h4><p>{paragraph.explanation}</p>
+              {paragraph.evidenceRefs.map((excerpt, i) => <blockquote key={i} style={{ margin: "8px 0", paddingLeft: 12, borderLeft: `2px solid ${C.border}` }}>{excerpt}</blockquote>)}
+              {paragraph.requirementRefs.length ? <p style={{ color: C.textSub }}>Relevant posting requirements: {paragraph.requirementRefs.join(" · ")}</p> : null}
+            </section>)}
+          </aside> : null}
+          <CoverLetterDocument plan={plan} presentation={applicationPresentation} />
           <div style={{ display: "flex", flexWrap: "wrap", gap: 9, marginTop: 14 }}><button type="button" onClick={handleDocx} disabled={!readiness.canExport || busy} className="wl-btn" style={{ ...primaryBtnStyle(!readiness.canExport || busy), fontSize: 13, padding: "9px 15px" }}><Download size={13} /> {readiness.preliminary ? "Download preliminary DOCX" : "Download cover-letter DOCX"}</button><button type="button" onClick={handlePdf} disabled={!readiness.canExport || busy} className="wl-btn" style={{ border: `1px solid ${C.border}`, borderRadius: 980, background: C.bgCard, color: C.text, padding: "9px 15px", opacity: !readiness.canExport || busy ? 0.5 : 1 }}><FileText size={13} /> {readiness.preliminary ? "Download preliminary PDF" : "Download cover-letter PDF"}</button><button type="button" onClick={handleCopy} disabled={!readiness.canExport || busy} className="wl-btn" style={{ border: `1px solid ${C.border}`, borderRadius: 980, background: C.bgCard, color: C.text, padding: "9px 15px", opacity: !readiness.canExport || busy ? 0.5 : 1 }}><Copy size={13} /> Copy letter text</button></div>
         </>
       ) : null}
+      <style>{`@media print { [data-cover-letter-workspace] > :not([data-cover-letter-preview]) { display: none !important; } .document-controls { display: none !important; } [data-cover-letter-preview] { box-shadow: none !important; border-radius: 0 !important; } } @media screen and (max-width: 640px) { [data-cover-letter-preview], [data-resume-preview] { padding: 24px !important; } }`}</style>
       <ExportStatusNotice message={message} C={C} />
     </section>
   );

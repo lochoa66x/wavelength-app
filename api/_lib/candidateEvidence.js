@@ -1,4 +1,5 @@
 import { validateEvidenceCoachProposal } from "./evidenceCoach.js";
+import { capabilityLevel, capabilityStatement } from "../../src/capabilityClaims.js";
 
 const MAX_EVIDENCE_ITEMS = 12;
 
@@ -35,7 +36,7 @@ export function validateCandidateEvidence(input) {
     const requirement = cleanText(raw.requirement, 1500);
     const evidenceKind = raw.evidence_kind === "self_attested_capability" ? "self_attested_capability" : "candidate_example";
     const selfAttestedAnswer = evidenceKind === "self_attested_capability" && requirement
-      ? `I have this capability: ${requirement}.`
+      ? capabilityStatement({ ...raw, requirement })
       : "";
     const answer = cleanText(raw.answer, 1200) || selfAttestedAnswer;
     if (raw.user_confirmed !== true) errors.push(`Answer ${index + 1} must be confirmed by the candidate.`);
@@ -83,6 +84,7 @@ export function validateCandidateEvidence(input) {
       requirement,
       source: "candidate_note",
       evidence_kind: evidenceKind,
+      capability_level: capabilityLevel(raw),
       answer: declined ? "" : answer,
       context: declined ? "" : cleanText(raw.context, 500),
       approximate_date: declined ? "" : cleanText(raw.approximate_date, 80),
@@ -112,11 +114,11 @@ export function formatCandidateEvidence(evidence) {
     : item.evidence_kind === "self_attested_capability" ? [
         `[CANDIDATE NOTE ${item.id}]`,
         `Requirement: ${item.requirement_id}`,
-        "Candidate-selected capability: Yes.",
-        item.requirement ? `Capability: ${item.requirement}` : "",
-        item.answer && !/^I have this capability:/i.test(item.answer) ? `Optional candidate detail: ${item.answer}` : "",
+        `Confirmed experience level: ${capabilityLevel(item)}.`,
+        `Candidate statement: ${capabilityStatement(item)}`,
+        item.answer && !/^I have (?:this capability|a capability|knowledge|hands-on experience|led or owned work)/i.test(item.answer) ? `Optional candidate detail: ${item.answer}` : "",
         `Scope: ${item.scope}`,
-        "Usage boundary: This selection may support the skills/profile and requirement coverage. Do not invent an employer, project, date, duration, result, or historical accomplishment unless optional candidate detail supplies it.",
+        "Usage boundary: Knowledge means familiarity, applied means hands-on work, led means leadership in this area. Unspecified legacy selections do not establish hands-on experience or leadership. Never copy these metadata labels into document prose. Do not invent an employer, project, date, duration, result, credential, or historical accomplishment.",
       ].filter(Boolean).join("\n")
     : [
         `[CANDIDATE NOTE ${item.id}]`,

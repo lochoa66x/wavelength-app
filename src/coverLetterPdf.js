@@ -1,3 +1,4 @@
+import { coverLetterRecipientAddress } from "./documentIntegrity.js";
 import { safeCoverLetterFilename, validateCoverLetterExportContext } from "./coverLetterModel.js";
 
 let pdfModulePromise;
@@ -52,10 +53,12 @@ export async function createCoverLetterPdfBlob(input) {
   y += 18;
   write(new Date(plan.createdAt).toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" }), { after: 13 });
   if (plan.target.company) write(plan.target.company, { style: "bold", after: 3 });
-  if (plan.target.location) write(plan.target.location, { after: 3 });
+  if (coverLetterRecipientAddress(plan.target)) write(coverLetterRecipientAddress(plan.target), { after: 3 });
   if (plan.target.jobTitle) write(`Re: ${plan.target.jobTitle}`, { style: "bold", after: 16 });
   write(plan.salutation, { after: 12 });
-  plan.paragraphs.forEach((entry) => write(entry.text, { after: 12 }));
+  plan.paragraphs.forEach((entry) => write(entry.text));
+  const signoffHeight = 2 * tokens.coverLetterBodyFontSizePt * tokens.coverLetterLineHeight + 3;
+  if (y + signoffHeight > tokens.pageHeightIn * 72 - bottom) { doc.addPage("letter", "portrait"); y = tokens.marginTopIn * 72; }
   write(plan.signoff, { after: 3 });
   write(plan.candidate.fullName, { style: "bold", after: 0 });
   doc.setProperties({ title: `${plan.candidate.fullName} - ${plan.target.jobTitle} cover letter`, author: plan.candidate.fullName, creator: "Gigscapes" });

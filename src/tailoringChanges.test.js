@@ -14,6 +14,7 @@ const change = {
   experience_index: 0,
   bullet_index: 0,
   change_type: "rephrased",
+  restorable_original: true,
   original: "Supported integration testing for a new interface.",
   proposed: "Supported end-to-end integration testing for a new interface.",
 };

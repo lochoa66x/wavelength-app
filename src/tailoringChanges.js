@@ -9,6 +9,7 @@ export function tailoringChangeCurrentText(resumeData, change) {
 
 export function applyTailoringChangeDecision(resumeData, change, decision) {
   if (!resumeData || change?.section !== "experience") return resumeData;
+  if (decision === "original" && change.restorable_original !== true) return resumeData;
   const replacement = decision === "original" ? clean(change.original) : clean(change.proposed);
   if (!replacement) return resumeData;
   const experienceIndex = Number(change.experience_index);
@@ -17,6 +18,8 @@ export function applyTailoringChangeDecision(resumeData, change, decision) {
   const entry = experience[experienceIndex];
   if (!entry || !Array.isArray(entry.bullets) || bulletIndex < 0 || bulletIndex >= entry.bullets.length) return resumeData;
 
+  const currentText = clean(entry.bullets[bulletIndex]);
+  if (![clean(change.original), clean(change.proposed)].includes(currentText)) return resumeData;
   const nextBullets = [...entry.bullets];
   nextBullets[bulletIndex] = replacement;
   const nextExperience = [...experience];

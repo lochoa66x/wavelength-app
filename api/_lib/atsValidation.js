@@ -1,6 +1,7 @@
 import { findSemanticIntegrityIssues } from "./tailoringEvidence.js";
 import { isPlaceholderIdentity } from "./resumeQuality.js";
 import { buildWritingReview } from "./resumeWriting.js";
+import { claimMeaningIssues, requirementEvidenceBoundary } from "../../src/documentIntegrity.js";
 
 function normalized(value) {
   return String(value || "")
@@ -131,7 +132,7 @@ function historyEntryAssociationSupported(experience, baseResume) {
 }
 
 const EMPLOYMENT_ROLE_HINT_PATTERN = /\b(?:architect|consultant|designer|manager|director|engineer|developer|analyst|administrator|coordinator|specialist|lead|supervisor|officer|advisor|adviser|technician|representative|associate|intern|president|principal|owner|founder)\b/i;
-const EMPLOYMENT_DATE_RANGE_PATTERN = /\b(?:19|20)\d{2}\s*(?:-|–|—|to)\s*(?:(?:19|20)\d{2}|present|current)\b/i;
+const EMPLOYMENT_DATE_RANGE_PATTERN = /\b(?:(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\.?\s+)?(?:19|20)\d{2}\s*(?:-|–|—|to)\s*(?:(?:(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\.?\s+)?(?:19|20)\d{2}|present|current)\b/i;
 const EMPLOYMENT_SINGLE_YEAR_PATTERN = /\b(?:19|20)\d{2}\b\s*$/i;
 
 function cleanHistorySourcePart(value) {
@@ -141,10 +142,10 @@ function cleanHistorySourcePart(value) {
     .trim();
 }
 
-function sourceHistoryEntries(baseResume) {
+export function sourceHistoryEntries(baseResume) {
   const lines = String(baseResume || "")
     .split(/\r?\n/)
-    .map((line) => line.replace(/\s+/g, " ").trim())
+    .map((line) => line.replace(/^[\s•*-]+/, "").replace(/\s+/g, " ").trim())
     .filter(Boolean);
   const entries = [];
   const seen = new Set();
@@ -157,9 +158,10 @@ function sourceHistoryEntries(baseResume) {
     if (!dateMatch) continue;
 
     const dates = dateMatch[0];
-    const prefix = cleanHistorySourcePart(line.slice(0, dateMatch.index));
+    const prefix = cleanHistorySourcePart(line.slice(0, dateMatch.index).replace(/[([]\s*$/, ""));
+    const suffix = cleanHistorySourcePart(line.slice(dateMatch.index + dates.length).replace(/^[)\]]\s*/, ""));
     const parts = prefix
-      .split(/\s+(?:[|•·—–]|-)\s+/)
+      .split(/\s*[|•·—–]\s*|\s+-\s+|\s+at\s+/i)
       .map(cleanHistorySourcePart)
       .filter(Boolean);
     let role = "";
@@ -167,9 +169,23 @@ function sourceHistoryEntries(baseResume) {
 
     if (parts.length >= 2 && EMPLOYMENT_ROLE_HINT_PATTERN.test(parts[0])) {
       [role, company] = parts;
+    } else if (parts.length >= 2 && EMPLOYMENT_ROLE_HINT_PATTERN.test(parts[1])) {
+      [company, role] = parts;
+    } else if (!prefix && suffix) {
+      const afterDate = suffix.split(/\s*[|•·—–]\s*|\s+-\s+|\s+at\s+/i).filter(Boolean);
+      if (afterDate.length >= 2 && EMPLOYMENT_ROLE_HINT_PATTERN.test(afterDate[0])) [role, company] = afterDate;
+      else if (afterDate.length >= 2 && EMPLOYMENT_ROLE_HINT_PATTERN.test(afterDate[1])) [company, role] = afterDate;
+    } else if (parts.length === 1 && EMPLOYMENT_ROLE_HINT_PATTERN.test(parts[0]) && index > 0
+        && lines[index - 1].length < 120 && !EMPLOYMENT_DATE_RANGE_PATTERN.test(lines[index - 1])
+        && !/^(?:professional experience|experience|employment)$/i.test(lines[index - 1])) {
+      role = parts[0];
+      company = cleanHistorySourcePart(lines[index - 1]);
     } else if (parts.length === 1 && index > 0 && EMPLOYMENT_ROLE_HINT_PATTERN.test(lines[index - 1])) {
       role = cleanHistorySourcePart(lines[index - 1]);
       company = parts[0];
+    } else if (!parts.length && index > 1 && EMPLOYMENT_ROLE_HINT_PATTERN.test(lines[index - 1]) && !EMPLOYMENT_ROLE_HINT_PATTERN.test(lines[index - 2])) {
+      role = cleanHistorySourcePart(lines[index - 1]);
+      company = cleanHistorySourcePart(lines[index - 2]);
     } else if (!parts.length && index > 1 && EMPLOYMENT_ROLE_HINT_PATTERN.test(lines[index - 2])) {
       role = cleanHistorySourcePart(lines[index - 2]);
       company = cleanHistorySourcePart(lines[index - 1]);
@@ -181,7 +197,7 @@ function sourceHistoryEntries(baseResume) {
     const key = [role, company, dates].map(normalized).join("|");
     if (seen.has(key)) continue;
     seen.add(key);
-    entries.push({ role, company, dates, sourceLine: line });
+    entries.push({ role, company, dates, sourceLine: line, headerIndex: index });
   }
   return entries;
 }
@@ -233,6 +249,22 @@ function exportedResumeValues(resumeData) {
     safety_record: resume.safety_record,
     safety_certifications: resume.safety_certifications,
   });
+}
+
+
+export function missingSourceQualifications(resumeData, baseResume) {
+  const output = normalized(textValues({ education: resumeData?.education, certifications: resumeData?.certifications, training: resumeData?.training }).join(" "));
+  let section = "";
+  const missing = [];
+  for (const raw of String(baseResume || "").split(/\r?\n/)) {
+    const line = raw.replace(/^[\s•*-]+/, "").trim();
+    if (/^(?:education|academic (?:background|qualifications)|certifications?|professional certifications?)$/i.test(line)) { section = line; continue; }
+    if (/^(?:professional (?:experience|training)|experience|employment|training|skills|languages|projects|references)$/i.test(line)) { section = ""; continue; }
+    if (!section || !/\b(?:bachelor|master|doctorate|phd|diploma|associate|certified|certification|PMP)\b/i.test(line) || line.length > 220) continue;
+    const terms = normalized(line).split(" ").filter((word) => word.length > 2 && !["the", "and", "with", "from"].includes(word));
+    if (terms.length >= 2 && !terms.every((word) => output.split(" ").includes(word))) missing.push({ section, source: line });
+  }
+  return missing;
 }
 
 function endYear(value) {
@@ -319,7 +351,9 @@ function sourceContribution(sourceTokens, coveredTokens, proposedTokens) {
 }
 
 function firstActionVerb(value) {
-  return normalized(value).split(" ").find(Boolean) || "";
+  if (/^(?:I\s+)?(?:was\s+)?responsible for\b/i.test(String(value).trim())) return "owned";
+  if (/^(?:participated|served) as (?:the )?(?:team )?lead\b/i.test(String(value).trim())) return "led";
+  return normalized(value).replace(/^i /, "").split(" ").find(Boolean) || "";
 }
 
 function unsupportedOwnershipStrengthening(proposed, citations) {
@@ -352,11 +386,12 @@ function distinctiveRequirementOverlap(bullet, requirementText) {
 
 function bestRequirementForBullet(bullet, requirements = []) {
   return requirements.map((requirement) => {
+    if (!requirementEvidenceBoundary(requirement.requirement, bullet).valid) return null;
     const requirementScore = changeSimilarity(bullet, requirement.requirement);
     const evidenceScore = Math.max(0, ...((requirement.evidence || []).map((citation) => changeSimilarity(bullet, citation.excerpt))));
     const distinctive = distinctiveRequirementOverlap(bullet, requirement.requirement);
     return { requirement, requirementScore, score: Math.max(requirementScore, evidenceScore * 0.6), distinctive };
-  }).filter(({ score, requirementScore, distinctive }) => (
+  }).filter(Boolean).filter(({ score, requirementScore, distinctive }) => (
     distinctive.requirementTokenCount > 0
     && distinctive.count >= distinctive.minimum
     && score >= 0.28
@@ -370,6 +405,9 @@ function citationsForBullet(proposed, requirement, sourceLines) {
   const candidates = [];
   for (const citation of requirement?.evidence || []) {
     if (!citation?.excerpt) continue;
+    // Historical bullets must be grounded in their own engagement, never a
+    // generic capability checkbox or a similarly worded role elsewhere.
+    if (citation.source === "candidate_note" || !sourceLines.some((line) => normalized(line.excerpt).includes(normalized(citation.excerpt)))) continue;
     candidates.push({
       source: citation.source || "base_resume",
       section: citation.section || "base resume",
@@ -407,34 +445,51 @@ function citationsForBullet(proposed, requirement, sourceLines) {
 
 export function buildTailoringChangeLedger(resumeData, baseResume, analysis = {}) {
   const sourceLines = resumeEvidenceLines(baseResume);
+  const headers = sourceHistoryEntries(baseResume);
+  const nonemptyLines = String(baseResume || "").split(/\r?\n/).map((line, index) => ({ text: line.replace(/^[\s•*-]+/, "").replace(/\s+/g, " ").trim(), index })).filter((line) => line.text);
   const requirements = Array.isArray(analysis?.requirements) ? analysis.requirements : [];
   const changes = [];
 
   for (const [experienceIndex, experience] of (resumeData?.experience || []).entries()) {
+    const roleHeaders = headers.filter((entry) => roleEquivalent(String(experience?.role || ""), entry.role));
+    const header = headers.find((entry) => historyEntryCoversSource(experience, entry)) || (!experience.company && !experience.dates && roleHeaders.length === 1 ? roleHeaders[0] : null);
+    const nextHeader = header && headers.find((entry) => entry.headerIndex > header.headerIndex);
+    const startLine = header ? nonemptyLines[header.headerIndex]?.index + 1 : null;
+    const endLine = nextHeader ? nonemptyLines[nextHeader.headerIndex]?.index + 1 : Infinity;
+    const sectionEndIndex = header ? nonemptyLines.find((line) => line.index + 1 > startLine && /^(?:education|professional training|training|certifications?|languages?|VERIFIED CANDIDATE NOTES|\[CANDIDATE NOTE)/i.test(line.text))?.index : null;
+    const sectionEnd = sectionEndIndex == null ? null : sectionEndIndex + 1;
+    const scopedLines = header ? sourceLines.filter((line) => line.line_index > startLine && line.line_index < Math.min(endLine, sectionEnd || Infinity)) : headers.length ? [] : sourceLines;
     for (const [bulletIndex, proposedValue] of (experience?.bullets || []).entries()) {
       const proposed = String(proposedValue || "").replace(/\s+/g, " ").trim();
       if (!proposed) continue;
       const requirementMatch = bestRequirementForBullet(proposed, requirements);
       const requirement = requirementMatch?.requirement || null;
-      const provenance = citationsForBullet(proposed, requirement, sourceLines);
+      const provenance = citationsForBullet(proposed, requirement, scopedLines);
       const bestSource = provenance.citations[0] || null;
       const original = bestSource?.excerpt || "";
       const exact = normalized(original) === normalized(proposed);
       const changeType = exact
         ? "retained"
+        : provenance.citations.length > 1
+          ? "synthesized"
         : proposed.length < original.length * 0.72
           ? "condensed"
           : requirement
             ? "repositioned"
             : "rephrased";
       const ownershipStrengthening = exact ? null : unsupportedOwnershipStrengthening(proposed, provenance.citations);
-      const citationComplete = exact || Boolean(provenance.citations.length && provenance.coverage >= 0.5 && !ownershipStrengthening);
+      const meaningIssues = claimMeaningIssues(proposed, provenance.citations);
+      const citationComplete = !meaningIssues.length && (exact || Boolean(provenance.citations.length && provenance.coverage >= 0.5 && !ownershipStrengthening));
+      const boundary = requirement ? requirementEvidenceBoundary(requirement.requirement, proposed) : null;
       const reason = exact
-        ? "Kept this verified evidence because it is already clear and relevant."
+        ? "Retains the source wording."
+        : meaningIssues.length ? meaningIssues.join(" ")
+        : citationComplete && changeType === "synthesized"
+          ? `Combines ${provenance.citations.length} source statements${header ? ` from ${header.role} at ${header.company}` : ""}. Review the combined scope and contribution. ${boundary?.reason || ""}`.trim()
         : requirement && citationComplete
-          ? `Rephrased verified evidence to make its connection to “${requirement.requirement}” explicit without adding a new fact.`
+          ? `Emphasizes experience relevant to “${requirement.requirement}”. ${boundary?.reason || "Review the cited scope and responsibility level."}`
           : citationComplete
-            ? "Clarified the cited candidate evidence without adding a new fact."
+            ? "Rephrases the cited source. Review the wording and responsibility level."
             : "This wording needs evidence review before it can be treated as verified.";
       changes.push({
         id: `experience-${experienceIndex}-bullet-${bulletIndex}`,
@@ -443,6 +498,8 @@ export function buildTailoringChangeLedger(resumeData, baseResume, analysis = {}
         experience_index: experienceIndex,
         bullet_index: bulletIndex,
         original,
+        restorable_original: Boolean(header && provenance.citations.length === 1),
+        source_role: header ? `${header.role} | ${header.company} | ${header.dates}` : "",
         proposed,
         change_type: changeType,
         reason,
@@ -452,6 +509,7 @@ export function buildTailoringChangeLedger(resumeData, baseResume, analysis = {}
         citation_coverage: Number(provenance.coverage.toFixed(3)),
         citation_complete: citationComplete,
         unsupported_strengthening: ownershipStrengthening,
+        meaning_issues: meaningIssues,
         uncovered_terms: provenance.uncoveredTerms.slice(0, 12),
       });
     }
@@ -505,6 +563,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
   const unsupported_metrics = [];
   const unsupported_history = [];
   const missing_history = missingSourceHistory(resumeData, historyBase);
+  const missing_qualifications = missingSourceQualifications(resumeData, historyBase);
 
   const unsupportedClaims = [...new Set(exportedResumeValues(resumeData).flatMap(numericClaims).filter((claim) => !allowedNumbers.has(claim)))];
   unsupported_metrics.push(...unsupportedClaims.map((claim) => ({ claim })));
@@ -539,7 +598,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
   }
 
   const writingReview = buildWritingReview(resumeData, baseResume, options);
-  const tailoringChanges = buildTailoringChangeLedger(resumeData, baseResume, options.analysis);
+  const tailoringChanges = buildTailoringChangeLedger(resumeData, historyBase, options.analysis);
   const provenance_issues = (options.analysis ? tailoringChanges : []).filter((change) => (
     change.change_type !== "retained" && change.citation_complete !== true
   )).map((change) => ({
@@ -548,8 +607,10 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
     bullet_index: change.bullet_index,
     original: change.original,
     proposed: change.proposed,
-    issue_type: change.unsupported_strengthening ? "unsupported_strengthening" : "incomplete_citation",
+    issue_type: change.meaning_issues?.length ? "meaning_changed" : change.unsupported_strengthening ? "unsupported_strengthening" : "incomplete_citation",
     unsupported_strengthening: change.unsupported_strengthening,
+    restorable_original: change.restorable_original,
+    meaning_issues: change.meaning_issues,
     uncovered_terms: change.uncovered_terms,
     evidence_citations: change.evidence_citations,
   }));
@@ -604,6 +665,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
     unsupported_metrics.length
       || unsupported_history.length
       || missing_history.length
+      || missing_qualifications.length
       || semantic.unsupported_skills.length
       || semantic.unsupported_projects.length
       || semantic.unsupported_training.length
@@ -709,6 +771,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
     unsupported_metrics,
     unsupported_history,
     missing_history,
+    missing_qualifications,
     unsupported_skills: semantic.unsupported_skills,
     unsupported_projects: semantic.unsupported_projects,
     unsupported_training: semantic.unsupported_training,
@@ -726,6 +789,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
       issue_count: unsupported_metrics.length
         + unsupported_history.length
         + missing_history.length
+        + missing_qualifications.length
         + semantic.unsupported_skills.length
         + semantic.unsupported_projects.length
         + semantic.unsupported_training.length

@@ -1,3 +1,4 @@
+import { CAPABILITY_LEVELS } from "./capabilityClaims.js";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, MessageSquareText, Sparkles, X } from "lucide-react";
 import {
@@ -92,7 +93,7 @@ export function EvidenceRefinementPanel({
   const update = (question, patch, { preserveCoach = false } = {}) => {
     setDrafts((current) => {
       const previous = normalizeEvidenceDraft(current[question.requirement_id] || {});
-      const sourceChanged = ["answer", "context", "employer_or_project", "approximate_date", "contribution_level"]
+      const sourceChanged = ["answer", "context", "employer_or_project", "approximate_date", "contribution_level", "capability_level"]
         .some((field) => Object.hasOwn(patch, field) && patch[field] !== previous[field]);
       const coachReset = !preserveCoach && sourceChanged ? {
         coach_proposal: null,
@@ -259,7 +260,7 @@ export function EvidenceRefinementPanel({
       </summary>
       <div style={{ borderTop: `1px solid ${C.border}`, padding: "12px 16px 15px" }}>
         <p style={{ margin: "0 0 10px", color: C.textSub, fontSize: 12, lineHeight: 1.5 }}>
-          Select only capabilities that accurately describe you. Your selection is enough; examples and project details are optional and can make the wording more specific. Your saved résumé is never changed.
+          Select only capabilities that accurately describe you. Choose the level that describes your experience. Examples and project details are optional. Your saved résumé is never changed.
         </p>
 
       <div style={{ display: "grid", gap: 10 }}>
@@ -279,20 +280,28 @@ export function EvidenceRefinementPanel({
                 />
                 <span>
                   <span style={{ color: C.textFaint, display: "block", fontSize: 10.5, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 4 }}>{question.requirement}</span>
-                  <span style={{ color: C.text, display: "block", fontSize: 12.5, fontWeight: 650, lineHeight: 1.45 }}>I have this skill, knowledge, or experience.</span>
+                  <span style={{ color: C.text, display: "block", fontSize: 12.5, fontWeight: 650, lineHeight: 1.45 }}>Include this area in my application.</span>
                 </span>
               </label>
 
               {answerStatus === "yes" ? (
                 <>
+                  <label style={{ display: "grid", gap: 5, marginTop: 10, fontSize: 12 }}>
+                    My experience in this area
+                    <select aria-label={`Experience level for ${question.requirement}`} value={record.capability_level || "unspecified"} onChange={(event) => update(question, { capability_level: event.target.value, user_confirmed: false })} style={{ padding: 9, borderRadius: 8, border: `1px solid ${C.border}`, background: C.bgCard, color: C.text }}>
+                      <option value="unspecified">Experience level not specified</option>
+                      {CAPABILITY_LEVELS.map(({ id, label }) => <option key={id} value={id}>{label}</option>)}
+                    </select>
+                  </label>
                   <textarea
+                    aria-label={`Optional example for ${question.requirement}`}
                     value={record.answer || ""}
                     onChange={(event) => update(question, { answer: event.target.value, user_confirmed: false })}
                     placeholder="Optional: add a factual example, project, or scope in your own words."
                     rows={2}
                     style={{ width: "100%", resize: "vertical", marginTop: 8, padding: "9px 10px", borderRadius: 9, border: `1px solid ${C.border}`, color: C.text, background: C.bgCard, font: "inherit", fontSize: 12.5, lineHeight: 1.45 }}
                   />
-                  <p style={{ color: C.textFaint, fontSize: 11, lineHeight: 1.4, margin: "5px 2px 0" }}>No extra proof is required. Details help Gigscapes write a stronger accomplishment; without them, the selection is used only as a capability statement.</p>
+                  <p style={{ color: C.textFaint, fontSize: 11, lineHeight: 1.4, margin: "5px 2px 0" }}>Examples are optional. Your selected level controls the wording; project details can make it more specific.</p>
                   <details style={{ borderTop: `1px solid ${C.border}`, marginTop: 9, paddingTop: 8 }}>
                     <summary style={{ color: C.textSub, cursor: "pointer", fontSize: 11.5, fontWeight: 700 }}>Add project details or polish this answer (optional)</summary>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8, marginTop: 8 }}>

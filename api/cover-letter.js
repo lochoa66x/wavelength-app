@@ -1,3 +1,4 @@
+import { hasInternalDocumentLanguage, claimMeaningIssues } from "../src/documentIntegrity.js";
 import { normalizeListingCategory } from "../src/listingCategories.js";
 import { callStructuredAI, hasConfiguredProvider } from "./_lib/aiProvider.js";
 import { normalizeCustomJobBrief, jobBriefToText } from "./_lib/jobBrief.js";
@@ -146,6 +147,8 @@ function validateLetter(raw, {
     if (!text || text.length < 35) issues.push(`${id}: paragraph is incomplete`);
     if (seen.has(id)) issues.push(`${id}: duplicate paragraph id`);
     seen.add(id);
+    if (hasInternalDocumentLanguage(text)) issues.push(`${id}: internal application terminology must not appear in the letter`);
+    for (const issue of claimMeaningIssues(text, evidenceRefs)) issues.push(`${id}: ${issue}`);
     if (GENERIC_FLATTERY.test(text) || UNSUPPORTED_PERSONAL.test(text) || PLACEHOLDER.test(text)) issues.push(`${id}: contains unsupported motivation, personal, or placeholder language`);
     if (containsSelfDisqualifyingCoverLetterLanguage(text)) issues.push(`${id}: contains self-disqualifying or gap-focused positioning`);
     if (containsSelfDisqualifyingCoverLetterLanguage(explanation)) issues.push(`${id}: explanation contains self-disqualifying positioning`);
@@ -299,8 +302,11 @@ RULES
 - This is an employer-facing advocacy document, not a fit assessment. Never mention, enumerate, explain, or apologize for missing experience, unmet requirements, gaps, limitations, weaker fit, application risk, or reasons to reject the candidate—even if those appear in candidate notes or the existing draft.
 - Never use a boundary, disclaimer, concession, or conditional-candidacy paragraph. Do not say "although," "rather than," "I understand," "if you are open to," or that the candidate must ramp up. Do not describe a career change, transition, new path, or new journey.
 - Lead with the strongest verified experience, skills, results, scope, leadership, and relevant domain foundations. Select two or three points that best answer the posting instead of trying to discuss every requirement.
-- Open with professional value, not the generic phrase "I am applying for." Name the role naturally within the first paragraph and make the first two sentences specific enough to distinguish this candidate.
+- Open directly with the role and one or two relevant strengths. "I am applying for" is acceptable when followed by specific evidence. Avoid packing the entire technical lifecycle into the opening.
 - Build a selective argument instead of reciting the résumé. Each evidence paragraph should synthesize related proof into one clear strength, then connect that strength to the employer's stated work.
+- Never print internal terms such as "candidate-selected capabilities", "candidate-confirmed evidence", source IDs, or paragraph labels in prose. Express confirmed capabilities naturally at the stated experience level. Familiarity is not hands-on experience; hands-on work is not leadership. An unspecified selection does not establish leadership.
+- Preserve projected results as projected. Training and guidance do not establish configuration ownership. Match each employer-specific claim to that engagement.
+- Give each evidence paragraph a distinct purpose and a single principal example. Do not use the third paragraph as a catalogue of degrees, tools, language proficiency, and every selected capability.
 - Prefer decisive senior phrasing supported by the source: "I led," "I configured," "I designed," and "I delivered" where those contribution levels are verified. Avoid repetitive "I contributed" constructions and generic claims such as "disciplined approach."
 - Keep paragraphs concise and readable. Avoid module inventories, semicolon chains, repeated employer names, and restating the same delivery lifecycle in more than one paragraph.
 - Adjacent experience must be framed positively: explain the shared capability, process, or domain foundation directly. Do not contrast it with an industry, module, tool, or context the candidate has not used.

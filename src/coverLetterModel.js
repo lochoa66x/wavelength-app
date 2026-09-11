@@ -1,3 +1,4 @@
+import { hasInternalDocumentLanguage, claimMeaningIssues, coverLetterRecipientAddress } from "./documentIntegrity.js";
 import { createResumePackage, stableHash } from "./resumeModel.js";
 import { hasUsableResumeIdentity, hasVerifiedPosting } from "./resumeReadiness.js";
 import { createApplicationPresentation, validateApplicationPresentation } from "./applicationPresentation.js";
@@ -77,6 +78,7 @@ function targetSnapshot(item = {}) {
     jobTitle: sentenceCaseOpening(item.title ?? item.jobTitle),
     company: clean(item.company, 240),
     location: clean(item.location, 240),
+    ...(item.employerAddress ? { employerAddress: clean(item.employerAddress, 500) } : {}),
   };
 }
 
@@ -174,6 +176,9 @@ export function createCoverLetterPlan(raw = {}, {
 
 export function validateCoverLetterEdit(text, paragraph, { baseResume = "", candidateEvidence = [], item = {} } = {}) {
   const next = clean(text, 2_400);
+  if (hasInternalDocumentLanguage(next)) return { ok: false, message: "Remove internal application terminology from the letter." };
+  const meaningIssues = claimMeaningIssues(next, paragraph?.evidenceRefs || []);
+  if (meaningIssues.length) return { ok: false, message: meaningIssues.join(" ") };
   if (next.length < 20) return { ok: false, message: "Keep at least one complete, specific sentence or remove the paragraph." };
   if (containsSelfDisqualifyingCoverLetterLanguage(next)) {
     return { ok: false, message: "Keep the letter focused on relevant strengths. Leave missing qualifications and fit concerns out of employer-facing wording." };
@@ -234,6 +239,7 @@ export function getCoverLetterReadiness(plan, { baseResume = "", resumeData = {}
   const stale = !plan || plan.sourceFingerprint !== expectedFingerprint;
   const invalidHash = Boolean(plan) && plan.contentHash !== stableHash(planContent(plan), "cover-letter");
   const unverified = (plan?.paragraphs || []).some((entry) => entry.verification !== "verified");
+  const internalLanguage = (plan?.paragraphs || []).some((entry) => hasInternalDocumentLanguage(entry.text));
   const selfDisqualifying = (plan?.paragraphs || []).some((entry) => containsSelfDisqualifyingCoverLetterLanguage(entry.text));
   const incomplete = (plan?.paragraphs?.length || 0) < 2 || !plan?.candidate?.fullName || !plan?.target?.jobTitle;
   const missingIdentity = !hasUsableResumeIdentity(plan?.candidate?.fullName);
@@ -242,7 +248,7 @@ export function getCoverLetterReadiness(plan, { baseResume = "", resumeData = {}
     .reduce((total, key) => total + Number(atsReview?.coverage?.[key] || 0), 0);
   const assessmentIncomplete = !hasVerifiedPosting(atsReview) || requirementCount === 0 || requirementCount !== coverageTotal;
   const significantGap = ["significant_gap", "needs_full_posting"].includes(atsReview?.readiness?.status);
-  const blocked = missingIdentity || stale || invalidHash || unverified || selfDisqualifying || incomplete;
+  const blocked = missingIdentity || stale || invalidHash || unverified || selfDisqualifying || internalLanguage || incomplete;
   const preliminary = !blocked && (assessmentIncomplete || significantGap);
   return {
     state: blocked ? "blocked" : preliminary ? "preliminary" : "application_ready",
@@ -251,6 +257,7 @@ export function getCoverLetterReadiness(plan, { baseResume = "", resumeData = {}
     stale,
     invalidHash,
     selfDisqualifying,
+    internalLanguage,
     message: missingIdentity
       ? "Add your real name to the saved résumé before exporting a cover letter."
       : stale
@@ -259,6 +266,8 @@ export function getCoverLetterReadiness(plan, { baseResume = "", resumeData = {}
           ? "The letter content no longer matches its trusted draft. Generate it again."
           : unverified
             ? "Recheck or restore the edited paragraph before exporting."
+            : internalLanguage
+              ? "This saved draft contains internal application wording. Edit the affected paragraph or regenerate the letter; your draft is preserved."
             : selfDisqualifying
               ? "This saved draft uses self-disqualifying language from an earlier version. Generate a fresh draft before exporting."
               : incomplete
@@ -294,6 +303,7 @@ export function validateCoverLetterExportContext(context, now = Date.now()) {
   if (context.plan?.sourceFingerprint !== context.sourceFingerprint) throw new Error("The cover letter is stale because its source evidence changed.");
   const expectedContentHash = stableHash(planContent(context.plan), "cover-letter");
   if (context.plan?.contentHash !== expectedContentHash) throw new Error("The cover-letter content hash is invalid or stale.");
+  if ((context.plan?.paragraphs || []).some((entry) => hasInternalDocumentLanguage(entry.text))) throw new Error("Remove internal application wording before exporting.");
   const applicationPresentation = validateApplicationPresentation(context.applicationPresentation);
   const expectedAuthorization = stableHash({
     contentHash: context.plan.contentHash,
@@ -311,7 +321,7 @@ export function coverLetterToPlainText(plan) {
     plan?.candidate?.contactLine,
     "",
     plan?.target?.company,
-    plan?.target?.location,
+    coverLetterRecipientAddress(plan?.target),
     plan?.target?.jobTitle,
     "",
     plan?.salutation,

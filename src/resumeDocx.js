@@ -125,7 +125,13 @@ export async function createResumeDocxBlob(input, template = "professional", opt
   ];
   headerRows.forEach((row, index) => {
     const isLast = index === headerRows.length - 1;
-    const border = tokens.headerTreatment === "accent-edge"
+    const keylineHeader = ["keyline", "editorial-v2"].includes(tokens.headerTreatment);
+    const border = keylineHeader
+      ? {
+          ...(index === 0 ? { top: { color: color(tokens.accent), size: tokens.headerTreatment === "keyline" ? 20 : 8, space: 5, style: "single" } } : {}),
+          ...(isLast ? { bottom: { color: color(tokens.rule), size: 8, space: 6, style: "single" } } : {}),
+        }
+      : tokens.headerTreatment === "accent-edge"
       ? { left: { color: color(tokens.accent), size: 24, space: 10, style: "single" } }
       : !headerBand && isLast
         ? {
@@ -177,7 +183,7 @@ export async function createResumeDocxBlob(input, template = "professional", opt
         }));
       }
     } else if (section.type === "credentials") {
-      for (const credential of section.items) addParagraph(entryHeader(credential.name, credential.issuer, credential.dateDisplay), { spacing: { after: space(40) }, keepLines: true });
+      section.items.forEach((credential, index) => addParagraph(entryHeader(credential.name, credential.issuer, credential.dateDisplay), { spacing: { after: space(40) }, keepLines: true, keepNext: section.items.length <= 4 && index < section.items.length - 1 }));
     } else if (section.type === "education") {
       for (const education of section.items) {
         addParagraph(entryHeader([education.credential, education.field].filter(Boolean).join(" - "), education.institution, education.location, education.dateDisplay), { spacing: { after: space(education.details.length ? 20 : 40) }, keepNext: education.details.length > 0 });

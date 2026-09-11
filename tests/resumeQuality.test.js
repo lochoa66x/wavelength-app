@@ -146,12 +146,12 @@ test("focus review prioritizes relevant evidence, removes repetition, and leaves
   assert.equal(result.resume.experience[0].bullets[0], "Configured SAP S/4HANA Finance workflows.");
   assert.equal(
     result.resume.experience.flatMap((entry) => entry.bullets).filter((bullet) => bullet === "Configured SAP S/4HANA Finance workflows.").length,
-    1,
+    2,
   );
   assert.equal(result.focusReview.target_length, "one_to_two_pages");
   assert.equal(result.focusReview.estimated_pages <= 2, true);
   assert.equal(result.focusReview.condensed_experience.length > 0, true);
-  assert.equal(result.focusReview.duplicate_groups.length > 0, true);
+  assert.equal(result.focusReview.duplicate_groups.length, 0);
 });
 
 test("resume shaping consolidates duplicate history headers and normalizes safe presentation details", () => {

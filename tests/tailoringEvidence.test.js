@@ -908,6 +908,6 @@ test("FI-CAX and financial postings recognize FI-CA and PSCD as adjacent foundat
 
   assert.equal(byId.R1.evidence_match, "adjacent");
   assert.equal(byId.R2.evidence_match, "adjacent");
-  assert.equal(result.readiness.status, "strong_fit");
-  assert.equal(result.gap_summary.outlook.status, "strong_verified_alignment");
+  assert.equal(result.readiness.status, "credible_stretch");
+  assert.equal(result.gap_summary.outlook.status, "viable_manageable_gaps");
 });

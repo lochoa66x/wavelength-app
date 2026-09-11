@@ -62,6 +62,7 @@ function cleanCompanyPresentation(value) {
 function polishedText(value) {
   return normalizeSapBranding(value)
     .replace(/\b(?:Contributed|Participated) as (?:a|the) ([^,.]{1,70}?)team lead(?:,?\s+contributing)?\s+to\b/gi, "Served as $1team lead, contributing to")
+    .replace(/\bParticipated as the team lead for the ([^,.]+) team,? contributing to\b/gi, "Led the $1 team through")
     .replace(/\bverified\s+(?=(?:SAP|Business Partner|Contract Accounts?|Contract Objects?|experience|skills?|capabilities|background|knowledge)\b)/gi, "")
     .replace(/\bfunctional[- ]specification documentation\b/gi, "functional specifications")
     .replace(/\bknowledge[- ]transfer\b/gi, "knowledge transfer")
@@ -296,8 +297,8 @@ function restoreRequiredEducation(resumeData, analysis, baseResume) {
 
 const SAP_TRAINING_PATTERN = /\b(?:sap|fi[- ]?ca|pscd|s\/?4hana|asap)\b/i;
 
-const TRAINING_HEADING_PATTERN = /^(?:professional\s+)?(?:training|certifications?|courses?)$/i;
-const NEXT_SECTION_HEADING_PATTERN = /^(?:professional\s+)?(?:experience|employment|education|languages?|skills?|projects?|summary|profile)$/i;
+const TRAINING_HEADING_PATTERN = /^(?:professional\s+)?(?:training|courses?)$/i;
+const NEXT_SECTION_HEADING_PATTERN = /^(?:professional\s+)?(?:experience|employment|education|certifications?|training|languages?|skills?|projects?|summary|profile)$/i;
 
 function restoreRelevantTraining(resumeData, baseResume) {
   const lines = String(baseResume || "")
@@ -310,7 +311,7 @@ function restoreRelevantTraining(resumeData, baseResume) {
   for (const line of lines.slice(headingIndex + 1, headingIndex + 21)) {
     if (!line) continue;
     if (NEXT_SECTION_HEADING_PATTERN.test(line)) break;
-    if (!SAP_TRAINING_PATTERN.test(line) || line.length > 180) continue;
+    if (line.length > 180) continue;
     const [name, ...providerParts] = line.split("|").map((part) => part.trim()).filter(Boolean);
     if (!name) continue;
     parsed.push({
@@ -322,14 +323,23 @@ function restoreRelevantTraining(resumeData, baseResume) {
   }
   if (!parsed.length) return resumeData;
 
-  const training = Array.isArray(resumeData?.training) ? [...resumeData.training] : [];
-  const existing = new Set(training.map((entry) => normalized(`${entry?.name || ""} ${entry?.provider || ""}`)).filter(Boolean));
-  for (const entry of parsed) {
-    const key = normalized(`${entry.name} ${entry.provider}`);
-    const nameKey = normalized(entry.name);
-    if ([...existing].some((value) => value === key || value.startsWith(nameKey) || key.startsWith(value))) continue;
+  const training = [];
+  const courseIdentity = (entry) => {
+    const [name, ...inlineProvider] = String(entry?.name || "").split(",");
+    return {
+      name: normalized(name).replace(/^sap /, "").replace(/\bcollaterals\b/g, "collateral"),
+      provider: normalized(entry?.provider || inlineProvider.join(",")),
+      dates: normalized(entry?.dates || ""),
+    };
+  };
+  for (const entry of [...(Array.isArray(resumeData?.training) ? resumeData.training : []), ...parsed]) {
+    const key = courseIdentity(entry);
+    // Preserve distinct providers and dates; do not infer that similar courses are identical.
+    if (training.some((item) => {
+      const other = courseIdentity(item);
+      return key.name === other.name && key.provider === other.provider && key.dates === other.dates;
+    })) continue;
     training.push(entry);
-    existing.add(key);
   }
   return { ...resumeData, training };
 }
@@ -385,7 +395,7 @@ function focusResume(resumeData, analysis) {
     const kept = [];
 
     for (const candidate of source) {
-      const duplicate = seenBullets.find((existing) => similarity(candidate.value, existing.value) >= 0.78);
+      const duplicate = seenBullets.find((existing) => existing.experienceId === id && similarity(candidate.value, existing.value) >= 0.78);
       if (duplicate) {
         duplicateGroups.push({ kept: duplicate.value, omitted: candidate.value, reason: "Near-duplicate accomplishment" });
         omittedBullets.push({ experience_id: id, bullet: candidate.value, reason: "near_duplicate" });

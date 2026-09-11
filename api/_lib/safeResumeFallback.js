@@ -65,7 +65,7 @@ export function createSafeResumeFallback(resumeData, atsReview, analysis) {
     const bullets = (Array.isArray(entry?.bullets) ? entry.bullets : []).flatMap((bullet, bulletIndex) => {
       const provenanceIssue = provenanceIssues.get(`${index}:${bulletIndex}`);
       if (!provenanceIssue) return [bullet];
-      if (provenanceIssue.original) {
+      if (provenanceIssue.original && provenanceIssue.restorable_original === true) {
         restoredProvenanceCount += 1;
         return [provenanceIssue.original];
       }

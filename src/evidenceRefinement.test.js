@@ -78,7 +78,7 @@ test("a selected capability needs no redundant free-text proof", () => {
   }]);
 
   assert.equal(prepared.user_confirmed, true);
-  assert.match(prepared.answer, /I have this capability: FI-CA clearing and dunning/);
+  assert.match(prepared.answer, /experience level is not specified: FI-CA clearing and dunning/);
   assert.deepEqual(submittableCandidateEvidence([prepared]).map((record) => record.id), ["selected"]);
 });
 
@@ -86,8 +86,8 @@ test("evidence refinement is optional, compact, and has no redundant confirmatio
   assert.match(panelSource, /Strengthen this draft/);
   assert.match(panelSource, /Up to \$\{visibleQuestions\.length\} short questions/);
   assert.match(panelSource, /Use these answers/);
-  assert.match(panelSource, /I have this skill, knowledge, or experience/);
-  assert.match(panelSource, /No extra proof is required/);
+  assert.match(panelSource, /Include this area in my application/);
+  assert.match(panelSource, /Examples are optional/);
   assert.match(panelSource, /Remember this answer on this browser for future applications/);
   assert.doesNotMatch(panelSource, /I confirm this preview|confirm the preview before re-tailoring/);
 });

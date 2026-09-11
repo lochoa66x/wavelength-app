@@ -483,7 +483,7 @@ export const RESUME_TEMPLATE_REGISTRY = Object.freeze({
   [TEMPLATE_IDS.BOLD_IMPACT]: templateDefinition({
     id: TEMPLATE_IDS.BOLD_IMPACT,
     displayName: "Bold Impact",
-    description: "A confident accent-band identity treatment with a clean single-column body.",
+    description: "A restrained accent rule and clear typography in a single-column document.",
     intendedUse: "Leadership, customer-facing work, hospitality, sales, marketing, events, and networking copies",
     accent: "#9a3412",
     accentSoft: "#fff1e8",
@@ -491,20 +491,20 @@ export const RESUME_TEMPLATE_REGISTRY = Object.freeze({
     tone: "Bold",
     atsSafetyLevel: "moderate",
     contentProfile: "adaptive",
-    compatibilityNotes: "Searchable single-column text with no photos or layout tables; the accent-band treatment is best when the employer accepts designed résumés.",
+    compatibilityNotes: "Searchable single-column text with no photos or layout tables; the accent rule uses ordinary document paragraphs.",
     visualTokens: {
       headerBackground: "#9a3412",
       headerText: "#ffffff",
       headerAlignment: "left",
-      headerTreatment: "accent-band",
-      sectionTreatment: "soft-band",
-      sectionTextTransform: "uppercase",
+      headerTreatment: "keyline",
+      sectionTreatment: "underline",
+      sectionTextTransform: "none",
       sectionLetterSpacingEm: 0.04,
-      bodyFontSizePt: 10,
+      bodyFontSizePt: 10.5,
       bodyLineHeight: 1.36,
-      nameFontSizePt: 20.5,
+      nameFontSizePt: 18,
       headlineFontSizePt: 11,
-      sectionFontSizePt: 10.4,
+      sectionFontSizePt: 10.5,
     },
     sectionOrder: ["summary", "skills", "experience", "projects", "certifications", "training", "education", "languages", "safety"],
   }),
@@ -961,6 +961,7 @@ function normalizeContact(source, warnings) {
     country: fieldText(contactSource.country ?? source.country, ["country", "value"], "candidate.country", warnings, " ", 160) || locationParts[2] || "",
     professionalLinks,
     contactLine,
+    ...(contactSource.city || source.city ? { displayLocation: [contactSource.city || source.city, contactSource.region || contactSource.province || source.region].filter(Boolean).join(", ") } : {}),
   };
 }
 
@@ -1106,7 +1107,8 @@ function normalizeEducation(value, warnings, evidenceItems) {
 }
 
 function normalizeCredentials(value, path, warnings, evidenceItems) {
-  return valueList(value).map((entry, index) => {
+  return valueList(value).map((rawEntry, index) => {
+    const entry = typeof rawEntry === "string" ? { name: rawEntry } : rawEntry;
     if (!entry || typeof entry !== "object" || Array.isArray(entry)) return null;
     const name = fieldText(entry.name ?? entry.title ?? entry.credential, ["name", "title", "credential", "value"], `${path}.${index}.name`, warnings, " ", 300);
     const issuer = fieldText(entry.issuer ?? entry.provider ?? entry.institution, ["issuer", "provider", "institution", "organization", "name"], `${path}.${index}.issuer`, warnings, " ", 300);
@@ -1859,7 +1861,7 @@ function safeSectionHeading(section, templateId, classification) {
     skills: templateId === TEMPLATE_IDS.SAP_FUNCTIONAL && isSap
       ? "SAP Modules & Functional Capabilities"
       : templateId === TEMPLATE_IDS.PROJECT_LEADERSHIP && isLeadership
-        ? "Leadership Competencies"
+        ? "Core Expertise"
         : templateId === TEMPLATE_IDS.CAREER_TRANSITION && isTransition
           ? "Transferable Strengths"
           : templateId === TEMPLATE_IDS.TECHNICAL_SOFTWARE && isTechnical
@@ -1940,6 +1942,7 @@ function sectionOrderForTemplate(template, classification) {
 }
 
 function contactLine(candidate) {
+  if (candidate.displayLocation) return [candidate.email, candidate.phone, candidate.displayLocation, ...candidate.professionalLinks.map((link) => link.url)].filter(Boolean).join(" | ");
   if (candidate.contactLine) {
     const additionalLinks = candidate.professionalLinks
       .map((link) => link.url)

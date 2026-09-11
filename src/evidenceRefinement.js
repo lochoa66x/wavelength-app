@@ -12,6 +12,7 @@ export function normalizeEvidenceDraft(record = {}) {
   const answerStatus = evidenceAnswerState(record);
   return {
     ...record,
+    capability_level: capabilityLevel(record),
     evidence_kind: record.evidence_kind === "self_attested_capability" ? "self_attested_capability" : "candidate_example",
     answer_status: answerStatus,
     scope: EVIDENCE_SCOPES.has(record.scope) ? record.scope : "application",
@@ -21,8 +22,7 @@ export function normalizeEvidenceDraft(record = {}) {
 }
 
 function selfAttestedCapabilityStatement(record = {}) {
-  const requirement = String(record.requirement || "").replace(/\s+/g, " ").trim();
-  return requirement ? `I have this capability: ${requirement}.` : "";
+  return capabilityStatement(record);
 }
 
 export function candidateEvidencePreview(record = {}) {
@@ -49,7 +49,9 @@ export function prepareCandidateEvidenceForSubmission(records = []) {
     const selectedCapability = normalized.answer_status === "yes"
       && normalized.evidence_kind === "self_attested_capability"
       && String(normalized.requirement || "").trim().length >= 3;
-    const answer = String(normalized.answer || "").trim() || (selectedCapability ? selfAttestedCapabilityStatement(normalized) : "");
+    const sourceAnswer = String(normalized.answer || "").trim();
+    const generatedStatement = /^I have (?:this capability|a capability|knowledge|hands-on experience)|^I have led or owned work/i.test(sourceAnswer);
+    const answer = selectedCapability && (!sourceAnswer || generatedStatement) ? selfAttestedCapabilityStatement(normalized) : sourceAnswer;
     const hasUsableYesAnswer = normalized.answer_status === "yes" && answer.length >= 3;
     return {
       ...normalized,
@@ -71,3 +73,4 @@ export function submittableCandidateEvidence(records = []) {
       ))
     ));
 }
+import { capabilityLevel, capabilityStatement } from "./capabilityClaims.js";

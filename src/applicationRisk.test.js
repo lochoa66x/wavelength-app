@@ -36,7 +36,7 @@ test("a majority of related evidence produces constructive match guidance instea
   assert.equal(view.coreCounts.relatedEvidence, 5);
   assert.equal(view.coreCounts.materialGaps, 3);
   assert.equal(view.outlook.status, "viable_transition_material_gaps");
-  assert.equal(view.outlook.label, "Good match — review gaps");
+  assert.equal(view.outlook.label, "Related experience — review gaps");
   assert.doesNotMatch(view.outlook.reason, /legacy optimistic/i);
 });
 

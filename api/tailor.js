@@ -2,7 +2,7 @@ import { isTradesLikeCategory, normalizeListingCategory } from "../src/listingCa
 import { buildResumeRenderPlan, createResumePackage } from "../src/resumeModel.js";
 import { getResumePdfPageCount } from "../src/resumePdf.js";
 import { callStructuredAI, hasConfiguredProvider } from "./_lib/aiProvider.js";
-import { buildAtsReview, enforceReverseChronology } from "./_lib/atsValidation.js";
+import { buildAtsReview, enforceReverseChronology, sourceHistoryEntries } from "./_lib/atsValidation.js";
 import { jobBriefToText, normalizeCustomJobBrief } from "./_lib/jobBrief.js";
 import { authenticateSupabaseRequest, bearerToken } from "./_lib/requestAuth.js";
 import { createServerSupabaseClient } from "./_lib/serverSupabase.js";
@@ -106,7 +106,7 @@ const ANALYSIS_TOOL = {
 };
 
 // Professional tool — used for all non-trades categories. Same shape as before,
-// no certifications / safety fields.
+// Professional credentials are separate from courses; safety fields remain trades-specific.
 const PROFESSIONAL_TOOL = {
   name: "return_tailored_resume",
   description: "Return the tailored resume as structured data.",
@@ -187,9 +187,14 @@ const PROFESSIONAL_TOOL = {
           required: ["name"],
         },
       },
+      certifications: {
+        type: "array",
+        description: "Professional certifications explicitly held in the candidate source. Preserve exact names and issuers; training or experience is not a credential. Empty when none are stated.",
+        items: { type: "object", properties: { name: { type: "string" }, issuer: { type: "string" }, dates: { type: "string" } }, required: ["name"] },
+      },
       training: {
         type: "array",
-        description: "Courses, bootcamps, certifications, or transition training explicitly present in the base resume or candidate context. Empty when unsupported.",
+        description: "Courses, bootcamps, or professional training explicitly present in the base resume or candidate context. Empty when unsupported.",
         items: {
           type: "object",
           properties: {
@@ -463,6 +468,7 @@ function resumeValidationIssues(atsReview) {
       experienceIndex,
     })),
     missing_history: atsReview.missing_history,
+    missing_qualifications: atsReview.missing_qualifications,
     unsupported_skills: atsReview.unsupported_skills,
     unsupported_projects: atsReview.unsupported_projects,
     unsupported_training: atsReview.unsupported_training,
@@ -479,6 +485,7 @@ function employerFacingResumeIsSafe(atsReview) {
     atsReview.unsupported_metrics,
     atsReview.unsupported_history,
     atsReview.missing_history,
+    atsReview.missing_qualifications,
     atsReview.unsupported_skills,
     atsReview.unsupported_projects,
     atsReview.unsupported_training,
@@ -705,7 +712,7 @@ ANALYSIS RULES
 - The deterministic posting assessment is the fit gate. When fit_allowed is false, do not produce a definitive candidate-fit judgment: use fit_assessment only as a provisional content strategy, set readiness to needs_full_posting, and treat confidence as unavailable.
 - Never expose internal field names such as fit_allowed, application_ready_allowed, output_mode, or "deterministic posting assessment" in candidate-facing notes. Explain the same limitation in plain language.
 - For each requirement, classify the candidate evidence as direct, adjacent, transferable, or missing.
-- An explicit candidate-selected capability is candidate-owned evidence for that exact capability. It needs no second confirmation or project proof. Treat it as direct for the selected capability, but never infer an employer, project, date, duration, metric, result, or ownership level that the candidate did not supply.
+- An explicit candidate-selected capability is candidate-owned evidence for that exact capability. It needs no second confirmation or project proof. Use its explicit experience level: knowledge or unspecified is transferable, hands-on application can be direct for practice but only adjacent for leadership, and explicit leadership can support ownership in that area. Never infer an employer, project, date, duration, metric, result, or ownership level that the candidate did not supply.
 - Every direct, adjacent, or transferable match MUST include a short exact excerpt copied from BASE RÉSUMÉ EVIDENCE or VERIFIED CANDIDATE NOTES. If no exact excerpt supports it, classify it as missing.
 - Direct means the candidate has performed the target capability in the target context. Adjacent means substantially similar work in a neighboring context. Transferable means a broader capability is useful but not equivalent. Do not promote transferable evidence to adjacent or direct merely to improve fit.
 - Exact domain terms are not interchangeable: generic SAP evidence does not prove SAP SD, LE, EDI, JIT/JIS, RF, shipping, logistics, or security/compliance work. Language proficiency, degrees, testing types, and ABAP evidence may be matched only to the atomic requirement they actually support.
@@ -736,6 +743,7 @@ __TAILORING_ANALYSIS__
 INSTRUCTIONS
 - Copy \`fit_assessment\` from the authoritative analysis. Do not upgrade the fit, readiness, or recommended level while drafting.
 - Verified candidate notes may add factual evidence, but never overwrite immutable base-résumé history. Use note-specific context only for the requirement it answers and preserve the note's contribution level in the action verb.
+- Keep summaries selective: two or three sentences about supported seniority and the most relevant contributions. Avoid repeating the same list of SAP tools in both summary and skills. Training/guidance must not become configuration ownership, projected metrics must remain projected, and each bullet must stay with its source engagement. Preserve every supported employment entry, education item, and credential; compress older experience without dropping positions. Never print internal labels such as "candidate-selected capabilities" in document prose.
 - A candidate-selected capability is an explicit first-person self-attestation and does not need a second confirmation or project proof. It may support requirement coverage plus concise skills/profile wording. If the selection has no optional example, never convert it into a dated employer/project accomplishment, duration, result, or ownership claim.
 - Copy the candidate's name and contact details exactly when present. If either is unavailable, return an empty string. Never emit placeholders such as UNKNOWN, <UNKNOWN>, Candidate, N/A, or invented contact details.
 - Use the analysis content strategy: direct for a conventional targeted resume, adjacent for verified neighboring expertise, and transferable for a professional strengths-led resume.
@@ -825,7 +833,7 @@ INSTRUCTIONS
         ...tailoringResponseMetadata(analysis, atsReview, verifiedCandidateEvidence),
       });
     }
-    const baseDraftPrompt = prompt.replace("__TAILORING_ANALYSIS__", JSON.stringify(analysis, null, 2));
+    const baseDraftPrompt = prompt.replace("__TAILORING_ANALYSIS__", JSON.stringify(analysis, null, 2)) + `\n\nSOURCE EMPLOYMENT INVENTORY — preserve every listed role\n${JSON.stringify(sourceHistoryEntries(cappedResume).map(({ role, company, dates }) => ({ role, company, dates })))}`;
     let requestPrompt = baseDraftPrompt;
 
     for (let attempt = 0; attempt < 3; attempt += 1) {

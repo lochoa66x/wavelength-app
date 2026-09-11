@@ -15,9 +15,9 @@ export const APPLICATION_RISK_FILTERS = Object.freeze([
 
 const OUTLOOK_LABELS = Object.freeze({
   strong_verified_alignment: "Strong match",
-  viable_manageable_gaps: "Good match",
-  viable_transition_material_gaps: "Good match — review gaps",
-  high_application_risk: "Substantial tailoring needed",
+  viable_manageable_gaps: "Related experience",
+  viable_transition_material_gaps: "Related experience — review gaps",
+  high_application_risk: "Central experience needs review",
   likely_screening_blocker: "Credential check needed",
   assessment_incomplete: "Assessment incomplete",
 });
@@ -101,7 +101,7 @@ function fallbackExplanation(requirement, evidenceMatch, severity) {
   if (evidenceMatch === "transferable") return "Verified experience demonstrates a relevant capability without proving equivalent target-role experience.";
   if (severity === "verified_blocker") return "An explicit mandatory credential or eligibility condition has no supporting candidate evidence.";
   if (severity === "candidate_check") return "This belongs to the employer's application questions and is not inferred from résumé content.";
-  if (severity === "material_gap") return "A required capability has no exact supporting candidate evidence.";
+  if (severity === "material_gap") return "A central qualification or responsibility has no exact supporting candidate evidence.";
   if (severity === "preference") return "A preferred qualification has no supporting candidate evidence.";
   if (severity === "development_gap") return "A stated responsibility has no supporting candidate evidence.";
   return "The available posting or candidate evidence is not sufficient for this requirement.";
@@ -200,11 +200,11 @@ function fallbackOutlook(review, counts, postingComplete) {
       status,
       label: OUTLOOK_LABELS[status],
       confidence,
-      reason: `${counts.materialGaps} required capabilit${counts.materialGaps === 1 ? "y remains" : "ies remain"} unsupported.`,
+      reason: `${counts.materialGaps} central qualification or responsibilit${counts.materialGaps === 1 ? "y remains" : "ies remain"} unsupported.`,
       whatWouldChange: "Candidate-confirmed evidence that directly or honestly relates to the unsupported requirements.",
     };
   }
-  if (review?.candidate_fit?.status === "strong" && counts.missing === 0) {
+  if (review?.candidate_fit?.status === "strong" && counts.verifiedStrengths === counts.total) {
     return {
       status: "strong_verified_alignment",
       label: OUTLOOK_LABELS.strong_verified_alignment,
@@ -240,7 +240,7 @@ export function buildApplicationRiskView(review = {}) {
     if (["adjacent", "transferable"].includes(requirement.evidenceMatch)) result.relatedEvidence += 1;
     if (requirement.evidenceMatch === "missing" && requirement.gapSeverity !== "candidate_check") result.missing += 1;
     if (requirement.gapSeverity === "verified_blocker") result.blockers += 1;
-    if (requirement.gapSeverity === "material_gap") result.materialGaps += 1;
+    if (["required", "responsibility"].includes(requirement.priority) && requirement.evidenceMatch === "missing" && requirement.gapSeverity !== "verified_blocker") result.materialGaps += 1;
     if (requirement.gapSeverity === "development_gap") result.developmentGaps += 1;
     if (requirement.gapSeverity === "preference") result.preferences += 1;
     if (requirement.gapSeverity === "insufficient_information") result.needsReview += 1;
@@ -259,7 +259,7 @@ export function buildApplicationRiskView(review = {}) {
     candidateChecks: 0,
   });
   const fitRequirements = requirements.filter((requirement) => requirement.gapSeverity !== "candidate_check");
-  const coreRequirements = fitRequirements.filter((requirement) => requirement.priority === "required");
+  const coreRequirements = fitRequirements.filter((requirement) => ["required", "responsibility"].includes(requirement.priority));
   const coreInventory = coreRequirements.length ? coreRequirements : fitRequirements;
   const coreCounts = coreInventory.reduce((result, requirement) => {
     result.total += 1;
@@ -269,7 +269,7 @@ export function buildApplicationRiskView(review = {}) {
     if (["adjacent", "transferable"].includes(requirement.evidenceMatch)) result.relatedEvidence += 1;
     if (requirement.evidenceMatch === "missing") result.missing += 1;
     if (requirement.gapSeverity === "verified_blocker") result.blockers += 1;
-    if (requirement.gapSeverity === "material_gap") result.materialGaps += 1;
+    if (["required", "responsibility"].includes(requirement.priority) && requirement.evidenceMatch === "missing" && requirement.gapSeverity !== "verified_blocker") result.materialGaps += 1;
     return result;
   }, {
     total: 0,
@@ -282,13 +282,12 @@ export function buildApplicationRiskView(review = {}) {
     materialGaps: 0,
   });
   const postingComplete = review?.posting_readiness?.fit_allowed === true;
-  const suppliedOutlook = review?.gap_summary?.outlook;
   const fallback = fallbackOutlook(review, coreCounts, postingComplete);
   const status = fallback.status;
   const outlook = {
     status,
     label: fallback.label,
-    confidence: text(suppliedOutlook?.confidence, fallback.confidence),
+    confidence: fallback.confidence === "high" && (coreCounts.relatedEvidence > 0 || coreCounts.missing > 0) ? "medium" : fallback.confidence,
     reason: fallback.reason,
     whatWouldChange: fallback.whatWouldChange,
     tone: outlookTone(status),
@@ -315,7 +314,7 @@ export function buildApplicationRiskView(review = {}) {
     exportReady: applicationReady,
     exportLabel: applicationReady ? "Application-ready export" : "Preliminary export",
     detail: applicationReady
-      ? "Posting, identity, writing, structure, evidence and application-risk gates passed."
+      ? "Identity, posting, structure, and document evidence checks passed. Role fit is assessed separately."
       : truthChecksPass && exportBlockers.length === 1 && exportBlockers[0] === "candidate_fit"
         ? "The résumé is evidence-safe; optional candidate input may strengthen requirement coverage before final export."
         : text(review?.export_readiness?.blockers?.join(", ").replaceAll("_", " "), "Complete the remaining document and evidence review."),

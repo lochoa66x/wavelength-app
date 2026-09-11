@@ -453,7 +453,7 @@ test("tailoring changes map rewritten bullets to exact candidate evidence", () =
   assert.equal(changes[0].proposed, proposed);
   assert.equal(changes[0].requirement_id, "R1");
   assert.equal(changes[0].evidence_citations[0].line_index, 2);
-  assert.match(changes[0].reason, /without adding a new fact/i);
+  assert.match(changes[0].reason, /Review the cited scope and responsibility level/i);
 });
 
 test("change explanations do not claim unrelated C4C or Cash Journal alignment", () => {
@@ -477,7 +477,7 @@ test("change explanations do not claim unrelated C4C or Cash Journal alignment",
 
   assert.equal(changes.length, 2);
   assert.deepEqual(changes.map((change) => change.requirement_id), [null, null]);
-  assert.ok(changes.every((change) => /Clarified the cited candidate evidence|needs evidence review/i.test(change.reason)));
+  assert.ok(changes.every((change) => /Rephrases the cited source|needs evidence review/i.test(change.reason)));
 });
 
 test("tailoring provenance can cite multiple source lines for one composite bullet", () => {
