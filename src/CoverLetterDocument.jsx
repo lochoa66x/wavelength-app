@@ -1,8 +1,10 @@
+import { documentHeaderRules, documentCssRule } from "./documentStyleContract.js";
 import { coverLetterRecipientAddress } from "./documentIntegrity.js";
 
 export function CoverLetterDocument({ plan, presentation }) {
   const tokens = presentation.tokens;
   const address = coverLetterRecipientAddress(plan.target);
+  const rules = documentHeaderRules(tokens, { letter: true });
   const keyline = ["keyline", "editorial-v2"].includes(tokens.headerTreatment);
   return (
     <article data-cover-letter-preview aria-label="Cover letter document preview" style={{
@@ -11,8 +13,8 @@ export function CoverLetterDocument({ plan, presentation }) {
       background: tokens.paper, color: tokens.ink, borderRadius: 6, boxShadow: "0 2px 16px rgba(0,0,0,.07)",
       fontFamily: tokens.bodyFontFamily, fontSize: `${tokens.coverLetterBodyFontSizePt}pt`, lineHeight: tokens.coverLetterLineHeight,
     }}>
-      <header style={{ textAlign: presentation.headerAlignment, borderTop: keyline ? `3px solid ${tokens.accent}` : 0,
-        borderBottom: `1px solid ${tokens.rule}`, padding: keyline ? "10px 0" : "0 0 10px", marginBottom: 22 }}>
+      <header style={{ textAlign: presentation.headerAlignment, borderTop: documentCssRule(rules.top),
+        borderBottom: documentCssRule(rules.bottom), padding: keyline ? "10px 0" : "0 0 10px", marginBottom: 22 }}>
         <h1 style={{ margin: "0 0 4px", fontFamily: tokens.displayFontFamily, fontSize: `${tokens.nameFontSizePt}pt`, lineHeight: 1.15 }}>{plan.candidate.fullName}</h1>
         {plan.candidate.contactLine ? <p style={{ margin: 0, fontSize: "9.5pt", color: tokens.muted }}>{plan.candidate.contactLine}</p> : null}
       </header>

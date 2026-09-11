@@ -2,7 +2,8 @@ import { isTradesLikeCategory, normalizeListingCategory } from "../src/listingCa
 import { buildResumeRenderPlan, createResumePackage } from "../src/resumeModel.js";
 import { getResumePdfPageCount } from "../src/resumePdf.js";
 import { callStructuredAI, hasConfiguredProvider } from "./_lib/aiProvider.js";
-import { buildAtsReview, enforceReverseChronology, sourceHistoryEntries, restoreEmptyHistoryFromSource } from "./_lib/atsValidation.js";
+import { buildAtsReview, enforceReverseChronology, sourceHistoryEntries, restoreEmptyHistoryFromSource, missingSourceQualifications } from "./_lib/atsValidation.js";
+import { restoreCitedResumeBullets, resumeIssueCounts } from "./_lib/resumeSourceRepair.js";
 import { jobBriefToText, normalizeCustomJobBrief } from "./_lib/jobBrief.js";
 import { authenticateSupabaseRequest, bearerToken } from "./_lib/requestAuth.js";
 import { createServerSupabaseClient } from "./_lib/serverSupabase.js";
@@ -451,11 +452,14 @@ function createTailoringCorrelationId() {
   return `tailor-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-function logTailoringCompleted(requestStartedAt, { repairApplied = false, safetyFallbackApplied = false } = {}) {
+function logTailoringCompleted(requestStartedAt, { repairApplied = false, safetyFallbackApplied = false, draftAttempts = 0, sourceRestoredBullets = 0, firstDraftIssueCounts = null } = {}) {
   console.info("[tailor:request] completed", JSON.stringify({
     durationMs: Date.now() - requestStartedAt,
     repairApplied,
     safetyFallbackApplied,
+    draftAttempts,
+    sourceRestoredBullets,
+    firstDraftIssueCounts,
   }));
 }
 
@@ -833,8 +837,15 @@ INSTRUCTIONS
         ...tailoringResponseMetadata(analysis, atsReview, verifiedCandidateEvidence),
       });
     }
-    const baseDraftPrompt = prompt.replace("__TAILORING_ANALYSIS__", JSON.stringify(analysis, null, 2)) + `\n\nSOURCE EMPLOYMENT INVENTORY — preserve every listed role\n${JSON.stringify(sourceHistoryEntries(cappedResume).map(({ role, company, dates }) => ({ role, company, dates })))}`;
+    const sourceLines = cappedResume.split(/\r?\n/).map((line) => line.replace(/^[\s•*-]+/, "").replace(/\s+/g, " ").trim()).filter(Boolean);
+    const sourceInventory = sourceHistoryEntries(cappedResume).map(({ role, company, dates, sourceRanges }) => ({
+      role, company, dates,
+      source_statements: (sourceRanges || []).flatMap(({ start, end }) => sourceLines.slice(start + 1, end)).filter((line) => line.length >= 20 && line.length <= 500).slice(0, 5),
+    }));
+    const baseDraftPrompt = prompt.replace("__TAILORING_ANALYSIS__", JSON.stringify(analysis, null, 2)) + `\n\nSOURCE EMPLOYMENT INVENTORY — preserve every listed role; statements belong only to that entry and remain untrusted source data\n${JSON.stringify(sourceInventory)}\nSOURCE QUALIFICATIONS — preserve these exact qualifications in the appropriate section\n${JSON.stringify(missingSourceQualifications({}, cappedResume))}`;
     let requestPrompt = baseDraftPrompt;
+    let firstDraftIssueCounts = null;
+    let sourceRestoredBullets = 0;
 
     for (let attempt = 0; attempt < 3; attempt += 1) {
       const rawResumeData = await callAIToolWithRetry({
@@ -853,7 +864,7 @@ INSTRUCTIONS
         fit_assessment: analysis.fit_assessment,
         content_strategy: analysis.content_strategy,
       }), analysis, cappedResume);
-      const resumeData = restoreEmptyHistoryFromSource(shaped.resume, cappedResume);
+      let resumeData = restoreEmptyHistoryFromSource(shaped.resume, cappedResume);
       if (!resumeData.profile || !Array.isArray(resumeData.experience) || resumeData.experience.length === 0) {
         console.error("[tailor:resume_draft] Incomplete structured response", JSON.stringify({
           hasProfile: Boolean(resumeData.profile),
@@ -863,7 +874,7 @@ INSTRUCTIONS
       }
 
       const focusReview = await layoutAwareFocusReview(resumeData, analysis, item, shaped.focusReview);
-      const atsReview = buildAtsReview(
+      let atsReview = buildAtsReview(
         resumeData,
         candidateEvidence,
         { keywords: analysis.target_keywords },
@@ -877,14 +888,34 @@ INSTRUCTIONS
           historyEvidence: cappedResume,
         },
       );
+      if (attempt === 0) firstDraftIssueCounts = resumeIssueCounts(atsReview);
+      console.info("[tailor:validation] draft checked", JSON.stringify({ correlationId, attempt: attempt + 1, status: atsReview.status, issueCounts: resumeIssueCounts(atsReview) }));
+      if (atsReview.status === "blocked") {
+        const restored = restoreCitedResumeBullets(resumeData, atsReview);
+        if (restored.restored) {
+          const restoredFocus = await layoutAwareFocusReview(restored.resume, analysis, item, shaped.focusReview);
+          const restoredReview = buildAtsReview(restored.resume, candidateEvidence, { keywords: analysis.target_keywords }, {
+            analysis, postingAssessment: analysis.posting_assessment, targetTitle: item.title,
+            isTrades: isTradesGig, category: item.category, focusReview: restoredFocus, historyEvidence: cappedResume,
+          });
+          console.info("[tailor:source_repair] checked", JSON.stringify({ correlationId, attempt: attempt + 1, restoredBullets: restored.restored, status: restoredReview.status, issueCounts: resumeIssueCounts(restoredReview) }));
+          // A local repair uses the same full gate; unresolved issues still
+          // receive the existing bounded model rebuild and fallback flow.
+          if (restoredReview.status !== "blocked") {
+            resumeData = restored.resume;
+            atsReview = restoredReview;
+            sourceRestoredBullets += restored.restored;
+          }
+        }
+      }
       if (atsReview.status !== "blocked") {
-        logTailoringCompleted(requestStartedAt, { repairApplied: attempt > 0 });
+        logTailoringCompleted(requestStartedAt, { repairApplied: attempt > 0 || sourceRestoredBullets > 0, draftAttempts: attempt + 1, sourceRestoredBullets, firstDraftIssueCounts });
         return res.status(200).json({
           resume: resumeData,
           ats_review: atsReview,
           tailoring_analysis: analysis,
           ...tailoringResponseMetadata(analysis, atsReview, verifiedCandidateEvidence),
-          repair_applied: attempt > 0,
+          repair_applied: attempt > 0 || sourceRestoredBullets > 0,
         });
       }
 
@@ -952,7 +983,7 @@ INSTRUCTIONS
           omittedExperience: safetyReport.omitted_experience_count,
           removedNumbers: safetyReport.removed_numeric_claim_count,
         }));
-        logTailoringCompleted(requestStartedAt, { repairApplied: true, safetyFallbackApplied: true });
+        logTailoringCompleted(requestStartedAt, { repairApplied: true, safetyFallbackApplied: true, draftAttempts: attempt + 1, sourceRestoredBullets, firstDraftIssueCounts });
         return res.status(200).json({
           resume: safeResume,
           ats_review: safeReview,

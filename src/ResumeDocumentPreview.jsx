@@ -1,3 +1,4 @@
+import { documentHeaderRules, documentSectionRule, documentCssRule } from "./documentStyleContract.js";
 import { forwardRef } from "react";
 
 function SectionHeading({ children, tokens }) {
@@ -29,6 +30,7 @@ function SectionHeading({ children, tokens }) {
       lineHeight: 1.2,
       textTransform: tokens.sectionTextTransform || "uppercase",
       ...treatmentStyle,
+      ...(documentSectionRule(tokens) ? { borderBottom: documentCssRule(documentSectionRule(tokens)) } : {}),
     }}>
       {children}
     </h2>
@@ -104,22 +106,13 @@ function SectionBody({ section, tokens }) {
 export const ResumeDocumentPreview = forwardRef(function ResumeDocumentPreview({ renderPlan }, ref) {
   const tokens = renderPlan.visualTokens;
   const headerBand = tokens.headerTreatment === "accent-band";
+  const rules = documentHeaderRules(tokens);
   const leftAligned = tokens.headerAlignment === "left";
   const headerStyle = {
     textAlign: leftAligned ? "left" : "center",
-    borderBottom: tokens.headerTreatment === "accent-edge"
-      ? 0
-      : tokens.headerTreatment === "compact-rule"
-        ? `3px double ${tokens.ink}`
-        : tokens.headerTreatment === "editorial"
-          ? `1px solid ${tokens.accent}`
-          : tokens.headerTreatment === "civic-rule"
-            ? `3px double ${tokens.accent}`
-            : ["keyline", "editorial-v2"].includes(tokens.headerTreatment)
-              ? `1px solid ${tokens.rule}`
-          : `2px solid ${tokens.ink}`,
-    borderLeft: tokens.headerTreatment === "accent-edge" ? `6px solid ${tokens.accent}` : 0,
-    borderTop: ["keyline", "editorial-v2"].includes(tokens.headerTreatment) ? `${tokens.headerTreatment === "keyline" ? 4 : 2}px solid ${tokens.accent}` : 0,
+    borderBottom: documentCssRule(rules.bottom),
+    borderLeft: tokens.headerTreatment === "accent-edge" ? `4pt solid ${tokens.accent}` : 0,
+    borderTop: documentCssRule(rules.top),
     padding: headerBand ? "14px 16px" : tokens.headerTreatment === "accent-edge" ? "2px 0 10px 14px" : ["keyline", "editorial-v2"].includes(tokens.headerTreatment) ? "10px 0" : "0 0 10px",
     background: headerBand ? tokens.headerBackground : "transparent",
     borderRadius: headerBand ? 4 : 0,

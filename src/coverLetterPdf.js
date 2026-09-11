@@ -1,3 +1,4 @@
+import { documentHeaderRules } from "./documentStyleContract.js";
 import { coverLetterRecipientAddress } from "./documentIntegrity.js";
 import { safeCoverLetterFilename, validateCoverLetterExportContext } from "./coverLetterModel.js";
 
@@ -38,16 +39,17 @@ export async function createCoverLetterPdfBlob(input) {
     y += lines.length * leading + after;
   };
   const headerAlign = applicationPresentation.headerAlignment;
+  const rules = documentHeaderRules(tokens, { letter: true });
   if (["keyline", "editorial-v2"].includes(tokens.headerTreatment)) {
     doc.setDrawColor(...rgb(tokens.accent));
-    doc.setLineWidth(tokens.headerTreatment === "keyline" ? 2.6 : 1);
+    doc.setLineWidth(rules.top.widthPt);
     doc.line(left, y, left + width, y);
     y += 9;
   }
   write(plan.candidate.fullName, { size: tokens.nameFontSizePt, style: "bold", after: 3, align: headerAlign, font: displayFont });
   if (plan.candidate.contactLine) write(plan.candidate.contactLine, { size: 9.5, color: rgb(tokens.muted, [81, 88, 97]), after: 8, align: headerAlign });
-  doc.setDrawColor(...rgb(tokens.headerTreatment === "civic-rule" ? tokens.accent : tokens.rule));
-  doc.setLineWidth(tokens.headerTreatment === "civic-rule" ? 1.3 : 0.7);
+  doc.setDrawColor(...rgb(rules.bottom.color));
+  doc.setLineWidth(rules.bottom.widthPt);
   doc.line(left, y, left + width, y);
   if (tokens.headerTreatment === "civic-rule") doc.line(left, y + 3, left + width, y + 3);
   y += 18;

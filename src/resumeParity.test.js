@@ -1,3 +1,4 @@
+import { documentSectionText } from "./documentStyleContract.js";
 import assert from "node:assert/strict";
 import test from "node:test";
 import { fileURLToPath } from "node:url";
@@ -112,7 +113,9 @@ for (const templateId of [
     for (const expected of expectedVisibleValues) {
       const normalized = normalizeText(expected);
       assert.ok(docxText.includes(normalized), `DOCX missing: ${normalized}`);
-      assert.ok(pdf.text.includes(normalized), `PDF missing: ${normalized}`);
+      const heading = context.renderPlan.sections.some((section) => normalizeText(section.heading) === normalized);
+      const pdfExpected = heading ? documentSectionText(normalized, context.renderPlan.visualTokens) : normalized;
+      assert.ok(pdf.text.includes(pdfExpected), `PDF missing: ${pdfExpected}`);
       assert.ok(plainText.toLowerCase().includes(normalized.toLowerCase()), `plain text missing: ${normalized}`);
     }
 

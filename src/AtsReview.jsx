@@ -2,22 +2,6 @@ import { AlertTriangle, CheckCircle2, FileWarning, ShieldCheck } from "lucide-re
 import { EvidenceMap } from "./EvidenceMap.jsx";
 import { buildApplicationRiskView } from "./applicationRisk.js";
 
-const READINESS_LABELS = {
-  strong_fit: "Strong match",
-  credible_stretch: "Good adjacent match",
-  significant_gap: "Candidate input available",
-  needs_full_posting: "Needs full posting",
-};
-
-const FIT_LABELS = {
-  strong: "Strong evidence match",
-  adjacent: "Good adjacent match",
-  transferable: "Transferable evidence",
-  gap: "Candidate input can improve this match",
-  not_assessed: "Not assessed",
-  not_available: "Not available",
-};
-
 const OCCUPATION_LABELS = {
   sap_functional: "SAP functional",
   software: "Software",
@@ -115,18 +99,6 @@ export function AtsReview({ review, C }) {
     reason: posting.reason,
     fit_allowed: posting.status === "complete",
   };
-  const candidateFit = review.candidate_fit || {
-    status: postingReadiness.fit_allowed ? "not_available" : "not_assessed",
-    confidence: postingReadiness.fit_allowed ? "low" : "unavailable",
-    reason: postingReadiness.reason,
-  };
-  const coverage = review.core_coverage || {
-    direct: riskView.coreCounts.verifiedStrengths,
-    adjacent: riskView.coreCounts.adjacent,
-    transferable: riskView.coreCounts.transferable,
-    missing: riskView.coreCounts.missing,
-    total: riskView.coreCounts.total,
-  };
   const parseability = review.parseability || { status: review.reverse_chronological ? "pass" : "review" };
   const writing = review.writing || { status: "review", issue_count: (review.verb_issues?.length || 0) + (review.tense_issues?.length || 0) };
   const writingReview = review.writing_review;
@@ -146,8 +118,8 @@ export function AtsReview({ review, C }) {
     Number(safetyFallback.omitted_experience_count || 0) > 0
     || Number(safetyFallback.removed_numeric_claim_count || 0) > 0
   ));
-  const panelBackground = !postingComplete ? C.amberTint : integrityPass ? C.greenTint : (C.redTint || "#FDEBEC");
-  const panelBorder = !postingComplete ? C.amberBorder : integrityPass ? C.greenBorder : (C.redBorder || "#F2B8BC");
+  const panelBackground = C.bgCard;
+  const panelBorder = C.border;
 
   return (
     <section aria-label="Tailoring quality review" style={{ background: panelBackground, border: `1px solid ${panelBorder}`, borderRadius: 14, padding: "14px 16px", marginBottom: 14 }}>
@@ -155,7 +127,7 @@ export function AtsReview({ review, C }) {
         <div>
           <div style={{ display: "flex", alignItems: "center", gap: 7, fontSize: 13, fontWeight: 750, color: C.text }}>
             {integrityPass ? <ShieldCheck size={16} color={C.green} /> : <AlertTriangle size={16} color={C.red} />}
-            Application readiness review
+            Application review
           </div>
           <p style={{ color: C.textSub, fontSize: 12, lineHeight: 1.45, margin: "4px 0 0" }}>Review the document checks and how your experience relates to this role.</p>
         </div>
@@ -166,7 +138,7 @@ export function AtsReview({ review, C }) {
 
       <details style={{ borderTop: `1px solid ${C.border}`, paddingTop: 9 }}>
         <summary style={{ color: C.text, cursor: "pointer", fontSize: 12.5, fontWeight: 750 }}>
-          Document and quality checks · {applicationReady ? "ready" : "review needed"}
+          Detailed document checks
         </summary>
       <StatusRow label="Evidence integrity" value={integrityPass ? "Pass" : "Blocked"} detail={integrity.issue_count ? `${integrity.issue_count} unsupported claim${integrity.issue_count === 1 ? "" : "s"}` : "No unsupported history, numbers, skills, projects, training, or positioning detected"} ok={integrityPass} C={C} />
       <StatusRow label="Candidate identity" value={identity.status === "complete" ? "Complete" : "Missing"} detail={identity.reason} ok={identity.status === "complete"} C={C} />
@@ -176,14 +148,12 @@ export function AtsReview({ review, C }) {
         </div>
       ) : null}
       <StatusRow label="Posting readiness" value={postingComplete ? "Reviewed complete" : postingReadiness.status === "preliminary" ? "Preliminary" : "Needs full posting"} detail={postingReadiness.reason} ok={postingComplete} C={C} />
-      <StatusRow label="Candidate fit" value={FIT_LABELS[candidateFit.status] || "Review required"} detail={postingComplete ? `${candidateFit.confidence || "low"} confidence · ${candidateFit.reason || "Evidence comparison completed."}` : "Unavailable until responsibilities and qualifications are present"} ok={postingComplete && !["gap", "not_assessed", "not_available"].includes(candidateFit.status)} C={C} />
-      <StatusRow label="Central role coverage" value={coverage.total ? `${coverage.total} qualifications and responsibilities assessed` : postingComplete ? "No central requirements identified" : "Limited by posting data"} detail={`${coverage.direct || 0} direct · ${coverage.adjacent || 0} adjacent · ${coverage.transferable || 0} transferable · ${coverage.missing || 0} not yet supported or selected`} ok={Boolean(coverage.total) && (coverage.missing || 0) === 0} C={C} />
       <StatusRow label="ATS-readable structure" value={parseability.status === "pass" ? "Pass" : "Review"} detail="Single column, standard headings, chronological history" ok={parseability.status === "pass"} C={C} />
       <StatusRow label="Writing quality" value={writing.status === "pass" ? "Pass" : writing.status === "blocked" ? "Blocked" : "Review"} detail={writing.issue_count ? `${writing.issue_count} exact writing item${writing.issue_count === 1 ? "" : "s"}` : "Occupation-aware action verbs and consistent tense"} ok={writing.status === "pass"} C={C} />
       <StatusRow label="Résumé focus" value={focusReview?.status === "focused" ? "Focused" : "Review"} detail={focusReview?.estimated_pages ? `${focusReview.estimation_method === "direct_pdf_layout" ? "Direct PDF measures" : "Estimated"} ${focusReview.estimated_pages} page${focusReview.estimated_pages === 1 ? "" : "s"}; recent and requirement-aligned evidence prioritized` : "Focus estimate unavailable"} ok={focusReview?.status === "focused"} C={C} />
       <StatusRow
         label="Application-ready export"
-        value={applicationReady ? "Enabled" : "Preliminary only"}
+        value={riskView.document.exportBlocked ? "Blocked" : applicationReady ? "Enabled" : "Preliminary only"}
         detail={exportReadiness?.blockers?.length
           ? `Waiting on: ${exportReadiness.blockers.join(", ").replaceAll("_", " ")}`
           : applicationReady

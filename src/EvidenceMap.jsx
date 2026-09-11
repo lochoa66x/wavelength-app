@@ -19,15 +19,6 @@ function requirementTone(requirement, C) {
   return { color: C.amber, border: C.border, background: C.bgCard };
 }
 
-function CountCard({ value, label, color, C }) {
-  return (
-    <div style={{ minWidth: 0, border: `1px solid ${C.border}`, background: C.bgCard, borderRadius: 10, padding: "9px 10px" }}>
-      <div style={{ color, fontSize: 18, lineHeight: 1, fontWeight: 800 }}>{value}</div>
-      <div style={{ color: C.textSub, fontSize: 10.75, lineHeight: 1.35, marginTop: 5 }}>{label}</div>
-    </div>
-  );
-}
-
 function RequirementDetail({ requirement, C }) {
   const tone = requirementTone(requirement, C);
   const citationLabel = requirement.citation?.source === "candidate_note" ? "Candidate-confirmed note" : "Base résumé";
@@ -113,12 +104,20 @@ export function EvidenceMap({ review, C }) {
 
   return (
     <div style={{ display: "grid", gap: 10, margin: "10px 0 4px" }}>
+      <section aria-label="Document checks" style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 10, padding: "11px 13px" }}>
+        <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: 7, color: C.text, fontSize: 12.5, fontWeight: 750 }}>
+          <FileCheck2 aria-hidden="true" size={15} color={view.document.truthChecksPass ? C.green : C.amber} />
+          Document checks · {view.document.truthLabel}
+          <span style={{ marginLeft: "auto", color: view.document.exportBlocked ? C.red : C.textSub, fontSize: 11 }}>{view.document.exportLabel}</span>
+        </div>
+        <p style={{ color: C.textSub, fontSize: 11.75, lineHeight: 1.5, margin: "5px 0 0" }}>{view.document.detail}</p>
+      </section>
       <section aria-labelledby={`${filterGroupId}-outlook`} style={{ color: C.text, background: outlookStyle.background, border: `1px solid ${outlookStyle.border}`, borderRadius: 12, padding: "12px 13px" }}>
         <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: 9 }}>
           <div style={{ minWidth: 0, flex: "1 1 300px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
               <OutlookIcon aria-hidden="true" size={16} color={outlookStyle.color} />
-              <h3 id={`${filterGroupId}-outlook`} style={{ fontSize: 12.75, margin: 0 }}>Match overview</h3>
+              <h3 id={`${filterGroupId}-outlook`} style={{ fontSize: 12.75, margin: 0 }}>Role fit</h3>
             </div>
             <p style={{ color: C.textSub, fontSize: 11.75, lineHeight: 1.48, margin: "6px 0 0" }}>{view.outlook.reason}</p>
           </div>
@@ -126,35 +125,18 @@ export function EvidenceMap({ review, C }) {
             {view.outlook.label}
           </span>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(105px, 1fr))", gap: 7, marginTop: 10 }}>
-          <CountCard value={view.coreCounts.verifiedStrengths} label="Direct central matches" color={C.green} C={C} />
-          <CountCard value={view.coreCounts.relatedEvidence} label="Related central experience" color={C.blue} C={C} />
-          <CountCard value={view.coreCounts.materialGaps} label="Skills to review" color={C.amber} C={C} />
-          <CountCard value={view.coreCounts.blockers} label="Credential checks" color={view.coreCounts.blockers ? C.red : C.green} C={C} />
-        </div>
-        <p style={{ color: C.textSub, fontSize: 10.75, lineHeight: 1.4, margin: "8px 0 0" }}>
-          Central qualifications and responsibilities: <strong style={{ color: C.text }}>{view.coreCounts.verifiedStrengths} direct · {view.coreCounts.relatedEvidence} related · {view.coreCounts.missing} unsupported</strong> · Full review: {view.counts.verifiedStrengths} direct, {view.counts.relatedEvidence} related, {view.counts.missing} unsupported, and {view.counts.candidateChecks} application questions.
+        <p style={{ color: C.textSub, fontSize: 11.75, lineHeight: 1.5, margin: "9px 0 0" }}>
+          Central qualifications and responsibilities: <strong style={{ color: C.text }}>{view.coreCounts.verifiedStrengths} direct · {view.coreCounts.relatedEvidence} related · {view.coreCounts.missing} unsupported{view.coreCounts.unassessed ? ` · ${view.coreCounts.unassessed} unassessed` : ""}</strong>
         </p>
-        <p style={{ color: C.textSub, fontSize: 10.75, lineHeight: 1.4, margin: "8px 0 0" }}>
-          Confidence in evidence classification: <strong style={{ color: C.text, textTransform: "capitalize" }}>{view.outlook.confidence}</strong>. This is not a hiring probability. What could change this: {view.outlook.whatWouldChange}
+        {(view.highlights.strengths.length > 0 || view.highlights.gaps.length > 0) ? <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 14, marginTop: 10 }}>
+          {[["Strongest evidence", view.highlights.strengths], ["Review first", view.highlights.gaps]].map(([label, entries]) => entries.length ? <div key={label}>
+            <div style={{ fontSize: 11.75, fontWeight: 750 }}>{label}</div>
+            <ul style={{ margin: "5px 0 0", paddingLeft: 17, color: C.textSub, fontSize: 11.75, lineHeight: 1.5 }}>{entries.map((entry) => <li key={entry.id}>{entry.requirement}</li>)}</ul>
+          </div> : null)}
+        </div> : null}
+        <p style={{ color: C.textSub, fontSize: 10.75, lineHeight: 1.4, margin: "10px 0 0" }}>
+          Evidence confidence: <strong style={{ textTransform: "capitalize" }}>{view.outlook.confidence}</strong> · Related experience supports part of a requirement; it does not establish equivalent ownership.
         </p>
-      </section>
-
-      <section aria-label="Document readiness and match guidance" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(210px, 1fr))", gap: 8 }}>
-        <div style={{ background: C.bgCard, border: `1px solid ${view.document.truthChecksPass ? C.greenBorder : C.amberBorder}`, borderRadius: 10, padding: "9px 10px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.text, fontSize: 11.75, fontWeight: 750 }}>
-            <FileCheck2 aria-hidden="true" size={14} color={view.document.truthChecksPass ? C.green : C.amber} />
-            Résumé document · {view.document.truthLabel}
-          </div>
-          <p style={{ color: C.textSub, fontSize: 10.75, lineHeight: 1.4, margin: "5px 0 0" }}>{view.document.detail}</p>
-        </div>
-        <div style={{ background: C.bgCard, border: `1px solid ${outlookStyle.border}`, borderRadius: 10, padding: "9px 10px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.text, fontSize: 11.75, fontWeight: 750 }}>
-            <OutlookIcon aria-hidden="true" size={14} color={outlookStyle.color} />
-            Evidence basis
-          </div>
-          <p style={{ color: C.textSub, fontSize: 10.75, lineHeight: 1.4, margin: "5px 0 0" }}>Sources identify résumé evidence and candidate confirmations. Related experience supports part of a requirement; it does not establish equivalent ownership.</p>
-        </div>
       </section>
 
       <details style={{ borderTop: `1px solid ${C.border}`, paddingTop: 9 }}>

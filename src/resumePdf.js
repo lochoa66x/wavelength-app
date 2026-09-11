@@ -1,3 +1,4 @@
+import { documentSectionText, documentSectionRule, documentHeaderRules, DOCUMENT_BULLET } from "./documentStyleContract.js";
 import {
   assertResumePackageIdentity,
   buildResumeRenderPlan,
@@ -123,9 +124,7 @@ async function createResumePdfDocument(input, template = "professional", options
   };
   const heading = (value) => {
     const treatment = tokens.sectionTreatment || "underline";
-    // Keep the selectable text identical to the canonical manifest. Browser
-    // and DOCX may apply visual capitalization without rewriting content.
-    const headingText = value;
+    const headingText = documentSectionText(value, tokens);
     const headingLeading = tokens.sectionFontSizePt * 1.2;
     const lines = wrappedLines(headingText, treatment === "accent-edge" ? contentWidth - 10 : contentWidth, tokens.sectionFontSizePt, "bold", pdfDisplayFont);
     const textHeight = Math.max(headingLeading, lines.length * headingLeading);
@@ -145,8 +144,9 @@ async function createResumePdfDocument(input, template = "professional", options
       return;
     }
     writeLines(headingText, { size: tokens.sectionFontSizePt, style: "bold", color: accent, leading: headingLeading, after: gap(4), ensure: false, font: pdfDisplayFont });
-    doc.setDrawColor(...(["underline", "editorial-v2"].includes(treatment) ? rgb(tokens.rule, [201, 205, 209]) : accent));
-    doc.setLineWidth(treatment === "compact-rule" || treatment === "label-rule" ? 1.15 : 0.6);
+    const rule = documentSectionRule(tokens);
+    doc.setDrawColor(...rgb(rule.color));
+    doc.setLineWidth(rule.widthPt);
     doc.line(page.left, y, page.width - page.right, y);
     if (treatment === "civic-label") doc.line(page.left, y + 2.5, page.width - page.right, y + 2.5);
     y += gap(treatment === "compact-rule" ? 5 : 7);
@@ -163,7 +163,7 @@ async function createResumePdfDocument(input, template = "professional", options
     doc.setFont(pdfFont, "normal");
     doc.setFontSize(tokens.bodyFontSizePt);
     doc.setTextColor(23, 25, 28);
-    doc.text("-", bulletX, y, { baseline: "top" });
+    doc.text(DOCUMENT_BULLET, bulletX, y, { baseline: "top" });
     doc.text(lines, textX, y, { baseline: "top", lineHeightFactor: tokens.bodyLineHeight });
     y += height + gap(4);
   };
@@ -243,8 +243,9 @@ async function createResumePdfDocument(input, template = "professional", options
     });
   }
   if (!headerBand && tokens.headerTreatment !== "accent-edge") {
-    doc.setDrawColor(...(["editorial", "civic-rule"].includes(tokens.headerTreatment) ? accent : ["keyline", "editorial-v2"].includes(tokens.headerTreatment) ? rgb(tokens.rule) : rgb(tokens.ink)));
-    doc.setLineWidth(tokens.headerTreatment === "compact-rule" ? 1.2 : ["editorial", "editorial-v2", "keyline"].includes(tokens.headerTreatment) ? 0.6 : tokens.headerTreatment === "civic-rule" ? 1 : 1.4);
+    const rule = documentHeaderRules(tokens).bottom;
+    doc.setDrawColor(...rgb(rule.color));
+    doc.setLineWidth(rule.widthPt);
     doc.line(page.left, y, page.width - page.right, y);
     if (tokens.headerTreatment === "civic-rule") doc.line(page.left, y + 3, page.width - page.right, y + 3);
     y += 7;

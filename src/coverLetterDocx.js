@@ -1,3 +1,4 @@
+import { documentHeaderRules, documentDocxRule } from "./documentStyleContract.js";
 import { coverLetterRecipientAddress } from "./documentIntegrity.js";
 import { coverLetterToPlainText, safeCoverLetterFilename, validateCoverLetterExportContext } from "./coverLetterModel.js";
 
@@ -19,14 +20,8 @@ export async function createCoverLetterDocxBlob(input) {
   const headerAlignment = applicationPresentation.headerAlignment === "left" ? AlignmentType.LEFT : AlignmentType.CENTER;
   const headerTreatment = tokens.headerTreatment;
   const children = [];
-  const headerRule = headerTreatment === "civic-rule"
-    ? { bottom: { color: color(tokens.accent), style: BorderStyle.DOUBLE, size: 10, space: 1 } }
-    : ["keyline", "editorial-v2"].includes(headerTreatment)
-      ? {
-          top: { color: color(tokens.accent), style: BorderStyle.SINGLE, size: headerTreatment === "keyline" ? 20 : 8, space: 4 },
-          bottom: { color: color(tokens.rule), style: BorderStyle.SINGLE, size: 5, space: 4 },
-        }
-      : { bottom: { color: color(tokens.ink), style: BorderStyle.SINGLE, size: 12, space: 1 } };
+  const sharedRules = documentHeaderRules(tokens, { letter: true });
+  const headerRule = { bottom: documentDocxRule(sharedRules.bottom, 1), ...(sharedRules.top ? { top: documentDocxRule(sharedRules.top) } : {}) };
   const paragraph = (value, options = {}) => children.push(new Paragraph({
     ...options,
     spacing: { line: Math.round(tokens.coverLetterBodyFontSizePt * tokens.coverLetterLineHeight * 20), lineRule: "exact", after: Math.round(tokens.coverLetterParagraphAfterPt * 20), ...(options.spacing || {}) },

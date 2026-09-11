@@ -8,6 +8,15 @@ export function capabilityLevel(record = {}) {
   return CAPABILITY_LEVELS.some(({ id }) => id === record.capability_level) ? record.capability_level : "unspecified";
 }
 
+export function capabilityExamplePrompt(record = {}) {
+  return {
+    knowledge: "What have you learned about this area, and where did you learn it?",
+    applied: "Where did you apply this, and what did you personally do?",
+    led: "Where did you lead this work, and what decisions or responsibilities did you own?",
+    unspecified: "Where have you used or learned this, and what was your part?",
+  }[capabilityLevel(record)];
+}
+
 export function capabilityStatement(record = {}) {
   const requirement = String(record.requirement || "").replace(/\s+/g, " ").replace(/[.!]+$/, "").trim();
   if (!requirement) return "";

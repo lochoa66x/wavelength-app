@@ -1,3 +1,4 @@
+import { reviewCoverLetterWriting } from "./coverLetterWriting.js";
 import { CoverLetterDocument } from "./CoverLetterDocument.jsx";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CheckCircle2, Copy, Download, FileText, Loader2, PenLine, RotateCcw, Sparkles, Trash2, X } from "lucide-react";
@@ -85,6 +86,7 @@ export function CoverLetterWorkspace({
     return () => { active = false; };
   }, [plan]);
 
+  const writingReview = useMemo(() => reviewCoverLetterWriting(plan?.paragraphs, plan?.length), [plan]);
   const readiness = useMemo(() => getCoverLetterReadiness(plan, context), [plan, context]);
   const busy = state === "generating" || state === "exporting";
   const requiresFreshDraft = Boolean(plan && (readiness.stale || readiness.selfDisqualifying || readiness.meaningChanged));
@@ -234,8 +236,10 @@ export function CoverLetterWorkspace({
             {[["preview", "Preview"], ["edit", "Edit letter"], ["sources", "Sources and relevance"]].map(([mode, label]) => <button key={mode} type="button" aria-pressed={documentMode === mode} onClick={() => setDocumentMode(mode)} className="wl-btn" style={{ border: `1px solid ${C.border}`, borderRadius: 999, background: documentMode === mode ? C.blueTint : C.bgCard, color: C.text, padding: "9px 14px" }}>{label}</button>)}
           </div>
           {documentMode === "edit" ? <div className="document-controls" aria-label="Letter editing panel" style={{ padding: 18, marginBottom: 18, border: `1px solid ${C.border}`, borderRadius: 12 }}>
+            <p style={{ color: C.textSub, fontSize: 12, margin: "0 0 14px" }}>{writingReview.wordCount} words · {writingReview.issues.length ? "There are optional writing suggestions below." : "Length and readability checks passed."}</p>
             {plan.paragraphs.map((paragraph) => (
               <section key={paragraph.id} aria-label={`Edit ${PURPOSE_LABELS[paragraph.purpose] || "paragraph"}`} style={{ marginBottom: 15 }}>
+                {writingReview.issues.filter((issue) => issue.paragraphId === paragraph.id).map((issue) => <p key={issue.code} style={{ color: C.textSub, fontSize: 11.5, lineHeight: 1.5, margin: "4px 0" }}>{issue.advice}</p>)}
                 {editingId === paragraph.id ? (
                   <div style={{ padding: 12, border: `1px solid ${C.amberBorder || C.amber}`, borderRadius: 10, background: C.amberTint }}>
                     <label style={{ display: "grid", gap: 6, fontSize: 12, fontWeight: 700 }}>Edit paragraph<textarea value={editText} onChange={(event) => setEditText(event.target.value)} rows={6} style={{ width: "100%", resize: "vertical", border: `1px solid ${C.border}`, borderRadius: 8, padding: 10, font: "inherit", lineHeight: 1.5 }} /></label>

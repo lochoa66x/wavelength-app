@@ -1,4 +1,4 @@
-import { CAPABILITY_LEVELS } from "./capabilityClaims.js";
+import { CAPABILITY_LEVELS, capabilityExamplePrompt } from "./capabilityClaims.js";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Loader2, MessageSquareText, Sparkles, X } from "lucide-react";
 import {
@@ -293,14 +293,17 @@ export function EvidenceRefinementPanel({
                       {CAPABILITY_LEVELS.map(({ id, label }) => <option key={id} value={id}>{label}</option>)}
                     </select>
                   </label>
+                  <label style={{ display: "block", marginTop: 12, fontSize: 12, fontWeight: 650 }}>
+                    {capabilityExamplePrompt(record)} <span style={{ fontWeight: 400, color: C.textFaint }}>(optional)</span>
                   <textarea
                     aria-label={`Optional example for ${question.requirement}`}
                     value={record.answer || ""}
                     onChange={(event) => update(question, { answer: event.target.value, user_confirmed: false })}
-                    placeholder="Optional: add a factual example, project, or scope in your own words."
+                    placeholder="Use your own words. Include a result only if you know it."
                     rows={2}
                     style={{ width: "100%", resize: "vertical", marginTop: 8, padding: "9px 10px", borderRadius: 9, border: `1px solid ${C.border}`, color: C.text, background: C.bgCard, font: "inherit", fontSize: 12.5, lineHeight: 1.45 }}
                   />
+                  </label>
                   <p style={{ color: C.textFaint, fontSize: 11, lineHeight: 1.4, margin: "5px 2px 0" }}>Examples are optional. Your selected level controls the wording; project details can make it more specific.</p>
                   <details style={{ borderTop: `1px solid ${C.border}`, marginTop: 9, paddingTop: 8 }}>
                     <summary style={{ color: C.textSub, cursor: "pointer", fontSize: 11.5, fontWeight: 700 }}>Add project details or polish this answer (optional)</summary>

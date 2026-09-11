@@ -1,3 +1,4 @@
+import { documentSectionRule, documentHeaderRules, documentDocxRule } from "./documentStyleContract.js";
 import {
   assertResumePackageIdentity,
   buildResumeRenderPlan,
@@ -80,20 +81,8 @@ export async function createResumeDocxBlob(input, template = "professional", opt
   const addHeading = (heading) => {
     const treatment = tokens.sectionTreatment || "underline";
     const border = treatment === "accent-edge"
-      ? { left: { color: color(tokens.accent), size: 18, space: 8, style: "single" } }
-      : treatment === "compact-rule"
-        ? { bottom: { color: color(tokens.accent), size: 10, space: 4, style: "single" } }
-        : treatment === "editorial"
-          ? { bottom: { color: color(tokens.accent), size: 5, space: 4, style: "single" } }
-          : treatment === "label-rule"
-            ? { bottom: { color: color(tokens.accent), size: 10, space: 4, style: "single" } }
-            : treatment === "civic-label"
-              ? { bottom: { color: color(tokens.accent), size: 8, space: 4, style: "double" } }
-              : treatment === "editorial-v2"
-                ? { bottom: { color: color(tokens.rule), size: 5, space: 4, style: "single" } }
-          : treatment === "soft-band"
-            ? undefined
-            : { bottom: { color: "B8B8B8", size: 4, space: 4, style: "single" } };
+      ? { left: { color: color(tokens.accent), size: 24, space: 8, style: "single" } }
+      : documentSectionRule(tokens) ? { bottom: documentDocxRule(documentSectionRule(tokens)) } : undefined;
     children.push(new Paragraph({
       heading: HeadingLevel.HEADING_2,
       spacing: { before: space(treatment === "compact-rule" ? 150 : 220), after: space(80) },
@@ -125,20 +114,12 @@ export async function createResumeDocxBlob(input, template = "professional", opt
   ];
   headerRows.forEach((row, index) => {
     const isLast = index === headerRows.length - 1;
-    const keylineHeader = ["keyline", "editorial-v2"].includes(tokens.headerTreatment);
-    const border = keylineHeader
-      ? {
-          ...(index === 0 ? { top: { color: color(tokens.accent), size: tokens.headerTreatment === "keyline" ? 20 : 8, space: 5, style: "single" } } : {}),
-          ...(isLast ? { bottom: { color: color(tokens.rule), size: 8, space: 6, style: "single" } } : {}),
-        }
-      : tokens.headerTreatment === "accent-edge"
-      ? { left: { color: color(tokens.accent), size: 24, space: 10, style: "single" } }
-      : !headerBand && isLast
-        ? {
-            ...(["keyline", "editorial-v2"].includes(tokens.headerTreatment) ? { top: { color: color(tokens.accent), size: tokens.headerTreatment === "keyline" ? 20 : 8, space: 5, style: "single" } } : {}),
-            bottom: { color: color(["editorial", "civic-rule"].includes(tokens.headerTreatment) ? tokens.accent : ["keyline", "editorial-v2"].includes(tokens.headerTreatment) ? tokens.rule : tokens.ink), size: tokens.headerTreatment === "compact-rule" ? 12 : 8, space: 6, style: tokens.headerTreatment === "civic-rule" ? "double" : "single" },
-          }
-        : undefined;
+    const rules = documentHeaderRules(tokens);
+    const borders = {
+      ...(index === 0 && rules.top ? { top: documentDocxRule(rules.top, 5) } : {}),
+      ...(isLast && rules.bottom ? { bottom: documentDocxRule(rules.bottom, 6) } : {}),
+      ...(tokens.headerTreatment === "accent-edge" ? { left: { color: color(tokens.accent), size: 32, space: 8, style: "single" } } : {}),
+    };
     addParagraph(text(row.value, {
       ...row.run,
       font: row.run.font || tokens.docxBodyFontFamily || tokens.docxFontFamily,
@@ -147,7 +128,7 @@ export async function createResumeDocxBlob(input, template = "professional", opt
       alignment: headerAlignment,
       spacing: { after: space(isLast ? row.after : headerBand ? 15 : row.after) },
       keepNext: !isLast,
-      border,
+      border: borders,
       shading: headerBand ? { type: ShadingType.CLEAR, color: "auto", fill: color(tokens.headerBackground, color(tokens.accent)) } : undefined,
       indent: tokens.headerTreatment === "accent-edge" ? { left: 120 } : undefined,
     });

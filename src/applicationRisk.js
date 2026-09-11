@@ -69,6 +69,7 @@ function text(value, fallback = "") {
 
 function defaultSeverity(requirement) {
   if (ELIGIBILITY_PATTERN.test(requirement?.requirement || "")) return "candidate_check";
+  if (requirement?.evidence_match === "unknown") return "insufficient_information";
   if (GAP_SEVERITIES.has(requirement?.gap_severity)) return requirement.gap_severity;
   if (requirement?.evidence_match && requirement.evidence_match !== "missing") return "supported";
   if (requirement?.priority === "preferred") return "preference";
@@ -172,12 +173,12 @@ export function applicationRequirementMatchesFilter(requirement, filter) {
 
 function fallbackOutlook(review, counts, postingComplete) {
   const confidence = postingComplete ? text(review?.candidate_fit?.confidence, counts.total >= 5 ? "high" : "medium") : "unavailable";
-  if (!postingComplete || counts.total === 0) {
+  if (!postingComplete || counts.total === 0 || counts.unassessed > 0) {
     return {
       status: "assessment_incomplete",
       label: OUTLOOK_LABELS.assessment_incomplete,
-      confidence,
-      reason: text(review?.posting_readiness?.reason, "Review the complete posting before judging candidate fit."),
+      confidence: "unavailable",
+      reason: counts.unassessed > 0 && postingComplete ? `${counts.unassessed} central requirement${counts.unassessed === 1 ? " has" : "s have"} not been assessed. Review the available evidence before judging role fit.` : text(review?.posting_readiness?.reason, "Review the complete posting before judging candidate fit."),
       whatWouldChange: "Provide and review the complete responsibilities and qualifications.",
     };
   }
@@ -268,6 +269,7 @@ export function buildApplicationRiskView(review = {}) {
     if (requirement.evidenceMatch === "transferable") result.transferable += 1;
     if (["adjacent", "transferable"].includes(requirement.evidenceMatch)) result.relatedEvidence += 1;
     if (requirement.evidenceMatch === "missing") result.missing += 1;
+    if (requirement.evidenceMatch === "unknown") result.unassessed += 1;
     if (requirement.gapSeverity === "verified_blocker") result.blockers += 1;
     if (["required", "responsibility"].includes(requirement.priority) && requirement.evidenceMatch === "missing" && requirement.gapSeverity !== "verified_blocker") result.materialGaps += 1;
     return result;
@@ -278,6 +280,7 @@ export function buildApplicationRiskView(review = {}) {
     transferable: 0,
     relatedEvidence: 0,
     missing: 0,
+    unassessed: 0,
     blockers: 0,
     materialGaps: 0,
   });
@@ -306,17 +309,19 @@ export function buildApplicationRiskView(review = {}) {
     && review?.parseability?.status === "pass"
     && review?.writing?.status !== "blocked"
     && truthBlockers.length === 0;
-  const applicationReady = review?.application_ready === true
+  const exportBlocked = review?.integrity?.status === "blocked" || review?.requirement_consistency?.status === "blocked" || (review?.provenance_issues?.length || 0) > 0 || review?.identity?.status === "missing";
+  const applicationReady = !exportBlocked && review?.application_ready === true
     && review?.export_readiness?.application_ready !== false;
   const document = {
     truthChecksPass,
     truthLabel: truthChecksPass ? "Content checks passed" : "Document review needed",
     exportReady: applicationReady,
-    exportLabel: applicationReady ? "Application-ready export" : "Preliminary export",
+    exportBlocked,
+    exportLabel: exportBlocked ? "Export blocked" : applicationReady ? "Application-ready export" : "Preliminary export",
     detail: applicationReady
       ? "Identity, posting, structure, and document evidence checks passed. Role fit is assessed separately."
       : truthChecksPass && exportBlockers.length === 1 && exportBlockers[0] === "candidate_fit"
-        ? "The résumé is evidence-safe; optional candidate input may strengthen requirement coverage before final export."
+        ? "Document checks passed. Role-fit gaps remain, so downloads are marked preliminary."
         : text(review?.export_readiness?.blockers?.join(", ").replaceAll("_", " "), "Complete the remaining document and evidence review."),
   };
 
@@ -332,6 +337,10 @@ export function buildApplicationRiskView(review = {}) {
     coreCounts,
     outlook,
     document,
+    highlights: {
+      strengths: coreInventory.filter((entry) => entry.evidenceMatch === "direct").slice(0, 2),
+      gaps: coreInventory.filter((entry) => ["missing", "unknown"].includes(entry.evidenceMatch)).slice(0, 2),
+    },
     filters,
   };
 }
