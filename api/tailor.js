@@ -2,7 +2,7 @@ import { isTradesLikeCategory, normalizeListingCategory } from "../src/listingCa
 import { buildResumeRenderPlan, createResumePackage } from "../src/resumeModel.js";
 import { getResumePdfPageCount } from "../src/resumePdf.js";
 import { callStructuredAI, hasConfiguredProvider } from "./_lib/aiProvider.js";
-import { buildAtsReview, enforceReverseChronology, sourceHistoryEntries } from "./_lib/atsValidation.js";
+import { buildAtsReview, enforceReverseChronology, sourceHistoryEntries, restoreEmptyHistoryFromSource } from "./_lib/atsValidation.js";
 import { jobBriefToText, normalizeCustomJobBrief } from "./_lib/jobBrief.js";
 import { authenticateSupabaseRequest, bearerToken } from "./_lib/requestAuth.js";
 import { createServerSupabaseClient } from "./_lib/serverSupabase.js";
@@ -853,7 +853,7 @@ INSTRUCTIONS
         fit_assessment: analysis.fit_assessment,
         content_strategy: analysis.content_strategy,
       }), analysis, cappedResume);
-      const resumeData = shaped.resume;
+      const resumeData = restoreEmptyHistoryFromSource(shaped.resume, cappedResume);
       if (!resumeData.profile || !Array.isArray(resumeData.experience) || resumeData.experience.length === 0) {
         console.error("[tailor:resume_draft] Incomplete structured response", JSON.stringify({
           hasProfile: Boolean(resumeData.profile),
@@ -906,7 +906,7 @@ INSTRUCTIONS
       const initialFallback = createSafeResumeFallback(resumeData, atsReview, analysis);
       const safetyReport = { ...initialFallback.report };
       const safeShaped = shapeTailoredResumeWithReview(initialFallback.resume, analysis, cappedResume);
-      let safeResume = safeShaped.resume;
+      let safeResume = restoreEmptyHistoryFromSource(safeShaped.resume, cappedResume);
       let safeFocusReview = await layoutAwareFocusReview(safeResume, analysis, item, safeShaped.focusReview);
       let safeReview = buildAtsReview(
         safeResume,
@@ -928,7 +928,7 @@ INSTRUCTIONS
         for (const [key, value] of Object.entries(cleaned.report)) {
           safetyReport[key] = Number(safetyReport[key] || 0) + Number(value || 0);
         }
-        safeResume = enforceReverseChronology(cleaned.resume);
+        safeResume = restoreEmptyHistoryFromSource(enforceReverseChronology(cleaned.resume), cappedResume);
         safeFocusReview = await layoutAwareFocusReview(safeResume, analysis, item, safeReview.focus_review || safeShaped.focusReview);
         safeReview = buildAtsReview(
           safeResume,

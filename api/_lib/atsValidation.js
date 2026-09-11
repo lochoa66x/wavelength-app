@@ -258,6 +258,19 @@ function missingSourceHistory(resumeData, baseResume) {
     .map(({ role, company, dates, sourceLine }) => ({ role, company, dates, sourceLine }));
 }
 
+export function restoreEmptyHistoryFromSource(resumeData, baseResume) {
+  const headers = sourceHistoryEntries(baseResume);
+  const lines = String(baseResume || "").split(/\r?\n/).map((line) => line.replace(/^[\s•*-]+/, "").replace(/\s+/g, " ").trim()).filter(Boolean);
+  const factualOpening = /^(?:led|managed|owned|supported|prepared|provided|participated|contributed|delivered|designed|developed|configured|tested|integrated|oversaw|supervised|coordinated|drove|defined|created|performed|monitored|trained|assisted)\b/i;
+  return { ...resumeData, experience: (resumeData?.experience || []).map((entry) => {
+    if ((entry.bullets || []).some((bullet) => String(bullet || "").trim())) return entry;
+    const header = headers.find((source) => historyEntryCoversSource(entry, source));
+    const statement = header?.sourceRanges.flatMap(({ start, end }) => lines.slice(start + 1, end))
+      .find((line) => line.length >= 20 && line.length <= 500 && factualOpening.test(line));
+    return statement ? { ...entry, bullets: [statement] } : entry;
+  }) };
+}
+
 function numericClaims(value) {
   return [...String(value || "").matchAll(/(?:[$€£]\s*)?\b\d[\d,]*(?:\.\d+)?(?:\s*%|\+)?/g)]
     .map((match) => match[0].replace(/\s+/g, "").toLowerCase());

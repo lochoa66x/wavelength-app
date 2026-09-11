@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { sourceHistoryEntries, buildAtsReview, missingSourceQualifications } from "../api/_lib/atsValidation.js";
+import { sourceHistoryEntries, buildAtsReview, missingSourceQualifications, restoreEmptyHistoryFromSource } from "../api/_lib/atsValidation.js";
 import { createSafeResumeFallback } from "../api/_lib/safeResumeFallback.js";
 import { prepareCandidateEvidenceForSubmission } from "../src/evidenceRefinement.js";
 import { capabilityStatement } from "../src/capabilityClaims.js";
@@ -68,6 +68,11 @@ test("QA grouped consulting history keeps employer, role, dates and client evide
   assert.deepEqual(review.missing_history, []);
   assert.deepEqual(review.unsupported_history, []);
   assert.deepEqual(review.provenance_issues, []);
+  const emptied = structuredClone(groupedResume);
+  emptied.experience[4].bullets = [];
+  const restored = restoreEmptyHistoryFromSource(emptied, groupedBase);
+  assert.deepEqual(restored.experience[4].bullets, groupedResume.experience[4].bullets);
+  assert.deepEqual(buildAtsReview(restored, groupedBase, {}, { analysis: { requirements: [] } }).provenance_issues, []);
   assert.deepEqual(missingSourceQualifications(groupedResume, groupedBase), []);
   const omitted = buildAtsReview({ ...groupedResume, experience: groupedResume.experience.filter((_, index) => index !== 1) }, groupedBase, {});
   assert.equal(omitted.missing_history.length, 1);
