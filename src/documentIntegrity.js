@@ -15,16 +15,32 @@ export function claimMeaningIssues(proposed, sources = []) {
   if (trainingOnly && /\b(?:responsible for|implemented|configured|owned|led|managed|supervised)\b/i.test(text)) {
     issues.push("Training or guidance does not establish implementation ownership.");
   }
-  const projectedMetrics = [...source.matchAll(/\b(?:projected|forecast|estimated|expected|potential)\b[^.;]{0,90}?(\d+(?:\.\d+)?\s*%)/gi)].map((match) => match[1].replace(/\s/g, ""));
-  const proposedMetrics = text.replace(/\s*(%) /g, "$1 ");
+  const qualifier = /\b(?:projected|forecast|estimated|expected|potential)\b/i;
+  const clauses = (value) => value.split(/;|(?<!\d)\.|\.(?!\d)/).filter(Boolean);
+  const metrics = (value) => [...value.matchAll(/\b\d+(?:\.\d+)?\s*%/g)].map((match) => match[0].replace(/\s/g, ""));
+  const projectedMetrics = clauses(source).flatMap((clause) => {
+    const start = clause.search(qualifier);
+    return start < 0 ? [] : metrics(clause.slice(start));
+  });
   for (const metric of projectedMetrics) {
-    if (proposedMetrics.includes(metric) && !text.split(/[.;]/).some((clause) => clause.replace(/\s/g, "").includes(metric) && /\b(?:projected|forecast|estimated|expected|potential)\b/i.test(clause))) {
+    if (clauses(text).some((clause) => metrics(clause).includes(metric) && !qualifier.test(clause))) {
       issues.push("Keep projected or estimated results qualified as such.");
       break;
     }
   }
   if (hasInternalDocumentLanguage(text)) issues.push("Remove internal document-generation terminology.");
   return issues;
+}
+
+// An edit is scoped to the paragraph's citations. A leadership verb elsewhere
+// in the résumé cannot promote this paragraph's support work to ownership.
+export function contributionEditIssue(proposed, sources = []) {
+  const leadership = /\b(?:led|owned|managed|directed|oversaw|supervised|was responsible for)\b/i;
+  const sourceText = sources.map((entry) => typeof entry === "string" ? entry : entry?.excerpt || "").join(" ");
+  const pastClaim = /\bI (?:have )?(?:led|owned|managed|directed|overseen|supervised|was responsible for)\b/i.test(proposed);
+  return pastClaim && !leadership.test(sourceText)
+    ? "The cited evidence does not establish leadership or ownership of this work. Keep the supported responsibility level or regenerate using relevant evidence."
+    : "";
 }
 
 const OWNERSHIP_PARTS = [
@@ -39,8 +55,10 @@ export function requirementEvidenceBoundary(requirement, evidence) {
   const source = String(evidence || "");
   if (/\b(?:certification|certified|credential)\b/i.test(target)) {
     const named = [/\bPMP\b/i, /\bSAP Activate\b/i].filter((pattern) => pattern.test(target));
-    if (named.length && !named.some((pattern) => pattern.test(source)
-        && /\b(?:PMP|certified|certification|credential)\b/i.test(source))) {
+    const credentialClauses = source.split(/[.;\n]/);
+    const notHeld = /\b(?:not|no|without|lack(?:s|ing)?|studying|pursuing|towards?|prepar(?:ing|ation)|prep|planning|pending|expired|intend|aspir(?:ing|ation)|candidate for)\b/i;
+    if (named.length && !named.some((pattern) => credentialClauses.some((clause) => pattern.test(clause)
+        && /\b(?:PMP|certified|certification|credential)\b/i.test(clause) && !notHeld.test(clause)))) {
       return { valid: false, reason: "Project experience does not establish the named credential." };
     }
   }

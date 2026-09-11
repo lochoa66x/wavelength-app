@@ -16,3 +16,10 @@ export function capabilityStatement(record = {}) {
   const prefix = { knowledge: "I have knowledge of this area", applied: "I have hands-on experience in this area", led: "I have led or owned work in this area", unspecified: "I have a capability in this area; my experience level is not specified" }[capabilityLevel(record)];
   return `${prefix}: ${requirement}.`;
 }
+
+export function isGeneratedCapabilityStatement(answer, record = {}) {
+  const text = String(answer || "").replace(/\s+/g, " ").trim();
+  return ["knowledge", "applied", "led", "unspecified"]
+    .some((capability_level) => text === capabilityStatement({ ...record, capability_level }))
+    || text === `I have this capability: ${String(record.requirement || "").replace(/\s+/g, " ").replace(/[.!]+$/, "").trim()}.`;
+}

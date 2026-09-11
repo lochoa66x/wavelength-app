@@ -1,5 +1,5 @@
 import { validateEvidenceCoachProposal } from "./evidenceCoach.js";
-import { capabilityLevel, capabilityStatement } from "../../src/capabilityClaims.js";
+import { capabilityLevel, capabilityStatement, isGeneratedCapabilityStatement } from "../../src/capabilityClaims.js";
 
 const MAX_EVIDENCE_ITEMS = 12;
 
@@ -116,7 +116,7 @@ export function formatCandidateEvidence(evidence) {
         `Requirement: ${item.requirement_id}`,
         `Confirmed experience level: ${capabilityLevel(item)}.`,
         `Candidate statement: ${capabilityStatement(item)}`,
-        item.answer && !/^I have (?:this capability|a capability|knowledge|hands-on experience|led or owned work)/i.test(item.answer) ? `Optional candidate detail: ${item.answer}` : "",
+        item.answer && !isGeneratedCapabilityStatement(item.answer, item) ? `Optional candidate detail: ${item.answer}` : "",
         `Scope: ${item.scope}`,
         "Usage boundary: Knowledge means familiarity, applied means hands-on work, led means leadership in this area. Unspecified legacy selections do not establish hands-on experience or leadership. Never copy these metadata labels into document prose. Do not invent an employer, project, date, duration, result, credential, or historical accomplishment.",
       ].filter(Boolean).join("\n")

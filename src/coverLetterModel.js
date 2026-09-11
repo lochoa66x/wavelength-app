@@ -1,4 +1,4 @@
-import { hasInternalDocumentLanguage, claimMeaningIssues, coverLetterRecipientAddress } from "./documentIntegrity.js";
+import { hasInternalDocumentLanguage, claimMeaningIssues, contributionEditIssue, coverLetterRecipientAddress } from "./documentIntegrity.js";
 import { createResumePackage, stableHash } from "./resumeModel.js";
 import { hasUsableResumeIdentity, hasVerifiedPosting } from "./resumeReadiness.js";
 import { createApplicationPresentation, validateApplicationPresentation } from "./applicationPresentation.js";
@@ -178,6 +178,8 @@ export function validateCoverLetterEdit(text, paragraph, { baseResume = "", cand
   const next = clean(text, 2_400);
   if (hasInternalDocumentLanguage(next)) return { ok: false, message: "Remove internal application terminology from the letter." };
   const meaningIssues = claimMeaningIssues(next, paragraph?.evidenceRefs || []);
+  const contributionIssue = contributionEditIssue(next, paragraph?.evidenceRefs || []);
+  if (contributionIssue) meaningIssues.push(contributionIssue);
   if (meaningIssues.length) return { ok: false, message: meaningIssues.join(" ") };
   if (next.length < 20) return { ok: false, message: "Keep at least one complete, specific sentence or remove the paragraph." };
   if (containsSelfDisqualifyingCoverLetterLanguage(next)) {
@@ -248,7 +250,8 @@ export function getCoverLetterReadiness(plan, { baseResume = "", resumeData = {}
     .reduce((total, key) => total + Number(atsReview?.coverage?.[key] || 0), 0);
   const assessmentIncomplete = !hasVerifiedPosting(atsReview) || requirementCount === 0 || requirementCount !== coverageTotal;
   const significantGap = ["significant_gap", "needs_full_posting"].includes(atsReview?.readiness?.status);
-  const blocked = missingIdentity || stale || invalidHash || unverified || selfDisqualifying || internalLanguage || incomplete;
+  const integrityBlocked = atsReview?.integrity?.status === "blocked";
+  const blocked = missingIdentity || stale || invalidHash || unverified || selfDisqualifying || internalLanguage || incomplete || integrityBlocked;
   const preliminary = !blocked && (assessmentIncomplete || significantGap);
   return {
     state: blocked ? "blocked" : preliminary ? "preliminary" : "application_ready",
@@ -260,6 +263,8 @@ export function getCoverLetterReadiness(plan, { baseResume = "", resumeData = {}
     internalLanguage,
     message: missingIdentity
       ? "Add your real name to the saved résumé before exporting a cover letter."
+      : integrityBlocked
+        ? "Resolve the résumé evidence integrity issues before exporting a matching cover letter."
       : stale
         ? "The résumé, posting, or confirmed evidence changed. Generate the letter again before exporting."
         : invalidHash

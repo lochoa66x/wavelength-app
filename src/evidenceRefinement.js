@@ -50,7 +50,7 @@ export function prepareCandidateEvidenceForSubmission(records = []) {
       && normalized.evidence_kind === "self_attested_capability"
       && String(normalized.requirement || "").trim().length >= 3;
     const sourceAnswer = String(normalized.answer || "").trim();
-    const generatedStatement = /^I have (?:this capability|a capability|knowledge|hands-on experience)|^I have led or owned work/i.test(sourceAnswer);
+    const generatedStatement = isGeneratedCapabilityStatement(sourceAnswer, normalized);
     const answer = selectedCapability && (!sourceAnswer || generatedStatement) ? selfAttestedCapabilityStatement(normalized) : sourceAnswer;
     const hasUsableYesAnswer = normalized.answer_status === "yes" && answer.length >= 3;
     return {
@@ -73,4 +73,4 @@ export function submittableCandidateEvidence(records = []) {
       ))
     ));
 }
-import { capabilityLevel, capabilityStatement } from "./capabilityClaims.js";
+import { capabilityLevel, capabilityStatement, isGeneratedCapabilityStatement } from "./capabilityClaims.js";

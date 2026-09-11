@@ -19,7 +19,11 @@ function plausibleName(value) {
 export function resumeIdentityFromText(value) {
   const lines = String(value || "").split(/\r?\n/).map((line) => cleanLine(line)).filter(Boolean);
   const labelledName = lines.find((line) => /^(?:name|candidate)\s*:/i.test(line) && plausibleName(line));
-  const fullName = cleanLine((labelledName || (plausibleName(lines[0]) ? lines[0] : "")).replace(/^(?:name|candidate)\s*:\s*/i, ""), 140);
+  const firstLine = lines[0] || "";
+  const [headerName, headerTitle] = firstLine.split(/\s+[–—|\-]\s+/, 2);
+  const roleWords = /\b(?:architect|consultant|designer|manager|engineer|developer|analyst|director|technician|specialist|coordinator|officer)\b/i;
+  const nameWithTitle = headerTitle && roleWords.test(headerTitle) && !roleWords.test(headerName) && plausibleName(headerName) ? headerName : "";
+  const fullName = cleanLine((labelledName || nameWithTitle || (plausibleName(firstLine) ? firstLine : "")).replace(/^(?:name|candidate)\s*:\s*/i, ""), 140);
   const contactLines = lines.slice(0, 14).filter((line) => (
     /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i.test(line)
     || /(?:\+?\d[\d\s().-]{7,}\d)/.test(line)

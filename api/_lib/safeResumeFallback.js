@@ -31,7 +31,13 @@ function removeUnsafeSentences(value, numericClaims, riskyClaims) {
 
 function cleanList(values, numericClaims, riskyClaims) {
   return (Array.isArray(values) ? values : [])
-    .map((value) => removeUnsafeSentences(value, numericClaims, riskyClaims))
+    .map((value) => {
+      if (value && typeof value === "object") {
+        const text = JSON.stringify(value);
+        return includesAny(text, numericClaims, compactNumeric) || includesAny(text, riskyClaims) ? null : structuredClone(value);
+      }
+      return removeUnsafeSentences(value, numericClaims, riskyClaims);
+    })
     .filter(Boolean);
 }
 

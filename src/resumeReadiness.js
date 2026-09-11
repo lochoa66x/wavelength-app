@@ -22,12 +22,14 @@ export function hasVerifiedPosting(atsReview) {
 
 export function deriveResumeReadinessState({
   missingIdentity,
+  integrityBlocked,
   verifiedPosting,
   requirementsAnalyzed,
   significantGap,
   evidenceReviewBlocked,
 } = {}) {
   if (missingIdentity) return "blocked_identity";
+  if (integrityBlocked) return "blocked_integrity";
   if (!verifiedPosting) return "needs_posting_review";
   if (!requirementsAnalyzed) return "needs_requirement_analysis";
   if (significantGap) return "preliminary";
@@ -38,6 +40,7 @@ export function deriveResumeReadinessState({
 export function getResumeExportReadiness(resumeData, atsReview) {
   const resumePackage = createResumePackage(resumeData, { atsReview });
   const missingIdentity = !hasUsableCandidateIdentity(resumePackage);
+  const integrityBlocked = atsReview?.integrity?.status === "blocked";
   const verifiedPosting = hasVerifiedPosting(atsReview);
   const requirementCount = Array.isArray(atsReview?.requirements) ? atsReview.requirements.length : 0;
   const coverageTotal = ["direct", "adjacent", "transferable", "missing"]
@@ -52,6 +55,7 @@ export function getResumeExportReadiness(resumeData, atsReview) {
     || Boolean(atsReview?.export_readiness?.blockers?.length);
   const state = deriveResumeReadinessState({
     missingIdentity,
+    integrityBlocked,
     verifiedPosting,
     requirementsAnalyzed,
     significantGap,
@@ -62,7 +66,8 @@ export function getResumeExportReadiness(resumeData, atsReview) {
 
   return {
     state,
-    canExport: !missingIdentity,
+    canExport: !missingIdentity && !integrityBlocked,
+    integrityBlocked,
     missingIdentity,
     verifiedPosting,
     requirementsAnalyzed,
@@ -91,6 +96,9 @@ export function getResumeExportNotice(resumeData, atsReview) {
       title: "Application-ready export",
       message: "The current posting and evidence checks authorize a final DOCX or PDF export.",
     };
+  }
+  if (readiness.integrityBlocked) {
+    return { state: "blocked", code: "integrity_blocked", title: "Export blocked — evidence needs correction", message: "Resolve the résumé evidence integrity issues and check the draft again before exporting." };
   }
   if (readiness.state === "needs_posting_review") {
     const observedReason = [
@@ -236,7 +244,7 @@ export function validateResumeExportContext(context, now = Date.now()) {
   if (authorization?.mode !== expectedMode || renderPlan?.preliminary !== readiness.preliminary) {
     throw new Error("The résumé export authorization no longer matches the canonical readiness decision.");
   }
-  if (!readiness.canExport) throw new Error("Candidate name is required before export.");
+  if (!readiness.canExport) throw new Error(readiness.missingIdentity ? "Candidate name is required before export." : "Resolve the résumé evidence integrity issues before export.");
   if (renderPlan?.contentHash !== resumePackage.contentHash) throw new Error("The résumé render plan does not match the authorized content.");
   const expectedRenderPlan = buildResumeRenderPlan(
     resumePackage,

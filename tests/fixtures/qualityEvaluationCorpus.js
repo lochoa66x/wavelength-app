@@ -355,7 +355,7 @@ export const qualityEvaluationCorpus = Object.freeze([
       recommendationStrength: "strong",
       postingVerified: true,
       applicationReady: false,
-      canExport: true,
+      canExport: false,
       exportMode: "preliminary",
       integrityStatus: "blocked",
     }),

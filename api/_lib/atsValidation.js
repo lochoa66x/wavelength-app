@@ -108,6 +108,7 @@ function historyEntryAssociationSupported(experience, baseResume) {
   const company = String(experience?.company || "").trim();
   const dates = String(experience?.dates || "").trim();
   if (!role || !company) return true;
+  if (sourceHistoryEntries(baseResume).some((source) => historyEntryCoversSource(experience, source))) return true;
 
   const lines = String(baseResume || "")
     .split(/\r?\n/)
@@ -148,10 +149,41 @@ export function sourceHistoryEntries(baseResume) {
     .map((line) => line.replace(/^[\s•*-]+/, "").replace(/\s+/g, " ").trim())
     .filter(Boolean);
   const entries = [];
-  const seen = new Set();
+  const grouped = new Map();
+  const employerHeadings = new Set();
+  let employer = null;
+  const sectionHeading = /^(?:(?:professional|previous) experience|experience|employment|education|(?:professional )?(?:affiliations\/)?certifications?|(?:SAP )?training(?: and certification)?|languages?|language skills|security clearance|VERIFIED CANDIDATE NOTES)$|^\[CANDIDATE NOTE\b/i;
+  const clientRole = (line) => {
+    const match = String(line || "").match(/^(.{3,80}?)\s+at\s+(.+)$/i);
+    return match && EMPLOYMENT_ROLE_HINT_PATTERN.test(match[1]) ? match : null;
+  };
+  // Explicit consulting groups have an employer heading followed by roles
+  // "at" clients. The employer's dates apply only to its own undated roles.
+  for (let index = 0; index < lines.length; index++) {
+    const line = lines[index];
+    if (sectionHeading.test(line)) { employer = null; continue; }
+    const range = line.match(EMPLOYMENT_DATE_RANGE_PATTERN) || line.match(/\b(?:19|20)\d{2}\b(?=\s*\)?$)/);
+    const prefix = cleanHistorySourcePart((range ? line.slice(0, range.index) : line).replace(/[([]\s*$/, ""));
+    if (clientRole(lines[index + 1]) && prefix.length < 110 && prefix.length > 1
+        && !EMPLOYMENT_ROLE_HINT_PATTERN.test(prefix) && !/[.!?:]$/.test(prefix)
+        && !/^(?:led|managed|owned|supported|prepared|provided|participated|contributed|delivered|designed|developed|configured|tested|integrated|oversaw|supervised|coordinated)\b/i.test(prefix)) {
+      employer = { company: prefix.split(",")[0].trim(), dates: range?.[0] || "" };
+      employerHeadings.add(index);
+      continue;
+    }
+    const roleMatch = clientRole(line);
+    if (roleMatch && employer && (range || employer.dates)) {
+      grouped.set(index, { role: roleMatch[1].trim(), company: employer.company, dates: range?.[0] || employer.dates, sourceLine: line, headerIndex: index });
+    } else if (range && !roleMatch && EMPLOYMENT_ROLE_HINT_PATTERN.test(prefix) && /[|—–]|\s-\s/.test(prefix)) {
+      employer = null;
+    }
+  }
 
   for (let index = 0; index < lines.length; index += 1) {
+    if (grouped.has(index)) { entries.push(grouped.get(index)); continue; }
+    if (employerHeadings.has(index)) continue;
     const line = lines[index];
+    if (/^(?:led|managed|owned|supported|prepared|provided|participated|contributed|delivered|designed|developed|configured|tested|integrated|oversaw|supervised|coordinated)\b/i.test(line)) continue;
     const rangeMatch = line.match(EMPLOYMENT_DATE_RANGE_PATTERN);
     const singleYearMatch = rangeMatch ? null : line.match(EMPLOYMENT_SINGLE_YEAR_PATTERN);
     const dateMatch = rangeMatch || singleYearMatch;
@@ -194,12 +226,18 @@ export function sourceHistoryEntries(baseResume) {
     // A single year is common for short engagements, but it is too ambiguous
     // to treat as employment unless the same line contains a clear job header.
     if (!role || !company || (singleYearMatch && parts.length < 2)) continue;
-    const key = [role, company, dates].map(normalized).join("|");
-    if (seen.has(key)) continue;
-    seen.add(key);
     entries.push({ role, company, dates, sourceLine: line, headerIndex: index });
   }
-  return entries;
+  const boundaries = [...entries.map((entry) => entry.headerIndex), ...employerHeadings,
+    ...lines.flatMap((line, index) => sectionHeading.test(line) ? [index] : [])].sort((a, b) => a - b);
+  const unique = new Map();
+  for (const entry of entries) {
+    const key = [entry.role, entry.company, entry.dates].map(normalized).join("|");
+    const sourceRange = { start: entry.headerIndex, end: boundaries.find((index) => index > entry.headerIndex) ?? lines.length };
+    if (unique.has(key)) unique.get(key).sourceRanges.push(sourceRange);
+    else unique.set(key, { ...entry, sourceRanges: [sourceRange] });
+  }
+  return [...unique.values()];
 }
 
 function roleEquivalent(candidate, source) {
@@ -258,7 +296,8 @@ export function missingSourceQualifications(resumeData, baseResume) {
   const missing = [];
   for (const raw of String(baseResume || "").split(/\r?\n/)) {
     const line = raw.replace(/^[\s•*-]+/, "").trim();
-    if (/^(?:education|academic (?:background|qualifications)|certifications?|professional certifications?)$/i.test(line)) { section = line; continue; }
+    if (/^(?:education|academic (?:background|qualifications)|certifications?|professional (?:affiliations\/)?certifications?)$/i.test(line)) { section = line; continue; }
+    if (/^(?:SAP )?Training and Certification$/i.test(line)) { section = ""; continue; }
     if (/^(?:professional (?:experience|training)|experience|employment|training|skills|languages|projects|references)$/i.test(line)) { section = ""; continue; }
     if (!section || !/\b(?:bachelor|master|doctorate|phd|diploma|associate|certified|certification|PMP)\b/i.test(line) || line.length > 220) continue;
     const terms = normalized(line).split(" ").filter((word) => word.length > 2 && !["the", "and", "with", "from"].includes(word));
@@ -458,7 +497,10 @@ export function buildTailoringChangeLedger(resumeData, baseResume, analysis = {}
     const endLine = nextHeader ? nonemptyLines[nextHeader.headerIndex]?.index + 1 : Infinity;
     const sectionEndIndex = header ? nonemptyLines.find((line) => line.index + 1 > startLine && /^(?:education|professional training|training|certifications?|languages?|VERIFIED CANDIDATE NOTES|\[CANDIDATE NOTE)/i.test(line.text))?.index : null;
     const sectionEnd = sectionEndIndex == null ? null : sectionEndIndex + 1;
-    const scopedLines = header ? sourceLines.filter((line) => line.line_index > startLine && line.line_index < Math.min(endLine, sectionEnd || Infinity)) : headers.length ? [] : sourceLines;
+    const sourceRanges = header?.sourceRanges?.map(({ start, end }) => ({ start: nonemptyLines[start]?.index + 1, end: nonemptyLines[end]?.index + 1 || Infinity }));
+    const scopedLines = header ? sourceLines.filter((line) => sourceRanges?.length
+      ? sourceRanges.some((range) => line.line_index > range.start && line.line_index < range.end)
+      : line.line_index > startLine && line.line_index < Math.min(endLine, sectionEnd || Infinity)) : headers.length ? [] : sourceLines;
     for (const [bulletIndex, proposedValue] of (experience?.bullets || []).entries()) {
       const proposed = String(proposedValue || "").replace(/\s+/g, " ").trim();
       if (!proposed) continue;

@@ -146,10 +146,10 @@ export function ResumeActions({ resumeData, resumePackage, renderPlan, selection
 
   return (
     <>
-      <p role={readiness.missingIdentity ? "alert" : undefined} style={{ fontSize: 12, color: readiness.missingIdentity ? C.red : C.textFaint, margin: "0 0 12px", lineHeight: 1.5 }}>
+      <p role={!readiness.canExport ? "alert" : undefined} style={{ fontSize: 12, color: !readiness.canExport ? C.red : C.textFaint, margin: "0 0 12px", lineHeight: 1.5 }}>
         {readiness.missingIdentity
           ? "Add your real name to the saved résumé before exporting. Gigscapes will never insert an identity placeholder."
-          : "Review every detail before applying — nothing is submitted automatically."}
+          : readiness.integrityBlocked ? "Resolve the evidence integrity issues and check the draft again before exporting." : "Review every detail before applying — nothing is submitted automatically."}
         {readiness.missingIdentity && onEditResume ? (
           <> <button type="button" onClick={onEditResume} className="wl-btn" style={{ border: 0, padding: 0, background: "transparent", color: C.red, font: "inherit", fontWeight: 700, textDecoration: "underline", cursor: "pointer" }}>Edit saved résumé</button></>
         ) : null}
@@ -178,6 +178,7 @@ export function ResumeActions({ resumeData, resumePackage, renderPlan, selection
         <button
           type="button"
           onClick={handleCopy}
+          disabled={exportBusy || !readiness.canExport}
           className="wl-btn"
           style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 13, fontWeight: 500, padding: "9px 16px", borderRadius: 980, border: `1px solid ${C.border}`, background: C.bgCard, color: C.text, cursor: "pointer" }}
         >
