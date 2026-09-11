@@ -15,6 +15,7 @@ import {
   coverLetterToPlainText,
   createCoverLetterExportContext,
   createCoverLetterPlan,
+  createCoverLetterSourceFingerprint,
   getCoverLetterReadiness,
   removeCoverLetterParagraph,
   restoreCoverLetterParagraph,
@@ -47,6 +48,7 @@ export function CoverLetterWorkspace({
   const requestAccountAction = requestAccountActionOverride || authRequestAccountAction;
   const userId = session?.user?.id || "";
   const context = useMemo(() => ({ baseResume, resumeData, item, atsReview, candidateEvidence, candidateIdentity }), [baseResume, resumeData, item, atsReview, candidateEvidence, candidateIdentity]);
+  const sourceFingerprint = useMemo(() => createCoverLetterSourceFingerprint(context), [context]);
   const applicationPresentation = useMemo(
     () => requestedApplicationPresentation
       ? validateApplicationPresentation(requestedApplicationPresentation)
@@ -70,7 +72,9 @@ export function CoverLetterWorkspace({
     if (storedPlan?.length) setLength(storedPlan.length);
     setEditingId("");
     setMessage(null);
-  }, [userId, item?.id, item?.title, item?.company, context.baseResume, context.resumeData, context.atsReview, context.candidateEvidence]);
+  // Parent status updates can recreate equivalent identity/evidence objects.
+  // Reset only when their content changes, preserving notices and selections.
+  }, [userId, item?.id, item?.title, item?.company, sourceFingerprint]);
 
   useEffect(() => () => controllerRef.current?.abort(), []);
 

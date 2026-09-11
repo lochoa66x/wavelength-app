@@ -8,6 +8,7 @@ import { resumeDataToPlainText } from "../src/resumeText.js";
 import { coverLetterControlInstructions, coverLetterLengthPolicy, coverLetterGenerationSettings } from "../src/coverLetterControls.js";
 import { buildWritingReview } from "../api/_lib/resumeWriting.js";
 import { createCoverLetterHandler } from "../api/cover-letter.js";
+import { createCoverLetterSourceFingerprint } from "../src/coverLetterModel.js";
 import { createResumePdfBytes } from "../src/resumePdf.js";
 import { createResumeDocxBlob } from "../src/resumeDocx.js";
 import { getDocument } from "pdfjs-dist/legacy/build/pdf.mjs";
@@ -154,6 +155,14 @@ test("voice rules remain distinct and paragraph regeneration uses the saved sett
   assert.deepEqual(coverLetterGenerationSettings({ plan, voice: "warm", length: "short" }), { voice: "warm", length: "short" });
   assert.match(coverLetterControlInstructions({ voice: "warm", length: "short" }), /approachable conversational rhythm/);
   assert.match(coverLetterControlInstructions({ voice: "confident", length: "standard" }), /without superlatives, promises/);
+});
+
+test("workspace source identity survives equivalent parent objects but detects source changes", () => {
+  const context = { baseResume: base, resumeData: resume, item: { id: "editorial-qa", title: "SAP Consultant", company: "QA Example" }, atsReview: analysis, candidateEvidence: [] };
+  const fingerprint = createCoverLetterSourceFingerprint(context);
+  assert.equal(createCoverLetterSourceFingerprint(structuredClone(context)), fingerprint);
+  assert.notEqual(createCoverLetterSourceFingerprint({ ...context, baseResume: base + "\nAdditional source detail." }), fingerprint);
+  assert.notEqual(createCoverLetterSourceFingerprint({ ...context, candidateEvidence: [{ capability: "SAP Activate", experience_level: "knowledge" }] }), fingerprint);
 });
 
 const job = { title: "SAP Consultant", company: "QA Example", description: "Support SAP testing and report release defects.", responsibilities: ["Support SAP testing", "Report release defects"], required_qualifications: ["SAP consulting experience"] };

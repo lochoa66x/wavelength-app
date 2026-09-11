@@ -13,7 +13,7 @@ The UI identifies the current draft's settings and word count separately from pe
 ## Validation before release
 
 - Reproduced six failures in the initial organization/editorial tests before integrating the fixes.
-- Full automated suite: 701 passed, zero failed. Nineteen maintained tests were added for this scope. The focused suite was rerun after defensive input handling and fixture cleanup.
+- Full automated suite: 702 passed, zero failed. Twenty maintained tests were added for this scope. The full suite was rerun after the production-discovered message-persistence fix.
 - Production bundle: clean successful exit. One npm-driven run completed bundling but hit a Windows Node/libuv shutdown assertion; direct invocation of the same Vite build succeeded. The existing PDF chunk-size warning remains.
 - General résumé export matrix: 48 files across 16 templates, covering 29 PDF pages. Manifest parity and final/stale export gates passed.
 - Existing cover-letter and document-quality export verifiers passed.
@@ -21,6 +21,8 @@ The UI identifies the current draft's settings and word count separately from pe
 - Visually inspected every one of those eight PDF pages. An initial employer-group split was found visually, fixed, and added to the maintained verifier.
 - Visually inspected both pages of a 24-bullet long-role PDF. Continuation context, the last observation, and the following compact role were retained. A separate maintained renderer stress test preserves all 700 repeated statements and the final ending of an oversized bullet.
 - Local browser using actual components and controlled provider responses: pending voice/length selections, paragraph regeneration settings, full regeneration, saved-draft reload, failure recovery, cancellation, and 390px mobile layout passed. Desktop and mobile screenshots were inspected; no browser errors or horizontal overflow were observed.
+- Production evidence analysis completed for a clearly labeled synthetic SAP posting. The first live Standard-letter attempt was blocked for a numeric claim absent from its cited evidence (HTTP 422 after 12.049 seconds). The blocked text was not released as a usable letter. This is a failed generation, not a successful quality sample.
+- That failure exposed a pre-existing cover-letter-only integration defect: equivalent identity/evidence objects were recreated during parent status updates, causing the draft-loading effect to clear the error notice. The effect now uses the existing content fingerprint. A local browser reproduction with changing parent status and newly allocated equivalent props verified persistent error messages, preserved pending settings, and successful retry. The fingerprint regression also detects actual source changes.
 
 The local Standard/Short fixture texts are hand-authored QA examples: 159 and 100 words. These numbers are not live-generation measurements. Production revision and live model observations are recorded in the accompanying task report after deployment.
 
