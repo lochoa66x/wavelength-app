@@ -10,6 +10,13 @@ export function claimMeaningIssues(proposed, sources = []) {
   const text = String(proposed || "");
   const source = sources.map((entry) => typeof entry === "string" ? entry : entry?.excerpt || "").join(" ");
   const issues = [];
+  const statements = sources.map((entry) => typeof entry === "string" ? entry : entry?.excerpt || "")
+    .map((entry) => entry.replace(/^[\s•*-]+/, "").trim()).filter(Boolean);
+  const participationOnly = statements.length > 0 && statements.every((entry) => /^(?:I )?(?:participated|contributed|assisted|supported)\b/i.test(entry));
+  const directAction = text.match(/(?:^|\bI (?:also )?(?:have )?)(created|implemented|configured|developed|designed|integrated)\b/i)?.[1];
+  if (participationOnly && directAction && !statements.some((entry) => new RegExp(`\\b${directAction}\\b`, "i").test(entry))) {
+    issues.push("The cited sources describe participation or contribution. Keep that responsibility level instead of claiming the work was independently created or implemented.");
+  }
   const trainingOnly = /\b(?:train(?:ed|ing)|guidance|advis(?:ed|ing))\b/i.test(source)
     && !/\b(?:implemented|configured|owned|led|managed|responsible for (?:the )?(?:implementation|configuration))\b/i.test(source);
   if (trainingOnly && /\b(?:responsible for|implemented|configured|owned|led|managed|supervised)\b/i.test(text)) {

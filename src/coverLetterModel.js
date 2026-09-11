@@ -242,6 +242,7 @@ export function getCoverLetterReadiness(plan, { baseResume = "", resumeData = {}
   const invalidHash = Boolean(plan) && plan.contentHash !== stableHash(planContent(plan), "cover-letter");
   const unverified = (plan?.paragraphs || []).some((entry) => entry.verification !== "verified");
   const internalLanguage = (plan?.paragraphs || []).some((entry) => hasInternalDocumentLanguage(entry.text));
+  const meaningChanged = !internalLanguage && (plan?.paragraphs || []).some((entry) => claimMeaningIssues(entry.text, entry.evidenceRefs).length > 0);
   const selfDisqualifying = (plan?.paragraphs || []).some((entry) => containsSelfDisqualifyingCoverLetterLanguage(entry.text));
   const incomplete = (plan?.paragraphs?.length || 0) < 2 || !plan?.candidate?.fullName || !plan?.target?.jobTitle;
   const missingIdentity = !hasUsableResumeIdentity(plan?.candidate?.fullName);
@@ -251,7 +252,7 @@ export function getCoverLetterReadiness(plan, { baseResume = "", resumeData = {}
   const assessmentIncomplete = !hasVerifiedPosting(atsReview) || requirementCount === 0 || requirementCount !== coverageTotal;
   const significantGap = ["significant_gap", "needs_full_posting"].includes(atsReview?.readiness?.status);
   const integrityBlocked = atsReview?.integrity?.status === "blocked";
-  const blocked = missingIdentity || stale || invalidHash || unverified || selfDisqualifying || internalLanguage || incomplete || integrityBlocked;
+  const blocked = missingIdentity || stale || invalidHash || unverified || selfDisqualifying || internalLanguage || incomplete || integrityBlocked || meaningChanged;
   const preliminary = !blocked && (assessmentIncomplete || significantGap);
   return {
     state: blocked ? "blocked" : preliminary ? "preliminary" : "application_ready",
@@ -261,10 +262,13 @@ export function getCoverLetterReadiness(plan, { baseResume = "", resumeData = {}
     invalidHash,
     selfDisqualifying,
     internalLanguage,
+    meaningChanged,
     message: missingIdentity
       ? "Add your real name to the saved résumé before exporting a cover letter."
       : integrityBlocked
         ? "Resolve the résumé evidence integrity issues before exporting a matching cover letter."
+      : meaningChanged
+        ? "This wording changes the scope or responsibility in its sources. Edit the affected paragraph or regenerate the letter before exporting."
       : stale
         ? "The résumé, posting, or confirmed evidence changed. Generate the letter again before exporting."
         : invalidHash
@@ -309,6 +313,7 @@ export function validateCoverLetterExportContext(context, now = Date.now()) {
   const expectedContentHash = stableHash(planContent(context.plan), "cover-letter");
   if (context.plan?.contentHash !== expectedContentHash) throw new Error("The cover-letter content hash is invalid or stale.");
   if ((context.plan?.paragraphs || []).some((entry) => hasInternalDocumentLanguage(entry.text))) throw new Error("Remove internal application wording before exporting.");
+  if ((context.plan?.paragraphs || []).some((entry) => claimMeaningIssues(entry.text, entry.evidenceRefs).length)) throw new Error("Correct wording that changes the scope or responsibility in its sources before exporting.");
   const applicationPresentation = validateApplicationPresentation(context.applicationPresentation);
   const expectedAuthorization = stableHash({
     contentHash: context.plan.contentHash,

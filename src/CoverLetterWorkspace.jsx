@@ -87,7 +87,7 @@ export function CoverLetterWorkspace({
 
   const readiness = useMemo(() => getCoverLetterReadiness(plan, context), [plan, context]);
   const busy = state === "generating" || state === "exporting";
-  const requiresFreshDraft = Boolean(plan && (readiness.stale || readiness.selfDisqualifying));
+  const requiresFreshDraft = Boolean(plan && (readiness.stale || readiness.selfDisqualifying || readiness.meaningChanged));
 
   useEffect(() => {
     onStatusChange?.({

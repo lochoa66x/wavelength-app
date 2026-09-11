@@ -112,6 +112,12 @@ test("QA letter edits cannot borrow leadership from unrelated résumé evidence"
   assert.equal(validateCoverLetterEdit("I led SAP cutover and go-live support.", paragraph, editContext).ok, false);
   assert.equal(validateCoverLetterEdit(paragraph.generatedText, paragraph, editContext).ok, true);
   assert.equal(validateCoverLetterEdit("I led SAP testing activities.", { generatedText: "I led SAP testing activities.", evidenceRefs: ["Led SAP testing activities."] }, editContext).ok, true);
+  const source = ["Participated in SAP functional specification documentation.", "Contributed in the creation of functional specifications for Contract Accounts."];
+  assert.ok(claimMeaningIssues("I created functional specifications for Contract Accounts.", source).length);
+  assert.deepEqual(claimMeaningIssues("I contributed to the creation of functional specifications for Contract Accounts.", source), []);
+  const legacy = createCoverLetterPlan({ ...qualityLetter, paragraphs: [{ id: "opening", text: "I created functional specifications for Contract Accounts.", evidence_refs: source }, qualityLetter.paragraphs.at(-1)] }, context);
+  assert.equal(getCoverLetterReadiness(legacy, context).meaningChanged, true);
+  assert.throws(() => createCoverLetterExportContext(legacy, context), /scope or responsibility/);
 });
 
 test("QA known integrity failures cannot export through preliminary DOCX, PDF or a matching letter", async () => {
