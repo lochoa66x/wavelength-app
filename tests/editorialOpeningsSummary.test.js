@@ -89,6 +89,13 @@ test('a short bookkeeper duty list still needs a summary-only rewrite without co
   assert.deepEqual(result.resume.experience,resume.experience);
 });
 
+test('changing a short experience bullet to present tense does not make it a distinct summary', () => {
+  const c=liveCareerCases[0], resume=resumeFor(c);
+  const context='Bookkeeper with accounting diploma training and experience using QuickBooks Online for monthly bank-account reconciliations.';
+  assert.ok(reviewResumeSummary({...resume,profile:context+' Processes supplier invoices and prepares monthly expense reports for an owner.'},c.baseResume).some((issue)=>issue.code==='summary_repeats_experience'));
+  assert.deepEqual(reviewResumeSummary({...resume,profile:'Bookkeeper with accounting diploma training and prior accounts-assistant experience.'},c.baseResume),[]);
+});
+
 test('application announcements are flagged across careers without banning ordinary first-person evidence', () => {
   for (const c of liveCareerCases) {
     for (const prefix of ['I am applying for', 'I’m applying for', 'I am writing to apply for', 'I would like to apply for']) {

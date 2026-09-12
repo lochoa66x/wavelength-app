@@ -3,6 +3,17 @@ const STOP_WORDS = new Set('a an the i my we our you your and or in on at to of 
 const normalize = (text) => String(text || '').normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
 export const editorialSentences = (text) => String(text || '').split(/(?<=[.!?])\s+/).filter((sentence) => sentence.trim());
 const tokens = (text) => (normalize(text).match(/\p{L}[\p{L}\p{N}]*/gu) || []).filter((word) => !STOP_WORDS.has(word));
+const ACTION_FORMS = new Map([
+  ['prepare', 'prepares', 'prepared', 'preparing'], ['process', 'processes', 'processed', 'processing'],
+  ['record', 'records', 'recorded', 'recording'], ['reconcile', 'reconciles', 'reconciled', 'reconciling'],
+  ['build', 'builds', 'built', 'building'], ['clean', 'cleans', 'cleaned', 'cleaning'],
+  ['update', 'updates', 'updated', 'updating'], ['support', 'supports', 'supported', 'supporting'],
+  ['translate', 'translates', 'translated', 'translating'], ['create', 'creates', 'created', 'creating'],
+  ['plan', 'plans', 'planned', 'planning'], ['lead', 'leads', 'led', 'leading'],
+  ['manage', 'manages', 'managed', 'managing'], ['repair', 'repairs', 'repaired', 'repairing'],
+  ['install', 'installs', 'installed', 'installing'], ['coordinate', 'coordinates', 'coordinated', 'coordinating'],
+].flatMap((forms) => forms.map((form) => [form, forms[0]])));
+const actionKey = (word) => ACTION_FORMS.get(word) || word;
 
 export function repeatsContribution(text, example) {
   const numbers = (value) => String(value).match(/\b\d[\d,.]*(?:%)?/g) || [];
@@ -30,11 +41,12 @@ export function reviewResumeSummary(resume, source = '') {
     return quantities.some((quantity) => profileQuantities.includes(quantity));
   }));
   const exactCopy = sentences.some((sentence) => normalize(sentence).split(' ').length >= 8 && bullets.some((bullet) => normalize(sentence) === normalize(bullet)));
-  const firstWord = (text) => normalize(text).split(' ')[0];
-  const actionRecap = sentences.some((sentence) => bullets.some((bullet) => {
-    if (firstWord(sentence) !== firstWord(bullet)) return false;
-    const sourceTokens = new Set(tokens(bullet));
-    return [...new Set(tokens(sentence))].filter((word) => sourceTokens.has(word)).length >= 4;
+  const firstWord = (text) => actionKey(normalize(text).split(' ')[0]);
+  const clauses = sentences.flatMap((sentence) => sentence.split(/\band\b|,/i));
+  const actionRecap = clauses.some((clause) => bullets.some((bullet) => {
+    if (firstWord(clause) !== firstWord(bullet)) return false;
+    const sourceTokens = new Set(tokens(bullet).map(actionKey));
+    return [...new Set(tokens(clause).map(actionKey))].filter((word) => sourceTokens.has(word)).length >= 3;
   }));
   const issues = [];
   const taskActions = profile.match(/\b(?:preparing|building|processing|reconciling|translating|creating|recording|discussing|supporting|cleaning|working|planning|developing|managing|leading|coordinating|installing|repairing|measuring|scheduling|picking|packing|updating|checking)\b/gi) || [];
