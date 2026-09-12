@@ -55,6 +55,13 @@ test('the live translator profile cannot repeat its direction or disguise a skil
   assert.deepEqual(reviewResumeSummary({ ...resume, profile: 'French-to-English museum translator with an earlier background in arts publishing.' }, c.baseResume), []);
 });
 
+test('an analyst summary cannot paraphrase an achievement as a second profile sentence', () => {
+  const c=liveCareerCases[9], resume=resumeFor(c);
+  const context='Data Analysis Intern and Statistics graduate with experience preparing survey and attendance data for community-focused programmes.';
+  assert.ok(reviewResumeSummary({...resume,profile:context+' Built a Power BI dashboard for programme coordinators and prepared SQL queries under supervisory review.'},c.baseResume).some((issue)=>issue.code==='summary_repeats_experience'));
+  assert.deepEqual(reviewResumeSummary({...resume,profile:context},c.baseResume),[]);
+});
+
 test('application announcements are flagged across careers without banning ordinary first-person evidence', () => {
   for (const c of liveCareerCases) {
     for (const prefix of ['I am applying for', 'I’m applying for', 'I am writing to apply for', 'I would like to apply for']) {

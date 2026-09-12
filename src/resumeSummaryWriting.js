@@ -24,6 +24,12 @@ export function reviewResumeSummary(resume, source = '') {
   const bullets = (resume?.experience || []).flatMap((entry) => entry.bullets || []).filter((bullet) => typeof bullet === 'string' && bullet.trim());
   const repeated = bullets.filter((bullet) => sentences.some((sentence) => repeatsContribution(sentence, bullet)));
   const exactCopy = sentences.some((sentence) => normalize(sentence).split(' ').length >= 8 && bullets.some((bullet) => normalize(sentence) === normalize(bullet)));
+  const firstWord = (text) => normalize(text).split(' ')[0];
+  const actionRecap = sentences.some((sentence) => bullets.some((bullet) => {
+    if (firstWord(sentence) !== firstWord(bullet)) return false;
+    const sourceTokens = new Set(tokens(bullet));
+    return [...new Set(tokens(sentence))].filter((word) => sourceTokens.has(word)).length >= 4;
+  }));
   const issues = [];
   if (sentences.some((sentence) => /^(?:brings?|background includes|experience includes|skills include)\b/i.test(sentence.trim()) && /\band\b/i.test(sentence) && tokens(sentence).length >= 6)) {
     issues.push({ code: 'summary_activity_inventory', advice: 'Replace the list of duties or skills with the candidate’s work setting or distinctive professional background. Choose one useful focus; leave the inventory in skills and experience. Use plain wording, not noun stacks.' });
@@ -32,7 +38,7 @@ export function reviewResumeSummary(resume, source = '') {
   if (direction && new RegExp(`\\b${direction[1]}\\b[^.!?]{0,100}\\b(?:into|to) ${direction[2]}\\b`).test(profile.slice(direction.index + direction[0].length))) {
     issues.push({ code: 'summary_repeated_direction', advice: 'State the language direction once. Use the rest of the profile for a supported subject focus or professional background rather than explaining the same direction again.' });
   }
-  if (repeated.length >= 2 || exactCopy) issues.push({ code: 'summary_repeats_experience', advice: 'Replace the retold experience bullets with one or two sentences identifying the candidate’s supported profession, work setting and distinctive focus. Keep assignments, quantities and outcomes in experience. Do not replace the repetition with generic praise.' });
+  if (repeated.length >= 2 || exactCopy || actionRecap) issues.push({ code: 'summary_repeats_experience', advice: 'Replace the retold experience bullets with one or two sentences identifying the candidate’s supported profession, work setting and distinctive focus. Keep assignments, quantities and outcomes in experience. Do not replace the repetition with generic praise.' });
   if (profile.trim().split(/\s+/).filter(Boolean).length > 60 || sentences.length > 2) issues.push({ code: 'summary_too_long', advice: 'Use one or two selective sentences, usually 10–35 words and no more than 60. A short source may need only one sentence. Do not inventory every tool or contribution.' });
   for (const phrase of ['high-volume', 'high volume', 'large-scale', 'large scale', 'fast-paced', 'fast paced']) {
     if (normalize(profile).includes(normalize(phrase)) && !normalize(source).includes(normalize(phrase))) {
