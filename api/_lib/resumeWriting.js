@@ -1,4 +1,5 @@
 import { reviewEditorialText } from "../../src/coverLetterWriting.js";
+import { reviewResumeSummary } from "../../src/resumeSummaryWriting.js";
 const OCCUPATION_PROFILES = Object.freeze({
   sap_functional: {
     patterns: /\b(sap|erp|s\/4hana|s4hana|fi-ca|pscd|functional consultant|business analyst)\b/i,
@@ -174,6 +175,9 @@ export function buildWritingReview(resumeData, baseResume, options = {}) {
   const preferredVerbs = OCCUPATION_PROFILES[profile].verbs;
   const issues = [];
   for (const issue of reviewEditorialText(resumeData?.profile || "")) {
+    issues.push({ ...issueRecord({ type: issue.code, experience: {}, experienceIndex: -1, bullet: resumeData.profile, bulletIndex: -1, explanation: issue.advice, profile }), section: "summary" });
+  }
+  for (const issue of reviewResumeSummary(resumeData, baseResume)) {
     issues.push({ ...issueRecord({ type: issue.code, experience: {}, experienceIndex: -1, bullet: resumeData.profile, bulletIndex: -1, explanation: issue.advice, profile }), section: "summary" });
   }
 

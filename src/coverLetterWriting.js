@@ -1,4 +1,5 @@
 import { coverLetterLengthPolicy } from "./coverLetterControls.js";
+import { editorialSentences, repeatsContribution } from "./resumeSummaryWriting.js";
 const words = (value) => String(value || "").trim().split(/\s+/).filter(Boolean);
 const FILLER = /\b(?:aligns? closely|provides? a practical basis|(?:this|these) (?:combination|strengths?) equips? me|disciplined approach|uniquely positioned|proven track record|(?:this|that) (?:experience|background|involvement) is (?:directly relevant|well suited)|equip(?:s)? me to drive|pair (?:that|this) .*discipline with)\b/i;
 const CLICHES = /\b(?:highly motivated|results[- ]driven|valuable asset|exceptional interpersonal skills|excellent communication skills|dynamic professional|extensive experience|stakeholder[- ]facing (?:technical and business )?expertise)\b/i;
@@ -32,6 +33,17 @@ export function reviewCoverLetterWriting(paragraphs, length = "standard", { part
     const count = words(text).length;
     wordCount += count;
     const add = (code, advice) => { if (!issues.some((issue) => issue.paragraphId === paragraph.id && issue.code === code)) issues.push({ paragraphId: paragraph.id, code, advice }); };
+    if (paragraph.purpose === "opening" && /^(?:I(?: am|['’]m) (?:applying|writing)|I would like to apply|Please accept (?:my|this) application)\b/i.test(text.trim())) {
+      add("formulaic_opening", "Start with a relevant contribution, work setting or professional focus already supported by the cited evidence. The subject line identifies the application. Do not substitute enthusiasm, a stock hook or a list of every example in the body.");
+    }
+    if (paragraph.purpose === "opening") {
+      const otherParagraphs = partial && existingDraft?.paragraphs ? existingDraft.paragraphs.filter((entry) => entry.id !== paragraph.id) : (paragraphs || []).filter((entry) => entry.id !== paragraph.id);
+      const repeats = otherParagraphs.filter((entry) => entry.purpose === "evidence" && editorialSentences(entry.text).some((sentence) => repeatsContribution(text, sentence)));
+      if (repeats.length) {
+        add("opening_repeats_evidence", "Keep the strongest example in the opening and use different supported detail later, or make the opening a brief statement of professional context. Do not preview and then retell the same work with synonyms.");
+        if (!partial) for (const entry of repeats) issues.push({ paragraphId: entry.id, code: "opening_repeats_evidence", advice: "This paragraph repeats the opening example. Keep its facts once and use another supported contribution only if one is available; do not invent variety." });
+      }
+    }
     if (count > (paragraph.purpose === "closing" ? 45 : 95)) add("dense_paragraph", "Shorten this paragraph around one example; retain the candidate's contribution level.");
     for (const issue of reviewEditorialText(text)) add(issue.code, issue.advice);
     for (const sentence of text.split(/(?<=[.!?])\s+/)) {

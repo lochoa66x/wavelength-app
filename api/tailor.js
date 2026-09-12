@@ -11,6 +11,8 @@ import { createSafeResumeFallback } from "./_lib/safeResumeFallback.js";
 import { formatCandidateEvidence, validateCandidateEvidence } from "./_lib/candidateEvidence.js";
 import { applyPdfLayoutToFocusReview, shapeTailoredResumeWithReview } from "./_lib/resumeQuality.js";
 import { applyPrivateResponseHeaders } from "./_lib/privateResponse.js";
+import { RESUME_SUMMARY_INSTRUCTIONS } from "../src/resumeSummaryWriting.js";
+import { polishResumeSummary, SUMMARY_TOOL } from "./_lib/resumeSummaryPolish.js";
 import {
   assessPostingCompleteness,
   extractPostingKeywords,
@@ -452,10 +454,11 @@ function createTailoringCorrelationId() {
   return `tailor-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 }
 
-function logTailoringCompleted(requestStartedAt, { repairApplied = false, safetyFallbackApplied = false, draftAttempts = 0, sourceRestoredBullets = 0, firstDraftIssueCounts = null } = {}) {
+function logTailoringCompleted(requestStartedAt, { repairApplied = false, summaryPolishApplied = false, safetyFallbackApplied = false, draftAttempts = 0, sourceRestoredBullets = 0, firstDraftIssueCounts = null } = {}) {
   console.info("[tailor:request] completed", JSON.stringify({
     durationMs: Date.now() - requestStartedAt,
     repairApplied,
+    summaryPolishApplied,
     safetyFallbackApplied,
     draftAttempts,
     sourceRestoredBullets,
@@ -747,7 +750,8 @@ __TAILORING_ANALYSIS__
 INSTRUCTIONS
 - Copy \`fit_assessment\` from the authoritative analysis. Do not upgrade the fit, readiness, or recommended level while drafting.
 - Verified candidate notes may add factual evidence, but never overwrite immutable base-résumé history. Use note-specific context only for the requirement it answers and preserve the note's contribution level in the action verb.
-- Keep summaries selective: two or three sentences about supported seniority and the most relevant contributions. Avoid repeating the same list of SAP tools in both summary and skills. Training/guidance must not become configuration ownership, projected metrics must remain projected, and each bullet must stay with its source engagement. Preserve every supported employment entry, education item, and credential; compress older experience without dropping positions. Never print internal labels such as "candidate-selected capabilities" in document prose.
+- ${RESUME_SUMMARY_INSTRUCTIONS}
+- Training/guidance must not become configuration ownership, projected metrics must remain projected, and each bullet must stay with its source engagement. Preserve every supported employment entry, education item, and credential; compress older experience without dropping positions. Never print internal labels such as "candidate-selected capabilities" in document prose.
 - A candidate-selected capability is an explicit first-person self-attestation and does not need a second confirmation or project proof. It may support requirement coverage plus concise skills/profile wording. If the selection has no optional example, never convert it into a dated employer/project accomplishment, duration, result, or ownership claim.
 - Copy the candidate's name and contact details exactly when present. If either is unavailable, return an empty string. Never emit placeholders such as UNKNOWN, <UNKNOWN>, Candidate, N/A, or invented contact details.
 - Use the analysis content strategy: direct for a conventional targeted resume, adjacent for verified neighboring expertise, and transferable for a professional strengths-led resume.
@@ -912,13 +916,24 @@ INSTRUCTIONS
         }
       }
       if (atsReview.status !== "blocked") {
-        logTailoringCompleted(requestStartedAt, { repairApplied: attempt > 0 || sourceRestoredBullets > 0, draftAttempts: attempt + 1, sourceRestoredBullets, firstDraftIssueCounts });
+        const summaryPolish = requestDeadlineAt - Date.now() >= 18_000 ? await polishResumeSummary({
+          resume: resumeData, review: atsReview, source: candidateEvidence, targetTitle: item.title,
+          generate: (summaryPrompt) => callAITool({ ...providerOptions, fetchImpl, tool: SUMMARY_TOOL, prompt: summaryPrompt, maxTokens: 1200, reasoningEffort: "low", timeoutMs: 15_000, stage: "summary_polish" }),
+          validate: async (candidate) => buildAtsReview(candidate, candidateEvidence, { keywords: analysis.target_keywords }, {
+            analysis, postingAssessment: analysis.posting_assessment, targetTitle: item.title,
+            isTrades: isTradesGig, category: item.category,
+            focusReview: await layoutAwareFocusReview(candidate, analysis, item, shaped.focusReview), historyEvidence: cappedResume,
+          }),
+        }) : { resume: resumeData, review: atsReview, applied: false };
+        resumeData = summaryPolish.resume;
+        atsReview = summaryPolish.review;
+        logTailoringCompleted(requestStartedAt, { repairApplied: attempt > 0 || sourceRestoredBullets > 0 || summaryPolish.applied, summaryPolishApplied: summaryPolish.applied, draftAttempts: attempt + 1, sourceRestoredBullets, firstDraftIssueCounts });
         return res.status(200).json({
           resume: resumeData,
           ats_review: atsReview,
           tailoring_analysis: analysis,
           ...tailoringResponseMetadata(analysis, atsReview, verifiedCandidateEvidence),
-          repair_applied: attempt > 0 || sourceRestoredBullets > 0,
+          repair_applied: attempt > 0 || sourceRestoredBullets > 0 || summaryPolish.applied,
         });
       }
 

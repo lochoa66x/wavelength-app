@@ -106,6 +106,30 @@ test("tailoring rejects a missing authorization header before external work", as
   assert.equal(fetched, false);
 });
 
+test("tailoring polishes a repeated profile once while preserving source history", async () => {
+  const bullets = ['Reconciled four bank accounts monthly in QuickBooks Online.', 'Processed 120 supplier invoices per month and resolved duplicate invoice entries.'];
+  const source = `Jordan Lee\nProfessional Experience\nBookkeeper - Example Accounts | 2022 - 2026\n${bullets.join('\n')}`;
+  const draft = { name: 'Jordan Lee', title: 'Bookkeeper', profile: bullets.join(' '), skills: ['QuickBooks Online'], experience: [{ role: 'Bookkeeper', company: 'Example Accounts', dates: '2022 - 2026', bullets }] };
+  const names = [];
+  const handler = createTailorHandler({
+    authenticate: async () => ({ user: { id: 'qa' }, supabase: {} }), getApiKey: () => 'test', getOpenAIKey: () => undefined,
+    fetchImpl: async (_url, options) => {
+      const body = JSON.parse(options.body), name = body.tool_choice.name;
+      names.push(name);
+      if (name === 'return_tailoring_analysis') return toolResponse(name, analysisInput({requirements:[{id:'R1', requirement:'QuickBooks Online experience', priority:'required', evidence_match:'direct', resume_evidence:bullets[0], safe_language:'QuickBooks Online', keywords:['QuickBooks Online']}]}));
+      if (name === 'return_resume_summary') return toolResponse(name, {profile:'Bookkeeper with experience in QuickBooks Online and accounts administration.'});
+      return toolResponse(name, draft);
+    },
+  });
+  const res = responseRecorder();
+  await handler({ method: 'POST', headers: { authorization: 'Bearer test' }, body: {resume:source, customJob:{title:'Bookkeeper',company:'Example Employer',description:'Process accounts in QuickBooks Online and reconcile bank accounts for the office.', responsibilities:['Reconcile bank accounts'],required_qualifications:['QuickBooks Online experience']}} }, res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(names.filter((name) => name === 'return_resume_summary').length, 1);
+  assert.equal(res.body.resume.profile, 'Bookkeeper with experience in QuickBooks Online and accounts administration.');
+  assert.deepEqual(res.body.resume.experience[0].bullets, bullets);
+  assert.equal(res.body.repair_applied, true);
+});
+
 test("tailoring rejects an invalid token before calling Anthropic", async () => {
   let fetched = false;
   const handler = createTailorHandler({

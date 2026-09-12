@@ -144,7 +144,7 @@ test("length policies differ structurally and target useful shortening without p
   assert.equal(coverLetterLengthPolicy("standard").maxParagraphs, 4);
   assert.equal(coverLetterLengthPolicy("short", { paragraphs: {} }).previousWords, 0);
   assert.match(coverLetterControlInstructions({ voice: "warm", length: "short", existingDraft: previous }), /at least 25%/);
-  assert.match(coverLetterControlInstructions({ voice: "direct", length: "standard" }), /DISTINCT principal evidence examples/);
+  assert.match(coverLetterControlInstructions({ voice: "direct", length: "standard" }), /DISTINCT supporting examples/);
   assert.equal(reviewCoverLetterWriting([{ id: "a", text: "I supported SAP testing at Cedar." }], "short").status, "pass");
   assert.ok(reviewCoverLetterWriting([{ id: "a", text: "word ".repeat(200) }], "short").issues.some((issue) => issue.code === "letter_length"));
 });
