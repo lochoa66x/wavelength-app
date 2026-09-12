@@ -1,23 +1,8 @@
 import { supabase } from "./supabase.js";
+import { authenticatedJsonPost } from "./authenticatedRequest.js";
 
 async function authenticatedPost(path, body, { signal } = {}) {
-  const { data: { session } } = await supabase.auth.getSession();
-  if (!session?.access_token) throw new Error("Your session expired. Sign in again to continue.");
-
-  const response = await fetch(path, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${session.access_token}`,
-    },
-    body: JSON.stringify(body),
-    cache: "no-store",
-    credentials: "same-origin",
-    signal,
-  });
-  const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
-  return data;
+  return authenticatedJsonPost(path, body, {auth:supabase.auth, signal});
 }
 
 export async function tailorResume(resume, target, options = {}) {

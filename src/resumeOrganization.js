@@ -1,3 +1,4 @@
+import {resumeProfessionalLinks} from './resumeIdentity.js';
 const text = (value) => typeof value === "string" ? value.trim() : String(value?.name ?? value?.language ?? value?.text ?? value?.value ?? "").trim();
 const key = (value) => String(value || "").normalize("NFC").toLowerCase().replace(/[\s:·|–—-]+/g, " ").replace(/[.,;]+$/g, "").trim();
 const list = (value) => Array.isArray(value) ? value : [];
@@ -88,8 +89,12 @@ export function organizeResumeSections(source = {}, baseResume = "") {
   if (clearance.length && !additional.some((entry) => key(entry.title) === key("Security Clearance"))) additional.push({ title: "Security Clearance", items: [] });
   const clearSection = additional.find((entry) => key(entry.title) === key("Security Clearance"));
   if (clearSection) clearSection.items = unique(clearance);
+  const credentialKey = (entry) => key(text(entry).replace(/\s+certificate$/i, ""));
+  const credentialNames = new Set(list(source.certifications).map(credentialKey).filter(Boolean));
   return {
     ...source,
+    ...(resumeProfessionalLinks(baseResume).length ? { professionalLinks: unique([...list(source.professionalLinks ?? source.professional_links), ...resumeProfessionalLinks(baseResume)], (entry) => entry?.url || text(entry)) } : {}),
+    ...(Array.isArray(source.skills) ? { skills: source.skills.filter((entry) => !credentialNames.has(credentialKey(entry))) } : {}),
     training: unique(training, courseIdentity),
     languages: unique(languages.flatMap((entry) => typeof entry === "string" ? entry.split(/[,;]\s*(?=[\p{L}][\p{L} -]{1,25}:)/u) : [entry]), languageIdentity),
     additionalSections: additional.map((entry) => ({ ...entry, items: unique(entry.items) })).filter((entry) => entry.items.length),

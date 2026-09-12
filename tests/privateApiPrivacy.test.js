@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
+import { authenticatedJsonPost } from "../src/authenticatedRequest.js";
 
 const tailor = readFileSync(new URL("../api/tailor.js", import.meta.url), "utf8");
 const intake = readFileSync(new URL("../api/job-intake.js", import.meta.url), "utf8");
@@ -10,10 +11,20 @@ const evidenceCoach = readFileSync(new URL("../api/evidence-coach.js", import.me
 const tailorClient = readFileSync(new URL("../src/tailorClient.js", import.meta.url), "utf8");
 const coverLetterClient = readFileSync(new URL("../src/coverLetterClient.js", import.meta.url), "utf8");
 
-test("private APIs disable response and browser caching", () => {
+test("private APIs disable response and browser caching", async () => {
   for (const source of [tailor, intake, resumeIntake, coverLetter, evidenceCoach]) assert.match(source, /applyPrivateResponseHeaders\(res\)/);
-  assert.match(tailorClient, /cache:\s*"no-store"/);
-  assert.match(coverLetterClient, /cache:\s*"no-store"/);
+  assert.match(tailorClient, /return authenticatedJsonPost\(/);
+  assert.match(coverLetterClient, /await authenticatedJsonPost\(/);
+  const session = {access_token:"test-token",user:{id:"test-user"}};
+  await authenticatedJsonPost('/api/tailor',{resume:'Private test input'},{
+    auth:{getSession:async()=>({data:{session}})},
+    fetchImpl:async(_path,options)=>{
+      assert.equal(options.cache,'no-store');
+      assert.equal(options.credentials,'same-origin');
+      assert.equal(options.method,'POST');
+      return {ok:true,status:200,json:async()=>({})};
+    },
+  });
 });
 
 test("private API operational logs do not serialize resume or upstream bodies", () => {

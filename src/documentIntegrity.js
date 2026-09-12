@@ -13,6 +13,13 @@ export function claimMeaningIssues(proposed, sources = [], context = {}) {
   const issues = [];
   const statements = sources.map((entry) => typeof entry === "string" ? entry : entry?.excerpt || "")
     .map((entry) => entry.replace(/^[\s•*-]+/, "").trim()).filter(Boolean);
+  const normalizedSource = normalizeClaimNumbers(source);
+  for (const match of normalizeClaimNumbers(text).matchAll(/\balongside\s+(\d+)\s+(educators?|teachers?|staff|people|workers?|mechanics?|carpenters?)\b/gi)) {
+    const [, count, people] = match;
+    const explicitAlongside = new RegExp(`\\balongside\\s+${count}\\s+${people}\\b`, "i");
+    const totalGroup = new RegExp(`\\b(?:room|classroom|team|crew)\\b[^.!?]{0,90}\\b(?:with|of)\\b[^.!?]{0,45}\\b${count}\\s+${people}\\b`, "i");
+    if (totalGroup.test(normalizedSource) && !explicitAlongside.test(normalizedSource)) issues.push("Preserve the stated total group size; do not rewrite it as that many additional colleagues alongside the candidate.");
+  }
   const participationOnly = statements.length > 0 && statements.every((entry) => /^(?:I )?(?:participated|contributed|assisted|supported)\b/i.test(entry));
   const directAction = text.match(/(?:^|\bI (?:also )?(?:have )?)(created|implemented|configured|developed|designed|integrated)\b/i)?.[1];
   if (participationOnly && directAction && !statements.some((entry) => new RegExp(`\\b${directAction}\\b`, "i").test(entry))) {

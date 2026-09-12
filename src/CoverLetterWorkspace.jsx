@@ -1,5 +1,6 @@
 import { coverLetterGenerationSettings } from "./coverLetterControls.js";
 import { reviewCoverLetterWriting } from "./coverLetterWriting.js";
+import { copyDocumentText } from "./documentClipboard.js";
 import { CoverLetterDocument } from "./CoverLetterDocument.jsx";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CheckCircle2, Copy, Download, FileText, Loader2, PenLine, RotateCcw, Sparkles, Trash2, X } from "lucide-react";
@@ -177,12 +178,12 @@ export function CoverLetterWorkspace({
 
   const freshExportContext = () => createCoverLetterExportContext(plan, { ...context, applicationPresentation });
   const handleCopy = () => requestAccountAction("copy_cover_letter_text", { continuation: async () => {
-    try { await navigator.clipboard.writeText(coverLetterToPlainText(freshExportContext().plan)); setMessage({ type: "info", text: "Cover-letter text copied." }); }
+    try { await copyDocumentText(coverLetterToPlainText(freshExportContext().plan)); setMessage({ type: "info", text: "Cover-letter text copied." }); }
     catch { setMessage({ type: "error", text: "The cover letter could not be copied. Check this browser's clipboard permission and try again." }); }
   } });
   const handleDocx = () => requestAccountAction("download_cover_letter_docx", { continuation: async () => {
     setState("exporting"); setMessage(null);
-    try { const { downloadCoverLetterDocx } = await loadCoverLetterDocxExporter(); await downloadCoverLetterDocx(freshExportContext()); setMessage({ type: "info", text: "Cover-letter DOCX downloaded." }); }
+    try { const { downloadCoverLetterDocx } = await loadCoverLetterDocxExporter(); await downloadCoverLetterDocx(freshExportContext()); setMessage({ type: "info", text: "Cover-letter DOCX download started. Check your browser’s downloads for the file." }); }
     catch (error) {
       const notice = createExportErrorNotice(error, { artifact: "cover letter", format: "DOCX" });
       console.error(`Cover-letter DOCX export failed (${notice.category}).`);
@@ -192,7 +193,7 @@ export function CoverLetterWorkspace({
   } });
   const handlePdf = () => requestAccountAction("download_cover_letter_pdf", { continuation: async () => {
     setState("exporting"); setMessage(null);
-    try { const { downloadCoverLetterPdf } = await loadCoverLetterPdfExporter(); await downloadCoverLetterPdf(freshExportContext()); setMessage({ type: "info", text: "Selectable cover-letter PDF downloaded." }); }
+    try { const { downloadCoverLetterPdf } = await loadCoverLetterPdfExporter(); await downloadCoverLetterPdf(freshExportContext()); setMessage({ type: "info", text: "Cover-letter PDF download started. Check your browser’s downloads for the file." }); }
     catch (error) {
       const notice = createExportErrorNotice(error, { artifact: "cover letter", format: "PDF" });
       console.error(`Cover-letter PDF export failed (${notice.category}).`);

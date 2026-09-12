@@ -5,6 +5,7 @@ import { ExportStatusNotice } from "./ExportStatusNotice.jsx";
 import { loadResumeDocxExporter, loadResumePdfExporter, preloadResumeExporters } from "./exportModules.js";
 import { classifyExportError, createExportErrorNotice } from "./exportRecovery.js";
 import { resumeDataToPlainText } from "./resumeText.js";
+import { copyDocumentText } from "./documentClipboard.js";
 import { createResumeExportContext, getResumeExportReadiness, validateResumeExportContext } from "./resumeReadiness.js";
 import { useAuth } from "./auth.jsx";
 import { QualityFeedback } from "./QualityFeedback.jsx";
@@ -91,7 +92,7 @@ export function ResumeActions({ resumeData, resumePackage, renderPlan, selection
       await pdfExports.downloadResumePdf(freshExportContext());
       setPdfState("done");
       setFeedbackFormat("pdf");
-      setMessage({ type: "info", text: "The ATS-readable PDF was downloaded. Its text remains selectable and searchable." });
+      setMessage({ type: "info", text: "PDF download started. Check your browser’s downloads for the selectable, searchable file." });
       void emitResumeQualitySignal("export_completed", signalInput({ exportFormat: "pdf", outcome: "completed", durationMs: Date.now() - startedAt }));
     } catch (error) {
       const category = classifyExportError(error);
@@ -133,7 +134,7 @@ export function ResumeActions({ resumeData, resumePackage, renderPlan, selection
       void emitResumeQualitySignal("export_attempted", signalInput({ exportFormat: "text" }));
       try {
         const context = freshExportContext();
-        await navigator.clipboard?.writeText(resumeDataToPlainText(context));
+        await copyDocumentText(resumeDataToPlainText(context));
         setMessage({ type: "info", text: "The tailored résumé text was copied." });
         setFeedbackFormat("text");
         void emitResumeQualitySignal("export_completed", signalInput({ exportFormat: "text", outcome: "completed", durationMs: Date.now() - startedAt }));

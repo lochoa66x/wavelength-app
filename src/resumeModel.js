@@ -947,14 +947,14 @@ function normalizeContact(source, warnings) {
     || parts.find((part) => /\d/.test(part) && part.replace(/\D/g, "").length >= 7) || "";
   const location = parts.find((part) => part !== email && part !== phone && !/^https?:\/\//i.test(part)) || "";
   const locationParts = location.split(",").map((part) => part.trim()).filter(Boolean);
-  const linksSource = contactSource.professionalLinks ?? source.professional_links ?? source.professionalLinks ?? [];
+  const linksSource = [...valueList(contactSource.professionalLinks), ...valueList(source.professional_links), ...valueList(source.professionalLinks)];
   const professionalLinks = valueList(linksSource).map((entry, index) => {
     const object = entry && typeof entry === "object" && !Array.isArray(entry) ? entry : { url: entry };
     const url = safeUrl(object.url ?? object.href ?? object.value, `candidate.professionalLinks.${index}.url`, warnings);
     if (!url) return null;
     const label = fieldText(object.label ?? object.name, ["label", "name", "value"], `candidate.professionalLinks.${index}.label`, warnings, " ", 120) || new URL(url).hostname;
     return { id: stableId("link", object.id, `candidate.professionalLinks.${index}`, `${label}|${url}`), label, url };
-  }).filter(Boolean);
+  }).filter(Boolean).filter((entry, index, entries) => entries.findIndex((other) => other.url === entry.url) === index);
   return {
     email,
     phone,
@@ -1238,7 +1238,7 @@ const TRADE_EXCLUDED_TARGET_PATTERN = /\b(?:sap(?: plant maintenance| pm)?|softw
 const REGULATED_TRADE_TARGET_PATTERN = /\b(?:electrician|electrical (?:technician|mechanic)|plumber|plumbing technician|pipefitter|steamfitter|gas fitter|hvac|refrigeration (?:technician|mechanic))\b/i;
 const APPRENTICE_TARGET_PATTERN = /\b(?:apprentice|helper|trainee|junior)\b/i;
 const GENERAL_FIELD_TARGET_PATTERN = /\b(?:handyman|general repair|property maintenance|facilities maintenance|landscap(?:e|er|ing)|grounds maintenance|construction (?:worker|labou?rer|helper))\b/i;
-const TRADE_TITLE_EVIDENCE_PATTERN = /\b(?:electrician|plumber|pipefitter|steamfitter|gas fitter|hvac technician|refrigeration (?:technician|mechanic)|carpenter|welder|millwright|industrial mechanic|automotive (?:technician|mechanic)|auto mechanic|diesel mechanic|heavy[- ]equipment (?:technician|mechanic|operator)|maintenance technician|handyman|landscap(?:e|er|ing)|groundskeeper|installer|field[- ]service technician|appliance (?:service )?technician|construction (?:worker|labou?rer)|trade apprentice|electrical apprentice|plumbing apprentice)\b/i;
+const TRADE_TITLE_EVIDENCE_PATTERN = /\b(?:electrician|plumber|pipefitter|steamfitter|gas fitter|hvac technician|refrigeration (?:technician|mechanic)|carpenter|carpentry (?:apprentice|helper)|welder|millwright|industrial mechanic|automotive (?:technician|mechanic)|auto mechanic|diesel mechanic|heavy[- ]equipment (?:technician|mechanic|operator)|maintenance technician|handyman|landscap(?:e|er|ing)|groundskeeper|installer|field[- ]service technician|appliance (?:service )?technician|construction (?:worker|labou?rer)|trade apprentice|electrical apprentice|plumbing apprentice)\b/i;
 const HANDS_ON_ACTION_PATTERN = /\b(?:install(?:ed|ing)?|repair(?:ed|ing)?|diagnos(?:ed|ing)|inspect(?:ed|ing)?|test(?:ed|ing)?|maintain(?:ed|ing)?|assembl(?:ed|ing)|fabricat(?:ed|ing)|operat(?:ed|ing)|servic(?:ed|ing)|replac(?:ed|ing)|troubleshot|calibrat(?:ed|ing)|construct(?:ed|ing)|renovat(?:ed|ing)|landscap(?:ed|ing)|mow(?:ed|ing)|weld(?:ed|ing)|wire(?:d|ing)|plumb(?:ed|ing)|assist(?:ed|ing).{0,50}(?:installation|repair|maintenance|inspection|construction))\b/i;
 const PHYSICAL_FIELD_CONTEXT_PATTERN = /\b(?:electrical|wiring|circuit|panel|lighting|fixture|conduit|plumbing|pipe|drain|faucet|boiler|furnace|refrigeration|hvac|motor|pump|compressor|vehicle|engine|brake|equipment|machinery|production line|building|facility|property|drywall|framing|cabinet|door|window|roof|concrete|landscape|grounds|lawn|irrigation|appliance|customer site|service call|work order|preventive maintenance|hand tool|power tool|multimeter|diagnostic equipment|construction site)\b/i;
 const ADJACENT_FIELD_EVIDENCE_PATTERN = /\b(?:work orders?|cmms|sap plant maintenance|sap pm|maintenance planning|asset management|warehouse|logistics|customer service|dispatch|scheduling|safety procedures?|inventory|parts coordination|mechanical aptitude|field operations|facilities operations|contractor coordination)\b/i;
@@ -1246,7 +1246,7 @@ const ADJACENT_FIELD_EVIDENCE_PATTERN = /\b(?:work orders?|cmms|sap plant mainte
 const TRADE_CREDENTIAL_GROUPS = Object.freeze([
   { code: "red-seal-journeyperson", label: "Red Seal or journeyperson credential", pattern: /\b(?:red seal|journeyperson|journeyman|certificate of qualification|\bcoq\b)\b/i },
   { code: "electrical-licence", label: "electrical licence", pattern: /\b(?:309a|442a|master electrician|electrical (?:licen[cs]e|certificate of qualification)|licensed electrician)\b/i },
-  { code: "plumbing-licence", label: "plumbing licence", pattern: /\b(?:306a|master plumber|plumbing (?:licen[cs]e|certificate of qualification)|licensed plumber)\b/i },
+  { code: "plumbing-licence", label: "plumbing licence", pattern: /\b(?:306a|master plumber|plumbing (?:licen[cs]e|certificate of qualification)|licensed plumber|journeyperson plumber (?:certificate|certification|licen[cs]e)|journeyman plumber (?:certificate|certification|licen[cs]e))\b/i },
   { code: "gas-fitter-licence", label: "gas fitter licence", pattern: /\b(?:gas fitter|g1 gas|g2 gas|g3 gas|gas technician)\b/i },
   { code: "hvac-refrigeration-credential", label: "HVAC or refrigeration credential", pattern: /\b(?:313a|313d|refrigeration and air conditioning|hvac (?:certification|certificate|licen[cs]e)|refrigeration (?:certification|certificate|licen[cs]e))\b/i },
   { code: "driver-licence", label: "driver's licence", pattern: /\b(?:driver'?s? licen[cs]e|class [a-z0-9]+ licen[cs]e|valid driving licen[cs]e)\b/i },
@@ -1264,16 +1264,15 @@ const TRADE_CREDENTIAL_GROUPS = Object.freeze([
 ]);
 
 function tradeCredentialEvidence(document, atsReview) {
-  const candidateCorpus = stableStringify({
-    certifications: document.certifications,
-    training: document.training,
-    safety: document.safety,
-  });
+  const usable = value => !['not_held','expired','in_progress'].includes(credentialStatus(value));
+  const candidateCorpus = [...(document.certifications || []), ...(document.training || []), ...(document.safety?.certifications || [])]
+    .map(entry => typeof entry === 'string' ? entry : stableStringify(entry)).filter(usable).join('\n');
   const verifiedRequirementCorpus = reviewRequirements(atsReview)
     .filter((entry) => ["direct", "adjacent"].includes(cleanScalar(entry.evidence_match ?? entry.classification).toLowerCase()))
     // Posting requirements describe the role, not the candidate. Only the
     // verified candidate-side evidence may satisfy a credential requirement.
     .map((entry) => cleanScalar(entry.resume_evidence ?? entry.evidence))
+    .filter(usable)
     .join(" ");
   return `${candidateCorpus} ${verifiedRequirementCorpus}`;
 }
@@ -1351,7 +1350,9 @@ export function classifyResumePackageInput(document, source = {}, atsReview = {}
         : "not-established";
   let tradeProfileType = "not-applicable";
   if (tradeTarget && verifiedTradeEvidence) {
-    if (apprenticeTradeTarget || /\b(?:apprentice|helper|trainee)\b/i.test(evidenceCorpus)) tradeProfileType = "apprentice-helper";
+    // An older helper role does not set the level of an established tradesperson.
+    const currentPositioning = [document.headline, document.experience[0]?.title].filter(Boolean).join(' ');
+    if (apprenticeTradeTarget || /\b(?:apprentice|helper|trainee)\b/i.test(currentPositioning)) tradeProfileType = "apprentice-helper";
     else if (regulatedTradeTarget && verifiedTradeCredential) tradeProfileType = "regulated-trade-professional";
     else if (GENERAL_FIELD_TARGET_PATTERN.test(targetTitle)) tradeProfileType = "general-maintenance";
     else tradeProfileType = "experienced-field-service-professional";

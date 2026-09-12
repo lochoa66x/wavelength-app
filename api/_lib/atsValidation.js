@@ -184,7 +184,7 @@ export function sourceHistoryEntries(baseResume) {
 
   let sectionKind = "";
   for (let index = 0; index < lines.length; index += 1) {
-    sectionKind = resumeSectionKind(lines[index]) || sectionKind;
+    sectionKind = resumeSectionKind(lines[index]) || resumeSectionKind(lines[index].split(":")[0]) || sectionKind;
     if (grouped.has(index)) { entries.push(grouped.get(index)); continue; }
     if (employerHeadings.has(index)) continue;
     const line = lines[index];
@@ -204,7 +204,9 @@ export function sourceHistoryEntries(baseResume) {
     let role = "";
     let company = "";
 
-    if (parts.length >= 2 && (EMPLOYMENT_ROLE_HINT_PATTERN.test(parts[0]) || (sectionKind === "experience" && !EMPLOYMENT_ROLE_HINT_PATTERN.test(parts[1]) && /\s[-–—]\s/.test(prefix) && parts[0].length <= 80 && !/[.!?]$/.test(parts[0])))) {
+    // Explicit role/employer/date rows in an experience section must work for
+    // any profession, including titles outside the historical office-role list.
+    if (parts.length >= 2 && (EMPLOYMENT_ROLE_HINT_PATTERN.test(parts[0]) || (sectionKind === "experience" && !EMPLOYMENT_ROLE_HINT_PATTERN.test(parts[1]) && /\||\s[-–—]\s/.test(prefix) && parts[0].length <= 80 && !/[.!?]$/.test(parts[0])))) {
       [role, company] = parts;
     } else if (parts.length >= 2 && EMPLOYMENT_ROLE_HINT_PATTERN.test(parts[1])) {
       [company, role] = parts;
@@ -234,7 +236,7 @@ export function sourceHistoryEntries(baseResume) {
     entries.push({ role, company, dates, sourceLine: line, headerIndex: index });
   }
   const boundaries = [...entries.map((entry) => entry.headerIndex), ...employerHeadings,
-    ...lines.flatMap((line, index) => sectionHeading.test(line) ? [index] : [])].sort((a, b) => a - b);
+    ...lines.flatMap((line, index) => sectionHeading.test(line) || resumeSectionKind(line) || resumeSectionKind(line.split(":")[0]) ? [index] : [])].sort((a, b) => a - b);
   const unique = new Map();
   for (const entry of entries) {
     const key = [entry.role, entry.company, entry.dates].map(normalized).join("|");
@@ -259,20 +261,29 @@ function historyEntryCoversSource(candidate, source) {
 function missingSourceHistory(resumeData, baseResume) {
   const output = Array.isArray(resumeData?.experience) ? resumeData.experience : [];
   return sourceHistoryEntries(baseResume)
-    .filter((source) => !output.some((candidate) => historyEntryCoversSource(candidate, source)))
-    .map(({ role, company, dates, sourceLine }) => ({ role, company, dates, sourceLine }));
+    .flatMap((source) => {
+      const candidate = output.find((entry) => historyEntryCoversSource(entry, source));
+      const missingBullets = candidate && !(candidate.bullets || []).some((bullet) => String(bullet || "").trim())
+        && historySourceStatements(source, baseResume).length > 0;
+      return !candidate || missingBullets ? [{ role: source.role, company: source.company, dates: source.dates, sourceLine: source.sourceLine,
+        ...(missingBullets ? { reason: "Source experience statements are missing from this role." } : {}) }] : [];
+    });
+}
+
+function historySourceStatements(header, baseResume) {
+  const lines = String(baseResume || "").split(/\r?\n/).map((line) => line.replace(/^[\s•*-]+/, "").replace(/\s+/g, " ").trim()).filter(Boolean);
+  const factualOpening = /^(?:led|managed|owned|supported|prepared|provided|participated|contributed|delivered|designed|developed|configured|tested|integrated|oversaw|supervised|coordinated|drove|defined|created|performed|monitored|trained|assisted|scheduled|processed|answered|recorded|reconciled|installed|repaired|measured|read|checked|picked|packed|received|planned|resolved|escalated|wrote|translated|diagnosed|adjusted|cleaned|built|updated|worked|completed|explained)\b/i;
+  return [...new Set(header?.sourceRanges.flatMap(({ start, end }) => lines.slice(start + 1, end))
+    .filter((line) => line.length >= 20 && line.length <= 500 && factualOpening.test(line)) || [])];
 }
 
 export function restoreEmptyHistoryFromSource(resumeData, baseResume) {
   const headers = sourceHistoryEntries(baseResume);
-  const lines = String(baseResume || "").split(/\r?\n/).map((line) => line.replace(/^[\s•*-]+/, "").replace(/\s+/g, " ").trim()).filter(Boolean);
-  const factualOpening = /^(?:led|managed|owned|supported|prepared|provided|participated|contributed|delivered|designed|developed|configured|tested|integrated|oversaw|supervised|coordinated|drove|defined|created|performed|monitored|trained|assisted)\b/i;
   return { ...resumeData, experience: (resumeData?.experience || []).map((entry) => {
     if ((entry.bullets || []).some((bullet) => String(bullet || "").trim())) return entry;
     const header = headers.find((source) => historyEntryCoversSource(entry, source));
-    const statement = header?.sourceRanges.flatMap(({ start, end }) => lines.slice(start + 1, end))
-      .find((line) => line.length >= 20 && line.length <= 500 && factualOpening.test(line));
-    return statement ? { ...entry, bullets: [statement] } : entry;
+    const statements = historySourceStatements(header, baseResume).slice(0, 3);
+    return statements.length ? { ...entry, bullets: statements } : entry;
   }) };
 }
 

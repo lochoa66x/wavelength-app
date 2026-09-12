@@ -135,7 +135,7 @@ export function EvidenceMap({ review, C }) {
           </div> : null)}
         </div> : null}
         <p style={{ color: C.textSub, fontSize: 10.75, lineHeight: 1.4, margin: "10px 0 0" }}>
-          Evidence confidence: <strong style={{ textTransform: "capitalize" }}>{view.outlook.confidence}</strong> · Related experience supports part of a requirement; it does not establish equivalent ownership.
+          Evidence confidence: <strong style={{ textTransform: "capitalize" }}>{view.outlook.confidence}</strong>{view.coreCounts.relatedEvidence > 0 ? " · Related experience supports part of a requirement; it does not establish equivalent ownership." : ""}
         </p>
       </section>
 

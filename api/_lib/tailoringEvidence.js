@@ -15,6 +15,26 @@ const HIGH_SIGNAL_PHRASES = [
 
 const STRICT_EVIDENCE_CONCEPTS = Object.freeze([
   {
+    id: "sql_querying",
+    requirement: /^(?:(?:experience|proficiency|knowledge) (?:in|with) )?SQL(?: (?:querying|queries|joins|experience|skills|proficiency|knowledge))*$/i,
+    evidence: /^(?!.*\b(?:no|not|never|without|lack)\b).*\bSQL\b/i,
+    directEvidence: /\b(?:prepared|wrote|built|used|executed)\b[^.!?\n]{0,65}\bSQL\s+(?:queries|joins)\b/i,
+    direct: true,
+  },
+  {
+    id: "data_cleaning",
+    requirement: /^(?:data[- ](?:cleaning|cleansing)(?: experience)?|clean(?:se)? (?:(?:programme|program|survey|attendance) )?data)$/i,
+    evidence: /^(?!.*\b(?:no|not|never|without|lack)\b).*\b(?:cleaned|cleansed|cleaning|cleansing)\b[^.!?\n]{0,90}\b(?:data|datasets?|rows?|records?)\b/i,
+    direct: true,
+  },
+  {
+    id: "data_validation",
+    requirement: /^validat(?:e|ing) (?:(?:programme|program|survey|attendance) )?data$|^data validation(?: experience)?$/i,
+    evidence: /^(?!.*\b(?:no|not|never|without|lack)\b).*\b(?:validated|checked|checked for)\b[^.!?\n]{0,65}\b(?:data|records?|results?|duplicate(?:s)?)\b/i,
+    directEvidence: /\b(?:validated\b[^.!?\n]{0,65}\b(?:data|records?)|checked\b[^.!?\n]{0,65}\bduplicates?)\b/i,
+    direct: true,
+  },
+  {
     id: "unit_testing",
     requirement: /\bunit test(?:ing|s)?\b/i,
     evidence: /\bunit test(?:ing|s|ed)?\b/i,
@@ -341,6 +361,13 @@ function listItems(value) {
 function atomicRequirementValues(value, index) {
   const requirement = String(value?.requirement || "").replace(/\s+/g, " ").trim().slice(0, 500);
   if (!requirement) return [];
+  // Keep distinct skills assessable when a short compound was split by the
+  // model but retained as one reviewed-posting row. Querying is not cleaning.
+  const dataSkills = requirement.match(/^(SQL)\s+and\s+(data[- ](?:cleaning|cleansing))\s+experience$/i);
+  const dataActions = requirement.match(/^(clean|cleanse)\s+and\s+(validate)\s+((?:(?:programme|program|survey|attendance) )?data)$/i);
+  const dataParts = dataSkills ? [`${dataSkills[1]} experience`, `${dataSkills[2]} experience`]
+    : dataActions ? [`${dataActions[1]} ${dataActions[3]}`, `${dataActions[2]} ${dataActions[3]}`] : [];
+  if (dataParts.length) return dataParts.map((part, atomicIndex) => ({...value,id:`${String(value?.id || `R${index + 1}`).slice(0,14)}.${atomicIndex+1}`,requirement:part,parent_requirement:requirement,atomic_index:atomicIndex}));
   const durationWithCapabilities = requirement.match(/^(.*?\b\d+\s*(?:[-–—]\s*\d+)?\+?\s+years?\b.*?\bexperience)\s+with\s+(.+)$/i);
   if (durationWithCapabilities) {
     const capabilityMatch = durationWithCapabilities[2].match(/^(.*?\b(?:expertise|experience|knowledge|proficiency|familiarity|understanding)\s+(?:in|of|with)\s+)(.+)$/i);
@@ -403,7 +430,7 @@ function atomicRequirementValues(value, index) {
     ...value,
     id: atomic.length > 1 ? `${String(value?.id || `R${index + 1}`).slice(0, 14)}.${atomicIndex + 1}` : value?.id,
     requirement: requirementText,
-    parent_requirement: atomic.length > 1 ? requirement : "",
+    parent_requirement: atomic.length > 1 ? requirement : String(value?.parent_requirement || ""),
     atomic_index: atomicIndex,
   }));
 }

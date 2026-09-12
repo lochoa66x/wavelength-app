@@ -5,6 +5,7 @@ import { hasUsableResumeIdentity, hasVerifiedPosting } from "./resumeReadiness.j
 import { createApplicationPresentation, validateApplicationPresentation } from "./applicationPresentation.js";
 import { containsSelfDisqualifyingCoverLetterLanguage } from "./coverLetterLanguage.js";
 import { pendingApplicationConfirmations } from './applicationConfirmations.js';
+import {resumeProfessionalLinks} from './resumeIdentity.js';
 
 export const COVER_LETTER_SCHEMA_VERSION = 1;
 export const COVER_LETTER_PARAGRAPH_LIMIT = 2_400;
@@ -47,7 +48,7 @@ function normalizeSignoff(value) {
   return "Sincerely,";
 }
 
-function coverLetterContactLine(candidateIdentity, candidate) {
+function coverLetterContactLine(candidateIdentity, candidate, baseResume) {
   const explicit = clean(candidateIdentity?.contact ?? candidateIdentity?.contactLine ?? candidate?.contactLine, 1_000);
   const explicitParts = explicit.split(/\s*(?:\||·)\s*/).filter(Boolean);
   const professionalLinks = Array.isArray(candidate?.professionalLinks)
@@ -57,7 +58,7 @@ function coverLetterContactLine(candidateIdentity, candidate) {
   const safeExplicit = explicitParts.filter((part) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(part)
     || (part.replace(/\D/g, "").length >= 7)
     || /^https?:\/\//i.test(part));
-  return [...new Set([...direct, ...safeExplicit])].join(" · ");
+  return [...new Set([...direct, ...safeExplicit, ...resumeProfessionalLinks(baseResume).map((entry) => entry.url)])].join(" · ");
 }
 
 function targetSnapshot(item = {}) {
@@ -142,7 +143,7 @@ export function createCoverLetterPlan(raw = {}, {
   const sourceFingerprint = createCoverLetterSourceFingerprint({ baseResume, resumeData: resumePackage, item, atsReview, candidateEvidence });
   const candidate = {
     fullName: clean(candidateIdentity?.name ?? candidateIdentity?.fullName, 180) || resumePackage.document.candidate.fullName,
-    contactLine: coverLetterContactLine(candidateIdentity, resumePackage.document.candidate),
+    contactLine: coverLetterContactLine(candidateIdentity, resumePackage.document.candidate, baseResume),
   };
   const normalized = {
     kind: "cover-letter-plan",
@@ -320,9 +321,10 @@ export function coverLetterToPlainText(plan) {
     plan?.candidate?.fullName,
     plan?.candidate?.contactLine,
     "",
+    plan?.createdAt && Number.isFinite(new Date(plan.createdAt).getTime()) ? new Date(plan.createdAt).toLocaleDateString("en-CA", { year: "numeric", month: "long", day: "numeric" }) : undefined,
     plan?.target?.company,
     coverLetterRecipientAddress(plan?.target),
-    plan?.target?.jobTitle,
+    plan?.target?.jobTitle ? `Re: ${plan.target.jobTitle}` : undefined,
     "",
     plan?.salutation,
     "",
@@ -333,7 +335,7 @@ export function coverLetterToPlainText(plan) {
 }
 
 export function safeCoverLetterFilename(plan, extension, { preliminary = false } = {}) {
-  const base = [plan?.candidate?.fullName || "candidate", plan?.target?.jobTitle || "cover-letter", preliminary ? "preliminary" : "cover-letter"]
+  const base = [plan?.candidate?.fullName || "candidate", plan?.target?.jobTitle || "application", "cover-letter", ...(preliminary ? ["preliminary"] : [])]
     .join("-")
     .normalize("NFKD")
     .replace(/\p{Diacritic}/gu, "")

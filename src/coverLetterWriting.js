@@ -6,6 +6,12 @@ const normalizedWords = (value) => words(String(value).toLowerCase().replace(/[^
 
 export function reviewEditorialText(text) {
   const issues = [];
+  if (/\b(?:this|that) (?:work|experience|background) (?:addresses|matches|meets|supports)\b[^.!?]{0,160}\b(?:your posting|job description|this position)\b/i.test(text)
+    || /\bI would bring (?:that|this)\b[^.!?]{0,160}\b(?:work described|responsibilit(?:y|ies) (?:in|for)|listed in your)\b/i.test(text)
+    || /\b(?:supporting|matching)\b[^.!?]{0,130}\b(?:work described in the posting|the role[’']s [^.!?]{0,65}responsibilities)\b/i.test(text)) {
+    issues.push({ code: "posting_echo", advice: "Remove the sentence explaining that your experience matches the posting. Let the specific example demonstrate the connection, or add a distinct source-supported detail." });
+  }
+  if (/\b(?:this|that|these) (?:work|experience|responsibilities) (?:speaks? directly to|reflects?)\b[^.!?]{0,180}\b(?:your need|your posting|the role|work listed)\b/i.test(text)) issues.push({ code: "posting_echo", advice: "Cut the sentence announcing a match and retain the specific contribution. Add a distinct supported detail only when useful." });
   if (FILLER.test(text)) issues.push({ code: "generic_bridge", advice: "Cut the generic claim of relevance, or replace it with a specific connection supported by the example." });
   if (CLICHES.test(text)) issues.push({ code: "empty_self_description", advice: "Replace broad self-description with a specific responsibility, example, or supported result; otherwise omit it." });
   if (String(text).split(/(?<=[.!?])\s+/).some((sentence) => words(sentence).length > 40)) issues.push({ code: "long_sentence", advice: "Split the long sentence around its principal contribution; retain the source's scope and qualifications." });
