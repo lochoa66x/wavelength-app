@@ -4,6 +4,7 @@ import { createResumePackage, stableHash } from "./resumeModel.js";
 import { hasUsableResumeIdentity, hasVerifiedPosting } from "./resumeReadiness.js";
 import { createApplicationPresentation, validateApplicationPresentation } from "./applicationPresentation.js";
 import { containsSelfDisqualifyingCoverLetterLanguage } from "./coverLetterLanguage.js";
+import { pendingApplicationConfirmations } from './applicationConfirmations.js';
 
 export const COVER_LETTER_SCHEMA_VERSION = 1;
 export const COVER_LETTER_PARAGRAPH_LIMIT = 2_400;
@@ -12,13 +13,6 @@ export { COVER_LETTER_VOICES, COVER_LETTER_LENGTHS } from "./coverLetterControls
 const VOICES = new Set(COVER_LETTER_VOICES.map(({ id }) => id));
 const LENGTHS = new Set(COVER_LETTER_LENGTHS.map(({ id }) => id));
 const PARAGRAPH_PURPOSES = new Set(["opening", "evidence", "closing"]);
-const RISKY_EDIT_PATTERNS = [
-  /\b(?:referred|referral|recommended)\s+by\b/i,
-  /\b(?:dream|passion(?:ate)?|thrilled|excited)\b/i,
-  /\b(?:worked|partnered|collaborated)\s+with\s+(?:your|the)\s+(?:company|team|organization)\b/i,
-  /\b(?:authorized|eligible)\s+to\s+work\b/i,
-  /\b(?:relocat(?:e|ing|ion)|start\s+date|available\s+immediately|salary|compensation)\b/i,
-];
 const SAFE_ADDED_WORDS = new Set([
   "a", "an", "and", "as", "at", "be", "because", "by", "can", "for", "from", "has", "have", "help", "i", "in", "is", "it", "my", "of", "on", "or", "our", "that", "the", "their", "this", "through", "to", "toward", "with", "would", "your",
   "appreciate", "consideration", "contribute", "contributing", "discuss", "opportunity", "role", "team", "thank", "value", "welcome", "work",
@@ -54,7 +48,7 @@ function normalizeSignoff(value) {
 }
 
 function coverLetterContactLine(candidateIdentity, candidate) {
-  const explicit = clean(candidateIdentity?.contact ?? candidateIdentity?.contactLine, 1_000);
+  const explicit = clean(candidateIdentity?.contact ?? candidateIdentity?.contactLine ?? candidate?.contactLine, 1_000);
   const explicitParts = explicit.split(/\s*(?:\||·)\s*/).filter(Boolean);
   const professionalLinks = Array.isArray(candidate?.professionalLinks)
     ? candidate.professionalLinks.map((entry) => clean(entry?.url, 500)).filter(Boolean)
@@ -180,9 +174,6 @@ export function validateCoverLetterEdit(text, paragraph, { baseResume = "", cand
   if (containsSelfDisqualifyingCoverLetterLanguage(next)) {
     return { ok: false, message: "Keep the letter focused on relevant strengths. Leave missing qualifications and fit concerns out of employer-facing wording." };
   }
-  if (RISKY_EDIT_PATTERNS.some((pattern) => pattern.test(next))) {
-    return { ok: false, message: "This edit adds a motivation, relationship, availability, or compensation claim that the evidence contract cannot verify." };
-  }
   const allowedCorpus = [
     baseResume,
     paragraph?.generatedText,
@@ -243,7 +234,8 @@ export function getCoverLetterReadiness(plan, { baseResume = "", resumeData = {}
   const coverageTotal = ["direct", "adjacent", "transferable", "missing"]
     .reduce((total, key) => total + Number(atsReview?.coverage?.[key] || 0), 0);
   const assessmentIncomplete = !hasVerifiedPosting(atsReview) || requirementCount === 0 || requirementCount !== coverageTotal;
-  const significantGap = ["significant_gap", "needs_full_posting"].includes(atsReview?.readiness?.status);
+  const pendingConfirmations = pendingApplicationConfirmations(atsReview);
+  const significantGap = ["significant_gap", "needs_full_posting"].includes(atsReview?.readiness?.status) || pendingConfirmations.length > 0;
   const integrityBlocked = atsReview?.integrity?.status === "blocked";
   const blocked = missingIdentity || stale || invalidHash || unverified || selfDisqualifying || internalLanguage || incomplete || integrityBlocked || meaningChanged;
   const preliminary = !blocked && (assessmentIncomplete || significantGap);
@@ -256,6 +248,7 @@ export function getCoverLetterReadiness(plan, { baseResume = "", resumeData = {}
     selfDisqualifying,
     internalLanguage,
     meaningChanged,
+    pendingConfirmations,
     message: missingIdentity
       ? "Add your real name to the saved résumé before exporting a cover letter."
       : integrityBlocked
@@ -274,6 +267,8 @@ export function getCoverLetterReadiness(plan, { baseResume = "", resumeData = {}
               ? "This saved draft uses self-disqualifying language from an earlier version. Generate a fresh draft before exporting."
               : incomplete
                 ? "Generate a complete evidence-backed letter before exporting."
+                : pendingConfirmations.length
+                  ? `Document checks passed. ${pendingConfirmations.map(r=>r.message).join(' ')}`
                 : preliminary
                   ? "Preliminary letter — the reviewed evidence or posting is not yet sufficient for application-ready status."
                   : "Application-ready cover letter — identity, posting, and evidence checks passed.",

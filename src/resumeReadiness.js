@@ -7,6 +7,7 @@ import {
   stableHash,
 } from "./resumeModel.js";
 
+import { pendingApplicationConfirmations } from './applicationConfirmations.js';
 const EXPORT_AUTHORIZATION_TTL_MS = 5 * 60 * 1000;
 
 export function hasUsableResumeIdentity(value) {
@@ -48,7 +49,8 @@ export function getResumeExportReadiness(resumeData, atsReview) {
   const requirementsAnalyzed = requirementCount > 0
     && coverageTotal > 0
     && requirementCount === coverageTotal;
-  const significantGap = ["significant_gap", "needs_full_posting"].includes(atsReview?.readiness?.status);
+  const pendingConfirmations = pendingApplicationConfirmations(atsReview);
+  const significantGap = ["significant_gap", "needs_full_posting"].includes(atsReview?.readiness?.status) || pendingConfirmations.length > 0;
   const evidenceReviewBlocked = atsReview?.integrity?.status === "blocked"
     || atsReview?.writing?.status === "blocked"
     || atsReview?.export_readiness?.status === "blocked"
@@ -66,6 +68,7 @@ export function getResumeExportReadiness(resumeData, atsReview) {
 
   return {
     state,
+    pendingConfirmations,
     canExport: !missingIdentity && !integrityBlocked,
     integrityBlocked,
     missingIdentity,
@@ -100,6 +103,7 @@ export function getResumeExportNotice(resumeData, atsReview) {
   if (readiness.integrityBlocked) {
     return { state: "blocked", code: "integrity_blocked", title: "Export blocked — evidence needs correction", message: "Resolve the résumé evidence integrity issues and check the draft again before exporting." };
   }
+  if (readiness.pendingConfirmations.length) return {state:'preliminary',code:'candidate_confirmation',title:'Confirm availability before applying',message:readiness.pendingConfirmations.map(r=>r.message).join(' ')};
   if (readiness.state === "needs_posting_review") {
     const observedReason = [
       atsReview?.posting_readiness?.reason,

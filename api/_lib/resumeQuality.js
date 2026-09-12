@@ -75,6 +75,16 @@ function polishedText(value) {
     .trim();
 }
 
+export function removeApplicationNotes(value) {
+  // Remove only explicit application metadata, not negative experience or work schedules.
+  const text = String(value || '');
+  const clauses = text.split(/;\s*|(?<=[.!?])\s+/);
+  const retained = clauses.filter(clause =>
+    !/^(?:(?:weekend|weekday|evening|night|start.date)\s+)?availability\s+(?:is\s+)?not\s+(?:established|confirmed|provided)\b/i.test(clause.trim())
+  );
+  return retained.length === clauses.length ? text : retained.length ? `${retained.map(clause => clause.replace(/[.;]\s*$/, '')).join('. ')}.` : '';
+}
+
 function removeRedundantEmployerLocation(company, location) {
   const cleanedLocation = polishedText(location);
   const locationKey = normalized(cleanedLocation);
@@ -106,7 +116,7 @@ export function polishResumePresentation(resumeData) {
       company,
       location: removeRedundantEmployerLocation(company, sourceEntry?.location),
       dates: normalizeDateRange(sourceEntry?.dates),
-      bullets: uniqueStrings((sourceEntry?.bullets || []).map(polishedText), Number.POSITIVE_INFINITY),
+      bullets: uniqueStrings((sourceEntry?.bullets || []).map(value => polishedText(removeApplicationNotes(value))), Number.POSITIVE_INFINITY),
     };
     const keyParts = [entry.role, entry.company, entry.dates].map(normalized);
     const key = keyParts.every(Boolean) ? keyParts.join("|") : "";

@@ -56,7 +56,6 @@ const VERB_FORMS = Object.freeze({
 });
 
 const PAST_TO_PRESENT = new Map(Object.entries(VERB_FORMS).map(([present, past]) => [past, present]));
-const RECOGNIZED_VERBS = new Set([...Object.keys(VERB_FORMS), ...Object.values(VERB_FORMS)]);
 const CONTRIBUTION_RANK = Object.freeze({ supported: 1, contributed: 2, owned: 3, led: 4 });
 const VERB_RANK = Object.freeze({
   support: 1, supported: 1, assist: 1, assisted: 1, advise: 1, advised: 1,
@@ -66,8 +65,7 @@ const VERB_RANK = Object.freeze({
 });
 
 const WEAK_REWRITES = [
-  { pattern: /^was responsible for\s+/i, past: "Managed ", present: "Manage ", kind: "weak_opener" },
-  { pattern: /^responsible for\s+/i, past: "Managed ", present: "Manage ", kind: "weak_opener" },
+  { pattern: /^(?:was )?responsible for\s+/i, kind: "weak_opener" },
   { pattern: /^helped with\s+/i, past: "Supported ", present: "Support ", kind: "weak_opener" },
   { pattern: /^worked on\s+/i, past: "Contributed to ", present: "Contribute to ", kind: "weak_opener" },
   { pattern: /^assisted in\s+/i, past: "Assisted with ", present: "Assist with ", kind: "weak_opener" },
@@ -198,7 +196,7 @@ export function buildWritingReview(resumeData, baseResume, options = {}) {
 
       const weak = WEAK_REWRITES.find(({ pattern }) => pattern.test(bullet));
       if (weak) {
-        const suggestion = bullet.replace(weak.pattern, currentRole ? weak.present : weak.past);
+        const suggestion = weak.past ? bullet.replace(weak.pattern, currentRole ? weak.present : weak.past) : undefined;
         issues.push(issueRecord({
           type: weak.kind,
           experience, experienceIndex, bullet, bulletIndex, citations, profile,
@@ -206,13 +204,6 @@ export function buildWritingReview(resumeData, baseResume, options = {}) {
             ? "The opener is truthful but vague. Name the candidate's actual level of contribution without implying ownership."
             : "The bullet begins with passive or generic wording instead of a specific contribution.",
           suggestion,
-        }));
-      } else if (!RECOGNIZED_VERBS.has(opening)) {
-        issues.push(issueRecord({
-          type: "unrecognized_opener",
-          experience, experienceIndex, bullet, bulletIndex, citations, profile,
-          explanation: `The opener “${opening || "(missing)"}” is not recognized as an action verb for this review. Consider a precise verb such as ${preferredVerbs.slice(0, 4).join(", ")}.`,
-          suggestion: "",
         }));
       }
 

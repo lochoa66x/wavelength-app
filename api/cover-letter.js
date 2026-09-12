@@ -40,7 +40,6 @@ const LETTER_TOOL = {
 };
 
 const GENERIC_FLATTERY = /\b(?:renowned|esteemed|world[- ]class|industry[- ]leading|impressed by|admire your|dream company|thrilled|passionate|excited)\b/i;
-const UNSUPPORTED_PERSONAL = /\b(?:referred by|authorized to work|eligible to work|relocat(?:e|ing|ion)|available immediately|salary expectation|compensation expectation)\b/i;
 const PLACEHOLDER = /(?:\[|<)(?:hiring manager|name|company|address|date|insert|unknown)(?:\]|>)/i;
 
 function clean(value, maxLength = 4_000) {
@@ -150,7 +149,7 @@ function validateLetter(raw, {
     seen.add(id);
     if (hasInternalDocumentLanguage(text)) issues.push(`${id}: internal application terminology must not appear in the letter`);
     for (const issue of claimMeaningIssues(text, evidenceRefs, { candidateCorpus })) issues.push(`${id}: ${issue}`);
-    if (GENERIC_FLATTERY.test(text) || UNSUPPORTED_PERSONAL.test(text) || PLACEHOLDER.test(text)) issues.push(`${id}: contains unsupported motivation, personal, or placeholder language`);
+    if (GENERIC_FLATTERY.test(text) || PLACEHOLDER.test(text)) issues.push(`${id}: contains unsupported motivation, personal, or placeholder language`);
     if (containsSelfDisqualifyingCoverLetterLanguage(text)) issues.push(`${id}: contains self-disqualifying or gap-focused positioning`);
     if (containsSelfDisqualifyingCoverLetterLanguage(explanation)) issues.push(`${id}: explanation contains self-disqualifying positioning`);
     if (purpose !== "closing" && !evidenceRefs.length) issues.push(`${id}: missing candidate evidence citation`);
@@ -303,6 +302,7 @@ RULES
 - Preserve projected results as projected. Training and guidance do not establish configuration ownership. Match each employer-specific claim to that engagement.
 - Give each evidence paragraph a distinct purpose and a single principal example. Do not use the third paragraph as a catalogue of degrees, tools, language proficiency, and every selected capability.
 - Use precise verbs at the actual source contribution level. "Supported" and "contributed" are appropriate when accurate; never upgrade them to leadership for rhetorical effect. Avoid repeating the same sentence opener by choosing a distinct supported example, not by inflating the verb.
+- Preserve what every number counts, its time period, and who achieved it. Sessions are not distinct students; patients are not wards; per shift is not per hour; business days are not hours. Preserve explicit negatives and each credential's individual held, current, expired, or in-progress status. Never invent availability, insurance, checks, guarantees, or rights.
 - Keep paragraphs concise and readable. Avoid module inventories, semicolon chains, repeated employer names, and restating the same delivery lifecycle in more than one paragraph.
 - Keep each sentence below about 35 words. In Short, keep the opening near 25–40 words, the one evidence example near 60–90 words, and the closing near 15–25 words. In Standard, allow a second distinct 50–80-word evidence example when supported. Use fewer words if the evidence is sparse; never pad a letter to reach the target. Keep the closing under 40 words.
 - Use a concrete action, scope, and source-supported outcome. Do not write generic bridges such as "aligns closely", "provides a practical basis", "this combination equips me", "uniquely positioned", "this experience is directly relevant", or "proven track record". Omit empty self-description such as "highly motivated", "results-driven", "valuable asset", and "excellent communication skills"; show the actual work instead. Connect the example to one stated responsibility directly, or let the example speak for itself.

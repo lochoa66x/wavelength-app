@@ -4,6 +4,7 @@ import { findSemanticIntegrityIssues } from "./tailoringEvidence.js";
 import { isPlaceholderIdentity } from "./resumeQuality.js";
 import { buildWritingReview } from "./resumeWriting.js";
 import { claimMeaningIssues, requirementEvidenceBoundary } from "../../src/documentIntegrity.js";
+import { pendingApplicationConfirmations } from "../../src/applicationConfirmations.js";
 
 function normalized(value) {
   return String(value || "")
@@ -775,10 +776,11 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
   };
   const fitReady = !["significant_gap", "needs_full_posting"].includes(readiness.status)
     && verifiedBlockerCount === 0;
+  const pendingConfirmations = pendingApplicationConfirmations(options.analysis);
   const writingBlocked = writingReview.blocking_issue_count > 0;
   const status = integrityBlocked || writingBlocked
     ? "blocked"
-    : writingStatus === "review" || !postingVerified || !requirementAnalysisReady || !fitReady
+    : writingStatus === "review" || !postingVerified || !requirementAnalysisReady || !fitReady || pendingConfirmations.length
       ? "review"
       : "ready";
   const applicationReady = Boolean(
@@ -789,6 +791,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
       && reverse_chronological
       && !writingBlocked
       && fitReady
+      && pendingConfirmations.length === 0
   );
 
   const focusReview = options.focusReview || {
@@ -810,6 +813,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
       ...(postingVerified ? [] : ["posting_readiness"]),
       ...(requirementAnalysisReady ? [] : ["requirement_analysis"]),
       ...(fitReady ? [] : ["candidate_fit"]),
+      ...(pendingConfirmations.length ? ["candidate_confirmation"] : []),
       ...(integrityBlocked ? ["evidence_integrity"] : []),
       ...(writingBlocked ? ["contribution_language"] : []),
       ...(identityMissing ? ["candidate_identity"] : []),
@@ -861,6 +865,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
       reason: postingReadiness.reason,
     },
     requirements: options.analysis?.requirements || [],
+    pending_confirmations: pendingConfirmations,
     gap_summary: options.analysis?.gap_summary || null,
     core_coverage: options.analysis?.core_coverage || null,
     requirement_summary: options.analysis?.requirement_summary || null,

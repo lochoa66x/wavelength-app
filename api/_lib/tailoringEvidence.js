@@ -1254,7 +1254,10 @@ export function findSemanticIntegrityIssues(resumeData, baseResume, analysis, ta
   }
 
   const unsupported_positioning = [];
-  if (["transferable", "career_change"].includes(analysis?.fit_assessment?.path) && target && title.includes(target)) {
+  const establishedSourceTitle = String(baseResume || '').split(/\r?\n/).some(line =>
+    normalizeEvidenceText(line) === title || normalizeEvidenceText(line.split(/\s+[-–—]\s+|\s*[|]\s*/)[0]) === title
+  );
+  if (["transferable", "career_change"].includes(analysis?.fit_assessment?.path) && target && title.includes(target) && !establishedSourceTitle) {
     const allowedTradeCandidate = isTrades && /\b(candidate|helper)\b/.test(title);
     if (!allowedTradeCandidate) unsupported_positioning.push({ title: resumeData?.title, target: targetTitle });
   }

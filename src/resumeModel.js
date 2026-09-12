@@ -1,5 +1,6 @@
 import { organizeResumeSections, groupResumeExperience, professionalContactLine } from "./resumeOrganization.js";
 import { PRESENTATION_PROTOTYPES_ENABLED } from "./presentationPrototypeConfig.js";
+import { credentialStatus } from './candidateClaims.js';
 
 export const RESUME_SCHEMA_VERSION = 2;
 
@@ -1929,10 +1930,11 @@ function sectionOrderForTemplate(template, classification, document) {
   const contentTemplate = template.contentProfile === "adaptive"
     ? RESUME_TEMPLATE_REGISTRY[adaptiveContentTemplateId(classification)]
     : template;
-  const heldAccountingCredential = /accountant/i.test(document?.headline || "") && (document?.certifications || []).some(entry => /\bCPA\b/.test(entry.name) && /active|current|valid/i.test(entry.name));
-  if (heldAccountingCredential) return ["summary", "certifications", "skills", "experience", "education", "training", "projects", "languages"];
-  if (contentTemplate.id !== TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES || !classification.verifiedTradeEvidence) return contentTemplate.sectionOrder;
-  const heldTradeCredential = (document?.certifications || []).some(entry => /journeyperson|journeyman|licen[cs]e|registered.*apprentice/i.test(JSON.stringify(entry)) && !/expired|not held|preparation|pending/i.test(JSON.stringify(entry)));
+  const heldCredential = (document?.certifications || []).some(entry => ['current','held'].includes(credentialStatus(`${entry.name} ${entry.dateDisplay || ''}`)));
+  if (contentTemplate.id !== TEMPLATE_IDS.SKILLED_TRADES_FIELD_SERVICES || !classification.verifiedTradeEvidence) {
+    return heldCredential ? ['summary','certifications','skills','experience','education','safety','projects','training','languages'] : contentTemplate.sectionOrder;
+  }
+  const heldTradeCredential = (document?.certifications || []).some(entry => /journeyperson|journeyman|licen[cs]e|registered.*apprentice|apprentice.*registration/i.test(JSON.stringify(entry)) && !/expired|not held|preparation|pending/i.test(JSON.stringify(entry)));
   if (heldTradeCredential || classification.tradeProfileType === "regulated-trade-professional") {
     return ["summary", "certifications", "safety", "skills", "experience", "projects", "training", "education", "languages"];
   }
