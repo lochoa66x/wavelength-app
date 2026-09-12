@@ -18,7 +18,7 @@ export async function polishResumeSummary({ resume, review, source, targetTitle,
     const profile = result.profile.replace(/\s+/g, ' ').trim();
     if (!profile || profile.length > 700) return original;
     const candidate = { ...resume, profile };
-    if (reviewResumeSummary(candidate, source).length >= issues.length) return original;
+    if (reviewResumeSummary(candidate, source).length) return original;
     const checked = await validate(candidate);
     if (!checked || checked.status === 'blocked') return original;
     return { resume: candidate, review: checked, applied: true };

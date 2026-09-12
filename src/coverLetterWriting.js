@@ -44,6 +44,9 @@ export function reviewCoverLetterWriting(paragraphs, length = "standard", { part
         if (!partial) for (const entry of repeats) issues.push({ paragraphId: entry.id, code: "opening_repeats_evidence", advice: "This paragraph repeats the opening example. Keep its facts once and use another supported contribution only if one is available; do not invent variety." });
       }
     }
+    if (partial && paragraph.purpose === "evidence" && existingDraft?.paragraphs?.some((entry) => entry.purpose === "opening" && editorialSentences(text).some((sentence) => repeatsContribution(entry.text, sentence)))) {
+      add("opening_repeats_evidence", "This paragraph repeats the existing opening. Use distinct supported detail and preserve the untouched opening; do not invent a new example.");
+    }
     if (count > (paragraph.purpose === "closing" ? 45 : 95)) add("dense_paragraph", "Shorten this paragraph around one example; retain the candidate's contribution level.");
     for (const issue of reviewEditorialText(text)) add(issue.code, issue.advice);
     for (const sentence of text.split(/(?<=[.!?])\s+/)) {

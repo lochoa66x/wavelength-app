@@ -38,6 +38,20 @@ test("cover-letter generation rejects missing authentication before external wor
   assert.equal(res.headers["Cache-Control"], "no-store, max-age=0");
 });
 
+test("a short letter can use its opening as the only evidence example without a redundant third paragraph", async () => {
+  const concise = { ...letter, paragraphs: [{ ...letter.paragraphs[0], text: 'I installed and maintained electrical panels.' }, letter.paragraphs[2]] };
+  let calls = 0;
+  const handler = createCoverLetterHandler({ authenticate: async () => ({user:{id:'qa'},supabase:{}}), getApiKey: () => 'test', getOpenAIKey: () => undefined,
+    fetchImpl: async () => { calls++; return toolResponse(concise); },
+  });
+  const res = responseRecorder();
+  await handler({method:'POST',headers:{authorization:'Bearer test'},body:{resume:'Jordan Lee\nInstalled and maintained electrical panels.\nDocumented preventive maintenance work in a CMMS.',customJob,length:'short'}},res);
+  assert.equal(res.statusCode, 200);
+  assert.equal(res.body.letter.paragraphs.length, 2);
+  assert.equal(calls, 1);
+  assert.deepEqual(res.body.letter.paragraphs[0].evidence_refs, ['Installed and maintained electrical panels.']);
+});
+
 test("cover-letter generation uses reviewed sources and exact citations", async () => {
   let requestBody;
   const handler = createCoverLetterHandler({

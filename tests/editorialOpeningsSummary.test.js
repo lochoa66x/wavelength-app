@@ -47,6 +47,14 @@ test('shared occupation terminology alone does not make two contributions duplic
   assert.equal(repeatsContribution('I translated French museum exhibition texts into English.', 'I translated French museum exhibition texts into English, averaging 8,000 source words per month.'), true);
 });
 
+test('the live translator profile cannot repeat its direction or disguise a skills list as a summary', () => {
+  const c = liveCareerCases[7], resume = resumeFor(c);
+  const issues = reviewResumeSummary({ ...resume, profile: 'French-to-English translator with freelance experience translating French museum exhibition texts into English. Brings terminology-management practice, client-review incorporation, and arts-publication editorial experience.' }, c.baseResume);
+  assert.ok(issues.some((issue) => issue.code === 'summary_repeated_direction'));
+  assert.ok(issues.some((issue) => issue.code === 'summary_activity_inventory'));
+  assert.deepEqual(reviewResumeSummary({ ...resume, profile: 'French-to-English museum translator with an earlier background in arts publishing.' }, c.baseResume), []);
+});
+
 test('application announcements are flagged across careers without banning ordinary first-person evidence', () => {
   for (const c of liveCareerCases) {
     for (const prefix of ['I am applying for', 'I’m applying for', 'I am writing to apply for', 'I would like to apply for']) {
@@ -67,6 +75,8 @@ test('a repeated opening example is detected in complete letters and targeted op
   const partial = reviewCoverLetterWriting([opening], 'short', { partial: true, existingDraft: { paragraphs: [opening, evidence] } });
   assert.ok(partial.issues.some((issue) => issue.code === 'opening_repeats_evidence'));
   assert.ok(partial.issues.every((issue) => issue.paragraphId === 'o'));
+  const bodyRevision = reviewCoverLetterWriting([evidence], 'short', { partial: true, existingDraft: { paragraphs: [opening, evidence] } });
+  assert.ok(bodyRevision.issues.some((issue) => issue.paragraphId === 'e' && issue.code === 'opening_repeats_evidence'));
 });
 
 test('summary polish changes only the profile after full validation and skips a good profile', async () => {

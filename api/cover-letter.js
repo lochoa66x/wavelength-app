@@ -171,8 +171,11 @@ function validateLetter(raw, {
   if (expectedParagraphId && (normalizedParagraphs.length !== 1 || normalizedParagraphs[0]?.id !== expectedParagraphId)) {
     issues.push("paragraph regeneration must return exactly the requested paragraph id");
   }
-  if (!expectedParagraphId && (normalizedParagraphs.length < 3 || normalizedParagraphs.length > 4)) {
-    issues.push("full letter must contain three or four paragraphs");
+  if (!expectedParagraphId && (normalizedParagraphs.length < 2 || normalizedParagraphs.length > 4)) {
+    issues.push("full letter must contain two to four paragraphs");
+  }
+  if (!expectedParagraphId && normalizedParagraphs.length === 2 && (normalizedParagraphs[0].purpose !== "opening" || normalizedParagraphs[1].purpose !== "closing")) {
+    issues.push("a two-paragraph letter must contain an evidence-backed opening and a closing");
   }
   return {
     issues,
