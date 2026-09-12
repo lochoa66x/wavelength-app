@@ -33,7 +33,7 @@ export function reviewCoverLetterWriting(paragraphs, length = "standard", { part
     const count = words(text).length;
     wordCount += count;
     const add = (code, advice) => { if (!issues.some((issue) => issue.paragraphId === paragraph.id && issue.code === code)) issues.push({ paragraphId: paragraph.id, code, advice }); };
-    if (editorialSentences(text).slice(1).some((sentence) => /^(?:my|this|that) work (?:cent(?:er|re)s on|focuses on|involves|consists of)\b/i.test(sentence.trim()))) {
+    if (editorialSentences(text).slice(1).some((sentence) => /^(?:my|this|that) work (?:cent(?:er|re)s on|focuses on|involves|consists of|combines?|combined|brings? together|brought together)\b/i.test(sentence.trim()))) {
       add("restated_work_description", "The example is followed by a generic description of the same work. Remove that restatement; keep a second sentence only for a distinct source-supported scope, constraint or outcome.");
     }
     if (paragraph.purpose === "opening" && /^(?:I(?: am|['’]m) (?:applying|writing)|I would like to apply|Please accept (?:my|this) application)\b/i.test(text.trim())) {

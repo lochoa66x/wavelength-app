@@ -113,6 +113,11 @@ test('a concrete opening is not padded with a second sentence defining the same 
   assert.ok(!reviewCoverLetterWriting([{id:'o',purpose:'opening',text:'My work focuses on museum exhibition translation.'}]).issues.some((issue) => issue.code === 'restated_work_description'));
 });
 
+test('the bookkeeper opening cannot pad a reconciliation example with a generic work-combination sentence', () => {
+  const text='At Example Birch Studio, I reconciled four bank accounts monthly in QuickBooks Online. This work combined regular account reconciliation with hands-on use of the accounting platform.';
+  assert.ok(reviewCoverLetterWriting([{id:'o',purpose:'opening',text}]).issues.some((issue)=>issue.code==='restated_work_description'));
+});
+
 test('a repeated opening example is detected in complete letters and targeted opening revisions', () => {
   const opening = { id: 'o', purpose: 'opening', text: 'I translated French museum exhibition texts into English.' };
   const evidence = { id: 'e', purpose: 'evidence', text: 'I translated French museum exhibition texts into English, averaging 8,000 source words per month.' };
