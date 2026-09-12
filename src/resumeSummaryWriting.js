@@ -31,6 +31,10 @@ export function reviewResumeSummary(resume, source = '') {
     return [...new Set(tokens(sentence))].filter((word) => sourceTokens.has(word)).length >= 4;
   }));
   const issues = [];
+  const taskActions = profile.match(/\b(?:preparing|building|processing|reconciling|translating|creating|recording|discussing|supporting|cleaning|working|planning|developing|managing|leading|coordinating|installing|repairing|measuring|scheduling|picking|packing|updating|checking)\b/gi) || [];
+  if (new Set(taskActions.map((word) => word.toLowerCase())).size >= 2 && /,/.test(profile) && /\band\b/i.test(profile)) {
+    issues.push({ code: 'summary_task_list', advice: 'Remove the list of activities introduced as experience. State the profession, work setting or distinctive background instead; leave what the candidate did in the experience bullets.' });
+  }
   if (sentences.some((sentence) => /^(?:brings?|background includes|experience includes|skills include)\b/i.test(sentence.trim()) && /\band\b/i.test(sentence) && tokens(sentence).length >= 6)) {
     issues.push({ code: 'summary_activity_inventory', advice: 'Replace the list of duties or skills with the candidate’s work setting or distinctive professional background. Choose one useful focus; leave the inventory in skills and experience. Use plain wording, not noun stacks.' });
   }
@@ -50,3 +54,11 @@ export function reviewResumeSummary(resume, source = '') {
 }
 
 export const RESUME_SUMMARY_INSTRUCTIONS = 'Write a selective professional profile, not a condensed experience section. Prefer ONE plain sentence about the candidate’s proven profession or level, relevant work setting, and one distinctive source-supported background. Use a second sentence only if it adds a different useful dimension. Usually 10–35 words is enough; there is no minimum and the maximum is 60. Do not enumerate duties with Background includes, Brings, or a similar inventory opener. Leave employer-specific actions, metrics and results in experience, and tool lists in skills. Mention one central tool only when essential to the professional focus. State a language direction once. Use ordinary language instead of compressed noun stacks such as client-review incorporation. Do not paraphrase two or more bullets, add generic praise, or invent relative scale such as high-volume. Preserve supervision, team membership and credential status. Never turn the target job title into a qualification the candidate has not established.';
+
+// Delete only a trailing duty catalogue when a substantial context phrase
+// already stands on its own. The caller still validates the resulting résumé.
+export function trimSummaryTaskList(profile) {
+  const match = String(profile || '').match(/^([^.!?]+?)\s+and experience\b[\s\S]+$/i);
+  if (!match || match[1].trim().split(/\s+/).length < 7) return '';
+  return match[1].trim().replace(/[,;:]$/, '') + '.';
+}

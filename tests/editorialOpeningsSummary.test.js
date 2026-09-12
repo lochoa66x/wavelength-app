@@ -62,6 +62,15 @@ test('an analyst summary cannot paraphrase an achievement as a second profile se
   assert.deepEqual(reviewResumeSummary({...resume,profile:context},c.baseResume),[]);
 });
 
+test('a trailing analyst task list can be removed without another model call or any change to work history', async () => {
+  const c=liveCareerCases[9], resume=resumeFor(c);
+  resume.profile='Data Analysis Intern with a Bachelor of Science in Statistics and experience preparing SQL queries, working with survey-response data in Python, and building Power BI dashboards for programme coordinators.';
+  assert.ok(reviewResumeSummary(resume,c.baseResume).some((issue)=>issue.code==='summary_task_list'));
+  const result=await polishResumeSummary({resume,review:{status:'ready'},source:c.baseResume,generate:async()=>{throw Error('No extra generation needed');},validate:async(candidate)=>{assert.deepEqual(candidate.experience,resume.experience);return {status:'ready'};}});
+  assert.equal(result.applied,true);
+  assert.equal(result.resume.profile,'Data Analysis Intern with a Bachelor of Science in Statistics.');
+});
+
 test('application announcements are flagged across careers without banning ordinary first-person evidence', () => {
   for (const c of liveCareerCases) {
     for (const prefix of ['I am applying for', 'I’m applying for', 'I am writing to apply for', 'I would like to apply for']) {
