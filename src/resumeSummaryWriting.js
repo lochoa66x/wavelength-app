@@ -38,7 +38,7 @@ export function reviewResumeSummary(resume, source = '') {
   }));
   const issues = [];
   const taskActions = profile.match(/\b(?:preparing|building|processing|reconciling|translating|creating|recording|discussing|supporting|cleaning|working|planning|developing|managing|leading|coordinating|installing|repairing|measuring|scheduling|picking|packing|updating|checking)\b/gi) || [];
-  if (new Set(taskActions.map((word) => word.toLowerCase())).size >= 2 && /,/.test(profile) && /\band\b/i.test(profile)) {
+  if (new Set(taskActions.map((word) => word.toLowerCase())).size >= 2 && /\band\b/i.test(profile)) {
     issues.push({ code: 'summary_task_list', advice: 'Remove the list of activities introduced as experience. State the profession, work setting or distinctive background instead; leave what the candidate did in the experience bullets.' });
   }
   if (sentences.some((sentence) => /^(?:brings?|background includes|experience includes|skills include)\b/i.test(sentence.trim()) && /\band\b/i.test(sentence) && tokens(sentence).length >= 6)) {

@@ -78,6 +78,17 @@ test('an educator profile cannot disguise a numbered classroom example as profes
   assert.deepEqual(reviewResumeSummary({...resume,profile:'Early Childhood Educator with preschool classroom experience and fluency in English and Spanish.'},c.baseResume),[]);
 });
 
+test('a short bookkeeper duty list still needs a summary-only rewrite without comma separators', async () => {
+  const c=liveCareerCases[0], resume=resumeFor(c);
+  resume.profile='Bookkeeping professional with experience reconciling bank accounts and processing supplier invoices in QuickBooks Online. Prepares monthly expense reports and holds a Diploma in Accounting.';
+  assert.ok(reviewResumeSummary(resume,c.baseResume).some((issue)=>issue.code==='summary_task_list'));
+  const profile='Bookkeeping professional with an accounting diploma and a background in accounts support.';
+  const result=await polishResumeSummary({resume,review:{status:'ready'},source:c.baseResume,generate:async()=>({profile}),validate:async()=>({status:'ready'})});
+  assert.equal(result.applied,true);
+  assert.equal(result.resume.profile,profile);
+  assert.deepEqual(result.resume.experience,resume.experience);
+});
+
 test('application announcements are flagged across careers without banning ordinary first-person evidence', () => {
   for (const c of liveCareerCases) {
     for (const prefix of ['I am applying for', 'I’m applying for', 'I am writing to apply for', 'I would like to apply for']) {
