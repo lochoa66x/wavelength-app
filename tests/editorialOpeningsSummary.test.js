@@ -71,6 +71,13 @@ test('a trailing analyst task list can be removed without another model call or 
   assert.equal(result.resume.profile,'Data Analysis Intern with a Bachelor of Science in Statistics.');
 });
 
+test('an educator profile cannot disguise a numbered classroom example as professional context', () => {
+  const c=liveCareerCases[5], resume=resumeFor(c);
+  const profile='Early Childhood Educator with preschool classroom experience planning play-based activities for a room of 16 children and two educators. Documents observations, communicates daily routines with families, and is fluent in English and Spanish.';
+  assert.ok(reviewResumeSummary({...resume,profile},c.baseResume).some((issue)=>issue.code==='summary_repeats_experience'));
+  assert.deepEqual(reviewResumeSummary({...resume,profile:'Early Childhood Educator with preschool classroom experience and fluency in English and Spanish.'},c.baseResume),[]);
+});
+
 test('application announcements are flagged across careers without banning ordinary first-person evidence', () => {
   for (const c of liveCareerCases) {
     for (const prefix of ['I am applying for', 'I’m applying for', 'I am writing to apply for', 'I would like to apply for']) {

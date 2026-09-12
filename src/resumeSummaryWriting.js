@@ -23,6 +23,12 @@ export function reviewResumeSummary(resume, source = '') {
   const sentences = editorialSentences(profile);
   const bullets = (resume?.experience || []).flatMap((entry) => entry.bullets || []).filter((bullet) => typeof bullet === 'string' && bullet.trim());
   const repeated = bullets.filter((bullet) => sentences.some((sentence) => repeatsContribution(sentence, bullet)));
+  const numberedRecap = repeated.some((bullet) => sentences.some((sentence) => {
+    if (!repeatsContribution(sentence, bullet)) return false;
+    const quantities = bullet.match(/\b\d[\d,.]*(?:%)?/g) || [];
+    const profileQuantities = sentence.match(/\b\d[\d,.]*(?:%)?/g) || [];
+    return quantities.some((quantity) => profileQuantities.includes(quantity));
+  }));
   const exactCopy = sentences.some((sentence) => normalize(sentence).split(' ').length >= 8 && bullets.some((bullet) => normalize(sentence) === normalize(bullet)));
   const firstWord = (text) => normalize(text).split(' ')[0];
   const actionRecap = sentences.some((sentence) => bullets.some((bullet) => {
@@ -42,7 +48,7 @@ export function reviewResumeSummary(resume, source = '') {
   if (direction && new RegExp(`\\b${direction[1]}\\b[^.!?]{0,100}\\b(?:into|to) ${direction[2]}\\b`).test(profile.slice(direction.index + direction[0].length))) {
     issues.push({ code: 'summary_repeated_direction', advice: 'State the language direction once. Use the rest of the profile for a supported subject focus or professional background rather than explaining the same direction again.' });
   }
-  if (repeated.length >= 2 || exactCopy || actionRecap) issues.push({ code: 'summary_repeats_experience', advice: 'Replace the retold experience bullets with one or two sentences identifying the candidate’s supported profession, work setting and distinctive focus. Keep assignments, quantities and outcomes in experience. Do not replace the repetition with generic praise.' });
+  if (repeated.length >= 2 || exactCopy || actionRecap || numberedRecap) issues.push({ code: 'summary_repeats_experience', advice: 'Replace the retold experience bullets with one or two sentences identifying the candidate’s supported profession, work setting and distinctive focus. Keep assignments, quantities and outcomes in experience. Do not replace the repetition with generic praise.' });
   if (profile.trim().split(/\s+/).filter(Boolean).length > 60 || sentences.length > 2) issues.push({ code: 'summary_too_long', advice: 'Use one or two selective sentences, usually 10–35 words and no more than 60. A short source may need only one sentence. Do not inventory every tool or contribution.' });
   for (const phrase of ['high-volume', 'high volume', 'large-scale', 'large scale', 'fast-paced', 'fast paced']) {
     if (normalize(profile).includes(normalize(phrase)) && !normalize(source).includes(normalize(phrase))) {
