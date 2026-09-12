@@ -66,6 +66,12 @@ test('application announcements are flagged across careers without banning ordin
   }
 });
 
+test('a concrete opening is not padded with a second sentence defining the same work', () => {
+  const text = 'I translate French museum exhibition texts into English as a freelance translator, averaging 8,000 source words per month. My work centers on rendering exhibition material in English for readers while working from French source text.';
+  assert.ok(reviewCoverLetterWriting([{id:'o',purpose:'opening',text}]).issues.some((issue) => issue.code === 'restated_work_description'));
+  assert.ok(!reviewCoverLetterWriting([{id:'o',purpose:'opening',text:'My work focuses on museum exhibition translation.'}]).issues.some((issue) => issue.code === 'restated_work_description'));
+});
+
 test('a repeated opening example is detected in complete letters and targeted opening revisions', () => {
   const opening = { id: 'o', purpose: 'opening', text: 'I translated French museum exhibition texts into English.' };
   const evidence = { id: 'e', purpose: 'evidence', text: 'I translated French museum exhibition texts into English, averaging 8,000 source words per month.' };
