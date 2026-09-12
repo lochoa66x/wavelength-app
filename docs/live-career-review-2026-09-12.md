@@ -49,3 +49,29 @@ The downloadable DOCX files were opened structurally and their complete paragrap
 All ten baseline letter clipboard captures exposed the missing date/subject-prefix discrepancy. The L01 résumé clipboard capture was empty because the test read the clipboard before the asynchronous copy completed; later cases waited for the success notice. That harness error is recorded separately from product defects.
 
 Release verification includes the full regression suite, the production build, the 16-template résumé export matrix, final/preliminary letter export checks, and targeted new live generations after deployment. Deployment and retest evidence is recorded separately with the deployed commit, so this baseline report does not claim unperformed production checks.
+
+## Production retests completed
+
+The functional fixes were committed as `1b7a726dcd9694d299362414fbd155040dae8fd3` and deployed in `dpl_AWnaP3a9fAQdZJtUY5YLQEkJS2M6`. The production aliases were verified against that exact SHA. Five unchanged inputs were then regenerated through the live authenticated service; these are additional generations, not a reclassification of the baseline files.
+
+| Case | Observed result after deployment | Letter words, before → after |
+|---|---|---|
+| L04 Dental receptionist | All three current-role bullets and the older retail bullet now appear. Saturday availability remains unconfirmed; both documents remain preliminary. | 111 → 76 |
+| L08 Freelance translator | Portfolio URL appears in both résumé and letter. Translation direction, 8,000 source words/month, agreed deadlines, and selected Studio Editorial style survive. | 75 → 65 |
+| L10 Junior data analyst | Volunteer bullet and portfolio restored. SQL and data cleaning receive direct evidence; the assessment still distinguishes partially supported communication work. Internship, supervision, and the sample project's non-production status remain intact. | 136 → 110 |
+| L06 Early childhood educator | Original room headcount retained, all role bullets present, and credentials no longer duplicated in Core Skills. Letter uses distinct credential and classroom examples. | 104 → 71 |
+| L01 Bookkeeper | Both roles and the four-account/120-invoice facts retained. The letter removes the explicit posting-match commentary. Clipboard capture now waits for confirmed completion and matches the saved file. | 91 → 69 |
+
+These five packages produced **20 more actual downloads**, bringing the live review to **60 files and 30 PDF pages**. All ten retest documents passed DOCX/PDF paragraph parity, copied-text parity, page-bound checks, and editor-text exclusion. Every retest PDF page was rendered and visually inspected. Preliminary letter filenames now include `cover-letter`, distinguishing them from preliminary résumés. The count refers to distinct saved files, not button clicks.
+
+No visible request failed during the five retests. Server logs show that four letters passed the first integrity check and the educator letter required an internal repair before its successful response. The final writing checker reported no issues in all five; human review remains stricter than that automated result.
+
+The full regression suite passed **793 tests**. The production build passed, the 16-template export matrix passed (48 controlled files, 29 PDF pages), and final/preliminary letter export checks passed. These controlled fixtures are separate from the 60 live downloads. The production dependency audit reported **zero known vulnerabilities**. A final small UI correction changes “1 short questions” to “1 short question”; its seven affected tests also passed. Production smoke checks verified public pages and authentication/no-store behavior for private generation endpoints.
+
+The original user's résumé was restored through the UI and compared with the original string: **exact match, 10,984 characters**. No application was submitted. The original résumé backup is excluded from shareable evidence.
+
+## Remaining editorial work and limits
+
+The letters are cleaner, but they are not yet exceptional. Several still open with “I am applying” and close with “I welcome the opportunity.” The analyst opening inventories examples that the body then develops. Some résumé summaries repeat experience bullets, and the bookkeeper summary substitutes “high-volume” for a more useful explicit quantity. The educator summary's “activities for 16 children and two educators” is less precise than the original “a room with 16 children and two educators,” although the experience bullet and letter preserve the original relationship. These are remaining editorial findings, not silently counted as fixed by a passing automated checker.
+
+The short documents leave considerable lower-page whitespace. That is acceptable for sparse input, but richer candidate histories are needed to assess information density and pagination under pressure. This run visually reviewed desktop previews and downloaded PDFs; it did not complete a separate narrow-mobile viewport pass. Native Word-compatible pagination remains unverified for the renderer restriction documented above. No finite set of live generations proves that future AI outputs will always preserve every fact.

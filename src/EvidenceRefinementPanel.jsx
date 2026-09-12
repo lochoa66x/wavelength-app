@@ -256,7 +256,7 @@ export function EvidenceRefinementPanel({
         <span style={{ alignItems: "center", color: C.text, display: "inline-flex", fontSize: 13.5, fontWeight: 750, gap: 7 }}>
           <MessageSquareText size={16} color={C.blue} /> Strengthen this draft <span style={{ color: C.blue, fontSize: 10.5, textTransform: "uppercase" }}>Optional</span>
         </span>
-        <span style={{ color: C.textFaint, fontSize: 11.5 }}>{answered ? `${answered} answered` : `Up to ${visibleQuestions.length} short questions`}</span>
+        <span style={{ color: C.textFaint, fontSize: 11.5 }}>{answered ? `${answered} answered` : `Up to ${visibleQuestions.length} short question${visibleQuestions.length === 1 ? '' : 's'}`}</span>
       </summary>
       <div style={{ borderTop: `1px solid ${C.border}`, padding: "12px 16px 15px" }}>
         <p style={{ margin: "0 0 10px", color: C.textSub, fontSize: 12, lineHeight: 1.5 }}>

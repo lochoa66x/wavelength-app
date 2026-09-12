@@ -84,7 +84,7 @@ test("a selected capability needs no redundant free-text proof", () => {
 
 test("evidence refinement is optional, compact, and has no redundant confirmation checkbox", () => {
   assert.match(panelSource, /Strengthen this draft/);
-  assert.match(panelSource, /Up to \$\{visibleQuestions\.length\} short questions/);
+  assert.match(panelSource, /Up to \$\{visibleQuestions\.length\} short question\$\{visibleQuestions\.length === 1/);
   assert.match(panelSource, /Use these answers/);
   assert.match(panelSource, /Include this area in my application/);
   assert.match(panelSource, /Examples are optional/);
