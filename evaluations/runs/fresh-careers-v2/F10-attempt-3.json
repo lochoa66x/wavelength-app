@@ -1,0 +1,56 @@
+{
+  "caseId": "F10",
+  "attempt": 3,
+  "revision": "a6fa1bb5ce403a356435bb334f7e1021d6d837e6",
+  "status": "completed",
+  "startedAt": "2026-09-13T21:08:17.044Z",
+  "finishedAt": "2026-09-13T21:10:13.776Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F10-letter.docx",
+      "downloadName": "Arthur-Quinn-Theatre-Wardrobe-Assistant-cover-letter (4).docx",
+      "sha256": "c97b3a76a62c4c5b798dc6f363fcd84d15c56be2d883d3f5535b42fb208c639b"
+    },
+    {
+      "filename": "F10-letter.pdf",
+      "downloadName": "Arthur-Quinn-Theatre-Wardrobe-Assistant-cover-letter (4).pdf",
+      "sha256": "9fbefe74ccc9e9b80fa25377cbfc0e9d3633231d3f740be51f23ce943a395ab8"
+    },
+    {
+      "filename": "F10-resume.docx",
+      "downloadName": "Arthur-Quinn-Wardrobe-Assistant.docx",
+      "sha256": "8e5ae71afc4884b60f4b5c6d685c2955e8c2d444280e161e3542dd690515409a"
+    },
+    {
+      "filename": "F10-resume.pdf",
+      "downloadName": "Arthur-Quinn-Wardrobe-Assistant.pdf",
+      "sha256": "77f5016dbd81a8f79d9c727a31840091cb8febb74a37e96df30bf2af1987cf8a"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "documentScope": "resume-and-cover-letter",
+  "artifactDirectory": "tmp/validation-fixes-v3-live-2026-09-13/wardrobe-after-fix",
+  "firstResumeProviderDraftPassed": false,
+  "resumeRepairApplied": true,
+  "resumeFirstDraftIssueCounts": {
+    "unsupported_skills": 3,
+    "contract_issues": 0
+  },
+  "firstLetterProviderDraftPassed": true,
+  "letterRepairApplied": false,
+  "letterEditorialStatus": "rejected_review: insufficient_content_gain",
+  "liveEdits": {
+    "courtesySaved": true,
+    "approvalReversalRejected": true,
+    "rejectedInputPreserved": true,
+    "validPreviewPreserved": true,
+    "editedDocxPdfVerified": true
+  },
+  "quality": "Resume profile now conveys live-performance setting and supervised scope. Letter remains 84 words with a repetitive opening sentence and limited argument. No independent fresh-cohort quality score.",
+  "recordedAt": "2026-09-13T21:12:59.012Z",
+  "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+}
