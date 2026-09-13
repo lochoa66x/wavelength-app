@@ -1,0 +1,35 @@
+{
+  "caseId": "F01",
+  "attempt": 3,
+  "revision": "27c97970bdb167d28c191f13801ba1298408e087",
+  "status": "completed",
+  "startedAt": "2026-09-13T05:49:36.522Z",
+  "finishedAt": "2026-09-13T05:51:17.711Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F01-letter.docx",
+      "downloadName": "Maya-Bennett-Commercial-Baker-cover-letter (2).docx",
+      "sha256": "0860e1a812e15e395f9bf324a281d7118ffebb534704734d586854156d581fa3"
+    },
+    {
+      "filename": "F01-letter.pdf",
+      "downloadName": "Maya-Bennett-Commercial-Baker-cover-letter (2).pdf",
+      "sha256": "250099fcebcf634ac609822dc3d4d70f833d1655bec72fe897dfd53edee915f2"
+    },
+    {
+      "filename": "F01-resume.docx",
+      "downloadName": "Maya-Bennett-Commercial-Baker.docx",
+      "sha256": "aa8c2fde511597da1d0f6f4990e02e13b8f7c1124c4067baa03fbb9581115e8a"
+    },
+    {
+      "filename": "F01-resume.pdf",
+      "downloadName": "Maya-Bennett-Commercial-Baker.pdf",
+      "sha256": "62859dad28daed6dec23d3f40bbd09a360f360ed8d7c30f379cf44358c897c16"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked."
+}

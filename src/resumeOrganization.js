@@ -123,6 +123,19 @@ export function organizeResumeSections(source = {}, baseResume = "") {
     const suffix = start < 0 ? "" : profile.slice(start + "portfolio:".length).trim();
     if (start >= 0 && (start === 0 || /\s/.test(profile[start - 1]))
       && [link.url, link.url + "."].includes(suffix)) profile = profile.slice(0, start).trim();
+    // The header already owns this exact address. Preserve meaningful body prose
+    // even when the address was embedded in a sentence rather than a label.
+    let removed = false;
+    profile = profile.replace(/https?:\/\/[^\s<>()]+/gi, (token, offset) => {
+      const before = profile.slice(0, offset), after = profile.slice(offset + token.length);
+      if (!(/:\s*$/.test(before) && /^\s*$/.test(after)) && !(/\(\s*$/.test(before) && /^\s*\)/.test(after))) return token;
+      const punctuation = token.match(/[.,;!?]+$/)?.[0] || "";
+      const url = punctuation ? token.slice(0, -punctuation.length) : token;
+      if (token !== link.url && url !== link.url) return token;
+      removed = true;
+      return token === link.url ? "" : punctuation;
+    });
+    if (removed) profile = profile.replace(/\(\s*\)/g, "").replace(/[:;]\s*([.!?])/g, "$1").replace(/\s+([.,;!?])/g, "$1").replace(/\s{2,}/g, " ").replace(/[:;]\s*$/, "").trim();
 
   }
   return {

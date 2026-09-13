@@ -30,14 +30,22 @@ export function credentialStatus(value) {
  return 'unknown';
 }
 
-function credentialKeys(text) {
+function credentialKeys(text, {prose=false}={}) {
  const parts=String(text).split(/\s+(?:and|&)\s+|,\s*/i);
- if(parts.length>1)return parts.flatMap(credentialKeys);
+ if(parts.length>1)return parts.flatMap((part,index)=>prose && index>0 && credentialMarker.test(parts[index-1]) && !credentialMarker.test(part) && !credentialNames.some(([,pattern])=>pattern.test(part)) ? [] : credentialKeys(part,{prose}));
+ // In a candidate sentence, the noun phrase names the credential. A following
+ // explanation is not another part of its name. Keep specialty/provider phrases.
+ if(prose){
+  const marker=/\b(?:certificat(?:e|ion)|licen[cs]e|authori[sz]ation|registration)\b/i.exec(text);
+  if(marker){const end=marker.index+marker[0].length,tail=String(text).slice(end);
+   if(!/^\s+(?:in|of|for|from|issued by)\b/i.test(tail))text=String(text).slice(0,end);
+  }
+ }
  const named=credentialNames.filter(([,pattern])=>pattern.test(text)).map(([key])=>key);
  if(named.length)return named;
  // Generic credentials retain the specialty and level rather than a SAP-only allowlist.
  const value=String(text).split(/[|;—–]/)[0];
- const key=normalize(value).replace(/\b(?:i|a|an|also|am|hold|have|earned|obtained|current|active|valid|required|preferred|certification|certificate|certified|credential|license|licence|authorization|registration)\b/g,'').replace(/\s+/g,' ').trim();
+ const key=normalize(value).replace(/\b(?:i|my|a|an|also|am|hold|have|earned|obtained|from|issued|by|current|active|valid|required|preferred|certification|certificate|certified|credential|license|licence|authorization|registration)\b/g,'').replace(/\s+/g,' ').trim();
  return key?[key]:[];
 }
 
@@ -47,17 +55,17 @@ function credentialClauseMatches(key,source) {
 }
 
 function credentialClauses(text) {
- return String(text).split(/;\s*(?!expired\b|active\b|current\b|valid\b|not held\b)|\n|(?<=[.!?])\s+|\s+(?:and|but)\s+(?=(?:(?:I\s+)?(?:am|hold|have|studying|pursuing|current|active|expired|my)\b|[^.;\n]{1,75}\b(?:certificate|certification|licen[cs]e|registration)\b))/i);
+ return String(text).split(/;(?!\s*(?:expired|active|current|valid|not held|in progress|pending|revoked|suspended|lapsed)\b)\s*|\n|(?<=[.!?])\s+|\s+(?:and|but)\s+(?=(?:(?:I\s+)?(?:am|hold|have|studying|pursuing|current|active|expired|my)\b|[^.;\n]{1,75}\b(?:certificate|certification|licen[cs]e|registration)\b))/i);
 }
 
-export function credentialEvidenceIssues(requirement, evidence) {
+export function credentialEvidenceIssues(requirement, evidence, {prose=false}={}) {
  if(!credentialMarker.test(requirement))return [];
  const alternatives=String(requirement).split(/\s+(?:or|and\/or)\s+/i);
  const evidenceText=Array.isArray(evidence)?evidence.map(s=>typeof s==='string'?s:s?.excerpt||'').join('\n'):String(evidence||'');
  // Split separate credentials, but retain a status suffix following a semicolon.
  const clauses=credentialClauses(evidenceText);
  const matches=alternatives.some(alternative=>{
-  const keys=credentialKeys(alternative);
+  const keys=credentialKeys(alternative,{prose});
   return keys.length>0&&keys.every(key=>clauses.some(clause=>credentialClauseMatches(key,clause)&&credentialMarker.test(clause)&&['held','current'].includes(credentialStatus(clause))&&(!/\b(?:current|active|valid)\b/i.test(alternative)||credentialStatus(clause)==='current')));
  });
  return matches?[]:['The cited evidence does not establish every required credential with the stated current status.'];
@@ -111,7 +119,7 @@ export function candidateClaimIssues(proposed,sources=[],context={}) {
   if(/\b(?:independently|certified installation|certify installation)\b/i.test(sentence)&&relevant.length&&relevant.every(f=>f.contribution==='support'))issues.push('Supervised or observed work cannot be presented as independent execution or certification.');
   const credentialAssertion = sentence.replace(/\s+and\s+(?:I\s+)?(?:lead|manage|prepare|coordinate|support|own|direct)\b.*$/i, '');
   for(const assertion of credentialClauses(credentialAssertion)){
-   if(credentialMarker.test(assertion)&&['held','current'].includes(credentialStatus(assertion))&&/\b(?:I (?:also )?(?:hold|have|am|earned|obtained)|certified|certification|certificate|licen[cs]e|authorization)\b/i.test(assertion))issues.push(...credentialEvidenceIssues(assertion,facts.map(f=>f.text)));
+   if(credentialMarker.test(assertion)&&['held','current'].includes(credentialStatus(assertion))&&/\b(?:I (?:also )?(?:hold|have|am|earned|obtained)|certified|certification|certificate|licen[cs]e|authorization)\b/i.test(assertion))issues.push(...credentialEvidenceIssues(assertion,facts.map(f=>f.text),{prose:true}));
   }
   const namedEmployer=sentence.match(/\b(?:At|at)\s+([\p{Lu}][\p{L}\p{N}&.'’-]*(?:\s+(?:(?:and|of|the)\s+)?[\p{Lu}][\p{L}\p{N}&.'’-]*)*)/u)?.[1]?.trim().replace(/[.]$/, '');
   if(namedEmployer&&relevant.some(f=>f.employer)&&!relevant.some(f=>normalize(f.employer)===normalize(namedEmployer)||normalize(f.text).includes(normalize(namedEmployer))))issues.push('Keep this claim attached to the employer or project established by its cited evidence.');

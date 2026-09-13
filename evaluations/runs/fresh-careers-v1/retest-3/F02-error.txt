@@ -1,0 +1,3 @@
+The draft could not be verified against your résumé and posting. Nothing was saved; try again.
+HTTP 422. Server: The cited evidence does not establish every required credential with the stated current status.
+Provider draft unavailable; exact failure cause unconfirmed.

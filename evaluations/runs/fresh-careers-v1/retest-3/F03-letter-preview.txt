@@ -1,0 +1,19 @@
+Priya Nair
+
+f03@example.com
+
+September 13, 2026
+
+Example Regional Mapping
+
+Re: Junior GIS Technician
+
+Dear Hiring Team,
+
+In the Example University Geography Lab, I built a QGIS map of public drinking-water fountains from an open municipal dataset, documented missing coordinates, and compared address points with satellite imagery before submitting ambiguous locations to the research supervisor for review. I prepared a map legend and methods note for the student poster, which used public data.
+
+I welcome the opportunity to discuss my application.
+
+Sincerely,
+
+Priya Nair

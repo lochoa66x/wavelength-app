@@ -1,0 +1,37 @@
+{
+  "caseId": "F10",
+  "attempt": 3,
+  "revision": "27c97970bdb167d28c191f13801ba1298408e087",
+  "status": "completed",
+  "startedAt": "2026-09-13T06:14:12.317Z",
+  "finishedAt": "2026-09-13T06:17:48.674Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F10-resume.docx",
+      "downloadName": "Nadia-Laurent-Freelance-Audio-Editor (2).docx",
+      "sha256": "a8ed8fce00d3010b9d381a4771ca27f7f94cd7c9bfa1753709e50eac68e37135"
+    },
+    {
+      "filename": "F10-resume.pdf",
+      "downloadName": "Nadia-Laurent-Freelance-Audio-Editor (2).pdf",
+      "sha256": "2d934f576fa109fdd7760090b545bb74f1cbcef8753bcf8b83d21aac13db8c40"
+    },
+    {
+      "filename": "F10-letter.docx",
+      "downloadName": "Nadia-Laurent-Freelance-Podcast-Audio-Editor-cover-letter (2).docx",
+      "sha256": "0ec7095393c9680cff360ecc61b4b3b7fa42646177c5db8a3965aa4963c09a0d"
+    },
+    {
+      "filename": "F10-letter.pdf",
+      "downloadName": "Nadia-Laurent-Freelance-Podcast-Audio-Editor-cover-letter (2).pdf",
+      "sha256": "05fc311d00092fcfa710d3c0b6f1abaacebeeab075ab76a36185d96b872d7458"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "recordedAt": "2026-09-13T06:18:17.414Z",
+  "corpusHash": "a71eb3d33a73b90baa41d1a51fb52a3f8105b767b780b79f3a3679e293c065d7"
+}

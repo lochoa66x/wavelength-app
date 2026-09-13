@@ -1,0 +1,316 @@
+{
+  "reviewer": "Codex editorial assessment; subjective, not independently calibrated human review",
+  "attempt": 3,
+  "revision": "27c97970bdb167d28c191f13801ba1298408e087",
+  "rubric": "evaluations/QUALITY_RUBRIC.md",
+  "packagesCompleted": 9,
+  "attempts": 10,
+  "missingDocuments": 1,
+  "downloadFiles": 38,
+  "results": [
+    {
+      "id": "F01",
+      "attempt": 3,
+      "revision": "27c97970bdb167d28c191f13801ba1298408e087",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 3,
+          "natural_writing": 3
+        },
+        "total": 14,
+        "excerpt": "Applies dough-temperature observations to proofing decisions",
+        "analysis": "Bread-production priorities and both roles survive; team output stays attributed to the four-person team; the profile offers a setting but repeats bullet actions; the allergen evidence is easy to find; prose is clear but familiar."
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 2,
+          "natural_writing": 3
+        },
+        "total": 13,
+        "excerpt": "I also recorded allergen changeovers",
+        "analysis": "Relevant production and allergen evidence; proofing method and team quantity are concrete; the opening makes a modest focused example; the isolated second paragraph adds little development; natural but plain source-like prose."
+      }
+    },
+    {
+      "id": "F02",
+      "attempt": 3,
+      "revision": "27c97970bdb167d28c191f13801ba1298408e087",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 3,
+          "natural_writing": 3
+        },
+        "total": 14,
+        "excerpt": "Communicates veterinarian-approved written discharge instructions",
+        "analysis": "Relevant clinical responsibilities; supervision and approved instructions remain explicit; summary retells the current role; both jobs, certificate and languages are retained cleanly; readable professional wording."
+      },
+      "letter": {
+        "evidenceGate": "unavailable",
+        "scores": null,
+        "total": null,
+        "excerpt": "",
+        "analysis": "The letter request returned 422 after credential/citation validation. No returned letter or files to score; the rejected provider draft was unavailable."
+      }
+    },
+    {
+      "id": "F03",
+      "attempt": 3,
+      "revision": "27c97970bdb167d28c191f13801ba1298408e087",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 4,
+          "useful_detail": 4,
+          "document_purpose": 3,
+          "selection": 3,
+          "natural_writing": 3
+        },
+        "total": 17,
+        "excerpt": "Geography graduate with academic QGIS research experience",
+        "analysis": "The junior GIS focus fits the posting; public-data project and review authority remain clear; profile establishes academic professional context; two roles and qualification are organized coherently; concise and natural."
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 4,
+          "useful_detail": 4,
+          "document_purpose": 3,
+          "selection": 3,
+          "natural_writing": 3
+        },
+        "total": 17,
+        "excerpt": "documented missing coordinates, and compared address points with satellite imagery",
+        "analysis": "Selects the principal mapping need; gives method, data limitations and reviewer scope; develops one coherent academic project; removes the earlier generic bridge and orphan degree paragraph; direct readable wording."
+      }
+    },
+    {
+      "id": "F04",
+      "attempt": 3,
+      "revision": "27c97970bdb167d28c191f13801ba1298408e087",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 3,
+          "selection": 3,
+          "natural_writing": 3
+        },
+        "total": 15,
+        "excerpt": "Laboratory Technician with experience logging incoming water samples",
+        "analysis": "Water-testing focus matches the role; holding times and senior release review survive; compact profile combines setting and training though it still echoes tasks; previously empty assistant job is complete; wording is clear."
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 3,
+          "natural_writing": 3
+        },
+        "total": 14,
+        "excerpt": "a senior analyst reviewed the analytical results before client release",
+        "analysis": "Relevant intake and testing evidence; meaningful quality-control and authority constraints; remains mainly a condensed inventory; diploma inserted into the first paragraph is weakly connected but no orphan paragraph; natural prose without the earlier invented then sequence."
+      }
+    },
+    {
+      "id": "F05",
+      "attempt": 3,
+      "revision": "27c97970bdb167d28c191f13801ba1298408e087",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 3,
+          "natural_writing": 3
+        },
+        "total": 14,
+        "excerpt": "Experienced in fabric cutting plans, patterned panel matching, and industrial sewing",
+        "analysis": "Direct upholstery priorities; customer approval and patterned fabric process remain specific; profile repeats role duties; helper history and workshop have one sensible location; readable but generic Experienced in phrasing."
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 3,
+          "natural_writing": 3
+        },
+        "total": 14,
+        "excerpt": "recorded customer approval before cutting customer-supplied material",
+        "analysis": "Posting priorities are covered; dimensions, pattern matching and approval give useful constraints; mainly rearranges three source bullets; two substantive paragraphs are coherent but do not sharpen a single main case; restrained and readable."
+      }
+    },
+    {
+      "id": "F06",
+      "attempt": 3,
+      "revision": "27c97970bdb167d28c191f13801ba1298408e087",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 4,
+          "useful_detail": 3,
+          "document_purpose": 3,
+          "selection": 3,
+          "natural_writing": 3
+        },
+        "total": 16,
+        "excerpt": "supporting community arts funding proposals",
+        "analysis": "Role and community arts domain match; proposed budget and director submission boundaries survive; profile now gives a professional focus; all current-role bullets are restored and qualification retained; clear wording."
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 2,
+          "natural_writing": 3
+        },
+        "total": 13,
+        "excerpt": "I used programme evidence to support the proposals’ stated needs.",
+        "analysis": "Relevant proposal evidence; three proposals, finance collaboration and final-review authority are intact; the quoted sentence restates the preceding sentence; budget phrasing is defensive and paragraph selection remains inventory-like; otherwise clear."
+      }
+    },
+    {
+      "id": "F07",
+      "attempt": 3,
+      "revision": "27c97970bdb167d28c191f13801ba1298408e087",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 3,
+          "natural_writing": 3
+        },
+        "total": 14,
+        "excerpt": "documenting objects, preparing storage materials under curator guidance",
+        "analysis": "Museum and archive priorities fit; draft records and curator approvals are preserved; summary repeats tasks from both roles; complete role and qualification sections; clean readable prose."
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 3,
+          "natural_writing": 3
+        },
+        "total": 14,
+        "excerpt": "referred uncertain ownership details to the curator",
+        "analysis": "Relevant documentation and handling evidence; uncertainty and final approval are useful constraints; two paragraphs still list most of the resume inventory; organization is coherent with distinct record and handling examples; natural restrained language."
+      }
+    },
+    {
+      "id": "F08",
+      "attempt": 3,
+      "revision": "27c97970bdb167d28c191f13801ba1298408e087",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 2,
+          "natural_writing": 3
+        },
+        "total": 13,
+        "excerpt": "Fluent in English and Arabic.",
+        "analysis": "Accessible-transport setting is relevant; approval and dispatch evidence remain accurate; profile restates duties; languages repeat their dedicated section; prose is readable."
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 1,
+          "selection": 1,
+          "natural_writing": 2
+        },
+        "total": 10,
+        "excerpt": "I updated passengers when vehicle delays changed pickup estimates",
+        "analysis": "Relevant transit work; supervisor authority is retained; the same passenger-delay update appears in consecutive paragraphs; duplication wastes the opening/body distinction; mechanical repetition makes the letter weak."
+      }
+    },
+    {
+      "id": "F09",
+      "attempt": 3,
+      "revision": "27c97970bdb167d28c191f13801ba1298408e087",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 4,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 3,
+          "natural_writing": 3
+        },
+        "total": 15,
+        "excerpt": "current First Aid certificate and residential grounds-maintenance experience",
+        "analysis": "Crew leadership and the required credential are prominent; the total crew includes the candidate in the role evidence; profile also repeats task details; the certificate has one record owner and both roles survive; clear but familiar Experienced in wording."
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 2,
+          "natural_writing": 3
+        },
+        "total": 13,
+        "excerpt": "I recorded plant replacements and equipment defects for the owner to review.",
+        "analysis": "Relevant crew-lead example; work-order checks and team denominator are accurate; opening offers a modest focused example; the supporting paragraph is thin and omits the useful current First Aid evidence included in the previous letter; plain professional prose."
+      }
+    },
+    {
+      "id": "F10",
+      "attempt": 3,
+      "revision": "27c97970bdb167d28c191f13801ba1298408e087",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 4,
+          "useful_detail": 3,
+          "document_purpose": 3,
+          "selection": 2,
+          "natural_writing": 3
+        },
+        "total": 15,
+        "excerpt": "portfolio of edited spoken-word audio: https://example.com/nadia-audio.",
+        "analysis": "Portfolio and audio focus fit the posting; episode count and client review constraints survive; profile gives domain and diploma context; the URL still repeats the header when embedded in a sentence; readable prose."
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 4,
+          "useful_detail": 4,
+          "document_purpose": 3,
+          "selection": 3,
+          "natural_writing": 3
+        },
+        "total": 17,
+        "excerpt": "For revisions, I kept notes against timestamps",
+        "analysis": "Focuses on interview audio delivery; eight episodes, supplied cues, file formats and one consolidated client review are concrete; develops a coherent editing-to-review example; the portfolio address now appears only in the header; clear natural prose."
+      }
+    }
+  ]
+}

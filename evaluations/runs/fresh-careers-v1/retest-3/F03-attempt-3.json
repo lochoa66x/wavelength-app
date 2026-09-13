@@ -1,0 +1,37 @@
+{
+  "caseId": "F03",
+  "attempt": 3,
+  "revision": "27c97970bdb167d28c191f13801ba1298408e087",
+  "status": "completed",
+  "startedAt": "2026-09-13T05:53:08.396Z",
+  "finishedAt": "2026-09-13T05:55:43.897Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F03-resume.docx",
+      "downloadName": "Priya-Nair-Geography-Graduate-with-QGIS-Research-Experience.docx",
+      "sha256": "d310821db9504fbcb6864f18185270b5f7c5eb4ee0b650f6a69f1e3143ca2c32"
+    },
+    {
+      "filename": "F03-resume.pdf",
+      "downloadName": "Priya-Nair-Geography-Graduate-with-QGIS-Research-Experience.pdf",
+      "sha256": "7d905a810b5670519f04ce8a80a87b5d827e8b578ed89572f55091724b578747"
+    },
+    {
+      "filename": "F03-letter.docx",
+      "downloadName": "Priya-Nair-Junior-GIS-Technician-cover-letter (2).docx",
+      "sha256": "5b1b83fa221f0d3df7416008f7a9a5a988753445fac811c0161b737b227412c2"
+    },
+    {
+      "filename": "F03-letter.pdf",
+      "downloadName": "Priya-Nair-Junior-GIS-Technician-cover-letter (2).pdf",
+      "sha256": "e66b9d11272c9cc415a40566b98175b5404d76210c240c04b7438af985619e53"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "recordedAt": "2026-09-13T06:02:53.529Z",
+  "corpusHash": "a71eb3d33a73b90baa41d1a51fb52a3f8105b767b780b79f3a3679e293c065d7"
+}

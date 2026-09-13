@@ -1,0 +1,30 @@
+Priya Nair
+
+Geography Graduate with QGIS Research Experience
+
+f03@example.com | Hamilton, Ontario
+
+PROFESSIONAL SUMMARY
+
+Geography graduate with academic QGIS research experience creating public-data maps and reviewing location ambiguity.
+
+CORE SKILLS
+
+QGIS | Coordinate reference systems | CSV cleaning | Map legends | Coordinate review and ambiguity escalation | Map documentation
+
+PROFESSIONAL EXPERIENCE
+
+GIS Student Researcher - Example University Geography Lab | 2025 – 2026
+
+Built a QGIS map of public drinking-water fountains using an open municipal dataset and documented missing coordinates.
+Prepared a map legend and methods note for a student poster using public data.
+Compared address points with satellite imagery and submitted ambiguous locations to the research supervisor for review.
+
+Library Assistant - Example University Library | 2023 – 2025
+
+Updated catalogue locations and guided visitors to digital resources.
+EDUCATION
+
+B.Sc. in Geography
+
+Example University | 2026

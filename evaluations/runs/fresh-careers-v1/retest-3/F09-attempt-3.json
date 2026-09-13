@@ -1,0 +1,37 @@
+{
+  "caseId": "F09",
+  "attempt": 3,
+  "revision": "27c97970bdb167d28c191f13801ba1298408e087",
+  "status": "completed",
+  "startedAt": "2026-09-13T06:11:35.366Z",
+  "finishedAt": "2026-09-13T06:14:09.110Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F09-letter.docx",
+      "downloadName": "Leo-Castillo-Landscape-Crew-Leader-cover-letter (1).docx",
+      "sha256": "260b2432af13c68c08132e0dd6580f7ebc87bd9e5887c3e63d127150e19254b6"
+    },
+    {
+      "filename": "F09-letter.pdf",
+      "downloadName": "Leo-Castillo-Landscape-Crew-Leader-cover-letter (1).pdf",
+      "sha256": "f55417dde097dcee7a47390ddd8b4a3bc60033216e5493ad3012befb8d3bb36f"
+    },
+    {
+      "filename": "F09-resume.docx",
+      "downloadName": "Leo-Castillo-Landscape-Crew-Leader-Grounds-Maintenance (1).docx",
+      "sha256": "4b969416616ad7e69915c2e2d9d1b2bcb18108d9ad4701eee928ea56e7006eda"
+    },
+    {
+      "filename": "F09-resume.pdf",
+      "downloadName": "Leo-Castillo-Landscape-Crew-Leader-Grounds-Maintenance (1).pdf",
+      "sha256": "b7e280aa2ba765d60560c4634b5636cb9de73a9f00ccec3838f0651052f4f5ec"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "recordedAt": "2026-09-13T06:14:47.180Z",
+  "corpusHash": "a71eb3d33a73b90baa41d1a51fb52a3f8105b767b780b79f3a3679e293c065d7"
+}

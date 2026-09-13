@@ -1,0 +1,35 @@
+{
+  "caseId": "F07",
+  "attempt": 3,
+  "revision": "27c97970bdb167d28c191f13801ba1298408e087",
+  "status": "completed",
+  "startedAt": "2026-09-13T06:05:56.958Z",
+  "finishedAt": "2026-09-13T06:08:25.018Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F07-resume.docx",
+      "downloadName": "Julian-Brooks-Museum-Collections-Assistant (1).docx",
+      "sha256": "380fc986e2df330bdb3ef04bf89b5ee22e131d399019d5d41bf4ce155dae8059"
+    },
+    {
+      "filename": "F07-resume.pdf",
+      "downloadName": "Julian-Brooks-Museum-Collections-Assistant (1).pdf",
+      "sha256": "0dee8d1bc3f47cca57d3d79fc8918a45e465f9a2adfb0fa13e7d9fe8e27f43bd"
+    },
+    {
+      "filename": "F07-letter.docx",
+      "downloadName": "Julian-Brooks-Museum-Collections-Assistant-cover-letter (2).docx",
+      "sha256": "c964cb1630a40d4c24361c494720cc987841643ced5f49ea06a5045bdd4b23b6"
+    },
+    {
+      "filename": "F07-letter.pdf",
+      "downloadName": "Julian-Brooks-Museum-Collections-Assistant-cover-letter (2).pdf",
+      "sha256": "d232ba569885880d957799503ff473923d1721f93596066750eb5908a4b43e1d"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked."
+}

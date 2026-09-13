@@ -1,4 +1,4 @@
-# Application document validation contract v2
+# Application document validation contract v3
 
 The pure validateApplicationDocument function in src/applicationDocumentContract.js
 is called from server generation, client readiness, full merged letter edits and
@@ -48,3 +48,13 @@ The human rubric is evaluations/QUALITY_RUBRIC.md. The first ten frozen live
 attempts, including the missing landscape letter and poor outputs, are preserved
 under evaluations/runs/fresh-careers-v1. Once reviewed, that cohort is a regression
 set. Retests never replace first-attempt records or count as unseen evaluation.
+
+Version 3 also separates credential noun phrases from surrounding candidate prose,
+retains issuer words for generic credentials, and preserves semicolon status suffixes
+without whitespace backtracking. Requirement conjunctions and per-credential status
+remain strict. These parsers are bounded checks, not general semantic verification.
+
+Editorial source citations now use a server-built line catalog. Unknown ids and
+conflicting id/excerpt pairs are rejected; legacy exact excerpts remain supported.
+The resolved source is only an anchor for review rationale, and never substitutes
+for validating every factual claim in the proposed document.

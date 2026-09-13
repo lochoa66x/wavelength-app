@@ -1,0 +1,43 @@
+{
+  "commit": "27c97970bdb167d28c191f13801ba1298408e087",
+  "deploymentId": "dpl_4mCz5wiQ36ijfBpVv3WVPnxLA8Rg",
+  "checkedAt": "2026-09-13T05:48:46.209Z",
+  "okay": true,
+  "results": [
+    {
+      "route": "/",
+      "status": 200,
+      "entryMatchesDeployment": true
+    },
+    {
+      "route": "/app",
+      "status": 200,
+      "entryMatchesDeployment": true
+    },
+    {
+      "route": "/privacy",
+      "status": 200,
+      "entryMatchesDeployment": true
+    },
+    {
+      "route": "/sign-in",
+      "status": 200,
+      "entryMatchesDeployment": true
+    },
+    {
+      "route": "/api/tailor",
+      "status": 401,
+      "cacheControl": "no-store, max-age=0"
+    },
+    {
+      "route": "/api/cover-letter",
+      "status": 401,
+      "cacheControl": "no-store, max-age=0"
+    },
+    {
+      "route": "/api/job-intake",
+      "status": 401,
+      "cacheControl": "no-store, max-age=0"
+    }
+  ]
+}

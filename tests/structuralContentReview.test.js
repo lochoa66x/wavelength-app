@@ -6,7 +6,7 @@ import { resumeProfessionalLinks } from '../src/resumeIdentity.js';
 import { validateApplicationDocument } from '../src/applicationDocumentContract.js';
 import { credentialEvidenceIssues } from '../src/candidateClaims.js';
 import { academicStatusIssues } from '../src/academicClaims.js';
-import { contentReviewTool, reviewApplicationContent, credibleEditorialRevision } from '../api/_lib/contentEditorialReview.js';
+import { contentReviewTool, reviewApplicationContent, credibleEditorialRevision, editorialSourceCatalog } from '../api/_lib/contentEditorialReview.js';
 import { createCoverLetterHandler } from '../api/cover-letter.js';
 import { freshCareerCases } from '../evaluations/fresh-careers-v1.mjs';
 
@@ -135,4 +135,39 @@ test('a portfolio contact link is not repeated as a standalone profile label',()
  assert.deepEqual(output.professionalLinks,[link]);assert.deepEqual(organizeResumeSections(output),output);
  const bodyOnly={profile:'Portfolio: https://example.com/folio'};
  assert.equal(organizeResumeSections(bodyOnly).profile,bodyOnly.profile);
+});
+
+test('an inline portfolio URL is owned by the header without deleting its professional context',()=>{
+ const link={label:'Portfolio',url:'https://example.com/folio'};
+ const profile='Audio Production diploma holder with a portfolio of edited spoken-word audio: https://example.com/folio.';
+ const output=organizeResumeSections({profile,professionalLinks:[link]});
+ assert.equal(output.profile,'Audio Production diploma holder with a portfolio of edited spoken-word audio.');
+ assert.deepEqual(output.professionalLinks,[link]);assert.deepEqual(organizeResumeSections(output),output);
+ assert.equal(organizeResumeSections({profile}).profile,profile);
+ const different='A specific sample: https://example.com/folio/sample.';
+ assert.equal(organizeResumeSections({profile:different,professionalLinks:[link]}).profile,different);
+ const midSentence='Listen at https://example.com/folio before the meeting.';
+ assert.equal(organizeResumeSections({profile:midSentence,professionalLinks:[link]}).profile,midSentence);
+ assert.equal(organizeResumeSections({profile:profile.slice(0,-1),professionalLinks:[link]}).profile,'Audio Production diploma holder with a portfolio of edited spoken-word audio');
+});
+
+test('editorial source ids resolve to exact server-owned excerpts before the unchanged validation gate',async()=>{
+ const id=editorialSourceCatalog(source).find(entry=>entry.excerpt.startsWith('Fibre Artisan |')).id;
+ const response={...review,changes:[{original_excerpt:original.profile,source_id:id,benefit:'Establishes the documented workshop background without copying its task list.'}]};
+ let prompt='',checks=0;
+ const result=await reviewApplicationContent({kind:'profile',document:original,source,generate:async p=>{prompt=p;return response;},validate:async()=>{checks++;return {valid:true};}});
+ assert.equal(result.status,'revised');assert.equal(checks,1);assert.ok(prompt.includes(id+': "Fibre Artisan |'));
+ assert.deepEqual(editorialSourceCatalog(source+'\n'+source),editorialSourceCatalog(source));
+});
+test('unknown or conflicting editorial source references cannot bypass the review',()=>{
+ const id=editorialSourceCatalog(source).find(entry=>entry.excerpt.startsWith('Fibre Artisan |')).id;
+ for(const change of [{...review.changes[0],source_id:'S99999'},{...review.changes[0],source_id:id,source_excerpt:'A different fabricated source statement.'}]){
+  assert.equal(credibleEditorialRevision({...review,changes:[change]},{kind:'profile',original,source}),false);
+ }
+});
+test('a valid editorial source id does not authorize an unsupported rewrite',async()=>{
+ const id=editorialSourceCatalog(source)[0].id;
+ const response={...review,changes:[{original_excerpt:original.profile,source_id:id,benefit:'Claims to establish a more specific work setting for the supplied profile.'}],document:{profile:'Led fifty unverified projects with an invented certification.'}};
+ const result=await reviewApplicationContent({kind:'profile',document:original,source,generate:async()=>response,validate:async()=>({valid:false})});
+ assert.equal(result.status,'rejected_validation');assert.equal(result.document,original);
 });

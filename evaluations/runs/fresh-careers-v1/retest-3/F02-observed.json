@@ -1,0 +1,25 @@
+{
+  "caseId": "F02",
+  "attempt": 3,
+  "revision": "27c97970bdb167d28c191f13801ba1298408e087",
+  "status": "partial",
+  "startedAt": "2026-09-13T05:51:20.850Z",
+  "finishedAt": "2026-09-13T05:53:02.348Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F02-resume.docx",
+      "downloadName": "Theo-Martins-Veterinary-Assistant-Clinical-Animal-Care (1).docx",
+      "sha256": "603fa472dc591339e5ff38bbf8855091d0baa6f7b8bbe7667b3d264233e457c5"
+    },
+    {
+      "filename": "F02-resume.pdf",
+      "downloadName": "Theo-Martins-Veterinary-Assistant-Clinical-Animal-Care (1).pdf",
+      "sha256": "5a15ce08aef1ecfc65e469d07aecde209a134ef7a57cb371b5dedf7330ed47da"
+    }
+  ],
+  "letterCopyConfirmed": false,
+  "clipboardReadback": "Not independently read; success status and preview checked."
+}

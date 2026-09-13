@@ -1,0 +1,11 @@
+{
+  "revision": "27c97970bdb167d28c191f13801ba1298408e087",
+  "caseId": "F10",
+  "change": "eight interview podcast episodes → eighty interview podcast episodes",
+  "previewUnchanged": true,
+  "alert": [
+    "      - strong: 4 direct · 1 related · 0 unsupported",
+    "  - alert: A number or duration is not supported by this claim’s cited candidate evidence."
+  ],
+  "checkedAt": "2026-09-13T06:21:31.734Z"
+}

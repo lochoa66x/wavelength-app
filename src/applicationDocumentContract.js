@@ -8,7 +8,7 @@ import { academicStatusIssues } from './academicClaims.js';
 // edits, saved-draft readiness and every exporter call the same entry point.
 // Provider citation resolution, source/identity hashes and authorization remain
 // boundary checks; passing this contract never replaces those protections.
-export const DOCUMENT_CONTRACT_VERSION = 2;
+export const DOCUMENT_CONTRACT_VERSION = 3;
 export const COVER_LETTER_PARAGRAPH_LIMIT = 2400;
 export const COVER_LETTER_PARAGRAPH_MIN = 20;
 const refs = (paragraph, camel, snake) => paragraph?.[camel] ?? paragraph?.[snake] ?? [];

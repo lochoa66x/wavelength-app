@@ -1,0 +1,37 @@
+{
+  "caseId": "F05",
+  "attempt": 3,
+  "revision": "27c97970bdb167d28c191f13801ba1298408e087",
+  "status": "completed",
+  "startedAt": "2026-09-13T05:58:59.666Z",
+  "finishedAt": "2026-09-13T06:02:40.788Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F05-resume.docx",
+      "downloadName": "Rowan-Ellis-Furniture-Upholsterer.docx",
+      "sha256": "aaf37c2df4f87cb7eb7bac4bfaeee1e0d0269f5cc31684782eecba1b3556c0f6"
+    },
+    {
+      "filename": "F05-resume.pdf",
+      "downloadName": "Rowan-Ellis-Furniture-Upholsterer.pdf",
+      "sha256": "2af8a1fcbc3583e84c7558847fec6b481e9a9e8a99fb05677e4bf75c89a737da"
+    },
+    {
+      "filename": "F05-letter.docx",
+      "downloadName": "Rowan-Ellis-Upholsterer-cover-letter (1).docx",
+      "sha256": "1abc0024f72984874491f9e36cf5a4ee491d97ce41afe3328bb15da12d142e3c"
+    },
+    {
+      "filename": "F05-letter.pdf",
+      "downloadName": "Rowan-Ellis-Upholsterer-cover-letter (1).pdf",
+      "sha256": "c5b5d3af1a2f21e9b46c7c75626503cf4880b8cdc3e6651bcb6582dfae644eef"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "recordedAt": "2026-09-13T06:02:53.532Z",
+  "corpusHash": "a71eb3d33a73b90baa41d1a51fb52a3f8105b767b780b79f3a3679e293c065d7"
+}

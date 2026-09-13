@@ -1,0 +1,57 @@
+### 06:15:48 POST /api/cover-letter 200 [info/serverless]
+    [cover-letter] editorial {"status":"revised","reason":null,"applied":true}
+    [cover-letter] completed {"paragraphCount":2,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":62,"writingIssueCount":0,"durationMs":12593}
+### 06:14:53 POST /api/tailor 200 [info/serverless]
+    [tailor:editorial] {"status":"rejected_review","reason":"source_quote_mismatch","applied":false}
+    [tailor:request] completed {"durationMs":21530,"repairApplied":true,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":2,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":6,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"requirement_consistency":0,"writing":0}}
+### 06:13:05 POST /api/cover-letter 200 [info/serverless]
+    [cover-letter] editorial {"status":"revised","reason":null,"applied":true}
+    [cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":59,"writingIssueCount":0,"durationMs":9737}
+### 06:12:16 POST /api/tailor 200 [info/serverless]
+    [tailor:editorial] {"status":"rejected_review","reason":"source_quote_mismatch","applied":false}
+    [tailor:request] completed {"durationMs":21206,"repairApplied":true,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":2,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":2,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"requirement_consistency":0,"writing":0}}
+### 06:10:03 POST /api/cover-letter 200 [info/serverless]
+    [cover-letter] editorial {"status":"revised","reason":null,"applied":true}
+    [cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":70,"writingIssueCount":0,"durationMs":11925}
+### 06:09:03 POST /api/tailor 200 [info/serverless]
+    [tailor:editorial] {"status":"rejected_review","reason":"source_quote_mismatch","applied":false}
+    [tailor:request] completed {"durationMs":20424,"repairApplied":true,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":2,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":2,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"requirement_consistency":0,"writing":0}}
+### 06:07:37 POST /api/cover-letter 200 [info/serverless]
+    [cover-letter] editorial {"status":"kept","reason":null,"applied":false}
+    [cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":81,"writingIssueCount":0,"durationMs":8518}
+### 06:06:49 POST /api/tailor 200 [info/serverless]
+    [tailor:editorial] {"status":"rejected_review","reason":"source_quote_mismatch","applied":false}
+    [tailor:request] completed {"durationMs":19677,"repairApplied":true,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":2,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":3,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"requirement_consistency":0,"writing":0}}
+### 06:05:02 POST /api/cover-letter 200 [info/serverless]
+    [cover-letter] editorial {"status":"rejected_review","reason":"insufficient_content_gain","applied":false}
+    [cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":75,"writingIssueCount":0,"durationMs":13856}
+### 06:03:35 POST /api/tailor 200 [info/serverless]
+    [tailor:editorial] {"status":"revised","reason":null,"applied":true}
+    [tailor:request] completed {"durationMs":20214,"repairApplied":true,"summaryPolishApplied":true,"safetyFallbackApplied":false,"draftAttempts":2,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":2,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"requirement_consistency":0,"writing":0}}
+### 06:01:50 POST /api/cover-letter 200 [info/serverless]
+    [cover-letter] editorial {"status":"revised","reason":null,"applied":true}
+    [cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":64,"writingIssueCount":0,"durationMs":13763}
+### 06:00:59 POST /api/tailor 200 [info/serverless]
+    [tailor:editorial] {"status":"kept","reason":null,"applied":false}
+    [tailor:request] completed {"durationMs":24841,"repairApplied":true,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":2,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":3,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"requirement_consistency":0,"writing":0}}
+### 05:57:47 POST /api/cover-letter 200 [info/serverless]
+    [cover-letter] editorial {"status":"revised","reason":null,"applied":true}
+    [cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":62,"writingIssueCount":0,"durationMs":15839}
+### 05:57:09 POST /api/tailor 200 [info/serverless]
+    [tailor:editorial] {"status":"rejected_review","reason":"source_quote_mismatch","applied":false}
+    [tailor:request] completed {"durationMs":20839,"repairApplied":true,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":2,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":4,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"requirement_consistency":0,"writing":0}}
+### 05:54:37 POST /api/cover-letter 200 [info/serverless]
+    [cover-letter] editorial {"status":"revised","reason":null,"applied":true}
+    [cover-letter] completed {"paragraphCount":2,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":64,"writingIssueCount":0,"durationMs":12088}
+### 05:53:50 POST /api/tailor 200 [info/serverless]
+    [tailor:editorial] {"status":"rejected_review","reason":"source_quote_mismatch","applied":false}
+    [tailor:request] completed {"durationMs":17217,"repairApplied":false,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":1,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"requirement_consistency":0,"writing":0}}
+### 05:51:49 POST /api/tailor 200 [info/serverless]
+    [tailor:editorial] {"status":"rejected_review","reason":"source_quote_mismatch","applied":false}
+    [tailor:request] completed {"durationMs":20820,"repairApplied":true,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":2,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":6,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"requirement_consistency":0,"writing":0}}
+### 05:50:43 POST /api/cover-letter 200 [info/serverless]
+    [cover-letter] editorial {"status":"revised","reason":null,"applied":true}
+    [cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":57,"writingIssueCount":0,"durationMs":10998}
+### 05:50:05 POST /api/tailor 200 [info/serverless]
+    [tailor:editorial] {"status":"kept","reason":null,"applied":false}
+    [tailor:request] completed {"durationMs":18886,"repairApplied":true,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":2,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":5,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"requirement_consistency":0,"writing":0}}
