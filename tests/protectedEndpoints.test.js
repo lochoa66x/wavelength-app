@@ -1,3 +1,5 @@
+// Editorial judgement has its own production-path tests; these fixtures isolate the named validation/repair behaviour.
+const skipContentReview = async ({ document }) => ({ document, applied: false, status: "not_tested_here" });
 import test from "node:test";
 import assert from "node:assert/strict";
 
@@ -57,7 +59,7 @@ test("listing enrichment rejects an invalid token before privileged database acc
 test("cover-letter generation rejects a missing token before private content is processed", async () => {
   let authenticated = false;
   let modelCalled = false;
-  const handler = createCoverLetterHandler({
+  const handler = createCoverLetterHandler({ reviewContent: skipContentReview,
     authenticate: async () => { authenticated = true; return null; },
     callModel: async () => { modelCalled = true; throw new Error("should not run"); },
   });
@@ -70,7 +72,7 @@ test("cover-letter generation rejects a missing token before private content is 
 
 test("cover-letter generation rejects an invalid token before private content is processed", async () => {
   let modelCalled = false;
-  const handler = createCoverLetterHandler({
+  const handler = createCoverLetterHandler({ reviewContent: skipContentReview,
     authenticate: async () => null,
     callModel: async () => { modelCalled = true; throw new Error("should not run"); },
   });

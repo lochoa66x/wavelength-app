@@ -12,7 +12,9 @@ import { formatCandidateEvidence, validateCandidateEvidence } from "./_lib/candi
 import { applyPdfLayoutToFocusReview, shapeTailoredResumeWithReview } from "./_lib/resumeQuality.js";
 import { applyPrivateResponseHeaders } from "./_lib/privateResponse.js";
 import { RESUME_SUMMARY_INSTRUCTIONS } from "../src/resumeSummaryWriting.js";
-import { polishResumeSummary, SUMMARY_TOOL } from "./_lib/resumeSummaryPolish.js";
+import { SUMMARY_TOOL } from "./_lib/resumeSummaryPolish.js";
+import { contentReviewTool, reviewApplicationContent } from "./_lib/contentEditorialReview.js";
+import { reviewResumeProfile, hasUsefulProfileContext } from "../src/resumeProfileReview.js";
 import {
   assessPostingCompleteness,
   extractPostingKeywords,
@@ -564,6 +566,7 @@ async function layoutAwareFocusReview(resumeData, analysis, item, focusReview) {
 }
 
 export function createTailorHandler({
+  reviewContent = reviewApplicationContent,
   authenticate = authenticateSupabaseRequest,
   loadListing = loadTrustedListing,
   createAdmin = createServerSupabaseClient,
@@ -916,17 +919,22 @@ INSTRUCTIONS
         }
       }
       if (atsReview.status !== "blocked") {
-        const summaryPolish = requestDeadlineAt - Date.now() >= 18_000 ? await polishResumeSummary({
-          resume: resumeData, review: atsReview, source: candidateEvidence, targetTitle: item.title,
-          generate: (summaryPrompt) => callAITool({ ...providerOptions, fetchImpl, tool: SUMMARY_TOOL, prompt: summaryPrompt, maxTokens: 1200, reasoningEffort: "low", timeoutMs: 15_000, stage: "summary_polish" }),
-          validate: async (candidate) => buildAtsReview(candidate, candidateEvidence, { keywords: analysis.target_keywords }, {
-            analysis, postingAssessment: analysis.posting_assessment, targetTitle: item.title,
-            isTrades: isTradesGig, category: item.category,
-            focusReview: await layoutAwareFocusReview(candidate, analysis, item, shaped.focusReview), historyEvidence: cappedResume,
-          }),
-        }) : { resume: resumeData, review: atsReview, applied: false };
-        resumeData = summaryPolish.resume;
-        atsReview = summaryPolish.review;
+        const summaryPolish = requestDeadlineAt - Date.now() >= 23_000 ? await reviewContent({
+          kind: 'profile', document: resumeData, source: candidateEvidence, posting: JSON.stringify({ title: item.title, requirements: analysis.requirements }),
+          generate: (summaryPrompt) => callAITool({ ...providerOptions, fetchImpl, tool: contentReviewTool(SUMMARY_TOOL.input_schema), prompt: summaryPrompt, maxTokens: 2000, reasoningEffort: "low", timeoutMs: 20_000, stage: "summary_editorial" }),
+          validate: async (candidate) => {
+            if (typeof candidate.profile !== 'string' || candidate.profile.length > 700 || !hasUsefulProfileContext(candidate, candidateEvidence)
+              || reviewResumeProfile(candidate, candidateEvidence).length > reviewResumeProfile(resumeData, candidateEvidence).length) return { valid: false };
+            const checked = buildAtsReview(candidate, candidateEvidence, { keywords: analysis.target_keywords }, {
+              analysis, postingAssessment: analysis.posting_assessment, targetTitle: item.title,
+              isTrades: isTradesGig, category: item.category,
+              focusReview: await layoutAwareFocusReview(candidate, analysis, item, shaped.focusReview), historyEvidence: cappedResume,
+            });
+            return { valid: checked.status !== 'blocked', validation: checked };
+          },
+        }) : { document: resumeData, applied: false, status: 'budget_unavailable' };
+        if (summaryPolish.applied) { resumeData = summaryPolish.document; atsReview = summaryPolish.validation; }
+        console.info("[tailor:editorial]", JSON.stringify({ status: summaryPolish.status, applied: summaryPolish.applied }));
         logTailoringCompleted(requestStartedAt, { repairApplied: attempt > 0 || sourceRestoredBullets > 0 || summaryPolish.applied, summaryPolishApplied: summaryPolish.applied, draftAttempts: attempt + 1, sourceRestoredBullets, firstDraftIssueCounts });
         return res.status(200).json({
           resume: resumeData,

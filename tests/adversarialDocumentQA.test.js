@@ -1,3 +1,5 @@
+// Editorial judgement has its own production-path tests; these fixtures isolate the named validation/repair behaviour.
+const skipContentReview = async ({ document }) => ({ document, applied: false, status: "not_tested_here" });
 import test from "node:test";
 import assert from "node:assert/strict";
 import { sourceHistoryEntries, buildAtsReview, missingSourceQualifications, restoreEmptyHistoryFromSource } from "../api/_lib/atsValidation.js";
@@ -177,7 +179,7 @@ test("QA letter-only intake recognizes a name followed by a professional title",
 
 test("QA API rebuild through DOCX/PDF preserves grouped history and qualifications", async () => {
   let drafts = 0;
-  const handler = createTailorHandler({
+  const handler = createTailorHandler({ reviewContent: skipContentReview,
     authenticate: async () => ({ user: { id: "synthetic-qa" }, supabase: {} }),
     loadListing: async () => ({ id: 42, title: "Solution Architect", company: "QA Sandbox", category: "technology", description: "Lead Master Data testing and prepare functional specifications for SAP implementations." }),
     getApiKey: () => "synthetic-key", getOpenAIKey: () => "",

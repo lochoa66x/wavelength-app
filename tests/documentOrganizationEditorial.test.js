@@ -1,3 +1,5 @@
+// Editorial judgement has its own production-path tests; these fixtures isolate the named validation/repair behaviour.
+const skipContentReview = async ({ document }) => ({ document, applied: false, status: "not_tested_here" });
 import test from "node:test";
 import assert from "node:assert/strict";
 import { shapeTailoredResumeWithReview } from "../api/_lib/resumeQuality.js";
@@ -179,7 +181,7 @@ const options = { authenticate: async () => ({ user: { id: "qa" }, supabase: {} 
 test("actual API rebuilds a verbose four-paragraph Short draft into one concise example", async () => {
   const verbose = { ...letter, paragraphs: [letter.paragraphs[0], { ...letter.paragraphs[1], text: `${letter.paragraphs[1].text} `.repeat(13) }, { ...letter.paragraphs[1], id: "evidence2", text: `${letter.paragraphs[1].text} `.repeat(6) }, letter.paragraphs[2]] };
   const prompts = [];
-  const handler = createCoverLetterHandler({ ...options, fetchImpl: async (_url, request) => { prompts.push(JSON.parse(request.body).messages[0].content); return response(prompts.length === 1 ? verbose : letter); } });
+  const handler = createCoverLetterHandler({ reviewContent: skipContentReview, ...options, fetchImpl: async (_url, request) => { prompts.push(JSON.parse(request.body).messages[0].content); return response(prompts.length === 1 ? verbose : letter); } });
   const res = recorder();
   await handler({ method: "POST", headers: { authorization: "Bearer test" }, body: { resume: `Jordan Lee\n${evidence}`, customJob: job, length: "short", voice: "warm", existingDraft: { ...verbose, length: "standard" } } }, res);
   assert.equal(res.statusCode, 200);
@@ -192,7 +194,7 @@ test("actual API rebuilds a verbose four-paragraph Short draft into one concise 
 
 test("actual paragraph API cannot relabel the whole draft with pending settings", async () => {
   let prompt;
-  const handler = createCoverLetterHandler({ ...options, fetchImpl: async (_url, request) => { prompt = JSON.parse(request.body).messages[0].content; return response({ ...letter, paragraphs: [letter.paragraphs[1]] }); } });
+  const handler = createCoverLetterHandler({ reviewContent: skipContentReview, ...options, fetchImpl: async (_url, request) => { prompt = JSON.parse(request.body).messages[0].content; return response({ ...letter, paragraphs: [letter.paragraphs[1]] }); } });
   const res = recorder();
   await handler({ method: "POST", headers: { authorization: "Bearer test" }, body: { resume: `Jordan Lee\n${evidence}`, customJob: job, voice: "warm", length: "short", regenerateParagraph: "evidence", existingDraft: { ...letter, voice: "direct", length: "standard" } } }, res);
   assert.equal(res.statusCode, 200);

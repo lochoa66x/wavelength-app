@@ -205,9 +205,14 @@ export function sourceHistoryEntries(baseResume) {
     let role = "";
     let company = "";
 
-    // Explicit role/employer/date rows in an experience section must work for
-    // any profession, including titles outside the historical office-role list.
-    if (parts.length >= 2 && (EMPLOYMENT_ROLE_HINT_PATTERN.test(parts[0]) || (sectionKind === "experience" && !EMPLOYMENT_ROLE_HINT_PATTERN.test(parts[1]) && /\||\s[-–—]\s/.test(prefix) && parts[0].length <= 80 && !/[.!?]$/.test(parts[0])))) {
+    // A structured role | employer | dates row is evidence of structure, not
+    // membership in a closed occupation list. Qualification sections take priority.
+    const qualificationSection = ["education", "training", "certifications", "clearance", "languages", "skills", "projects", "other"].includes(sectionKind);
+    const structuredRow = /\||\s[-–—]\s/.test(prefix) && parts.length >= 2
+      && parts.slice(0, 2).every((part) => part.length >= 2 && part.length <= 110 && !/[.!?]$/.test(part))
+      && !/\b(?:diploma|certificate|certification|degree|bachelor|master of|B\.?Sc|M\.?Sc|Ph\.?D)\b/i.test(parts[0]);
+    if (qualificationSection) continue;
+    if (parts.length >= 2 && (EMPLOYMENT_ROLE_HINT_PATTERN.test(parts[0]) || (structuredRow && !EMPLOYMENT_ROLE_HINT_PATTERN.test(parts[1])))) {
       [role, company] = parts;
     } else if (parts.length >= 2 && EMPLOYMENT_ROLE_HINT_PATTERN.test(parts[1])) {
       [company, role] = parts;
@@ -237,7 +242,8 @@ export function sourceHistoryEntries(baseResume) {
     entries.push({ role, company, dates, sourceLine: line, headerIndex: index });
   }
   const boundaries = [...entries.map((entry) => entry.headerIndex), ...employerHeadings,
-    ...lines.flatMap((line, index) => sectionHeading.test(line) || resumeSectionKind(line) || resumeSectionKind(line.split(":")[0]) ? [index] : [])].sort((a, b) => a - b);
+    ...lines.flatMap((line, index) => sectionHeading.test(line) || resumeSectionKind(line) || resumeSectionKind(line.split(":")[0])
+      || (/[|]/.test(line) && (EMPLOYMENT_DATE_RANGE_PATTERN.test(line) || EMPLOYMENT_SINGLE_YEAR_PATTERN.test(line))) ? [index] : [])].sort((a, b) => a - b);
   const unique = new Map();
   for (const entry of entries) {
     const key = [entry.role, entry.company, entry.dates].map(normalized).join("|");
@@ -273,9 +279,12 @@ function missingSourceHistory(resumeData, baseResume) {
 
 function historySourceStatements(header, baseResume) {
   const lines = String(baseResume || "").split(/\r?\n/).map((line) => line.replace(/^[\s•*-]+/, "").replace(/\s+/g, " ").trim()).filter(Boolean);
-  const factualOpening = /^(?:led|managed|owned|supported|prepared|provided|participated|contributed|delivered|designed|developed|configured|tested|integrated|oversaw|supervised|coordinated|drove|defined|created|performed|monitored|trained|assisted|scheduled|processed|answered|recorded|reconciled|installed|repaired|measured|read|checked|picked|packed|received|planned|resolved|escalated|wrote|translated|diagnosed|adjusted|cleaned|built|updated|worked|completed|explained)\b/i;
+  // Source ranges already establish the engagement. Keep complete statements,
+  // including uncommon action verbs; never borrow a following role's content.
   return [...new Set(header?.sourceRanges.flatMap(({ start, end }) => lines.slice(start + 1, end))
-    .filter((line) => line.length >= 20 && line.length <= 500 && factualOpening.test(line)) || [])];
+    .filter((line) => line.length >= 20 && line.length <= 500 && line.split(/\s+/).length >= 4
+      && !resumeSectionKind(line) && !/https?:|www\.|@|\|/.test(line)
+      && !/^(?:location|client|employer|dates?|references?|contact|skills?|technologies)\s*:/i.test(line)) || [])];
 }
 
 export function restoreEmptyHistoryFromSource(resumeData, baseResume) {
@@ -728,7 +737,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
   if (keywords.length) score -= Math.round((missing_keywords.length / keywords.length) * 15);
   score = Math.max(0, Math.min(100, score));
 
-  const documentContract = validateApplicationDocument({ kind: 'resume', document: resumeData });
+  const documentContract = validateApplicationDocument({ kind: 'resume', document: resumeData, candidateCorpus: baseResume });
   const integrityBlocked = Boolean(!documentContract.valid ||
     unsupported_metrics.length
       || unsupported_history.length

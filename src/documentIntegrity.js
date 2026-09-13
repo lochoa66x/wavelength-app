@@ -1,4 +1,5 @@
 import { candidateClaimIssues, credentialEvidenceIssues, normalizeClaimNumbers } from './candidateClaims.js';
+import { academicStatusIssues } from './academicClaims.js';
 // Shared by generation, saved-draft review, and export authorization.
 // These checks catch specific meaning changes; they are not a general fact checker.
 export const INTERNAL_DOCUMENT_LANGUAGE = /\b(?:candidate[- ](?:selected|confirmed) (?:capabilit(?:y|ies)|evidence)|evidence-backed strength|why this paragraph exists|usage boundary|candidate citation catalog)\b|\[(?:CANDIDATE NOTE|C\d+|P\d+)[^\]]*\]/i;
@@ -44,7 +45,7 @@ export function claimMeaningIssues(proposed, sources = [], context = {}) {
     }
   }
   if (hasInternalDocumentLanguage(text)) issues.push("Remove internal document-generation terminology.");
-  return [...new Set([...issues, ...candidateClaimIssues(proposed, sources, context)])];
+  return [...new Set([...issues, ...candidateClaimIssues(proposed, sources, context), ...academicStatusIssues(proposed, sources)])];
 }
 
 // An edit is scoped to the paragraph's citations. A leadership verb elsewhere

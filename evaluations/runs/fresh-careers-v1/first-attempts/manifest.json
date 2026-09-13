@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "runId": "fresh-careers-v1",
+  "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+  "frozenAt": "2026-09-13T03:54:01.325Z",
+  "rubricHash": "31b081525a7ee569f48df6211d95c7929a54955a8997fac73efb734fd5bc30af",
+  "corpusHash": "a71eb3d33a73b90baa41d1a51fb52a3f8105b767b780b79f3a3679e293c065d7",
+  "cases": [
+    {
+      "id": "F01",
+      "name": "Maya Bennett",
+      "title": "Commercial Baker",
+      "voice": "direct",
+      "length": "standard",
+      "resume": "Maya Bennett\nf01@example.com | Hamilton, Ontario\nCommercial Baker | Example Millhouse Bread | 2022 - 2026\nMixed sourdough and enriched doughs and adjusted proofing times using dough temperature and the production schedule.\nWorked in a four-person bakery team producing approximately 240 loaves per morning shift; this was the total team output.\nRecorded allergen changeovers and separated nut-containing products during packing.\nBakery Assistant | Example Corner Oven | 2020 - 2022\nScaled ingredients, shaped rolls and prepared the ovens under the head baker’s direction.\nLogged surplus bread for the daily donation collection.\nEducation\nBaking and Pastry diploma | Example Culinary College | 2020\nSkills\nSourdough fermentation; ingredient scaling; allergen separation; batch records",
+      "posting": "Commercial Baker — Example Hearth Bakery\nLocation: Hamilton, Ontario\nEmployment type: Full-time\nAbout the role: Example Hearth Bakery seeks a commercial baker to support the work described below.\nResponsibilities\n- Mix and shape dough for a morning production schedule\n- Adjust fermentation using temperature observations\n- Record batch quantities and prepare products for dispatch\nRequired qualifications\n- Commercial bread production experience\n- Ability to follow allergen separation procedures\nHow to apply: Submit a résumé and a short cover letter describing relevant work."
+    },
+    {
+      "id": "F02",
+      "name": "Theo Martins",
+      "title": "Veterinary Assistant",
+      "voice": "direct",
+      "length": "standard",
+      "resume": "Theo Martins\nf02@example.com | Hamilton, Ontario\nVeterinary Assistant | Example Willow Animal Practice | 2023 - 2026\nPrepared examination rooms and sterilized instruments according to clinic procedures.\nRestrained dogs and cats under a veterinary technician’s direction and recorded weights for the clinical team.\nExplained written discharge instructions approved by the veterinarian and booked follow-up visits.\nAnimal Shelter Volunteer | Example Paws Shelter | 2021 - 2023\nCleaned kennels, logged feeding observations and reported changes in behaviour to shelter staff.\nEducation\nVeterinary Assistant certificate | Example Community College | 2023\nLanguages\nEnglish: Fluent\nPortuguese: Fluent\nSkills\nAnimal handling under supervision; instrument preparation; clinic scheduling",
+      "posting": "Veterinary Assistant — Example Maple Animal Clinic\nLocation: Hamilton, Ontario\nEmployment type: Part-time\nAbout the role: Example Maple Animal Clinic seeks a veterinary assistant to support the work described below.\nResponsibilities\n- Prepare rooms and instruments between appointments\n- Assist technicians with animal handling\n- Explain approved aftercare instructions and maintain appointment records\nRequired qualifications\n- Veterinary assistant training\n- Experience handling animals under clinical supervision\nHow to apply: Submit a résumé and a short cover letter describing relevant work."
+    },
+    {
+      "id": "F03",
+      "name": "Priya Nair",
+      "title": "Junior GIS Technician",
+      "voice": "direct",
+      "length": "standard",
+      "resume": "Priya Nair\nf03@example.com | Hamilton, Ontario\nGIS Student Researcher | Example University Geography Lab | 2025 - 2026\nBuilt a QGIS map of public drinking-water fountains using an open municipal dataset and documented missing coordinates.\nCompared address points with satellite imagery and submitted ambiguous locations to the research supervisor for review.\nPrepared a map legend and methods note for a student poster; the map was an academic project using public data.\nLibrary Assistant | Example University Library | 2023 - 2025\nUpdated catalogue locations and helped visitors find digital resources.\nEducation\nB.Sc. in Geography | Example University | 2026\nSkills\nQGIS; coordinate reference systems; CSV cleaning; map legends",
+      "posting": "Junior GIS Technician — Example Regional Mapping\nLocation: Hamilton, Ontario\nEmployment type: Fixed-term\nAbout the role: Example Regional Mapping seeks a junior gis technician to support the work described below.\nResponsibilities\n- Clean spatial records and flag ambiguous coordinates\n- Prepare readable maps and explain data sources\n- Maintain a record of corrections for reviewer approval\nRequired qualifications\n- Geography or GIS education\n- QGIS experience\n- Ability to document data limitations\nHow to apply: Submit a résumé and a short cover letter describing relevant work."
+    },
+    {
+      "id": "F04",
+      "name": "Elliot Chen",
+      "title": "Water Quality Laboratory Technician",
+      "voice": "direct",
+      "length": "standard",
+      "resume": "Elliot Chen\nf04@example.com | Hamilton, Ontario\nLaboratory Technician | Example Basin Laboratory | 2022 - 2026\nLogged incoming water samples, checked chain-of-custody forms and flagged samples outside the stated holding time.\nPrepared reagents and measured pH and conductivity using documented methods.\nRan blanks and duplicate samples; a senior analyst reviewed the analytical results before client release.\nLaboratory Assistant | Example Science Centre | 2020 - 2022\nCleaned glassware, labelled stock solutions and recorded refrigerator temperatures.\nEducation\nChemical Laboratory Technology diploma | Example Technical Institute | 2020\nTraining\nWHMIS refresher | Example Basin Laboratory | 2025\nSkills\nSample receipt; chain of custody; pH measurement; conductivity testing; quality-control logs",
+      "posting": "Water Quality Laboratory Technician — Example River Testing\nLocation: Hamilton, Ontario\nEmployment type: Full-time\nAbout the role: Example River Testing seeks a water quality laboratory technician to support the work described below.\nResponsibilities\n- Check sample records and holding times\n- Perform routine pH and conductivity measurements\n- Document quality-control checks for senior analyst review\nRequired qualifications\n- Laboratory technology diploma\n- Water sample handling experience\nHow to apply: Submit a résumé and a short cover letter describing relevant work."
+    },
+    {
+      "id": "F05",
+      "name": "Rowan Ellis",
+      "title": "Upholsterer",
+      "voice": "direct",
+      "length": "standard",
+      "resume": "Rowan Ellis\nf05@example.com | Hamilton, Ontario\nUpholsterer | Example Fabric Workshop | 2021 - 2026\nRemoved worn coverings, assessed padding and fitted new fabric to dining chairs and upholstered benches.\nPrepared fabric cutting plans from measured furniture dimensions and matched patterned panels before sewing.\nExplained fabric options and recorded customer approval before cutting customer-supplied material.\nWorkshop Helper | Example Furniture Collective | 2019 - 2021\nStripped old staples, prepared webbing and organized fabric remnants under an upholsterer’s supervision.\nTraining\nIndustrial sewing workshop | Example Craft Centre | 2022\nSkills\nFabric cutting; industrial sewing; webbing; patterned fabric alignment",
+      "posting": "Upholsterer — Example Restored Seating\nLocation: Hamilton, Ontario\nEmployment type: Contract\nAbout the role: Example Restored Seating seeks a upholsterer to support the work described below.\nResponsibilities\n- Assess upholstery condition and prepare an agreed work plan\n- Cut, sew and fit replacement coverings\n- Confirm fabric choices and maintain customer work records\nRequired qualifications\n- Furniture upholstery experience\n- Ability to measure and cut patterned fabric\nHow to apply: Submit a résumé and a short cover letter describing relevant work."
+    },
+    {
+      "id": "F06",
+      "name": "Amara Okafor",
+      "title": "Grant Writer",
+      "voice": "direct",
+      "length": "standard",
+      "resume": "Amara Okafor\nf06@example.com | Hamilton, Ontario\nFundraising Assistant | Example Open Arts Society | 2023 - 2026\nDrafted needs statements and gathered attendance records for three community arts funding proposals.\nBuilt a proposed programme budget with the finance coordinator; the budget remained a funding request, not awarded income.\nMaintained a deadlines calendar and assembled attachments for the executive director’s final submission.\nVolunteer Coordinator | Example Town Festival | 2021 - 2023\nScheduled volunteer briefings and collected participant feedback after public workshops.\nEducation\nEnglish Literature BA | Example City University | 2021\nSkills\nProposal drafting; funder research; attachment checklists; Excel budgets",
+      "posting": "Grant Writer — Example Community Arts Network\nLocation: Hamilton, Ontario\nEmployment type: Contract\nAbout the role: Example Community Arts Network seeks a grant writer to support the work described below.\nResponsibilities\n- Draft clear needs statements using programme evidence\n- Track funder deadlines and required attachments\n- Coordinate final proposal review with programme and finance staff\nRequired qualifications\n- Experience drafting funding proposals\n- Ability to assemble budgets with finance colleagues\nHow to apply: Submit a résumé and a short cover letter describing relevant work."
+    },
+    {
+      "id": "F07",
+      "name": "Julian Brooks",
+      "title": "Museum Collections Assistant",
+      "voice": "direct",
+      "length": "standard",
+      "resume": "Julian Brooks\nf07@example.com | Hamilton, Ontario\nCollections Assistant | Example Harbour Museum | 2024 - 2026\nPhotographed donated objects, recorded dimensions and entered draft catalogue records in PastPerfect.\nMatched object labels to accession paperwork and referred uncertain ownership details to the curator.\nPrepared padded storage trays for small objects using the museum’s handling procedures; the curator approved final storage locations.\nArchive Volunteer | Example County Archive | 2022 - 2024\nScanned community photographs and entered descriptions from donor forms.\nEducation\nMuseum Studies certificate | Example Heritage College | 2024\nSkills\nPastPerfect; object photography; catalogue records; archival scanning",
+      "posting": "Museum Collections Assistant — Example Local History Museum\nLocation: Hamilton, Ontario\nEmployment type: Fixed-term\nAbout the role: Example Local History Museum seeks a museum collections assistant to support the work described below.\nResponsibilities\n- Document objects and check accession paperwork\n- Prepare storage materials under curator guidance\n- Digitize photographs and record supplied descriptions\nRequired qualifications\n- Museum collections or archive experience\n- Experience with collection records\nHow to apply: Submit a résumé and a short cover letter describing relevant work."
+    },
+    {
+      "id": "F08",
+      "name": "Sana Haddad",
+      "title": "Transit Dispatcher",
+      "voice": "direct",
+      "length": "standard",
+      "resume": "Sana Haddad\nf08@example.com | Hamilton, Ontario\nTransport Scheduler | Example Access Transport | 2022 - 2026\nAssigned scheduled accessible-transport trips to drivers using the daily booking list.\nUpdated passengers when vehicle delays changed pickup estimates and recorded dispatch notes.\nCoordinated replacement vehicles with the duty supervisor during breakdowns; the supervisor approved service changes.\nCustomer Service Clerk | Example Civic Centre | 2020 - 2022\nAnswered service enquiries and recorded bookings with accessibility requests.\nEducation\nOffice Administration diploma | Example Civic College | 2020\nLanguages\nEnglish: Fluent\nArabic: Fluent\nSkills\nTrip scheduling; dispatch notes; passenger updates; booking systems",
+      "posting": "Transit Dispatcher — Example Town Transit\nLocation: Hamilton, Ontario\nEmployment type: Full-time\nAbout the role: Example Town Transit seeks a transit dispatcher to support the work described below.\nResponsibilities\n- Allocate booked trips and communicate pickup changes\n- Escalate vehicle breakdowns to the duty supervisor\n- Maintain accurate dispatch records\nRequired qualifications\n- Transport scheduling experience\n- Clear telephone communication\n- Availability for rotating early and late shifts\nHow to apply: Submit a résumé and a short cover letter describing relevant work."
+    },
+    {
+      "id": "F09",
+      "name": "Leo Castillo",
+      "title": "Landscape Crew Leader",
+      "voice": "direct",
+      "length": "standard",
+      "resume": "Leo Castillo\nf09@example.com | Hamilton, Ontario\nLandscape Crew Leader | Example Greenway Gardens | 2021 - 2026\nLed a three-person crew, including myself, maintaining planted beds and paths at residential properties.\nAssigned daily tasks from the work order and checked edging and cleanup before customer handover.\nRecorded plant replacements and equipment defects for the owner to review.\nGrounds Assistant | Example Park Care | 2018 - 2021\nPrepared planting beds, spread mulch and maintained hand tools under crew-leader direction.\nTraining\nFirst Aid certificate | Example Training Centre | 2025, current\nSkills\nPlanting bed maintenance; work-order planning; edging; equipment checks",
+      "posting": "Landscape Crew Leader — Example Garden Grounds\nLocation: Hamilton, Ontario\nEmployment type: Seasonal\nAbout the role: Example Garden Grounds seeks a landscape crew leader to support the work described below.\nResponsibilities\n- Assign daily maintenance tasks and inspect finished work\n- Maintain planted beds and keep paths clear\n- Record replacement plants and equipment issues\nRequired qualifications\n- Experience leading a grounds maintenance crew\n- Current First Aid certificate\nHow to apply: Submit a résumé and a short cover letter describing relevant work."
+    },
+    {
+      "id": "F10",
+      "name": "Nadia Laurent",
+      "title": "Freelance Podcast Audio Editor",
+      "voice": "direct",
+      "length": "standard",
+      "resume": "Nadia Laurent\nf10@example.com | Hamilton, Ontario\nFreelance Audio Editor | Self-employed | 2023 - 2026\nEdited dialogue for eight interview podcast episodes using Reaper, removing false starts and balancing speaker levels.\nApplied client-supplied music cues and prepared WAV masters and MP3 listening copies.\nKept revision notes against timestamps and incorporated one consolidated review from each client.\nStudent Radio Producer | Example Campus Radio | 2021 - 2023\nRecorded interviews and organized source audio for the weekly student programme.\nEducation\nAudio Production diploma | Example Media College | 2023\nPortfolio\nhttps://example.com/nadia-audio\nSkills\nReaper; dialogue editing; loudness checks; timestamped revision notes",
+      "posting": "Freelance Podcast Audio Editor — Example Independent Voices\nLocation: Hamilton, Ontario\nEmployment type: Freelance\nAbout the role: Example Independent Voices seeks a freelance podcast audio editor to support the work described below.\nResponsibilities\n- Edit interview dialogue and balance speaker levels\n- Apply supplied music cues and deliver WAV and MP3 files\n- Track agreed revisions with the producer\nRequired qualifications\n- Portfolio of edited spoken-word audio\n- Experience responding to timestamped feedback\nHow to apply: Submit a résumé and a short cover letter describing relevant work."
+    }
+  ]
+}

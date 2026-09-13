@@ -1,3 +1,5 @@
+// Editorial judgement has its own production-path tests; these fixtures isolate the named validation/repair behaviour.
+const skipContentReview = async ({ document }) => ({ document, applied: false, status: "not_tested_here" });
 import test from "node:test";
 import assert from "node:assert/strict";
 
@@ -30,7 +32,7 @@ const letter = {
 
 test("cover-letter generation rejects missing authentication before external work", async () => {
   let fetched = false;
-  const handler = createCoverLetterHandler({ fetchImpl: async () => { fetched = true; }, getApiKey: () => "test" });
+  const handler = createCoverLetterHandler({ reviewContent: skipContentReview, fetchImpl: async () => { fetched = true; }, getApiKey: () => "test" });
   const res = responseRecorder();
   await handler({ method: "POST", headers: {}, body: {} }, res);
   assert.equal(res.statusCode, 401);
@@ -41,7 +43,7 @@ test("cover-letter generation rejects missing authentication before external wor
 test("a short letter can use its opening as the only evidence example without a redundant third paragraph", async () => {
   const concise = { ...letter, paragraphs: [{ ...letter.paragraphs[0], text: 'I installed and maintained electrical panels.' }, letter.paragraphs[2]] };
   let calls = 0;
-  const handler = createCoverLetterHandler({ authenticate: async () => ({user:{id:'qa'},supabase:{}}), getApiKey: () => 'test', getOpenAIKey: () => undefined,
+  const handler = createCoverLetterHandler({ reviewContent: skipContentReview, authenticate: async () => ({user:{id:'qa'},supabase:{}}), getApiKey: () => 'test', getOpenAIKey: () => undefined,
     fetchImpl: async () => { calls++; return toolResponse(concise); },
   });
   const res = responseRecorder();
@@ -54,7 +56,7 @@ test("a short letter can use its opening as the only evidence example without a 
 
 test("cover-letter generation uses reviewed sources and exact citations", async () => {
   let requestBody;
-  const handler = createCoverLetterHandler({
+  const handler = createCoverLetterHandler({ reviewContent: skipContentReview,
     authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
     fetchImpl: async (_url, options) => { requestBody = JSON.parse(options.body); return toolResponse(letter); },
     getApiKey: () => "test",
@@ -86,7 +88,7 @@ test("cover-letter generation resolves stable citation ids to exact source excer
         ? { ...entry, evidence_refs: ["C3"], requirement_refs: ["P4"] }
         : entry),
   };
-  const handler = createCoverLetterHandler({
+  const handler = createCoverLetterHandler({ reviewContent: skipContentReview,
     authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
     fetchImpl: async () => toolResponse(citedById),
     getApiKey: () => "test",
@@ -108,7 +110,7 @@ test("cover-letter generation resolves stable citation ids to exact source excer
 test("unsupported flattery remains blocked after one bounded repair", async () => {
   let calls = 0;
   const bad = { ...letter, paragraphs: letter.paragraphs.map((entry, index) => index === 0 ? { ...entry, text: "I am thrilled to join your renowned, world-class company." } : entry) };
-  const handler = createCoverLetterHandler({
+  const handler = createCoverLetterHandler({ reviewContent: skipContentReview,
     authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
     fetchImpl: async () => { calls += 1; return toolResponse(bad); },
     getApiKey: () => "test",
@@ -130,7 +132,7 @@ test("unsolicited career-transition and gap-confession language remains blocked 
       explanation: "Explains the career transition.",
     } : entry),
   };
-  const handler = createCoverLetterHandler({
+  const handler = createCoverLetterHandler({ reviewContent: skipContentReview,
     authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
     fetchImpl: async () => { calls += 1; return toolResponse(bad); },
     getApiKey: () => "test",
@@ -156,7 +158,7 @@ test("self-disqualifying adjacent-experience caveats remain blocked after repair
       evidence_match: "adjacent",
     } : entry),
   };
-  const handler = createCoverLetterHandler({
+  const handler = createCoverLetterHandler({ reviewContent: skipContentReview,
     authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
     fetchImpl: async () => { calls += 1; return toolResponse(bad); },
     getApiKey: () => "test",
@@ -181,7 +183,7 @@ test("the exact material-gap confession from a legacy draft remains blocked", as
       evidence_match: "adjacent",
     } : entry),
   };
-  const handler = createCoverLetterHandler({
+  const handler = createCoverLetterHandler({ reviewContent: skipContentReview,
     authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
     fetchImpl: async () => { calls += 1; return toolResponse(bad); },
     getApiKey: () => "test",
@@ -198,7 +200,7 @@ test("the exact material-gap confession from a legacy draft remains blocked", as
 
 test("paragraph regeneration must return exactly the requested paragraph", async () => {
   const regenerated = { ...letter, paragraphs: [{ ...letter.paragraphs[1], id: "evidence" }] };
-  const handler = createCoverLetterHandler({ authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }), fetchImpl: async () => toolResponse(regenerated), getApiKey: () => "test" });
+  const handler = createCoverLetterHandler({ reviewContent: skipContentReview, authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }), fetchImpl: async () => toolResponse(regenerated), getApiKey: () => "test" });
   const res = responseRecorder();
   await handler({ method: "POST", headers: { authorization: "Bearer valid" }, body: { resume: "Jordan Lee\nInstalled and maintained electrical panels.\nDocumented preventive maintenance work in a CMMS.", customJob, candidateEvidence: [], regenerateParagraph: "evidence", existingDraft: letter } }, res);
   assert.equal(res.statusCode, 200);
@@ -213,7 +215,7 @@ test("generation removes an embedded duplicate signoff and normalizes the signof
       : entry),
     signoff: "Sincerely, Jordan Lee",
   };
-  const handler = createCoverLetterHandler({ authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }), fetchImpl: async () => toolResponse(duplicated), getApiKey: () => "test" });
+  const handler = createCoverLetterHandler({ reviewContent: skipContentReview, authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }), fetchImpl: async () => toolResponse(duplicated), getApiKey: () => "test" });
   const res = responseRecorder();
   await handler({ method: "POST", headers: { authorization: "Bearer valid" }, body: { resume: "Jordan Lee\nInstalled and maintained electrical panels.\nDocumented preventive maintenance work in a CMMS.", customJob, candidateEvidence: [] } }, res);
   assert.equal(res.statusCode, 200);

@@ -1,3 +1,5 @@
+// Editorial judgement has its own production-path tests; these fixtures isolate the named validation/repair behaviour.
+const skipContentReview = async ({ document }) => ({ document, applied: false, status: "not_tested_here" });
 import {shapeTailoredResume} from '../api/_lib/resumeQuality.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -10,7 +12,7 @@ import { sourceHistoryEntries, buildTailoringChangeLedger, buildAtsReview } from
 import { buildResumeRenderPlan, createResumePackage } from '../src/resumeModel.js';
 import { reviewCoverLetterWriting } from '../src/coverLetterWriting.js';
 const context=c=>({baseResume:c.baseResume,resumeData:c.candidate,item:c.job,atsReview:{posting_readiness:{status:'reviewed_complete',fit_allowed:true,application_ready_allowed:true},integrity:{status:'pass'},readiness:{status:'strong_fit'},requirements:[{id:'R1',requirement:c.job.required_qualifications[0],evidence_match:'direct'}],coverage:{direct:1,missing:0,adjacent:0,transferable:0}}});
-async function generate(c,raw){const handler=createCoverLetterHandler({authenticate:async()=>({user:{id:'fictional-qa'},supabase:{}}),getApiKey:()=> 'test-fixture',getOpenAIKey:()=>undefined,fetchImpl:async()=>({ok:true,json:async()=>({content:[{type:'tool_use',name:'return_evidence_first_cover_letter',input:raw}]})})});const res={statusCode:200,setHeader(){},status(s){this.statusCode=s;return this;},json(body){this.body=body;return this;}};await handler({method:'POST',headers:{authorization:'Bearer fixture'},body:{resume:c.baseResume,customJob:c.job}},res);return res;}
+async function generate(c,raw){const handler=createCoverLetterHandler({ reviewContent: skipContentReview,authenticate:async()=>({user:{id:'fictional-qa'},supabase:{}}),getApiKey:()=> 'test-fixture',getOpenAIKey:()=>undefined,fetchImpl:async()=>({ok:true,json:async()=>({content:[{type:'tool_use',name:'return_evidence_first_cover_letter',input:raw}]})})});const res={statusCode:200,setHeader(){},status(s){this.statusCode=s;return this;},json(body){this.body=body;return this;}};await handler({method:'POST',headers:{authorization:'Bearer fixture'},body:{resume:c.baseResume,customJob:c.job}},res);return res;}
 for(const c of professionCases){
  test(`${c.id}: truthful ${c.candidate.title} letter passes API, readiness and export context`,async()=>{
   const res=await generate(c,c.letter);assert.equal(res.statusCode,200,JSON.stringify(res.body));const ctx=context(c),plan=createCoverLetterPlan(res.body.letter,ctx);assert.equal(getCoverLetterReadiness(plan,ctx).canExport,true);assert.equal(validateCoverLetterExportContext(createCoverLetterExportContext(plan,ctx)).plan.contentHash,plan.contentHash);

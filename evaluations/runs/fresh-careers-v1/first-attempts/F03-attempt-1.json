@@ -1,0 +1,37 @@
+{
+  "caseId": "F03",
+  "attempt": 1,
+  "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+  "status": "completed",
+  "startedAt": "2026-09-13T04:06:30.175Z",
+  "finishedAt": "2026-09-13T04:09:08.809Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in provider repair may occur within a request; no manual retry was made.",
+  "artifacts": [
+    {
+      "filename": "F03-resume.docx",
+      "downloadName": "Priya-Nair-GIS-Student-Researcher.docx",
+      "sha256": "871c7b13db6bf8b7838e5b0ce506c9e3dac2d0fca9c3921edb35af1887ace23a"
+    },
+    {
+      "filename": "F03-resume.pdf",
+      "downloadName": "Priya-Nair-GIS-Student-Researcher.pdf",
+      "sha256": "464150c80c5c7e940b60e6d89dad9a315050f72a5ea67016a28e479599c8a04e"
+    },
+    {
+      "filename": "F03-letter.docx",
+      "downloadName": "Priya-Nair-Junior-GIS-Technician-cover-letter.docx",
+      "sha256": "84d0c837639beafdeaf09a8a5cc4c8a5f054a1c79877818a9fc9cc28330612ed"
+    },
+    {
+      "filename": "F03-letter.pdf",
+      "downloadName": "Priya-Nair-Junior-GIS-Technician-cover-letter.pdf",
+      "sha256": "48a8d7e237bbc39f251ae8ab12467975496248d136795cf0533a4168836fa76e"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; button and success status exercised.",
+  "recordedAt": "2026-09-13T04:09:35.336Z",
+  "corpusHash": "a71eb3d33a73b90baa41d1a51fb52a3f8105b767b780b79f3a3679e293c065d7"
+}

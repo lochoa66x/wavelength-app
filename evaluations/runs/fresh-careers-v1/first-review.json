@@ -1,0 +1,728 @@
+{
+  "rubric": "evaluations/QUALITY_RUBRIC.md",
+  "reviewer": "Codex human-style editorial judgement; not independently calibrated",
+  "reviewedAt": "2026-09-13T04:50:08.240Z",
+  "firstAttempts": 10,
+  "packagesCompleted": 9,
+  "missingLetters": 1,
+  "filesInspected": 38,
+  "pdfPagesVisuallyInspected": 19,
+  "clipboard": "Copy actions succeeded; byte readback unavailable. Parity is against visible preview.",
+  "nativeWordPagination": "unavailable",
+  "inputsWereChanged": false,
+  "results": [
+    {
+      "id": "F01",
+      "attempt": 1,
+      "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 4,
+          "selection": 3,
+          "natural_writing": 3
+        },
+        "total": 16,
+        "excerpt": "Commercial baker with a Baking and Pastry diploma",
+        "dimensionAnalysis": [
+          {
+            "dimension": "relevance",
+            "explanation": "Relevant bread/allergen evidence"
+          },
+          {
+            "dimension": "useful_detail",
+            "explanation": "source-supported process and team scope"
+          },
+          {
+            "dimension": "document_purpose",
+            "explanation": "profile establishes training and setting"
+          },
+          {
+            "dimension": "selection",
+            "explanation": "useful employment retained with a clumsy team-output aside"
+          },
+          {
+            "dimension": "natural_writing",
+            "explanation": "clear but occasionally source-like."
+          }
+        ]
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 2,
+          "natural_writing": 2
+        },
+        "total": 12,
+        "excerpt": "I worked in a four-person bakery team producing approximately 240 loaves per morning shift",
+        "dimensionAnalysis": [
+          {
+            "dimension": "relevance",
+            "explanation": "Selects bread production"
+          },
+          {
+            "dimension": "useful_detail",
+            "explanation": "retains proofing and team denominator"
+          },
+          {
+            "dimension": "document_purpose",
+            "explanation": "reads like two lifted experience bullets"
+          },
+          {
+            "dimension": "selection",
+            "explanation": "no developed case beyond the inventory"
+          },
+          {
+            "dimension": "natural_writing",
+            "explanation": "blunt and mechanical."
+          }
+        ],
+        "failure": null
+      }
+    },
+    {
+      "id": "F02",
+      "attempt": 1,
+      "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 2,
+          "natural_writing": 3
+        },
+        "total": 13,
+        "excerpt": "preparing examination rooms, handling dogs and cats under veterinary technician direction",
+        "dimensionAnalysis": [
+          {
+            "dimension": "relevance",
+            "explanation": "Clinical priorities present"
+          },
+          {
+            "dimension": "useful_detail",
+            "explanation": "supervision and approval preserved"
+          },
+          {
+            "dimension": "document_purpose",
+            "explanation": "profile recaps the same three body duties"
+          },
+          {
+            "dimension": "selection",
+            "explanation": "language information repeats"
+          },
+          {
+            "dimension": "natural_writing",
+            "explanation": "readable but repetitive."
+          }
+        ]
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 2,
+          "natural_writing": 2
+        },
+        "total": 12,
+        "excerpt": "This work supported clear communication of approved aftercare and clinic scheduling.",
+        "dimensionAnalysis": [
+          {
+            "dimension": "relevance",
+            "explanation": "Relevant clinical duties"
+          },
+          {
+            "dimension": "useful_detail",
+            "explanation": "preserves authorised aftercare and supervision"
+          },
+          {
+            "dimension": "document_purpose",
+            "explanation": "repeats the résumé sequence"
+          },
+          {
+            "dimension": "selection",
+            "explanation": "added bridge restates the preceding action"
+          },
+          {
+            "dimension": "natural_writing",
+            "explanation": "natural wording weakened by generic explanation."
+          }
+        ],
+        "failure": null
+      }
+    },
+    {
+      "id": "F03",
+      "attempt": 1,
+      "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 4,
+          "useful_detail": 3,
+          "document_purpose": 4,
+          "selection": 3,
+          "natural_writing": 3
+        },
+        "total": 17,
+        "excerpt": "Geography graduate with academic GIS research experience",
+        "dimensionAnalysis": [
+          {
+            "dimension": "relevance",
+            "explanation": "Precise junior GIS relevance"
+          },
+          {
+            "dimension": "useful_detail",
+            "explanation": "academic context and supervisor review preserved"
+          },
+          {
+            "dimension": "document_purpose",
+            "explanation": "profile offers background instead of tasks"
+          },
+          {
+            "dimension": "selection",
+            "explanation": "retains earlier role and degree"
+          },
+          {
+            "dimension": "natural_writing",
+            "explanation": "clear concise prose."
+          }
+        ]
+      },
+      "letter": {
+        "evidenceGate": "fail",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 2,
+          "natural_writing": 2
+        },
+        "total": 12,
+        "excerpt": "I am completing a B.Sc. in Geography at Example University in 2026.",
+        "dimensionAnalysis": [
+          {
+            "dimension": "relevance",
+            "explanation": "Uses QGIS and data limitations"
+          },
+          {
+            "dimension": "useful_detail",
+            "explanation": "concrete academic example"
+          },
+          {
+            "dimension": "document_purpose",
+            "explanation": "remains a sequence of source tasks"
+          },
+          {
+            "dimension": "selection",
+            "explanation": "status conflicts with unqualified degree and résumé graduate wording"
+          },
+          {
+            "dimension": "natural_writing",
+            "explanation": "readable but mechanical."
+          }
+        ],
+        "failure": null
+      }
+    },
+    {
+      "id": "F04",
+      "attempt": 1,
+      "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 1,
+          "natural_writing": 2
+        },
+        "total": 11,
+        "excerpt": "Laboratory Assistant - Example Science Centre | 2020 – 2022",
+        "dimensionAnalysis": [
+          {
+            "dimension": "relevance",
+            "explanation": "Water-lab priorities visible"
+          },
+          {
+            "dimension": "useful_detail",
+            "explanation": "current-role detail useful"
+          },
+          {
+            "dimension": "document_purpose",
+            "explanation": "profile repeats measurements and checks"
+          },
+          {
+            "dimension": "selection",
+            "explanation": "earlier role is an empty heading despite supplied work evidence"
+          },
+          {
+            "dimension": "natural_writing",
+            "explanation": "this leaves an unfinished document."
+          }
+        ]
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 3,
+          "selection": 2,
+          "natural_writing": 3
+        },
+        "total": 14,
+        "excerpt": "with a senior analyst reviewing analytical results before client release",
+        "dimensionAnalysis": [
+          {
+            "dimension": "relevance",
+            "explanation": "Relevant holding-time and QC example"
+          },
+          {
+            "dimension": "useful_detail",
+            "explanation": "preserves analyst release authority"
+          },
+          {
+            "dimension": "document_purpose",
+            "explanation": "shows process/constraint"
+          },
+          {
+            "dimension": "selection",
+            "explanation": "generic careful-review bridge adds little"
+          },
+          {
+            "dimension": "natural_writing",
+            "explanation": "otherwise clear."
+          }
+        ],
+        "failure": null
+      }
+    },
+    {
+      "id": "F05",
+      "attempt": 1,
+      "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 1,
+          "natural_writing": 3
+        },
+        "total": 12,
+        "excerpt": "Industrial sewing workshop | Example Craft Centre | 2022",
+        "dimensionAnalysis": [
+          {
+            "dimension": "relevance",
+            "explanation": "Upholstery and patterned fabric relevant"
+          },
+          {
+            "dimension": "useful_detail",
+            "explanation": "customer approval preserved"
+          },
+          {
+            "dimension": "document_purpose",
+            "explanation": "profile inventories body tasks"
+          },
+          {
+            "dimension": "selection",
+            "explanation": "workshop duplicated in Education and Training"
+          },
+          {
+            "dimension": "natural_writing",
+            "explanation": "readable but visibly unedited."
+          }
+        ]
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 2,
+          "natural_writing": 2
+        },
+        "total": 12,
+        "excerpt": "This hands-on furniture upholstery work required preparing pieces for replacement coverings and completing the fit on the furniture.",
+        "dimensionAnalysis": [
+          {
+            "dimension": "relevance",
+            "explanation": "Relevant covering and cutting experience"
+          },
+          {
+            "dimension": "useful_detail",
+            "explanation": "useful measured-pattern and approval detail"
+          },
+          {
+            "dimension": "document_purpose",
+            "explanation": "second sentence defines the same task again"
+          },
+          {
+            "dimension": "selection",
+            "explanation": "no selective developed example"
+          },
+          {
+            "dimension": "natural_writing",
+            "explanation": "generic bridges weaken voice."
+          }
+        ],
+        "failure": null
+      }
+    },
+    {
+      "id": "F06",
+      "attempt": 1,
+      "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 2,
+          "useful_detail": 1,
+          "document_purpose": 1,
+          "selection": 0,
+          "natural_writing": 2
+        },
+        "total": 6,
+        "excerpt": "Fundraising Assistant - Example Open Arts Society | 2023 – 2026",
+        "dimensionAnalysis": [
+          {
+            "dimension": "relevance",
+            "explanation": "Target relevance remains mostly in profile"
+          },
+          {
+            "dimension": "useful_detail",
+            "explanation": "all three current-role bullets lost"
+          },
+          {
+            "dimension": "document_purpose",
+            "explanation": "profile replaces rather than introduces the evidence"
+          },
+          {
+            "dimension": "selection",
+            "explanation": "empty current role is a severe selection failure"
+          },
+          {
+            "dimension": "natural_writing",
+            "explanation": "reads unfinished."
+          }
+        ]
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 1,
+          "natural_writing": 2
+        },
+        "total": 11,
+        "excerpt": "I used programme evidence to support the proposals’ needs statements.",
+        "dimensionAnalysis": [
+          {
+            "dimension": "relevance",
+            "explanation": "Funding proposals and finance collaboration relevant"
+          },
+          {
+            "dimension": "useful_detail",
+            "explanation": "proposed budget remains a request"
+          },
+          {
+            "dimension": "document_purpose",
+            "explanation": "added sentence repeats needs-statements work"
+          },
+          {
+            "dimension": "selection",
+            "explanation": "omits useful deadline/attachments/director-review evidence"
+          },
+          {
+            "dimension": "natural_writing",
+            "explanation": "formulaic."
+          }
+        ],
+        "failure": null
+      }
+    },
+    {
+      "id": "F07",
+      "attempt": 1,
+      "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 4,
+          "useful_detail": 3,
+          "document_purpose": 4,
+          "selection": 3,
+          "natural_writing": 3
+        },
+        "total": 17,
+        "excerpt": "Collections Assistant with recent museum experience and an archive volunteer background",
+        "dimensionAnalysis": [
+          {
+            "dimension": "relevance",
+            "explanation": "Collections plus archive experience match well"
+          },
+          {
+            "dimension": "useful_detail",
+            "explanation": "curator approval and uncertain-ownership escalation preserved"
+          },
+          {
+            "dimension": "document_purpose",
+            "explanation": "profile supplies background"
+          },
+          {
+            "dimension": "selection",
+            "explanation": "skills overlap but work evidence is complete"
+          },
+          {
+            "dimension": "natural_writing",
+            "explanation": "credible and clear."
+          }
+        ]
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 2,
+          "natural_writing": 2
+        },
+        "total": 12,
+        "excerpt": "This work involved digitizing photographs while recording the supplied descriptive information.",
+        "dimensionAnalysis": [
+          {
+            "dimension": "relevance",
+            "explanation": "Relevant museum/archive tasks"
+          },
+          {
+            "dimension": "useful_detail",
+            "explanation": "specific objects and catalogue processes"
+          },
+          {
+            "dimension": "document_purpose",
+            "explanation": "largely a copied task inventory"
+          },
+          {
+            "dimension": "selection",
+            "explanation": "archive sentence immediately repeats scanning/descriptions"
+          },
+          {
+            "dimension": "natural_writing",
+            "explanation": "generic explanatory prose."
+          }
+        ],
+        "failure": null
+      }
+    },
+    {
+      "id": "F08",
+      "attempt": 1,
+      "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 4,
+          "useful_detail": 3,
+          "document_purpose": 3,
+          "selection": 3,
+          "natural_writing": 3
+        },
+        "total": 16,
+        "excerpt": "Transport Scheduler with experience in accessible transportation and customer service",
+        "dimensionAnalysis": [
+          {
+            "dimension": "relevance",
+            "explanation": "Relevant accessible-transport context"
+          },
+          {
+            "dimension": "useful_detail",
+            "explanation": "approval boundary preserved"
+          },
+          {
+            "dimension": "document_purpose",
+            "explanation": "profile gives useful background"
+          },
+          {
+            "dimension": "selection",
+            "explanation": "language repeats but work retained"
+          },
+          {
+            "dimension": "natural_writing",
+            "explanation": "clear professional wording. Unconfirmed shift availability correctly keeps export preliminary."
+          }
+        ]
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 3,
+          "selection": 2,
+          "natural_writing": 3
+        },
+        "total": 14,
+        "excerpt": "the supervisor approved service changes",
+        "dimensionAnalysis": [
+          {
+            "dimension": "relevance",
+            "explanation": "Relevant scheduling and breakdown example"
+          },
+          {
+            "dimension": "useful_detail",
+            "explanation": "authority boundary preserved"
+          },
+          {
+            "dimension": "document_purpose",
+            "explanation": "process has useful setting"
+          },
+          {
+            "dimension": "selection",
+            "explanation": "closing repeats skill list"
+          },
+          {
+            "dimension": "natural_writing",
+            "explanation": "generally clear. Availability is not fabricated."
+          }
+        ],
+        "failure": null
+      }
+    },
+    {
+      "id": "F09",
+      "attempt": 1,
+      "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 3,
+          "selection": 1,
+          "natural_writing": 2
+        },
+        "total": 12,
+        "excerpt": "First Aid certificate | Example Training Centre | 2025, current",
+        "dimensionAnalysis": [
+          {
+            "dimension": "relevance",
+            "explanation": "Grounds maintenance leadership relevant"
+          },
+          {
+            "dimension": "useful_detail",
+            "explanation": "three-person total crew preserved"
+          },
+          {
+            "dimension": "document_purpose",
+            "explanation": "profile supplies background"
+          },
+          {
+            "dimension": "selection",
+            "explanation": "same certificate appears in three sections"
+          },
+          {
+            "dimension": "natural_writing",
+            "explanation": "repetition makes document look unfinished."
+          }
+        ]
+      },
+      "letter": {
+        "evidenceGate": "unavailable",
+        "scores": null,
+        "total": null,
+        "excerpt": "The draft could not be verified against your résumé and posting.",
+        "dimensionAnalysis": [],
+        "failure": "No letter returned: first request ended 422. Missing document receives no quality score. Full current-certificate source passes local validation; failed response did not expose the draft/citations, so precise provider omission remains unconfirmed."
+      }
+    },
+    {
+      "id": "F10",
+      "attempt": 1,
+      "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 1,
+          "natural_writing": 3
+        },
+        "total": 12,
+        "excerpt": "Freelance audio editor with experience editing eight interview podcast episodes in Reaper",
+        "dimensionAnalysis": [
+          {
+            "dimension": "relevance",
+            "explanation": "Audio editing and revisions relevant"
+          },
+          {
+            "dimension": "useful_detail",
+            "explanation": "quantity and client-supplied cues preserved"
+          },
+          {
+            "dimension": "document_purpose",
+            "explanation": "profile repeats metric and tasks"
+          },
+          {
+            "dimension": "selection",
+            "explanation": "required portfolio is missing from résumé despite supplied labelled URL"
+          },
+          {
+            "dimension": "natural_writing",
+            "explanation": "readable prose."
+          }
+        ]
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 2,
+          "natural_writing": 3
+        },
+        "total": 13,
+        "excerpt": "I kept revision notes against timestamps and incorporated one consolidated review from each client.",
+        "dimensionAnalysis": [
+          {
+            "dimension": "relevance",
+            "explanation": "Relevant dialogue and delivery details"
+          },
+          {
+            "dimension": "useful_detail",
+            "explanation": "timestamped consolidated review useful"
+          },
+          {
+            "dimension": "document_purpose",
+            "explanation": "most body text closely recites source bullets"
+          },
+          {
+            "dimension": "selection",
+            "explanation": "portfolio retained only in closing"
+          },
+          {
+            "dimension": "natural_writing",
+            "explanation": "relatively clear without a redundant bridge."
+          }
+        ],
+        "failure": null
+      }
+    }
+  ]
+}

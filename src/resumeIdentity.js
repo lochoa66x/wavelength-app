@@ -20,8 +20,12 @@ function plausibleName(value) {
 // or project URLs from the surrounding employment narrative.
 export function resumeProfessionalLinks(value) {
   const links = [];
-  for (const line of String(value || "").split(/\r?\n/)) {
-    const labelled = line.trim().match(/^(portfolio|work[- ]samples?|professional website|personal website|linkedin)\s*:\s*(https?:\/\/\S+)\s*$/i);
+  const lines = String(value || "").split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  for (let index = 0; index < lines.length; index++) {
+    const line = lines[index];
+    const heading = line.match(/^(portfolio|work[- ]samples?|professional website|personal website|linkedin)\s*:?$/i);
+    const labelled = line.match(/^(portfolio|work[- ]samples?|professional website|personal website|linkedin)\s*:\s*(https?:\/\/\S+)\s*$/i)
+      || (heading && /^https?:\/\/\S+$/i.test(lines[index + 1] || "") ? [line, heading[1], lines[index + 1]] : null);
     if (!labelled) continue;
     const url = labelled[2].replace(/[.,;]+$/, "");
     try {

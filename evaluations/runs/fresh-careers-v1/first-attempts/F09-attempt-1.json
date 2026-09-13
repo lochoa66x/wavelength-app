@@ -1,0 +1,27 @@
+{
+  "caseId": "F09",
+  "attempt": 1,
+  "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+  "status": "partial",
+  "startedAt": "2026-09-13T04:25:13.959Z",
+  "finishedAt": "2026-09-13T04:29:25.281Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in provider repair may occur within a request; no manual retry was made.",
+  "artifacts": [
+    {
+      "filename": "F09-resume.docx",
+      "downloadName": "Leo-Castillo-Landscape-Crew-Leader-Grounds-Maintenance.docx",
+      "sha256": "3baefd95c82d03069c0c9f55e032c5f7eeeed3e59167cd0235b300536febd2a8"
+    },
+    {
+      "filename": "F09-resume.pdf",
+      "downloadName": "Leo-Castillo-Landscape-Crew-Leader-Grounds-Maintenance.pdf",
+      "sha256": "d4722cd51939ab0c4a54351e0439b1b6dd4fd2f1be6a9956b55ae435fa6dd2a8"
+    }
+  ],
+  "letterCopyConfirmed": false,
+  "clipboardReadback": "Not independently read; button and success status exercised.",
+  "recordedAt": "2026-09-13T04:29:53.386Z",
+  "corpusHash": "a71eb3d33a73b90baa41d1a51fb52a3f8105b767b780b79f3a3679e293c065d7"
+}

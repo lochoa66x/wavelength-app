@@ -1,3 +1,5 @@
+// Editorial judgement has its own production-path tests; these fixtures isolate the named validation/repair behaviour.
+const skipContentReview = async ({ document }) => ({ document, applied: false, status: "not_tested_here" });
 import {findSemanticIntegrityIssues} from '../api/_lib/tailoringEvidence.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
@@ -21,7 +23,7 @@ function context(c) {
     integrity:{status:'pass'},coverage:Object.fromEntries(['direct','adjacent','transferable','missing'].map(k=>[k,requirements.filter(r=>r.evidence_match===k).length]))}};
 }
 async function generate(c,raw,{regenerate=false,existingDraft}={}) {
-  const handler=createCoverLetterHandler({authenticate:async()=>({user:{id:'fictional-career-regression'},supabase:{}}),getApiKey:()=> 'fixture',getOpenAIKey:()=>undefined,
+  const handler=createCoverLetterHandler({ reviewContent: skipContentReview,authenticate:async()=>({user:{id:'fictional-career-regression'},supabase:{}}),getApiKey:()=> 'fixture',getOpenAIKey:()=>undefined,
     fetchImpl:async()=>({ok:true,json:async()=>({content:[{type:'tool_use',name:'return_evidence_first_cover_letter',input:raw}]})})});
   const res={statusCode:200,setHeader(){},status(n){this.statusCode=n;return this;},json(body){this.body=body;return this;}};
   await handler({method:'POST',headers:{authorization:'Bearer fixture'},body:{resume:c.baseResume,customJob:c.job,voice:'direct',length:'standard',...(regenerate?{regenerateParagraph:'evidence',existingDraft}: {})}},res);

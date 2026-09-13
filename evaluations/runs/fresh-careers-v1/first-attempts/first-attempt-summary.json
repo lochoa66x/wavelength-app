@@ -1,0 +1,367 @@
+{
+  "denominator": 10,
+  "completedFirstAttempts": 9,
+  "firstAttempts": [
+    {
+      "caseId": "F01",
+      "attempt": 1,
+      "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+      "status": "completed",
+      "startedAt": "2026-09-13T03:55:16.551Z",
+      "finishedAt": "2026-09-13T04:01:58.552Z",
+      "inputEdited": false,
+      "manualGenerationRetries": 0,
+      "providerRepair": "Built-in provider repair may occur within a request; no manual retry was made.",
+      "artifacts": [
+        {
+          "filename": "F01-letter.docx",
+          "downloadName": "Maya-Bennett-Commercial-Baker-cover-letter.docx",
+          "sha256": "23738f5e24f29fb2bee3a0669ec23ad89b0de55fd9609c52d4b1809880f03b72"
+        },
+        {
+          "filename": "F01-letter.pdf",
+          "downloadName": "Maya-Bennett-Commercial-Baker-cover-letter.pdf",
+          "sha256": "fa94f4c259e450b172d647a532f19fd3386e7506d966f98b449ea8bc495b1a30"
+        },
+        {
+          "filename": "F01-resume.docx",
+          "downloadName": "Maya-Bennett-Commercial-Bread-Baker.docx",
+          "sha256": "e015d5f6bdfb459482e171397d0caad4f0b341afb058adebf43e903d34da8449"
+        },
+        {
+          "filename": "F01-resume.pdf",
+          "downloadName": "Maya-Bennett-Commercial-Bread-Baker.pdf",
+          "sha256": "e278ff717c4ded49a2cbdc4b12d6d4c1b9d21347a230a23760c9c5085fb5aafd"
+        }
+      ],
+      "letterCopyConfirmed": true,
+      "clipboardReadback": "Not independently read; button and success status exercised.",
+      "recordedAt": "2026-09-13T04:02:15.401Z",
+      "corpusHash": "a71eb3d33a73b90baa41d1a51fb52a3f8105b767b780b79f3a3679e293c065d7"
+    },
+    {
+      "caseId": "F02",
+      "attempt": 1,
+      "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+      "status": "completed",
+      "startedAt": "2026-09-13T04:02:01.717Z",
+      "finishedAt": "2026-09-13T04:06:27.013Z",
+      "inputEdited": false,
+      "manualGenerationRetries": 0,
+      "providerRepair": "Built-in provider repair may occur within a request; no manual retry was made.",
+      "artifacts": [
+        {
+          "filename": "F02-resume.docx",
+          "downloadName": "Theo-Martins-Veterinary-Assistant-Clinical-Animal-Care.docx",
+          "sha256": "b187422c9e3fa298b81b9a0fd9e4164a56170e646214e868be89a1679dc050dc"
+        },
+        {
+          "filename": "F02-resume.pdf",
+          "downloadName": "Theo-Martins-Veterinary-Assistant-Clinical-Animal-Care.pdf",
+          "sha256": "9b82c3e6e46156a33ffeee77136642125ac4f2fafc6a21cf95eb3520ec5f49c7"
+        },
+        {
+          "filename": "F02-letter.docx",
+          "downloadName": "Theo-Martins-Veterinary-Assistant-cover-letter.docx",
+          "sha256": "3dcdf6036004b728505cf88ab38bc245c0e6b6bab14bf708e49ee2c592445bcf"
+        },
+        {
+          "filename": "F02-letter.pdf",
+          "downloadName": "Theo-Martins-Veterinary-Assistant-cover-letter.pdf",
+          "sha256": "8db318c10a0686a92b8a64f92042f0eabb6313d07202df530ddf2a0cf9ec17a6"
+        }
+      ],
+      "letterCopyConfirmed": true,
+      "clipboardReadback": "Not independently read; button and success status exercised.",
+      "recordedAt": "2026-09-13T04:06:53.024Z",
+      "corpusHash": "a71eb3d33a73b90baa41d1a51fb52a3f8105b767b780b79f3a3679e293c065d7"
+    },
+    {
+      "caseId": "F03",
+      "attempt": 1,
+      "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+      "status": "completed",
+      "startedAt": "2026-09-13T04:06:30.175Z",
+      "finishedAt": "2026-09-13T04:09:08.809Z",
+      "inputEdited": false,
+      "manualGenerationRetries": 0,
+      "providerRepair": "Built-in provider repair may occur within a request; no manual retry was made.",
+      "artifacts": [
+        {
+          "filename": "F03-resume.docx",
+          "downloadName": "Priya-Nair-GIS-Student-Researcher.docx",
+          "sha256": "871c7b13db6bf8b7838e5b0ce506c9e3dac2d0fca9c3921edb35af1887ace23a"
+        },
+        {
+          "filename": "F03-resume.pdf",
+          "downloadName": "Priya-Nair-GIS-Student-Researcher.pdf",
+          "sha256": "464150c80c5c7e940b60e6d89dad9a315050f72a5ea67016a28e479599c8a04e"
+        },
+        {
+          "filename": "F03-letter.docx",
+          "downloadName": "Priya-Nair-Junior-GIS-Technician-cover-letter.docx",
+          "sha256": "84d0c837639beafdeaf09a8a5cc4c8a5f054a1c79877818a9fc9cc28330612ed"
+        },
+        {
+          "filename": "F03-letter.pdf",
+          "downloadName": "Priya-Nair-Junior-GIS-Technician-cover-letter.pdf",
+          "sha256": "48a8d7e237bbc39f251ae8ab12467975496248d136795cf0533a4168836fa76e"
+        }
+      ],
+      "letterCopyConfirmed": true,
+      "clipboardReadback": "Not independently read; button and success status exercised.",
+      "recordedAt": "2026-09-13T04:09:35.336Z",
+      "corpusHash": "a71eb3d33a73b90baa41d1a51fb52a3f8105b767b780b79f3a3679e293c065d7"
+    },
+    {
+      "caseId": "F04",
+      "attempt": 1,
+      "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+      "status": "completed",
+      "startedAt": "2026-09-13T04:09:11.960Z",
+      "finishedAt": "2026-09-13T04:12:52.832Z",
+      "inputEdited": false,
+      "manualGenerationRetries": 0,
+      "providerRepair": "Built-in provider repair may occur within a request; no manual retry was made.",
+      "artifacts": [
+        {
+          "filename": "F04-letter.docx",
+          "downloadName": "Elliot-Chen-Water-Quality-Laboratory-Technician-cover-letter.docx",
+          "sha256": "404794befc9a13040f62b829479d09c10d3859747b4f36d7e915a0b790218ced"
+        },
+        {
+          "filename": "F04-letter.pdf",
+          "downloadName": "Elliot-Chen-Water-Quality-Laboratory-Technician-cover-letter.pdf",
+          "sha256": "cb7d0e8dabdca792c9e5b9a6d253f369184b190710adeee3a0b14cbc673d14a8"
+        },
+        {
+          "filename": "F04-resume.docx",
+          "downloadName": "Elliot-Chen-Water-Quality-Laboratory-Technician.docx",
+          "sha256": "6393ed7bca6f65117b29deb309a43bd3064a9116dbe9dacdaef68d9fc83af716"
+        },
+        {
+          "filename": "F04-resume.pdf",
+          "downloadName": "Elliot-Chen-Water-Quality-Laboratory-Technician.pdf",
+          "sha256": "31a7c85477aa05708c487581c23c1eb23bb912b95dd4f200ce49361fc4df202a"
+        }
+      ],
+      "letterCopyConfirmed": true,
+      "clipboardReadback": "Not independently read; button and success status exercised.",
+      "recordedAt": "2026-09-13T04:13:21.242Z",
+      "corpusHash": "a71eb3d33a73b90baa41d1a51fb52a3f8105b767b780b79f3a3679e293c065d7"
+    },
+    {
+      "caseId": "F05",
+      "attempt": 1,
+      "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+      "status": "completed",
+      "startedAt": "2026-09-13T04:12:55.982Z",
+      "finishedAt": "2026-09-13T04:15:49.676Z",
+      "inputEdited": false,
+      "manualGenerationRetries": 0,
+      "providerRepair": "Built-in provider repair may occur within a request; no manual retry was made.",
+      "artifacts": [
+        {
+          "filename": "F05-letter.docx",
+          "downloadName": "Rowan-Ellis-Upholsterer-cover-letter.docx",
+          "sha256": "76cd9c1270a22a96922f140bddd0a3a19e80dc16e34a03185fbedc9daf4dd7fc"
+        },
+        {
+          "filename": "F05-letter.pdf",
+          "downloadName": "Rowan-Ellis-Upholsterer-cover-letter.pdf",
+          "sha256": "da179ce428fb860a9d0f1587949e0a6c675aca0d847f6142bdb045fcad0c8f3d"
+        },
+        {
+          "filename": "F05-resume.docx",
+          "downloadName": "Rowan-Ellis-Upholsterer-Fabric-Cutting-Sewing.docx",
+          "sha256": "a5a9edffa2efc0e7acd45f87f364d48782754ef0ba668246b71eae2ecfbd3dc1"
+        },
+        {
+          "filename": "F05-resume.pdf",
+          "downloadName": "Rowan-Ellis-Upholsterer-Fabric-Cutting-Sewing.pdf",
+          "sha256": "0451a0b32f1fdd4645a4caee7dedeec5e425b66ff0760e0da8c6e6705c78d700"
+        }
+      ],
+      "letterCopyConfirmed": true,
+      "clipboardReadback": "Not independently read; button and success status exercised.",
+      "recordedAt": "2026-09-13T04:16:15.117Z",
+      "corpusHash": "a71eb3d33a73b90baa41d1a51fb52a3f8105b767b780b79f3a3679e293c065d7"
+    },
+    {
+      "caseId": "F06",
+      "attempt": 1,
+      "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+      "status": "completed",
+      "startedAt": "2026-09-13T04:15:52.852Z",
+      "finishedAt": "2026-09-13T04:18:42.171Z",
+      "inputEdited": false,
+      "manualGenerationRetries": 0,
+      "providerRepair": "Built-in provider repair may occur within a request; no manual retry was made.",
+      "artifacts": [
+        {
+          "filename": "F06-resume.docx",
+          "downloadName": "Amara-Okafor-Fundraising-Assistant.docx",
+          "sha256": "1a08c2ca0f56c632e29915453cae021c8f299c1913ee2ee44987e214a2a9aa4b"
+        },
+        {
+          "filename": "F06-resume.pdf",
+          "downloadName": "Amara-Okafor-Fundraising-Assistant.pdf",
+          "sha256": "878e9d4070199fdc1686c88e9b391bcbe96f9ba39b496ba0050b5df969d3db76"
+        },
+        {
+          "filename": "F06-letter.docx",
+          "downloadName": "Amara-Okafor-Grant-Writer-cover-letter.docx",
+          "sha256": "5725aa3362cd05857e689aad1e531287d31b2309bafb794832489a4cc534ca6a"
+        },
+        {
+          "filename": "F06-letter.pdf",
+          "downloadName": "Amara-Okafor-Grant-Writer-cover-letter.pdf",
+          "sha256": "ead00bc0ac55bf027bc68bedd6708e82e25e82ed83fc20add699e3e7c41aeb19"
+        }
+      ],
+      "letterCopyConfirmed": true,
+      "clipboardReadback": "Not independently read; button and success status exercised.",
+      "recordedAt": "2026-09-13T04:19:11.286Z",
+      "corpusHash": "a71eb3d33a73b90baa41d1a51fb52a3f8105b767b780b79f3a3679e293c065d7"
+    },
+    {
+      "caseId": "F07",
+      "attempt": 1,
+      "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+      "status": "completed",
+      "startedAt": "2026-09-13T04:18:45.340Z",
+      "finishedAt": "2026-09-13T04:22:02.191Z",
+      "inputEdited": false,
+      "manualGenerationRetries": 0,
+      "providerRepair": "Built-in provider repair may occur within a request; no manual retry was made.",
+      "artifacts": [
+        {
+          "filename": "F07-resume.docx",
+          "downloadName": "Julian-Brooks-Collections-Documentation-Assistant.docx",
+          "sha256": "7ff3fdd976891e62a7f8c6b5e71e6b6592bf7cf32a4b9b84a043e52a9e794ca9"
+        },
+        {
+          "filename": "F07-resume.pdf",
+          "downloadName": "Julian-Brooks-Collections-Documentation-Assistant.pdf",
+          "sha256": "9877e3ddd2412dc3c0900c6559b8d1d72e0971d9968d279eec76e50767db04d6"
+        },
+        {
+          "filename": "F07-letter.docx",
+          "downloadName": "Julian-Brooks-Museum-Collections-Assistant-cover-letter.docx",
+          "sha256": "f6fc97773ec565ef6d20bc69a366f3154a38a39975853e97fc0b9c5de0789608"
+        },
+        {
+          "filename": "F07-letter.pdf",
+          "downloadName": "Julian-Brooks-Museum-Collections-Assistant-cover-letter.pdf",
+          "sha256": "d9c73146d3990b680499e98cf94339d1234177d383d7dd135708d68a8e0e16f7"
+        }
+      ],
+      "letterCopyConfirmed": true,
+      "clipboardReadback": "Not independently read; button and success status exercised.",
+      "recordedAt": "2026-09-13T04:22:27.516Z",
+      "corpusHash": "a71eb3d33a73b90baa41d1a51fb52a3f8105b767b780b79f3a3679e293c065d7"
+    },
+    {
+      "caseId": "F08",
+      "attempt": 1,
+      "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+      "status": "completed",
+      "startedAt": "2026-09-13T04:22:05.355Z",
+      "finishedAt": "2026-09-13T04:25:10.785Z",
+      "inputEdited": false,
+      "manualGenerationRetries": 0,
+      "providerRepair": "Built-in provider repair may occur within a request; no manual retry was made.",
+      "artifacts": [
+        {
+          "filename": "F08-letter.docx",
+          "downloadName": "Sana-Haddad-Transit-Dispatcher-cover-letter-preliminary.docx",
+          "sha256": "bc4f1cedd7d343d406cb690844d7c0eda31361fb990f6bb47367c1494c23b98c"
+        },
+        {
+          "filename": "F08-letter.pdf",
+          "downloadName": "Sana-Haddad-Transit-Dispatcher-cover-letter-preliminary.pdf",
+          "sha256": "1f9b10b1917d602cdfdc9f5be9c973c17026343aefeb2baafb77de98c4a7072f"
+        },
+        {
+          "filename": "F08-resume.docx",
+          "downloadName": "Sana-Haddad-Transport-Scheduler-preliminary.docx",
+          "sha256": "7c4d613f55d4771a3a99475005d5537730a96800212aa2abf0070fcb24c25324"
+        },
+        {
+          "filename": "F08-resume.pdf",
+          "downloadName": "Sana-Haddad-Transport-Scheduler-preliminary.pdf",
+          "sha256": "90724d3ce7398834dea06296c266d9187696e764c46e273d44c12308e3bb9bf1"
+        }
+      ],
+      "letterCopyConfirmed": true,
+      "clipboardReadback": "Not independently read; button and success status exercised.",
+      "recordedAt": "2026-09-13T04:25:40.735Z",
+      "corpusHash": "a71eb3d33a73b90baa41d1a51fb52a3f8105b767b780b79f3a3679e293c065d7"
+    },
+    {
+      "caseId": "F09",
+      "attempt": 1,
+      "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+      "status": "partial",
+      "startedAt": "2026-09-13T04:25:13.959Z",
+      "finishedAt": "2026-09-13T04:29:25.281Z",
+      "inputEdited": false,
+      "manualGenerationRetries": 0,
+      "providerRepair": "Built-in provider repair may occur within a request; no manual retry was made.",
+      "artifacts": [
+        {
+          "filename": "F09-resume.docx",
+          "downloadName": "Leo-Castillo-Landscape-Crew-Leader-Grounds-Maintenance.docx",
+          "sha256": "3baefd95c82d03069c0c9f55e032c5f7eeeed3e59167cd0235b300536febd2a8"
+        },
+        {
+          "filename": "F09-resume.pdf",
+          "downloadName": "Leo-Castillo-Landscape-Crew-Leader-Grounds-Maintenance.pdf",
+          "sha256": "d4722cd51939ab0c4a54351e0439b1b6dd4fd2f1be6a9956b55ae435fa6dd2a8"
+        }
+      ],
+      "letterCopyConfirmed": false,
+      "clipboardReadback": "Not independently read; button and success status exercised.",
+      "recordedAt": "2026-09-13T04:29:53.386Z",
+      "corpusHash": "a71eb3d33a73b90baa41d1a51fb52a3f8105b767b780b79f3a3679e293c065d7"
+    },
+    {
+      "caseId": "F10",
+      "attempt": 1,
+      "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+      "status": "completed",
+      "startedAt": "2026-09-13T04:29:30.752Z",
+      "finishedAt": "2026-09-13T04:32:32.764Z",
+      "inputEdited": false,
+      "manualGenerationRetries": 0,
+      "providerRepair": "Built-in provider repair may occur within a request; no manual retry was made.",
+      "artifacts": [
+        {
+          "filename": "F10-resume.docx",
+          "downloadName": "Nadia-Laurent-Freelance-Audio-Editor.docx",
+          "sha256": "493cdcf390b4cc5bf5b8391afb2cfcc5787512b5d6b7b434153247a64eed9e68"
+        },
+        {
+          "filename": "F10-resume.pdf",
+          "downloadName": "Nadia-Laurent-Freelance-Audio-Editor.pdf",
+          "sha256": "aabc46a0dc9fddb3c5e38c73d60bd618f2a5897b6d1930a7f5c086dc1feda004"
+        },
+        {
+          "filename": "F10-letter.docx",
+          "downloadName": "Nadia-Laurent-Freelance-Podcast-Audio-Editor-cover-letter.docx",
+          "sha256": "0dcaf309bfd617081bdb1f1bda2ef0303c0c4f32b4fa07ae3783dbcd057d08cf"
+        },
+        {
+          "filename": "F10-letter.pdf",
+          "downloadName": "Nadia-Laurent-Freelance-Podcast-Audio-Editor-cover-letter.pdf",
+          "sha256": "ebfe6d563db6c4443397bb0c8ea2292be2e22517f0496564dd8f94ab36eca707"
+        }
+      ],
+      "letterCopyConfirmed": true,
+      "clipboardReadback": "Not independently read; button and success status exercised.",
+      "recordedAt": "2026-09-13T04:32:50.058Z",
+      "corpusHash": "a71eb3d33a73b90baa41d1a51fb52a3f8105b767b780b79f3a3679e293c065d7"
+    }
+  ],
+  "retests": []
+}

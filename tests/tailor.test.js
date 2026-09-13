@@ -1,3 +1,5 @@
+// Editorial judgement has its own production-path tests; these fixtures isolate the named validation/repair behaviour.
+const skipContentReview = async ({ document }) => ({ document, applied: false, status: "not_tested_here" });
 import test from "node:test";
 import assert from "node:assert/strict";
 
@@ -86,7 +88,7 @@ test("evidence-analysis output budget scales for production-sized requirement in
 test("tailoring rejects a missing authorization header before external work", async () => {
   let authenticated = false;
   let fetched = false;
-  const handler = createTailorHandler({
+  const handler = createTailorHandler({ reviewContent: skipContentReview,
     authenticate: async () => {
       authenticated = true;
       return null;
@@ -117,14 +119,20 @@ test("tailoring polishes a repeated profile once while preserving source history
       const body = JSON.parse(options.body), name = body.tool_choice.name;
       names.push(name);
       if (name === 'return_tailoring_analysis') return toolResponse(name, analysisInput({requirements:[{id:'R1', requirement:'QuickBooks Online experience', priority:'required', evidence_match:'direct', resume_evidence:bullets[0], safe_language:'QuickBooks Online', keywords:['QuickBooks Online']}]}));
-      if (name === 'return_resume_summary') return toolResponse(name, {profile:'Bookkeeper with experience in QuickBooks Online and accounts administration.'});
+      if (name === 'return_content_editorial_review') return toolResponse(name, {
+        decision: 'revise',
+        before: { relevance: 3, useful_detail: 3, document_purpose: 1, selection: 2, natural_writing: 2 },
+        after: { relevance: 3, useful_detail: 3, document_purpose: 3, selection: 3, natural_writing: 3 },
+        changes: [{ original_excerpt: draft.profile, source_excerpt: bullets[0], benefit: 'Introduces professional context and leaves specific account tasks in experience.' }],
+        document: {profile:'Bookkeeper with experience in QuickBooks Online and accounts administration.'}
+      });
       return toolResponse(name, draft);
     },
   });
   const res = responseRecorder();
   await handler({ method: 'POST', headers: { authorization: 'Bearer test' }, body: {resume:source, customJob:{title:'Bookkeeper',company:'Example Employer',description:'Process accounts in QuickBooks Online and reconcile bank accounts for the office.', responsibilities:['Reconcile bank accounts'],required_qualifications:['QuickBooks Online experience']}} }, res);
   assert.equal(res.statusCode, 200);
-  assert.equal(names.filter((name) => name === 'return_resume_summary').length, 1);
+  assert.equal(names.filter((name) => name === 'return_content_editorial_review').length, 1);
   assert.equal(res.body.resume.profile, 'Bookkeeper with experience in QuickBooks Online and accounts administration.');
   assert.deepEqual(res.body.resume.experience[0].bullets, bullets);
   assert.equal(res.body.repair_applied, true);
@@ -132,7 +140,7 @@ test("tailoring polishes a repeated profile once while preserving source history
 
 test("tailoring rejects an invalid token before calling Anthropic", async () => {
   let fetched = false;
-  const handler = createTailorHandler({
+  const handler = createTailorHandler({ reviewContent: skipContentReview,
     authenticate: async () => null,
     fetchImpl: async () => {
       fetched = true;
@@ -154,7 +162,7 @@ test("tailoring rejects an invalid token before calling Anthropic", async () => 
 
 test("tailoring rejects unconfirmed candidate evidence before calling Anthropic", async () => {
   let fetched = false;
-  const handler = createTailorHandler({
+  const handler = createTailorHandler({ reviewContent: skipContentReview,
     authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
     fetchImpl: async () => { fetched = true; throw new Error("should not fetch"); },
     getApiKey: () => "test-key",
@@ -179,7 +187,7 @@ test("tailoring rejects unconfirmed candidate evidence before calling Anthropic"
 test("tailoring loads the trusted listing by id and ignores a caller URL", async () => {
   let loadedId = null;
   let anthropicRequest = null;
-  const handler = createTailorHandler({
+  const handler = createTailorHandler({ reviewContent: skipContentReview,
     authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
     loadListing: async (_supabase, listingId) => {
       loadedId = listingId;
@@ -244,7 +252,7 @@ test("tailoring loads the trusted listing by id and ignores a caller URL", async
 test("tailoring accepts a reviewed custom job without loading a database listing", async () => {
   let loadCalled = false;
   let anthropicRequest;
-  const handler = createTailorHandler({
+  const handler = createTailorHandler({ reviewContent: skipContentReview,
     authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
     loadListing: async () => { loadCalled = true; return null; },
     fetchImpl: async (_url, options) => {
@@ -302,7 +310,7 @@ test("tailoring accepts a reviewed custom job without loading a database listing
 
 test("analysis-only mode returns shared evidence assessment without requesting a résumé draft", async () => {
   const requestedTools = [];
-  const handler = createTailorHandler({
+  const handler = createTailorHandler({ reviewContent: skipContentReview,
     authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
     loadListing: async (_client, id) => ({
       id,
@@ -338,7 +346,7 @@ test("analysis-only mode returns shared evidence assessment without requesting a
 
 test("tailoring evidence analysis uses the strict OpenAI contract and explicit low reasoning", async () => {
   let analysisRequest;
-  const handler = createTailorHandler({
+  const handler = createTailorHandler({ reviewContent: skipContentReview,
     authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
     loadListing: async (_client, id) => ({
       id,
@@ -395,7 +403,7 @@ test("tailoring automatically repairs one unsafe model draft before returning it
       fit_assessment: { path: "career_change", recommended_level: "Entry-level", note: "Transferable positioning." },
     },
   ];
-  const handler = createTailorHandler({
+  const handler = createTailorHandler({ reviewContent: skipContentReview,
     authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
     loadListing: async () => ({
       id: 7,
@@ -465,7 +473,7 @@ test("tailoring rebuilds from source when a draft omits a verified employment en
       { role: "Senior Solution Designer", company: "Deloitte Canada", dates: "2019–2021", bullets: ["Configured Contract Accounts."] },
     ],
   };
-  const handler = createTailorHandler({
+  const handler = createTailorHandler({ reviewContent: skipContentReview,
     authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
     loadListing: async () => ({
       id: 71,
@@ -517,7 +525,7 @@ test("tailoring falls back to verified content when the model repair still has o
     training: [],
     fit_assessment: { path: "career_change", recommended_level: "Entry-level", note: "Transferable positioning." },
   };
-  const handler = createTailorHandler({
+  const handler = createTailorHandler({ reviewContent: skipContentReview,
     authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
     loadListing: async () => ({
       id: 8,
@@ -565,7 +573,7 @@ test("tailoring falls back to verified content when the model repair still has o
 
 test("tailoring automatically retries a timed-out evidence analysis", async () => {
   let analysisCalls = 0;
-  const handler = createTailorHandler({
+  const handler = createTailorHandler({ reviewContent: skipContentReview,
     authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
     loadListing: async () => ({
       id: 9,

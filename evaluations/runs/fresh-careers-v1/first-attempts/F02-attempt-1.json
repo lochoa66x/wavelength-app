@@ -1,0 +1,37 @@
+{
+  "caseId": "F02",
+  "attempt": 1,
+  "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+  "status": "completed",
+  "startedAt": "2026-09-13T04:02:01.717Z",
+  "finishedAt": "2026-09-13T04:06:27.013Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in provider repair may occur within a request; no manual retry was made.",
+  "artifacts": [
+    {
+      "filename": "F02-resume.docx",
+      "downloadName": "Theo-Martins-Veterinary-Assistant-Clinical-Animal-Care.docx",
+      "sha256": "b187422c9e3fa298b81b9a0fd9e4164a56170e646214e868be89a1679dc050dc"
+    },
+    {
+      "filename": "F02-resume.pdf",
+      "downloadName": "Theo-Martins-Veterinary-Assistant-Clinical-Animal-Care.pdf",
+      "sha256": "9b82c3e6e46156a33ffeee77136642125ac4f2fafc6a21cf95eb3520ec5f49c7"
+    },
+    {
+      "filename": "F02-letter.docx",
+      "downloadName": "Theo-Martins-Veterinary-Assistant-cover-letter.docx",
+      "sha256": "3dcdf6036004b728505cf88ab38bc245c0e6b6bab14bf708e49ee2c592445bcf"
+    },
+    {
+      "filename": "F02-letter.pdf",
+      "downloadName": "Theo-Martins-Veterinary-Assistant-cover-letter.pdf",
+      "sha256": "8db318c10a0686a92b8a64f92042f0eabb6313d07202df530ddf2a0cf9ec17a6"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; button and success status exercised.",
+  "recordedAt": "2026-09-13T04:06:53.024Z",
+  "corpusHash": "a71eb3d33a73b90baa41d1a51fb52a3f8105b767b780b79f3a3679e293c065d7"
+}

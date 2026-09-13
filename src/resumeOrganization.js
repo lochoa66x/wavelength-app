@@ -15,7 +15,7 @@ export function resumeSectionKind(value) {
   if (/^(?:(?:core|technical|professional|key) )?(?:skills|competencies|expertise)$/i.test(heading)) return "skills";
   if (/^(?:(?:selected|technical|professional|relevant) )?projects?$/i.test(heading)) return "projects";
   if (/^(?:(?:professional|career) )?(?:summary|profile|objective)$/i.test(heading)) return "summary";
-  if (/^(?:interests|hobbies|publications|references|awards|achievements|volunteer(?:ing| experience)?|memberships|additional information)$/i.test(heading)) return "other";
+  if (/^(?:interests|hobbies|publications|references|awards|achievements|portfolio|work[- ]samples?|professional website|personal website|volunteer(?:ing| experience)?|memberships|additional information)$/i.test(heading)) return "other";
   return "";
 }
 
@@ -95,12 +95,35 @@ export function organizeResumeSections(source = {}, baseResume = "") {
   languages.push(...languageSkills);
   const splitLanguages = (entry) => typeof entry === 'string' ? entry.split(/[,;]\s*(?=[\p{L}][\p{L} -]{1,25}(?::|\s+(?:native|fluent|basic|intermediate|advanced)\b))/iu) : [entry];
   const organizedLanguages = unique(languages.flatMap(splitLanguages), languageIdentity);
+  // One qualification record owns one visible section. Compare the complete
+  // name/provider/date/status so renewals and distinct credentials survive.
+  const qualificationText = (entry) => typeof entry === "string" ? entry : [
+    entry?.name ?? entry?.credential ?? entry?.degree ?? entry?.program ?? entry?.text,
+    entry?.provider ?? entry?.issuer ?? entry?.institution ?? entry?.school,
+    entry?.dates ?? entry?.dateDisplay ?? entry?.date ?? entry?.year,
+  ].filter(Boolean).join(" | ");
+  const qualificationKey = (entry) => {
+    const parts = qualificationText(entry).split("|").map(value => value.trim());
+    if (/\bsap\b/i.test(parts[1] || "")) parts[0] = parts[0].replace(/^SAP\s+/i, "");
+    return key([...parts, entry?.status, entry?.expirationDate, entry?.credentialId].filter(Boolean).join(" | ")).replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+  };
+  const trainingRecords = unique(training, qualificationKey);
+  const certificationRecords = unique(list(source.certifications), qualificationKey);
+  const certificationKeys = new Set(certificationRecords.map(qualificationKey));
+  const primaryKeys = new Set([...trainingRecords, ...certificationRecords].map(qualificationKey));
+  const educationRecords = list(source.education).filter((entry) => !primaryKeys.has(qualificationKey(entry)));
+  const safetyRecords = list(source.safety_certifications ?? source.safety?.certifications).filter((entry) => !primaryKeys.has(qualificationKey(entry)));
+
   const languageNames = new Set(organizedLanguages.map((entry) => key(languageIdentity(entry))));
   return {
     ...source,
     ...(resumeProfessionalLinks(baseResume).length ? { professionalLinks: unique([...list(source.professionalLinks ?? source.professional_links), ...resumeProfessionalLinks(baseResume)], (entry) => entry?.url || text(entry)) } : {}),
     ...(Array.isArray(source.skills) ? { skills: source.skills.filter((entry) => !credentialNames.has(credentialKey(entry)) && !languageSkills.includes(entry) && !languageNames.has(key(text(entry)))) } : {}),
-    training: unique(training, courseIdentity),
+    training: trainingRecords.filter((entry) => !certificationKeys.has(qualificationKey(entry))),
+    ...(Array.isArray(source.certifications) ? { certifications: certificationRecords } : {}),
+    ...(Array.isArray(source.education) ? { education: educationRecords } : {}),
+    ...(Array.isArray(source.safety_certifications) ? { safety_certifications: safetyRecords } : {}),
+    ...(source.safety ? { safety: { ...source.safety, certifications: safetyRecords } } : {}),
     languages: organizedLanguages,
     additionalSections: additional.map((entry) => ({ ...entry, items: unique(entry.items) })).filter((entry) => entry.items.length),
   };

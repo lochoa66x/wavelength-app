@@ -1,0 +1,37 @@
+{
+  "caseId": "F05",
+  "attempt": 1,
+  "revision": "e126ec73dfda2f68eb5264db9ece9ee78d6d43d6",
+  "status": "completed",
+  "startedAt": "2026-09-13T04:12:55.982Z",
+  "finishedAt": "2026-09-13T04:15:49.676Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in provider repair may occur within a request; no manual retry was made.",
+  "artifacts": [
+    {
+      "filename": "F05-letter.docx",
+      "downloadName": "Rowan-Ellis-Upholsterer-cover-letter.docx",
+      "sha256": "76cd9c1270a22a96922f140bddd0a3a19e80dc16e34a03185fbedc9daf4dd7fc"
+    },
+    {
+      "filename": "F05-letter.pdf",
+      "downloadName": "Rowan-Ellis-Upholsterer-cover-letter.pdf",
+      "sha256": "da179ce428fb860a9d0f1587949e0a6c675aca0d847f6142bdb045fcad0c8f3d"
+    },
+    {
+      "filename": "F05-resume.docx",
+      "downloadName": "Rowan-Ellis-Upholsterer-Fabric-Cutting-Sewing.docx",
+      "sha256": "a5a9edffa2efc0e7acd45f87f364d48782754ef0ba668246b71eae2ecfbd3dc1"
+    },
+    {
+      "filename": "F05-resume.pdf",
+      "downloadName": "Rowan-Ellis-Upholsterer-Fabric-Cutting-Sewing.pdf",
+      "sha256": "0451a0b32f1fdd4645a4caee7dedeec5e425b66ff0760e0da8c6e6705c78d700"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; button and success status exercised.",
+  "recordedAt": "2026-09-13T04:16:15.117Z",
+  "corpusHash": "a71eb3d33a73b90baa41d1a51fb52a3f8105b767b780b79f3a3679e293c065d7"
+}

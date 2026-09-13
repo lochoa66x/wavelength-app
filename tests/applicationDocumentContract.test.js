@@ -1,3 +1,5 @@
+// Editorial judgement has its own production-path tests; these fixtures isolate the named validation/repair behaviour.
+const skipContentReview = async ({ document }) => ({ document, applied: false, status: "not_tested_here" });
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { validateApplicationDocument, mergeCoverLetterReplacement, resumeReviewedContentHash } from '../src/applicationDocumentContract.js';
@@ -23,7 +25,7 @@ const draft = () => ({length:'short',voice:'direct',paragraphs:[
 ]});
 async function invoke(raw, extra = {}) {
  let calls=0;
- const handler=createCoverLetterHandler({authenticate:async()=>({user:{id:'qa'},supabase:{}}),getApiKey:()=> 'test',getOpenAIKey:()=>undefined,fetchImpl:async()=>{calls++;return {ok:true,json:async()=>({content:[{type:'tool_use',name:'return_evidence_first_cover_letter',input:raw}]})}}});
+ const handler=createCoverLetterHandler({ reviewContent: skipContentReview,authenticate:async()=>({user:{id:'qa'},supabase:{}}),getApiKey:()=> 'test',getOpenAIKey:()=>undefined,fetchImpl:async()=>{calls++;return {ok:true,json:async()=>({content:[{type:'tool_use',name:'return_evidence_first_cover_letter',input:raw}]})}}});
  const response={statusCode:200,setHeader(){},status(n){this.statusCode=n;return this;},json(value){this.body=value;return this;}};
  await handler({method:'POST',headers:{authorization:'Bearer test'},body:{resume:source,customJob:item,length:'short',...extra}},response);
  return {...response,calls};

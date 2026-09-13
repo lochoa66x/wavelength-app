@@ -1,3 +1,5 @@
+// Editorial judgement has its own production-path tests; these fixtures isolate the named validation/repair behaviour.
+const skipContentReview = async ({ document }) => ({ document, applied: false, status: "not_tested_here" });
 import test from "node:test";
 import assert from "node:assert/strict";
 import { reviewCoverLetterWriting, mergeCoverLetterParagraphRepair } from "../src/coverLetterWriting.js";
@@ -56,7 +58,7 @@ test("paragraph patch rejects missing, duplicate and unexpected ids; untouched s
 test("API polishes only an affected paragraph and preserves the other paragraphs",async()=>{
  const initial={...letter,paragraphs:paragraphs.map(p=>p.id==="evidence"?{...p,text:p.text+" This aligns closely with your work."}:p)};
  const requests=[];
- const handler=createCoverLetterHandler({...options,fetchImpl:async(_url,opts)=>{requests.push(JSON.parse(opts.body));return response("return_evidence_first_cover_letter",requests.length===1?initial:{paragraphs:[paragraphs[1]]});}});
+ const handler=createCoverLetterHandler({ reviewContent: skipContentReview,...options,fetchImpl:async(_url,opts)=>{requests.push(JSON.parse(opts.body));return response("return_evidence_first_cover_letter",requests.length===1?initial:{paragraphs:[paragraphs[1]]});}});
  const res=recorder();await handler(request,res);
  assert.equal(res.statusCode,200);assert.equal(requests.length,2);
  assert.match(requests[1].messages[0].content,/Return exactly these paragraph ids: \["evidence"\]/);
@@ -66,14 +68,14 @@ test("API polishes only an affected paragraph and preserves the other paragraphs
 test("an unsafe or failed optional polish cannot replace a truthful draft",async()=>{
  for(const fail of [false,true]) {
   let calls=0;const initial={...letter,paragraphs:paragraphs.map(p=>p.id==="evidence"?{...p,text:p.text+" This aligns closely with your work."}:p)};
-  const handler=createCoverLetterHandler({...options,fetchImpl:async()=>{calls++;if(calls===1)return response("return_evidence_first_cover_letter",initial);if(fail)throw new Error("controlled unavailable polish");return response("return_evidence_first_cover_letter",{paragraphs:[{...paragraphs[1],text:"I delivered 987654 successful implementations for this company."}]});}});
+  const handler=createCoverLetterHandler({ reviewContent: skipContentReview,...options,fetchImpl:async()=>{calls++;if(calls===1)return response("return_evidence_first_cover_letter",initial);if(fail)throw new Error("controlled unavailable polish");return response("return_evidence_first_cover_letter",{paragraphs:[{...paragraphs[1],text:"I delivered 987654 successful implementations for this company."}]});}});
   const res=recorder();await handler(request,res);assert.equal(res.statusCode,200);assert.equal(calls,2);assert.equal(res.body.letter.paragraphs[1].text,initial.paragraphs[1].text);
  }
 });
 
 test("API repairs a factual error in one paragraph, then revalidates the complete letter",async()=>{
  let calls=0;const initial={...letter,paragraphs:paragraphs.map(p=>p.id==="evidence"?{...p,text:"I configured Business Partner and Deposits Management modules."}:p)};
- const handler=createCoverLetterHandler({...options,fetchImpl:async()=>response("return_evidence_first_cover_letter",++calls===1?initial:{paragraphs:[paragraphs[1]]})});
+ const handler=createCoverLetterHandler({ reviewContent: skipContentReview,...options,fetchImpl:async()=>response("return_evidence_first_cover_letter",++calls===1?initial:{paragraphs:[paragraphs[1]]})});
  const res=recorder();await handler(request,res);assert.equal(res.statusCode,200);assert.equal(calls,2);assert.equal(res.body.letter.paragraphs[1].text,source.replace(/^Provided/,"I provided"));
 });
 
@@ -89,7 +91,7 @@ test("source restoration is exact, scoped and declines ambiguous originals",()=>
 
 test("full résumé handler repairs a restorable bullet without another model draft",async()=>{
  const requests=[];const draft={...resume,experience:[{...resume.experience[0],bullets:["Responsible for the configuration of Business Partner and Deposits Management modules."]}]};
- const handler=createTailorHandler({...options,fetchImpl:async(_url,opts)=>{const body=JSON.parse(opts.body);requests.push(body);const name=body.tools[0].name;return response(name,name==="return_tailoring_analysis"?analysis:draft);}});
+ const handler=createTailorHandler({ reviewContent: skipContentReview,...options,fetchImpl:async(_url,opts)=>{const body=JSON.parse(opts.body);requests.push(body);const name=body.tools[0].name;return response(name,name==="return_tailoring_analysis"?analysis:draft);}});
  const res=recorder();await handler(request,res);
  assert.equal(res.statusCode,200);assert.equal(requests.length,2,"one analysis and one draft; no AI rebuild");assert.equal(res.body.repair_applied,true);assert.deepEqual(res.body.resume.experience[0].bullets,[source]);
  assert.match(requests[1].messages[0].content,/source_statements/);assert.equal(res.body.ats_review.integrity.status,"pass");

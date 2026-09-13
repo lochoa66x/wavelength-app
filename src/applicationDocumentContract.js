@@ -2,12 +2,13 @@ import { coverLetterLengthPolicy, countCoverLetterWords } from './coverLetterCon
 import { claimMeaningIssues, contributionEditIssue, hasInternalDocumentLanguage } from './documentIntegrity.js';
 import { containsSelfDisqualifyingCoverLetterLanguage } from './coverLetterLanguage.js';
 import { createResumePackage, stableHash } from './resumeModel.js';
+import { academicStatusIssues } from './academicClaims.js';
 
 // This is a content contract, not an assessment of persuasiveness. Generation,
 // edits, saved-draft readiness and every exporter call the same entry point.
 // Provider citation resolution, source/identity hashes and authorization remain
 // boundary checks; passing this contract never replaces those protections.
-export const DOCUMENT_CONTRACT_VERSION = 1;
+export const DOCUMENT_CONTRACT_VERSION = 2;
 export const COVER_LETTER_PARAGRAPH_LIMIT = 2400;
 export const COVER_LETTER_PARAGRAPH_MIN = 20;
 const refs = (paragraph, camel, snake) => paragraph?.[camel] ?? paragraph?.[snake] ?? [];
@@ -52,6 +53,8 @@ export function validateApplicationDocument({ kind, document, candidateCorpus = 
       if (text.length < COVER_LETTER_PARAGRAPH_MIN || text.length > COVER_LETTER_PARAGRAPH_LIMIT) add('paragraph_length', `Keep a complete paragraph between ${COVER_LETTER_PARAGRAPH_MIN} and ${COVER_LETTER_PARAGRAPH_LIMIT} characters; no text is truncated.`, id);
       if (paragraph.purpose !== 'closing' && (!Array.isArray(evidence) || !evidence.some((entry) => typeof entry === 'string' && entry.trim()))) add('candidate_citation', 'This paragraph needs candidate evidence citations.', id);
       if (paragraph.purpose !== 'closing' && (!Array.isArray(requirements) || !requirements.some((entry) => typeof entry === 'string' && entry.trim()))) add('posting_citation', 'This paragraph needs posting requirement citations.', id);
+      if (paragraph.purpose === 'closing' && /\b(?:certificat(?:e|ion)|licen[cs]e|degree|diploma|bachelor|master(?:'s| of)|Ph\.?D|B\.?Sc|M\.?Sc|portfolio|available|availability)\b|https?:\/\//i.test(text)
+        && (!Array.isArray(evidence) || !evidence.length)) add('candidate_citation', 'Factual claims in a closing need candidate evidence citations too.', id);
       if (hasInternalDocumentLanguage(text)) add('internal_language', 'Remove internal application terminology.', id);
       if (/(?:\[|<)(?:hiring manager|name|company|address|date|insert|unknown)(?:\]|>)/i.test(text)) add('placeholder', 'Replace unresolved placeholder language.', id);
       if (/\b(?:renowned|esteemed|world[- ]class|industry[- ]leading|impressed by|admire your|dream company|thrilled|passionate|excited)\b/i.test(text)) add('unsupported_motivation', 'Remove unsupported motivation or employer flattery.', id);
@@ -63,11 +66,13 @@ export function validateApplicationDocument({ kind, document, candidateCorpus = 
     }
   } else if (kind === 'resume') {
     const content = document?.document || document || {};
+    if (candidateCorpus) for (const value of strings({ profile: content.profile ?? content.summary, education: content.education }))
+      for (const message of academicStatusIssues(value, [candidateCorpus])) add('academic_status', message);
     if (strings(content).some(hasInternalDocumentLanguage)) add('internal_language', 'Remove internal application terminology from the résumé.');
     if (assessment?.integrity?.status === 'blocked') add('evidence_integrity', 'Resolve the résumé evidence integrity issues before exporting.');
     if (assessment?.writing?.status === 'blocked') add('contribution_language', 'Correct unsupported contribution wording before exporting.');
     if (assessment?.writing_review && !assessment?.document_contract) add('stale_assessment', 'This older résumé needs a fresh evidence review before export. Regenerate or recheck the draft.');
-    if (assessment?.document_contract && (assessment.document_contract.version !== DOCUMENT_CONTRACT_VERSION || assessment.document_contract.contentHash !== resumeReviewedContentHash(document))) add('stale_assessment', 'The résumé changed after its evidence review. Recheck this draft before exporting.');
+    if (assessment?.document_contract && (assessment.document_contract.version !== DOCUMENT_CONTRACT_VERSION || assessment.document_contract.contentHash !== resumeReviewedContentHash(document))) add('stale_assessment', 'The résumé or validation rules changed after its evidence review. Recheck this draft before exporting.');
     // Missing fit/posting evidence allows a clearly labelled preliminary file.
     // A known false claim does not become exportable by changing its label.
   } else add('document_kind', 'A supported application document kind is required.');
