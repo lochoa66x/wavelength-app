@@ -1,0 +1,78 @@
+{
+  "checkedAt": "2026-09-13T06:39:37.206Z",
+  "source": "Actual browser downloads from live production generations",
+  "wordRenderer": "Not verified by this script; DOCX XML/text checks are separate from native Word layout",
+  "documents": [
+    {
+      "case": "F02",
+      "kind": "letter",
+      "docx": "F02-letter.docx",
+      "pdf": "F02-letter.pdf",
+      "pages": 1,
+      "docxBytes": 9315,
+      "pdfBytes": 73007,
+      "selectableCharacters": 634,
+      "clipboardMatches": null,
+      "previewMatches": true,
+      "checks": [],
+      "missingParagraphs": [],
+      "clippedItems": [],
+      "docxWarnings": []
+    },
+    {
+      "case": "F02",
+      "kind": "resume",
+      "docx": "F02-resume.docx",
+      "pdf": "F02-resume.pdf",
+      "pages": 1,
+      "docxBytes": 9662,
+      "pdfBytes": 75529,
+      "selectableCharacters": 1229,
+      "clipboardMatches": null,
+      "previewMatches": true,
+      "checks": [],
+      "missingParagraphs": [],
+      "clippedItems": [],
+      "docxWarnings": []
+    },
+    {
+      "case": "F10",
+      "kind": "letter",
+      "docx": "F10-letter.docx",
+      "pdf": "F10-letter.pdf",
+      "pages": 1,
+      "docxBytes": 9308,
+      "pdfBytes": 73214,
+      "selectableCharacters": 583,
+      "clipboardMatches": null,
+      "previewMatches": true,
+      "checks": [],
+      "missingParagraphs": [],
+      "clippedItems": [],
+      "docxWarnings": []
+    },
+    {
+      "case": "F10",
+      "kind": "resume",
+      "docx": "F10-resume.docx",
+      "pdf": "F10-resume.pdf",
+      "pages": 1,
+      "docxBytes": 9607,
+      "pdfBytes": 75553,
+      "selectableCharacters": 1038,
+      "clipboardMatches": null,
+      "previewMatches": true,
+      "checks": [],
+      "missingParagraphs": [],
+      "clippedItems": [],
+      "docxWarnings": []
+    }
+  ],
+  "counts": {
+    "pairs": 4,
+    "careers": 2,
+    "files": 8,
+    "pdfPages": 4,
+    "checksToReview": 0
+  }
+}

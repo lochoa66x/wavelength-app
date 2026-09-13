@@ -58,3 +58,8 @@ Editorial source citations now use a server-built line catalog. Unknown ids and
 conflicting id/excerpt pairs are rejected; legacy exact excerpts remain supported.
 The resolved source is only an anchor for review rationale, and never substitutes
 for validating every factual claim in the proposed document.
+
+A header-owned URL also cannot form an otherwise empty Portfolio project or
+additional section. Named projects, work descriptions, dates and different sample
+addresses remain intact. This normalization is shared by the canonical renderer
+and the content hash used for export checks.

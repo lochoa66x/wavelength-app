@@ -1,0 +1,38 @@
+{
+  "checkedAt": "2026-09-13T06:43:06.849Z",
+  "fullCohorts": 3,
+  "careers": 10,
+  "targetedFollowups": 2,
+  "totals": {
+    "documents": 60,
+    "files": 120,
+    "pdfPages": 60
+  },
+  "allPreviewDocxPdfTextChecksPassed": true,
+  "pdfPagesVisuallyInspected": 60,
+  "automatedTests": {
+    "passed": 865,
+    "failed": 0,
+    "skipped": 0
+  },
+  "additionalCanonicalRenderTests": 32,
+  "build": "passed",
+  "resumeExporter": {
+    "files": 48,
+    "templates": 16,
+    "pdfPages": 29,
+    "manifestParity": true,
+    "staleAuthorizationBlocked": true
+  },
+  "letterExporter": {
+    "docx": 2,
+    "pdf": 2,
+    "pages": 2,
+    "finalAndPreliminaryGates": "passed"
+  },
+  "nativeWordPagination": "not verified",
+  "clipboardByteReadback": "not available",
+  "originalResumeRestored": true,
+  "originalResumeExactMatch": true,
+  "privateOriginalExcluded": true
+}

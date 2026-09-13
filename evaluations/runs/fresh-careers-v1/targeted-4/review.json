@@ -1,0 +1,69 @@
+{
+  "reviewer": "Codex editorial assessment; subjective, not independently calibrated human review",
+  "scope": "Two targeted follow-ups, not a new blind cohort or a replacement for the ten-case runs",
+  "attempt": 4,
+  "revision": "248c46c2e7c0e979e483cda8f9b7a9f96f7e4e4a",
+  "packagesCompleted": 2,
+  "attempts": 2,
+  "downloadFiles": 8,
+  "results": [
+    {
+      "id": "F02",
+      "resume": {
+        "evidenceGate": "review",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 2,
+          "natural_writing": 3
+        },
+        "total": 13,
+        "excerpt": "communicates veterinarian-approved written discharge instructions in English and Portuguese",
+        "analysis": "Relevant clinical focus and supervision remain; duties are detailed; summary retells work history; qualifications and languages repeat; wording is overpacked. Evidence review: separate language fluency does not establish that discharge instructions were communicated in both languages."
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 2,
+          "natural_writing": 3
+        },
+        "total": 13,
+        "excerpt": "Veterinary Assistant certificate from Example Community College",
+        "analysis": "The previously rejected issuer phrase now passes in live generation; supervised handling and source-approved instructions remain; the letter mostly inventories duties; repeated I also openings weaken selection; clear but mechanical."
+      }
+    },
+    {
+      "id": "F10",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 4,
+          "useful_detail": 3,
+          "document_purpose": 3,
+          "selection": 2,
+          "natural_writing": 3
+        },
+        "total": 15,
+        "excerpt": "focused on dialogue editing and timestamped client revisions",
+        "analysis": "Profile revision now applies through a resolved source ID and gives an appropriate focus; job facts and qualification remain; the profile no longer duplicates the URL; the same URL appears as an otherwise empty Portfolio project, fixed afterward in canonical normalization; readable wording."
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 4,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 3,
+          "natural_writing": 3
+        },
+        "total": 15,
+        "excerpt": "one consolidated review from each client",
+        "analysis": "Relevant dialogue and client-delivery scope; file formats, supplied music and review limit are preserved; two paragraphs remain largely an inventory; coherent organization but less developed than the third-pass letter; natural restrained wording."
+      }
+    }
+  ]
+}

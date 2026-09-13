@@ -138,8 +138,28 @@ export function organizeResumeSections(source = {}, baseResume = "") {
     if (removed) profile = profile.replace(/\(\s*\)/g, "").replace(/[:;]\s*([.!?])/g, "$1").replace(/\s+([.,;!?])/g, "$1").replace(/\s{2,}/g, " ").replace(/[:;]\s*$/, "").trim();
 
   }
+  const onlyHeaderLink = (values) => {
+    const fragments = (value) => typeof value === "string" ? [value] : Array.isArray(value) ? value.flatMap(fragments)
+      : value && typeof value === "object" ? fragments(value.text ?? value.value ?? value.content ?? value.description ?? "") : [];
+    let visible = fragments(values).join(" "), matched = false;
+    visible = visible.replace(/https?:\/\/[^\s<>()]+/gi, (token) => {
+      const url = token.replace(/[.,;!?]+$/, "");
+      if (!professionalLinks.some(link => link?.url === token || link?.url === url)) return token;
+      matched = true; return "";
+    });
+    const remainder = visible.replace(/[\s:.,;|()[\]—–-]+/g, " ").trim();
+    return matched && /^(?:portfolio|work samples?|professional website|personal website|website)?$/i.test(remainder);
+  };
+  const projects = list(source.projects).filter(project => !onlyHeaderLink([
+    project?.name ?? project?.title, project?.description ?? project?.summary,
+    project?.organization, project?.startDate ?? project?.start_date, project?.endDate ?? project?.end_date,
+    project?.bullets ?? project?.highlights ?? project?.achievements,
+  ]));
+  for (const section of additional) if (/^(?:portfolio|work samples?|professional website|personal website|website)$/i.test(section.title || ""))
+    section.items = section.items.filter(item => !onlyHeaderLink(item));
   return {
     ...source,
+    ...(Array.isArray(source.projects) ? { projects } : {}),
     ...(professionalLinks.length ? { professionalLinks } : {}),
     ...(typeof profile === "string" ? { profile } : {}),
     ...(Array.isArray(source.skills) ? { skills: source.skills.filter((entry) => !credentialNames.has(credentialKey(entry)) && !languageSkills.includes(entry) && !languageNames.has(key(text(entry)))) } : {}),

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import { sourceHistoryEntries, restoreEmptyHistoryFromSource, buildAtsReview } from '../api/_lib/atsValidation.js';
 import { organizeResumeSections } from '../src/resumeOrganization.js';
 import { resumeProfessionalLinks } from '../src/resumeIdentity.js';
+import { createResumePackage, buildResumeRenderPlan } from '../src/resumeModel.js';
 import { validateApplicationDocument } from '../src/applicationDocumentContract.js';
 import { credentialEvidenceIssues } from '../src/candidateClaims.js';
 import { academicStatusIssues } from '../src/academicClaims.js';
@@ -170,4 +171,22 @@ test('a valid editorial source id does not authorize an unsupported rewrite',asy
  const response={...review,changes:[{original_excerpt:original.profile,source_id:id,benefit:'Claims to establish a more specific work setting for the supplied profile.'}],document:{profile:'Led fifty unverified projects with an invented certification.'}};
  const result=await reviewApplicationContent({kind:'profile',document:original,source,generate:async()=>response,validate:async()=>({valid:false})});
  assert.equal(result.status,'rejected_validation');assert.equal(result.document,original);
+});
+
+test('a header-owned portfolio link is not an empty project or additional section',()=>{
+ const link={label:'Portfolio',url:'https://example.com/folio'};
+ const bare={name:'Portfolio',description:link.url};
+ const meaningful={name:'Portfolio',description:'Edited interview dialogue for eight episodes.',bullets:[link.url]};
+ const different={name:'Portfolio',description:'https://example.com/folio/sample'};
+ const input={professionalLinks:[link],projects:[bare,meaningful,different],additionalSections:[{title:'Portfolio',items:[link.url]},{title:'Work samples',items:['Edited a radio interview.',link.url]}]};
+ const result=organizeResumeSections(input);
+ assert.deepEqual(result.projects,[meaningful,different]);
+ const render=buildResumeRenderPlan(createResumePackage({...input,name:'Nadia Laurent',contact:'f10@example.com'}));
+ assert.equal(render.sections.find(section=>section.id==='projects').items.length,2);
+ assert.ok(render.header.contactLine.includes(link.url));
+ assert.deepEqual(result.additionalSections,[{title:'Work samples',items:['Edited a radio interview.']}]);
+ assert.deepEqual(result.professionalLinks,[link]);assert.deepEqual(organizeResumeSections(result),result);
+ assert.deepEqual(organizeResumeSections({projects:[bare]}).projects,[bare]);
+ const dated={...bare,startDate:'2024'};
+ assert.deepEqual(organizeResumeSections({professionalLinks:[link],projects:[dated]}).projects,[dated]);
 });
