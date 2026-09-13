@@ -1,0 +1,37 @@
+{
+  "caseId": "F01",
+  "attempt": 1,
+  "revision": "d5c9fe60568fb34ade44b0d13167250d6d07d5f2",
+  "status": "completed",
+  "startedAt": "2026-09-13T17:50:57.575Z",
+  "finishedAt": "2026-09-13T17:52:51.072Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F01-letter.docx",
+      "downloadName": "Owen-Mercer-CNC-Machine-Operator-cover-letter.docx",
+      "sha256": "7bea9e6aba7aa5910e0f1115377b4190d2c6680f619cb9d652a0d15d0794d2d8"
+    },
+    {
+      "filename": "F01-letter.pdf",
+      "downloadName": "Owen-Mercer-CNC-Machine-Operator-cover-letter.pdf",
+      "sha256": "d73c497680b5cee474e6ceebd2b694a70a8a2237d5c0136c5cd208c718d1a9aa"
+    },
+    {
+      "filename": "F01-resume.docx",
+      "downloadName": "Owen-Mercer-CNC-Milling-Machine-Operator.docx",
+      "sha256": "203d23e41d61b84a605b8a5ec588048525e19f4f01c112da467cae2e35c4c942"
+    },
+    {
+      "filename": "F01-resume.pdf",
+      "downloadName": "Owen-Mercer-CNC-Milling-Machine-Operator.pdf",
+      "sha256": "110ecd993bbce0e6c46ef8eba6c5ebbe585fe09876a6909b49b8f849ba3203d9"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "recordedAt": "2026-09-13T17:53:07.201Z",
+  "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+}

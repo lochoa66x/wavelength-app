@@ -15,10 +15,6 @@ export { COVER_LETTER_VOICES, COVER_LETTER_LENGTHS } from "./coverLetterControls
 const VOICES = new Set(COVER_LETTER_VOICES.map(({ id }) => id));
 const LENGTHS = new Set(COVER_LETTER_LENGTHS.map(({ id }) => id));
 const PARAGRAPH_PURPOSES = new Set(["opening", "evidence", "closing"]);
-const SAFE_ADDED_WORDS = new Set([
-  "a", "an", "and", "as", "at", "be", "because", "by", "can", "for", "from", "has", "have", "help", "i", "in", "is", "it", "my", "of", "on", "or", "our", "that", "the", "their", "this", "through", "to", "toward", "with", "would", "your",
-  "appreciate", "consideration", "contribute", "contributing", "discuss", "opportunity", "role", "team", "thank", "value", "welcome", "work",
-]);
 
 function clean(value, maxLength = 4_000) {
   return typeof value === "string"
@@ -148,6 +144,7 @@ export function createCoverLetterPlan(raw = {}, {
   };
   const normalized = {
     kind: "cover-letter-plan",
+    editorialReview: raw.editorialReview === 'needs_review' ? 'needs_review' : null,
     schemaVersion: COVER_LETTER_SCHEMA_VERSION,
     draftId: clean(raw.draftId ?? raw.draft_id, 100) || stableHash({ sourceFingerprint, createdAt: raw.createdAt || Date.now() }, "letter"),
     candidate,
@@ -175,23 +172,6 @@ export function validateCoverLetterEdit(text, paragraph, { baseResume = "", cand
   if (next.length < 20) return { ok: false, message: "Keep at least one complete, specific sentence or remove the paragraph." };
   if (containsSelfDisqualifyingCoverLetterLanguage(next)) {
     return { ok: false, message: "Keep the letter focused on relevant strengths. Leave missing qualifications and fit concerns out of employer-facing wording." };
-  }
-  const allowedCorpus = [
-    baseResume,
-    paragraph?.generatedText,
-    paragraph?.evidenceRefs?.join(" "),
-    paragraph?.requirementRefs?.join(" "),
-    item?.title,
-    item?.company,
-    ...(candidateEvidence || []).map((entry) => `${entry?.answer || ""} ${entry?.context || ""} ${entry?.employer_or_project || ""}`),
-  ].join(" ").toLowerCase();
-
-  const substantiveWordPattern = /[a-z][a-z0-9+#.-]{2,}[a-z0-9+#]/g;
-  const sourceWords = new Set(allowedCorpus.match(substantiveWordPattern) || []);
-  const addedClaimWords = (next.toLowerCase().match(substantiveWordPattern) || [])
-    .filter((word) => !sourceWords.has(word) && !SAFE_ADDED_WORDS.has(word));
-  if (addedClaimWords.length) {
-    return { ok: false, message: "This edit adds wording that is not present in the verified sources. Rephrase using the cited evidence, or regenerate the paragraph." };
   }
   return { ok: true, text: next };
 }

@@ -1,0 +1,123 @@
+{
+  "type": "deterministic replay of preserved first outputs, not fresh live generation or independent quality scoring",
+  "sourceRun": "fresh-careers-v2",
+  "results": [
+    {
+      "caseId": "F01",
+      "title": "CNC Machine Operator",
+      "profile": "CNC machine operator experienced in small-batch aluminium milling production, with a focus on first-off dimensional inspection against drawings. Holds a Mechanical Techniques certificate.",
+      "profileAdvice": [],
+      "letterAvailable": true,
+      "letterAdvice": [],
+      "conditionDiagnostic": [],
+      "toolDiagnostic": []
+    },
+    {
+      "caseId": "F02",
+      "title": "Hand Bookbinder",
+      "profile": "Bookbinding Assistant with hands-on experience in short-run journal production, including signature sewing and cloth-cover fitting.",
+      "profileAdvice": [],
+      "letterAvailable": true,
+      "letterAdvice": [],
+      "conditionDiagnostic": [],
+      "toolDiagnostic": []
+    },
+    {
+      "caseId": "F03",
+      "title": "Audiovisual Event Technician",
+      "profile": "Audiovisual Assistant with 2022–2026 experience supporting civic-event panel discussions, including room AV setup, rehearsal preparation and live sound support under a lead technician.",
+      "profileAdvice": [],
+      "letterAvailable": true,
+      "letterAdvice": [],
+      "conditionDiagnostic": [],
+      "toolDiagnostic": []
+    },
+    {
+      "caseId": "F04",
+      "title": "Travel Reservations Agent",
+      "profile": "Reservations Assistant experienced in coach-tour and accommodation booking settings, with a Tourism Operations diploma and fluent English and Italian.",
+      "profileAdvice": [],
+      "letterAvailable": true,
+      "letterAdvice": [
+        {
+          "paragraphId": "p0",
+          "code": "restated_work_description",
+          "advice": "Check whether the following description repeats the example. Keep distinct source-supported scope, constraints or outcomes; remove it only if it adds no useful information."
+        }
+      ],
+      "conditionDiagnostic": [],
+      "toolDiagnostic": []
+    },
+    {
+      "caseId": "F05",
+      "title": "Insurance Claims Assistant",
+      "profile": "Claims Administration Assistant with experience in motor-claim file administration.",
+      "profileAdvice": [],
+      "letterAvailable": true,
+      "letterAdvice": [],
+      "conditionDiagnostic": [],
+      "toolDiagnostic": []
+    },
+    {
+      "caseId": "F06",
+      "title": "Recycling Sort Line Operator",
+      "profile": "Recycling sorter with recent experience at a recovery depot, focused on material identification and established hazard-escalation procedures.",
+      "profileAdvice": [],
+      "letterAvailable": true,
+      "letterAdvice": [],
+      "conditionDiagnostic": [],
+      "toolDiagnostic": []
+    },
+    {
+      "caseId": "F07",
+      "title": "Funeral Service Assistant",
+      "profile": "Service Attendant with memorial-service experience and bereavement communication training, with a focus on service-room preparation and visitor and family support.",
+      "profileAdvice": [],
+      "letterAvailable": true,
+      "letterAdvice": [
+        {
+          "paragraphId": "p0",
+          "code": "restated_work_description",
+          "advice": "Check whether the following description repeats the example. Keep distinct source-supported scope, constraints or outcomes; remove it only if it adds no useful information."
+        }
+      ],
+      "conditionDiagnostic": [],
+      "toolDiagnostic": []
+    },
+    {
+      "caseId": "F08",
+      "title": "Localization QA Tester",
+      "profile": "Native Japanese localization QA tester with experience in pre-release game builds, focused on Japanese interface-text quality and glossary-based review.",
+      "profileAdvice": [],
+      "letterAvailable": true,
+      "letterAdvice": [],
+      "conditionDiagnostic": [],
+      "toolDiagnostic": []
+    },
+    {
+      "caseId": "F09",
+      "title": "Freelance Floral Designer",
+      "profile": "Freelance floral designer with retail florist experience.",
+      "profileAdvice": [
+        {
+          "code": "summary_title_only",
+          "advice": "This profile only repeats the role headings. Add one supported setting, specialty or professional background that helps the reader understand the candidate. Keep it brief; do not add praise or copy the duty list."
+        }
+      ],
+      "letterAvailable": false,
+      "letterAdvice": null,
+      "conditionDiagnostic": [],
+      "toolDiagnostic": []
+    },
+    {
+      "caseId": "F10",
+      "title": "Theatre Wardrobe Assistant",
+      "profile": "Theatre wardrobe assistant with theatre-production experience and a Fashion Techniques diploma, supporting costume care and quick changes within wardrobe supervisor instructions.",
+      "profileAdvice": [],
+      "letterAvailable": true,
+      "letterAdvice": [],
+      "conditionDiagnostic": [],
+      "toolDiagnostic": []
+    }
+  ]
+}

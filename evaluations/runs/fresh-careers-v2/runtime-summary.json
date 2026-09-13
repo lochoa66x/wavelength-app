@@ -1,0 +1,459 @@
+{
+  "mapping": "Sequential single-case requests correlated in timestamp order; excludes the intentional unauthenticated smoke requests.",
+  "cases": [
+    {
+      "caseId": "F01",
+      "resume": {
+        "durationMs": 22948,
+        "repairApplied": true,
+        "summaryPolishApplied": true,
+        "safetyFallbackApplied": false,
+        "draftAttempts": 2,
+        "sourceRestoredBullets": 0,
+        "firstDraftIssueCounts": {
+          "unsupported_metrics": 0,
+          "unsupported_history": 0,
+          "missing_history": 0,
+          "missing_qualifications": 0,
+          "unsupported_skills": 1,
+          "unsupported_projects": 0,
+          "unsupported_training": 0,
+          "unsupported_target_terms": 0,
+          "unsupported_positioning": 0,
+          "risky_claims": 0,
+          "provenance_issues": 0,
+          "requirement_consistency": 0,
+          "writing": 0
+        }
+      },
+      "resumeEditorial": {
+        "status": "revised",
+        "reason": null,
+        "applied": true
+      },
+      "letter": {
+        "paragraphCount": 3,
+        "regenerated": false,
+        "firstDraftIntegrityPass": true,
+        "repairApplied": false,
+        "wordCount": 68,
+        "writingIssueCount": 0,
+        "durationMs": 13103
+      },
+      "letterEditorial": {
+        "status": "revised",
+        "reason": null,
+        "applied": true
+      },
+      "letterBlocked": null
+    },
+    {
+      "caseId": "F02",
+      "resume": {
+        "durationMs": 21963,
+        "repairApplied": true,
+        "summaryPolishApplied": true,
+        "safetyFallbackApplied": false,
+        "draftAttempts": 2,
+        "sourceRestoredBullets": 0,
+        "firstDraftIssueCounts": {
+          "unsupported_metrics": 0,
+          "unsupported_history": 0,
+          "missing_history": 0,
+          "missing_qualifications": 0,
+          "unsupported_skills": 2,
+          "unsupported_projects": 0,
+          "unsupported_training": 0,
+          "unsupported_target_terms": 0,
+          "unsupported_positioning": 0,
+          "risky_claims": 0,
+          "provenance_issues": 0,
+          "requirement_consistency": 0,
+          "writing": 0
+        }
+      },
+      "resumeEditorial": {
+        "status": "revised",
+        "reason": null,
+        "applied": true
+      },
+      "letter": {
+        "paragraphCount": 3,
+        "regenerated": false,
+        "firstDraftIntegrityPass": true,
+        "repairApplied": false,
+        "wordCount": 77,
+        "writingIssueCount": 0,
+        "durationMs": 13802
+      },
+      "letterEditorial": {
+        "status": "kept",
+        "reason": null,
+        "applied": false
+      },
+      "letterBlocked": null
+    },
+    {
+      "caseId": "F03",
+      "resume": {
+        "durationMs": 28718,
+        "repairApplied": true,
+        "summaryPolishApplied": true,
+        "safetyFallbackApplied": false,
+        "draftAttempts": 2,
+        "sourceRestoredBullets": 0,
+        "firstDraftIssueCounts": {
+          "unsupported_metrics": 0,
+          "unsupported_history": 0,
+          "missing_history": 0,
+          "missing_qualifications": 0,
+          "unsupported_skills": 2,
+          "unsupported_projects": 0,
+          "unsupported_training": 0,
+          "unsupported_target_terms": 0,
+          "unsupported_positioning": 0,
+          "risky_claims": 0,
+          "provenance_issues": 0,
+          "requirement_consistency": 0,
+          "writing": 0
+        }
+      },
+      "resumeEditorial": {
+        "status": "revised",
+        "reason": null,
+        "applied": true
+      },
+      "letter": {
+        "paragraphCount": 3,
+        "regenerated": false,
+        "firstDraftIntegrityPass": true,
+        "repairApplied": true,
+        "wordCount": 76,
+        "writingIssueCount": 0,
+        "durationMs": 11355
+      },
+      "letterEditorial": {
+        "status": "kept",
+        "reason": null,
+        "applied": false
+      },
+      "letterBlocked": null
+    },
+    {
+      "caseId": "F04",
+      "resume": {
+        "durationMs": 26224,
+        "repairApplied": true,
+        "summaryPolishApplied": true,
+        "safetyFallbackApplied": false,
+        "draftAttempts": 2,
+        "sourceRestoredBullets": 0,
+        "firstDraftIssueCounts": {
+          "unsupported_metrics": 0,
+          "unsupported_history": 0,
+          "missing_history": 0,
+          "missing_qualifications": 0,
+          "unsupported_skills": 1,
+          "unsupported_projects": 0,
+          "unsupported_training": 0,
+          "unsupported_target_terms": 0,
+          "unsupported_positioning": 0,
+          "risky_claims": 0,
+          "provenance_issues": 0,
+          "requirement_consistency": 0,
+          "writing": 0
+        }
+      },
+      "resumeEditorial": {
+        "status": "revised",
+        "reason": null,
+        "applied": true
+      },
+      "letter": {
+        "paragraphCount": 3,
+        "regenerated": false,
+        "firstDraftIntegrityPass": true,
+        "repairApplied": false,
+        "wordCount": 75,
+        "writingIssueCount": 0,
+        "durationMs": 10778
+      },
+      "letterEditorial": {
+        "status": "kept",
+        "reason": null,
+        "applied": false
+      },
+      "letterBlocked": null
+    },
+    {
+      "caseId": "F05",
+      "resume": {
+        "durationMs": 29246,
+        "repairApplied": true,
+        "summaryPolishApplied": true,
+        "safetyFallbackApplied": false,
+        "draftAttempts": 2,
+        "sourceRestoredBullets": 0,
+        "firstDraftIssueCounts": {
+          "unsupported_metrics": 0,
+          "unsupported_history": 0,
+          "missing_history": 0,
+          "missing_qualifications": 0,
+          "unsupported_skills": 3,
+          "unsupported_projects": 0,
+          "unsupported_training": 0,
+          "unsupported_target_terms": 0,
+          "unsupported_positioning": 0,
+          "risky_claims": 0,
+          "provenance_issues": 0,
+          "requirement_consistency": 0,
+          "writing": 0
+        }
+      },
+      "resumeEditorial": {
+        "status": "revised",
+        "reason": null,
+        "applied": true
+      },
+      "letter": {
+        "paragraphCount": 3,
+        "regenerated": false,
+        "firstDraftIntegrityPass": true,
+        "repairApplied": false,
+        "wordCount": 72,
+        "writingIssueCount": 0,
+        "durationMs": 12296
+      },
+      "letterEditorial": {
+        "status": "kept",
+        "reason": null,
+        "applied": false
+      },
+      "letterBlocked": null
+    },
+    {
+      "caseId": "F06",
+      "resume": {
+        "durationMs": 15526,
+        "repairApplied": true,
+        "summaryPolishApplied": true,
+        "safetyFallbackApplied": false,
+        "draftAttempts": 1,
+        "sourceRestoredBullets": 0,
+        "firstDraftIssueCounts": {
+          "unsupported_metrics": 0,
+          "unsupported_history": 0,
+          "missing_history": 0,
+          "missing_qualifications": 0,
+          "unsupported_skills": 0,
+          "unsupported_projects": 0,
+          "unsupported_training": 0,
+          "unsupported_target_terms": 0,
+          "unsupported_positioning": 0,
+          "risky_claims": 0,
+          "provenance_issues": 0,
+          "requirement_consistency": 0,
+          "writing": 0
+        }
+      },
+      "resumeEditorial": {
+        "status": "revised",
+        "reason": null,
+        "applied": true
+      },
+      "letter": {
+        "paragraphCount": 3,
+        "regenerated": false,
+        "firstDraftIntegrityPass": true,
+        "repairApplied": false,
+        "wordCount": 76,
+        "writingIssueCount": 0,
+        "durationMs": 12505
+      },
+      "letterEditorial": {
+        "status": "revised",
+        "reason": null,
+        "applied": true
+      },
+      "letterBlocked": null
+    },
+    {
+      "caseId": "F07",
+      "resume": {
+        "durationMs": 21076,
+        "repairApplied": true,
+        "summaryPolishApplied": true,
+        "safetyFallbackApplied": false,
+        "draftAttempts": 1,
+        "sourceRestoredBullets": 0,
+        "firstDraftIssueCounts": {
+          "unsupported_metrics": 0,
+          "unsupported_history": 0,
+          "missing_history": 0,
+          "missing_qualifications": 0,
+          "unsupported_skills": 0,
+          "unsupported_projects": 0,
+          "unsupported_training": 0,
+          "unsupported_target_terms": 0,
+          "unsupported_positioning": 0,
+          "risky_claims": 0,
+          "provenance_issues": 0,
+          "requirement_consistency": 0,
+          "writing": 0
+        }
+      },
+      "resumeEditorial": {
+        "status": "revised",
+        "reason": null,
+        "applied": true
+      },
+      "letter": {
+        "paragraphCount": 3,
+        "regenerated": false,
+        "firstDraftIntegrityPass": true,
+        "repairApplied": false,
+        "wordCount": 81,
+        "writingIssueCount": 0,
+        "durationMs": 8763
+      },
+      "letterEditorial": {
+        "status": "kept",
+        "reason": null,
+        "applied": false
+      },
+      "letterBlocked": null
+    },
+    {
+      "caseId": "F08",
+      "resume": {
+        "durationMs": 17869,
+        "repairApplied": true,
+        "summaryPolishApplied": true,
+        "safetyFallbackApplied": false,
+        "draftAttempts": 2,
+        "sourceRestoredBullets": 0,
+        "firstDraftIssueCounts": {
+          "unsupported_metrics": 0,
+          "unsupported_history": 0,
+          "missing_history": 0,
+          "missing_qualifications": 0,
+          "unsupported_skills": 2,
+          "unsupported_projects": 0,
+          "unsupported_training": 0,
+          "unsupported_target_terms": 0,
+          "unsupported_positioning": 0,
+          "risky_claims": 0,
+          "provenance_issues": 0,
+          "requirement_consistency": 0,
+          "writing": 0
+        }
+      },
+      "resumeEditorial": {
+        "status": "revised",
+        "reason": null,
+        "applied": true
+      },
+      "letter": {
+        "paragraphCount": 3,
+        "regenerated": false,
+        "firstDraftIntegrityPass": true,
+        "repairApplied": false,
+        "wordCount": 85,
+        "writingIssueCount": 0,
+        "durationMs": 18049
+      },
+      "letterEditorial": {
+        "status": "revised",
+        "reason": null,
+        "applied": true
+      },
+      "letterBlocked": null
+    },
+    {
+      "caseId": "F09",
+      "resume": {
+        "durationMs": 24549,
+        "repairApplied": true,
+        "summaryPolishApplied": true,
+        "safetyFallbackApplied": false,
+        "draftAttempts": 2,
+        "sourceRestoredBullets": 0,
+        "firstDraftIssueCounts": {
+          "unsupported_metrics": 0,
+          "unsupported_history": 0,
+          "missing_history": 0,
+          "missing_qualifications": 0,
+          "unsupported_skills": 1,
+          "unsupported_projects": 0,
+          "unsupported_training": 0,
+          "unsupported_target_terms": 0,
+          "unsupported_positioning": 0,
+          "risky_claims": 0,
+          "provenance_issues": 0,
+          "requirement_consistency": 0,
+          "writing": 0
+        }
+      },
+      "resumeEditorial": {
+        "status": "revised",
+        "reason": null,
+        "applied": true
+      },
+      "letter": null,
+      "letterEditorial": null,
+      "letterBlocked": {
+        "issueCount": 1,
+        "issueTypes": [
+          "A number or duration is not supported by this claim’s cited candidate evidence."
+        ],
+        "durationMs": 8479
+      }
+    },
+    {
+      "caseId": "F10",
+      "resume": {
+        "durationMs": 26113,
+        "repairApplied": true,
+        "summaryPolishApplied": true,
+        "safetyFallbackApplied": false,
+        "draftAttempts": 2,
+        "sourceRestoredBullets": 0,
+        "firstDraftIssueCounts": {
+          "unsupported_metrics": 0,
+          "unsupported_history": 0,
+          "missing_history": 0,
+          "missing_qualifications": 0,
+          "unsupported_skills": 3,
+          "unsupported_projects": 0,
+          "unsupported_training": 0,
+          "unsupported_target_terms": 0,
+          "unsupported_positioning": 0,
+          "risky_claims": 0,
+          "provenance_issues": 0,
+          "requirement_consistency": 0,
+          "writing": 0
+        }
+      },
+      "resumeEditorial": {
+        "status": "revised",
+        "reason": null,
+        "applied": true
+      },
+      "letter": {
+        "paragraphCount": 3,
+        "regenerated": false,
+        "firstDraftIntegrityPass": true,
+        "repairApplied": false,
+        "wordCount": 63,
+        "writingIssueCount": 0,
+        "durationMs": 14775
+      },
+      "letterEditorial": {
+        "status": "revised",
+        "reason": null,
+        "applied": true
+      },
+      "letterBlocked": null
+    }
+  ]
+}

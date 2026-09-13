@@ -565,7 +565,10 @@ async function layoutAwareFocusReview(resumeData, analysis, item, focusReview) {
   });
 }
 
+import { evaluationCapture } from './_lib/evaluationCapture.js';
+
 export function createTailorHandler({
+  recordEvaluationEvent,
   reviewContent = reviewApplicationContent,
   authenticate = authenticateSupabaseRequest,
   loadListing = loadTrustedListing,
@@ -581,6 +584,7 @@ export function createTailorHandler({
   return async function handler(req, res) {
   applyPrivateResponseHeaders(res);
   const requestStartedAt = Date.now();
+  const capture = evaluationCapture(recordEvaluationEvent, 'resume');
   const correlationId = createTailoringCorrelationId();
   const requestDeadlineAt = requestStartedAt + resolvedTiming.requestBudgetMs;
   if (req.method !== "POST") {
@@ -869,6 +873,7 @@ INSTRUCTIONS
         minimumCallMs: resolvedTiming.minimumCallMs,
         stage: attempt === 0 ? "resume_draft" : attempt === 1 ? "resume_rebuild" : "resume_conservative_rebuild",
       });
+      await capture(attempt === 0 ? 'first_draft' : 'repair_draft', { raw: rawResumeData, attempt: attempt + 1, candidateEvidence });
       const shaped = shapeTailoredResumeWithReview(enforceReverseChronology({
         ...rawResumeData,
         fit_assessment: analysis.fit_assessment,
@@ -880,6 +885,7 @@ INSTRUCTIONS
           hasProfile: Boolean(resumeData.profile),
           experienceCount: Array.isArray(resumeData.experience) ? resumeData.experience.length : null,
         }));
+        await capture('outcome', { status: 'incomplete', attempt: attempt + 1 });
         return res.status(502).json({ error: "Model returned incomplete resume data" });
       }
 
@@ -898,6 +904,7 @@ INSTRUCTIONS
           historyEvidence: cappedResume,
         },
       );
+      await capture('validation', { attempt: attempt + 1, document: resumeData, review: atsReview });
       if (attempt === 0) firstDraftIssueCounts = resumeIssueCounts(atsReview);
       console.info("[tailor:validation] draft checked", JSON.stringify({ correlationId, attempt: attempt + 1, status: atsReview.status, issueCounts: resumeIssueCounts(atsReview) }));
       if (atsReview.status === "blocked") {
@@ -909,6 +916,7 @@ INSTRUCTIONS
             isTrades: isTradesGig, category: item.category, focusReview: restoredFocus, historyEvidence: cappedResume,
           });
           console.info("[tailor:source_repair] checked", JSON.stringify({ correlationId, attempt: attempt + 1, restoredBullets: restored.restored, status: restoredReview.status, issueCounts: resumeIssueCounts(restoredReview) }));
+          await capture('source_repair', { attempt: attempt + 1, document: restored.resume, review: restoredReview });
           // A local repair uses the same full gate; unresolved issues still
           // receive the existing bounded model rebuild and fallback flow.
           if (restoredReview.status !== "blocked") {
@@ -934,6 +942,8 @@ INSTRUCTIONS
           },
         }) : { document: resumeData, applied: false, status: 'budget_unavailable' };
         if (summaryPolish.applied) { resumeData = summaryPolish.document; atsReview = summaryPolish.validation; }
+        atsReview = { ...atsReview, editorial_review: { status: summaryPolish.status, review_needed: summaryPolish.reviewNeeded !== false, issues: summaryPolish.issues || [] } };
+        await capture('outcome', { status: 'accepted', document: resumeData, review: atsReview, draftAttempts: attempt + 1, firstDraftIssueCounts, sourceRestoredBullets });
         console.info("[tailor:editorial]", JSON.stringify({ status: summaryPolish.status, reason: summaryPolish.reason || null, applied: summaryPolish.applied }));
         logTailoringCompleted(requestStartedAt, { repairApplied: attempt > 0 || sourceRestoredBullets > 0 || summaryPolish.applied, summaryPolishApplied: summaryPolish.applied, draftAttempts: attempt + 1, sourceRestoredBullets, firstDraftIssueCounts });
         return res.status(200).json({
@@ -1004,6 +1014,7 @@ INSTRUCTIONS
       }
 
       if (employerFacingResumeIsSafe(safeReview) && safeResume.profile && safeResume.experience.length) {
+        await capture('outcome', { status: 'accepted_fallback', document: safeResume, review: safeReview, draftAttempts: attempt + 1, firstDraftIssueCounts });
         safeReview.safety_fallback = { applied: true, ...safetyReport };
         console.warn("[tailor:safety_fallback] Applied deterministic fallback", JSON.stringify({
           omittedExperience: safetyReport.omitted_experience_count,
@@ -1021,6 +1032,7 @@ INSTRUCTIONS
       }
 
       const finalIssues = resumeValidationIssues(safeReview);
+      await capture('outcome', { status: 'blocked', document: safeResume, review: safeReview, draftAttempts: attempt + 1 });
       console.error("[tailor:resume_rebuild] Clean rebuild remained blocked", JSON.stringify({
         metricCount: safeReview.unsupported_metrics.length,
         historyCount: safeReview.unsupported_history.length,
@@ -1036,6 +1048,7 @@ INSTRUCTIONS
       });
     }
   } catch (err) {
+    await capture('outcome', { status: 'error', error: { name: err.name, stage: err.stage || 'unknown', status: err.status || null } });
     console.error("Tailor proxy failed:", JSON.stringify({
       stage: err.stage || "unknown",
       name: err.name,

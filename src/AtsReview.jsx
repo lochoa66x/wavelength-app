@@ -163,6 +163,7 @@ export function AtsReview({ review, C }) {
         C={C}
       />
 
+      {review.editorial_review?.review_needed && <p style={{ color: C.textSub, fontSize: 12, lineHeight: 1.5 }}>Writing review is still needed. Check that the profile adds a useful setting or specialty beyond the role titles.{review.editorial_review.issues?.length > 0 && ' ' + review.editorial_review.issues.map(issue => issue.advice).join(' ')}</p>}
       <WritingReview writingReview={writingReview} C={C} />
       <FocusReview focusReview={focusReview} C={C} />
       </details>

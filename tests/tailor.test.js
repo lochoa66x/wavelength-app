@@ -250,9 +250,10 @@ test("tailoring loads the trusted listing by id and ignores a caller URL", async
 });
 
 test("tailoring accepts a reviewed custom job without loading a database listing", async () => {
+  const captureEvents = [];
   let loadCalled = false;
   let anthropicRequest;
-  const handler = createTailorHandler({ reviewContent: skipContentReview,
+  const handler = createTailorHandler({ recordEvaluationEvent: event => captureEvents.push(event), reviewContent: skipContentReview,
     authenticate: async () => ({ user: { id: "user-1" }, supabase: {} }),
     loadListing: async () => { loadCalled = true; return null; },
     fetchImpl: async (_url, options) => {
@@ -306,6 +307,15 @@ test("tailoring accepts a reviewed custom job without loading a database listing
   assert.ok(res.body.ats_review.coverage.matched_keywords.includes("stakeholder management"));
   assert.deepEqual(res.body.ats_review.coverage.missing_keywords, []);
   assert.match(anthropicRequest.messages[0].content, /Candidate-provided posting reviewed before tailoring|Lead operational programs/);
+  assert.equal(captureEvents[0].stage, 'first_draft');
+  assert.ok(captureEvents[0].raw.profile);
+  assert.equal(captureEvents[1].stage, 'validation');
+  assert.ok(captureEvents[1].review.tailoring_changes);
+  assert.equal(captureEvents.at(-1).stage, 'outcome');
+  assert.equal(captureEvents.at(-1).status, 'accepted');
+  assert.deepEqual(captureEvents.at(-1).document, res.body.resume);
+  assert.equal(new Set(captureEvents.map(event => event.requestId)).size, 1);
+  assert.equal('candidateEvidence' in res.body, false);
 });
 
 test("analysis-only mode returns shared evidence assessment without requesting a résumé draft", async () => {

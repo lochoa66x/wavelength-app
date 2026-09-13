@@ -1,0 +1,37 @@
+{
+  "caseId": "F02",
+  "attempt": 1,
+  "revision": "d5c9fe60568fb34ade44b0d13167250d6d07d5f2",
+  "status": "completed",
+  "startedAt": "2026-09-13T17:52:54.253Z",
+  "finishedAt": "2026-09-13T17:54:52.567Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F02-resume.docx",
+      "downloadName": "Clara-Voss-Bookbinding-Assistant.docx",
+      "sha256": "1bf0f0f81317ad24e194c4f67922f5649426293647acef2e257db656b8b59f20"
+    },
+    {
+      "filename": "F02-resume.pdf",
+      "downloadName": "Clara-Voss-Bookbinding-Assistant.pdf",
+      "sha256": "e9ef81b41cc13a3f9a5e581dfa598049dd36b83da5a6f8095a2d823b56e0b733"
+    },
+    {
+      "filename": "F02-letter.docx",
+      "downloadName": "Clara-Voss-Hand-Bookbinder-cover-letter.docx",
+      "sha256": "565ab9acc8bfa051ff8bad8fdc67dc7f041c8e3b87d0e407088362d21e68632e"
+    },
+    {
+      "filename": "F02-letter.pdf",
+      "downloadName": "Clara-Voss-Hand-Bookbinder-cover-letter.pdf",
+      "sha256": "e892d0ec091fe49cc84cd5e6310ccd14c97a1bb95a4ca39ac91b4b6ec73f544d"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "recordedAt": "2026-09-13T17:55:10.536Z",
+  "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+}

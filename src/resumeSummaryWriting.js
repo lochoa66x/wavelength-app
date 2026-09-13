@@ -56,6 +56,11 @@ export function reviewResumeSummary(resume, source = '') {
     return [...new Set(tokens(clause).map(actionKey))].filter((word) => sourceTokens.has(word)).length >= 3;
   }));
   const issues = [];
+  const headings = new Set(editorialContentTokens([resume?.title, ...(resume?.experience || []).map(entry => entry.role)].filter(Boolean).join(' ')));
+  const profileFocus = editorialContentTokens(profile).filter(word => !['background', 'focus', 'including', 'specializing'].includes(word));
+  if (headings.size && profileFocus.length && profileFocus.every(word => headings.has(word))) {
+    issues.push({ code: 'summary_title_only', advice: 'This profile only repeats the role headings. Add one supported setting, specialty or professional background that helps the reader understand the candidate. Keep it brief; do not add praise or copy the duty list.' });
+  }
   const taskActions = profile.match(/\b(?:preparing|building|processing|reconciling|translating|creating|recording|discussing|supporting|cleaning|working|planning|developing|managing|leading|coordinating|installing|repairing|measuring|scheduling|picking|packing|updating|checking)\b/gi) || [];
   if (new Set(taskActions.map((word) => word.toLowerCase())).size >= 2 && /\b(?:experience (?:in|with|\w+ing\b)|skilled (?:in|at)|responsible for)\b/i.test(profile) && /\band\b/i.test(profile)) {
     issues.push({ code: 'summary_task_list', advice: 'Remove the list of activities introduced as experience. State the profession, work setting or distinctive background instead; leave what the candidate did in the experience bullets.' });
@@ -78,7 +83,7 @@ export function reviewResumeSummary(resume, source = '') {
   return issues;
 }
 
-export const RESUME_SUMMARY_INSTRUCTIONS = 'Write a selective professional profile, not a condensed experience section. Prefer ONE plain sentence about the candidate’s proven profession or level, relevant work setting, and one distinctive source-supported background. Use a second sentence only if it adds a different useful dimension. Usually 10–35 words is enough; there is no minimum and the maximum is 60. Do not enumerate duties with Background includes, Brings, or a similar inventory opener. Leave employer-specific actions, metrics and results in experience, and tool lists in skills. Mention one central tool only when essential to the professional focus. State a language direction once. Use ordinary language instead of compressed noun stacks such as client-review incorporation. Do not paraphrase two or more bullets, add generic praise, or invent relative scale such as high-volume. Preserve supervision, team membership and credential status. Never turn the target job title into a qualification the candidate has not established.';
+export const RESUME_SUMMARY_INSTRUCTIONS = 'Write a selective professional profile, not a condensed experience section. Prefer ONE plain sentence about the candidate’s proven profession or level, relevant work setting, and one distinctive source-supported background. Use a second sentence only if it adds a different useful dimension. Repeating the current and previous role titles is not a useful profile; retain one supported setting, specialty or background. Usually 10–35 words is enough; there is no minimum and the maximum is 60. Do not enumerate duties with Background includes, Brings, or a similar inventory opener. Leave employer-specific actions, metrics and results in experience, and tool lists in skills. Mention one central tool only when essential to the professional focus. State a language direction once. Use ordinary language instead of compressed noun stacks such as client-review incorporation. Do not paraphrase two or more bullets, add generic praise, or invent relative scale such as high-volume. Preserve supervision, team membership and credential status. Never turn the target job title into a qualification the candidate has not established.';
 
 // Delete only a trailing duty catalogue when a substantial context phrase
 // already stands on its own. The caller still validates the resulting résumé.

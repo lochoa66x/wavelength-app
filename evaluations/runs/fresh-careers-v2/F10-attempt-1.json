@@ -1,0 +1,37 @@
+{
+  "caseId": "F10",
+  "attempt": 1,
+  "revision": "d5c9fe60568fb34ade44b0d13167250d6d07d5f2",
+  "status": "completed",
+  "startedAt": "2026-09-13T18:11:06.493Z",
+  "finishedAt": "2026-09-13T18:13:51.219Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F10-resume.docx",
+      "downloadName": "Arthur-Quinn-Theatre-Wardrobe-Assistant-Costume-Support.docx",
+      "sha256": "f65cc0da83291de3e791fd69778cf4f938671765114ff4484098fe9fb7468d00"
+    },
+    {
+      "filename": "F10-resume.pdf",
+      "downloadName": "Arthur-Quinn-Theatre-Wardrobe-Assistant-Costume-Support.pdf",
+      "sha256": "91b540d6439f942b604a7cc7b3a916493b93db2a5be0351395eb5127f0950972"
+    },
+    {
+      "filename": "F10-letter.docx",
+      "downloadName": "Arthur-Quinn-Theatre-Wardrobe-Assistant-cover-letter.docx",
+      "sha256": "9a130e2291201b5328201f2198c7f0d7778a1d8e627f85ec314613dd8a232640"
+    },
+    {
+      "filename": "F10-letter.pdf",
+      "downloadName": "Arthur-Quinn-Theatre-Wardrobe-Assistant-cover-letter.pdf",
+      "sha256": "a3fa760e4b52200101f69a62bebc3c5ead72ab16c39bf6b593b0cf0f85d49d74"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "recordedAt": "2026-09-13T18:14:01.718Z",
+  "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+}

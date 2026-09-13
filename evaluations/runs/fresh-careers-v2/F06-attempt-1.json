@@ -1,0 +1,37 @@
+{
+  "caseId": "F06",
+  "attempt": 1,
+  "revision": "d5c9fe60568fb34ade44b0d13167250d6d07d5f2",
+  "status": "completed",
+  "startedAt": "2026-09-13T18:01:46.153Z",
+  "finishedAt": "2026-09-13T18:04:07.016Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F06-letter.docx",
+      "downloadName": "Tessa-Morgan-Recycling-Sort-Line-Operator-cover-letter.docx",
+      "sha256": "77eab60dedf0765746f2b9f4669276bdfea6e8a02b5cefa78ec93c941e9d12c8"
+    },
+    {
+      "filename": "F06-letter.pdf",
+      "downloadName": "Tessa-Morgan-Recycling-Sort-Line-Operator-cover-letter.pdf",
+      "sha256": "676d3648905747203b571f6a6795825e48aa3a4c096cf61ac48365ce29ff8278"
+    },
+    {
+      "filename": "F06-resume.docx",
+      "downloadName": "Tessa-Morgan-Recycling-Sorter.docx",
+      "sha256": "6f2520f7cbc3e464fd5097fb992e5db4013af4add8022bc40f1453d2cf69cf09"
+    },
+    {
+      "filename": "F06-resume.pdf",
+      "downloadName": "Tessa-Morgan-Recycling-Sorter.pdf",
+      "sha256": "8668975e2bb4bdfb145992756f7e7b1bb9fdfef5aaf88da2b81ae41ea4c8f573"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "recordedAt": "2026-09-13T18:04:24.180Z",
+  "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+}

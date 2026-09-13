@@ -1,0 +1,27 @@
+{
+  "caseId": "F09",
+  "attempt": 1,
+  "revision": "d5c9fe60568fb34ade44b0d13167250d6d07d5f2",
+  "status": "partial",
+  "startedAt": "2026-09-13T18:08:42.138Z",
+  "finishedAt": "2026-09-13T18:10:58.320Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F09-resume.docx",
+      "downloadName": "Sophie-Diallo-Floral-Designer-Bouquets-Table-Arrangements.docx",
+      "sha256": "fb0e5bd99871ebd3bfc7799528a1b38c260c4a94817897f6ee4fd5d807cda03d"
+    },
+    {
+      "filename": "F09-resume.pdf",
+      "downloadName": "Sophie-Diallo-Floral-Designer-Bouquets-Table-Arrangements.pdf",
+      "sha256": "43e0ecf56035e6d191a7d51b6c782dd6a3fa3efac14f72b0ee2a3f418406ae0f"
+    }
+  ],
+  "letterCopyConfirmed": false,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "recordedAt": "2026-09-13T18:11:24.489Z",
+  "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+}

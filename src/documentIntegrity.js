@@ -1,3 +1,4 @@
+import { workConditionIssues, explicitToolUseIssues } from './claimConditions.js';
 import { candidateClaimIssues, credentialEvidenceIssues, normalizeClaimNumbers } from './candidateClaims.js';
 import { academicStatusIssues } from './academicClaims.js';
 // Shared by generation, saved-draft review, and export authorization.
@@ -45,7 +46,7 @@ export function claimMeaningIssues(proposed, sources = [], context = {}) {
     }
   }
   if (hasInternalDocumentLanguage(text)) issues.push("Remove internal document-generation terminology.");
-  return [...new Set([...issues, ...candidateClaimIssues(proposed, sources, context), ...academicStatusIssues(proposed, sources)])];
+  return [...new Set([...issues, ...candidateClaimIssues(proposed, sources, context), ...workConditionIssues(proposed, sources), ...explicitToolUseIssues(proposed, sources), ...academicStatusIssues(proposed, sources)])];
 }
 
 // An edit is scoped to the paragraph's citations. A leadership verb elsewhere

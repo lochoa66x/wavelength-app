@@ -1,0 +1,37 @@
+{
+  "caseId": "F05",
+  "attempt": 1,
+  "revision": "d5c9fe60568fb34ade44b0d13167250d6d07d5f2",
+  "status": "completed",
+  "startedAt": "2026-09-13T17:59:27.226Z",
+  "finishedAt": "2026-09-13T18:01:42.986Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F05-resume.docx",
+      "downloadName": "Benji-Patel-Claims-Administration-Assistant.docx",
+      "sha256": "f7dd38c3446879d660e3eea0f1275488be14a6ac62b4b00701418986f4f2958e"
+    },
+    {
+      "filename": "F05-resume.pdf",
+      "downloadName": "Benji-Patel-Claims-Administration-Assistant.pdf",
+      "sha256": "351516b2703a0b31974ea8f0ed612334831b73c0159f2828b999f119ff44c57d"
+    },
+    {
+      "filename": "F05-letter.docx",
+      "downloadName": "Benji-Patel-Insurance-Claims-Assistant-cover-letter.docx",
+      "sha256": "c13c62b427a49b96b327c7584f9153d666ff72cddc9a34079c85fef0ca3c2a72"
+    },
+    {
+      "filename": "F05-letter.pdf",
+      "downloadName": "Benji-Patel-Insurance-Claims-Assistant-cover-letter.pdf",
+      "sha256": "5f525649877c003e8091fcfccf478c7d7dd0154c8b44b3bc1d84322162faf0b7"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "recordedAt": "2026-09-13T18:02:01.409Z",
+  "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+}

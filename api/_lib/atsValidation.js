@@ -680,8 +680,8 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
 
   const writingReview = buildWritingReview(resumeData, baseResume, options);
   const tailoringChanges = buildTailoringChangeLedger(resumeData, historyBase, options.analysis);
-  const provenance_issues = (options.analysis ? tailoringChanges : []).filter((change) => (
-    change.change_type !== "retained" && change.citation_complete !== true
+  const provenance_issues = tailoringChanges.filter((change) => (
+    change.meaning_issues?.length || (options.analysis && change.change_type !== "retained" && change.citation_complete !== true)
   )).map((change) => ({
     id: change.id,
     experience_index: change.experience_index,

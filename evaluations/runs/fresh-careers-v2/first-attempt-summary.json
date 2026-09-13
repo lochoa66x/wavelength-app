@@ -1,0 +1,367 @@
+{
+  "denominator": 10,
+  "completedFirstAttempts": 9,
+  "firstAttempts": [
+    {
+      "caseId": "F01",
+      "attempt": 1,
+      "revision": "d5c9fe60568fb34ade44b0d13167250d6d07d5f2",
+      "status": "completed",
+      "startedAt": "2026-09-13T17:50:57.575Z",
+      "finishedAt": "2026-09-13T17:52:51.072Z",
+      "inputEdited": false,
+      "manualGenerationRetries": 0,
+      "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+      "artifacts": [
+        {
+          "filename": "F01-letter.docx",
+          "downloadName": "Owen-Mercer-CNC-Machine-Operator-cover-letter.docx",
+          "sha256": "7bea9e6aba7aa5910e0f1115377b4190d2c6680f619cb9d652a0d15d0794d2d8"
+        },
+        {
+          "filename": "F01-letter.pdf",
+          "downloadName": "Owen-Mercer-CNC-Machine-Operator-cover-letter.pdf",
+          "sha256": "d73c497680b5cee474e6ceebd2b694a70a8a2237d5c0136c5cd208c718d1a9aa"
+        },
+        {
+          "filename": "F01-resume.docx",
+          "downloadName": "Owen-Mercer-CNC-Milling-Machine-Operator.docx",
+          "sha256": "203d23e41d61b84a605b8a5ec588048525e19f4f01c112da467cae2e35c4c942"
+        },
+        {
+          "filename": "F01-resume.pdf",
+          "downloadName": "Owen-Mercer-CNC-Milling-Machine-Operator.pdf",
+          "sha256": "110ecd993bbce0e6c46ef8eba6c5ebbe585fe09876a6909b49b8f849ba3203d9"
+        }
+      ],
+      "letterCopyConfirmed": true,
+      "clipboardReadback": "Not independently read; success status and preview checked.",
+      "recordedAt": "2026-09-13T17:53:07.201Z",
+      "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+    },
+    {
+      "caseId": "F02",
+      "attempt": 1,
+      "revision": "d5c9fe60568fb34ade44b0d13167250d6d07d5f2",
+      "status": "completed",
+      "startedAt": "2026-09-13T17:52:54.253Z",
+      "finishedAt": "2026-09-13T17:54:52.567Z",
+      "inputEdited": false,
+      "manualGenerationRetries": 0,
+      "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+      "artifacts": [
+        {
+          "filename": "F02-resume.docx",
+          "downloadName": "Clara-Voss-Bookbinding-Assistant.docx",
+          "sha256": "1bf0f0f81317ad24e194c4f67922f5649426293647acef2e257db656b8b59f20"
+        },
+        {
+          "filename": "F02-resume.pdf",
+          "downloadName": "Clara-Voss-Bookbinding-Assistant.pdf",
+          "sha256": "e9ef81b41cc13a3f9a5e581dfa598049dd36b83da5a6f8095a2d823b56e0b733"
+        },
+        {
+          "filename": "F02-letter.docx",
+          "downloadName": "Clara-Voss-Hand-Bookbinder-cover-letter.docx",
+          "sha256": "565ab9acc8bfa051ff8bad8fdc67dc7f041c8e3b87d0e407088362d21e68632e"
+        },
+        {
+          "filename": "F02-letter.pdf",
+          "downloadName": "Clara-Voss-Hand-Bookbinder-cover-letter.pdf",
+          "sha256": "e892d0ec091fe49cc84cd5e6310ccd14c97a1bb95a4ca39ac91b4b6ec73f544d"
+        }
+      ],
+      "letterCopyConfirmed": true,
+      "clipboardReadback": "Not independently read; success status and preview checked.",
+      "recordedAt": "2026-09-13T17:55:10.536Z",
+      "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+    },
+    {
+      "caseId": "F03",
+      "attempt": 1,
+      "revision": "d5c9fe60568fb34ade44b0d13167250d6d07d5f2",
+      "status": "completed",
+      "startedAt": "2026-09-13T17:54:55.724Z",
+      "finishedAt": "2026-09-13T17:57:29.894Z",
+      "inputEdited": false,
+      "manualGenerationRetries": 0,
+      "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+      "artifacts": [
+        {
+          "filename": "F03-resume.docx",
+          "downloadName": "Malik-Adebayo-Audiovisual-Assistant-preliminary.docx",
+          "sha256": "6da70b019283b20ff7f97616c780c45b6771712e83019c1503e1b3d610c4f670"
+        },
+        {
+          "filename": "F03-resume.pdf",
+          "downloadName": "Malik-Adebayo-Audiovisual-Assistant-preliminary.pdf",
+          "sha256": "c684a855f3be09448a119c90b81e26548a305ee3de30905d99899274cbcb289d"
+        },
+        {
+          "filename": "F03-letter.docx",
+          "downloadName": "Malik-Adebayo-Audiovisual-Event-Technician-cover-letter-preliminary.docx",
+          "sha256": "99fab5926a816dde2620c15d0424ade9c74d387964130f75e0f0adc621d4334d"
+        },
+        {
+          "filename": "F03-letter.pdf",
+          "downloadName": "Malik-Adebayo-Audiovisual-Event-Technician-cover-letter-preliminary.pdf",
+          "sha256": "cf8685dd569528d5986ce7bd19bedc8fd29dfcacf8d2f0ce81ccae8fb7ad8cbd"
+        }
+      ],
+      "letterCopyConfirmed": true,
+      "clipboardReadback": "Not independently read; success status and preview checked.",
+      "recordedAt": "2026-09-13T17:57:48.148Z",
+      "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+    },
+    {
+      "caseId": "F04",
+      "attempt": 1,
+      "revision": "d5c9fe60568fb34ade44b0d13167250d6d07d5f2",
+      "status": "completed",
+      "startedAt": "2026-09-13T17:57:33.051Z",
+      "finishedAt": "2026-09-13T17:59:24.090Z",
+      "inputEdited": false,
+      "manualGenerationRetries": 0,
+      "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+      "artifacts": [
+        {
+          "filename": "F04-resume.docx",
+          "downloadName": "Elena-Rossi-Reservations-Assistant.docx",
+          "sha256": "7278a719b70bd461fee4d1cc70dbc00f5080d6a2b8ddee7b57cf219f38292ccf"
+        },
+        {
+          "filename": "F04-resume.pdf",
+          "downloadName": "Elena-Rossi-Reservations-Assistant.pdf",
+          "sha256": "36e4ad63a9b8a51ef94f10b7ae75a61fa3b5ccf7d747cb32fc654c9fe49f5b25"
+        },
+        {
+          "filename": "F04-letter.docx",
+          "downloadName": "Elena-Rossi-Travel-Reservations-Agent-cover-letter.docx",
+          "sha256": "b1168bf26a76552daab58bbe81d039c17738a8feef2b98c6be319b647bfc8cd1"
+        },
+        {
+          "filename": "F04-letter.pdf",
+          "downloadName": "Elena-Rossi-Travel-Reservations-Agent-cover-letter.pdf",
+          "sha256": "c55218491aeb9e03a2bd3e511f1cc842c8479591360156bc88e24b2b1a395326"
+        }
+      ],
+      "letterCopyConfirmed": true,
+      "clipboardReadback": "Not independently read; success status and preview checked.",
+      "recordedAt": "2026-09-13T17:59:53.319Z",
+      "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+    },
+    {
+      "caseId": "F05",
+      "attempt": 1,
+      "revision": "d5c9fe60568fb34ade44b0d13167250d6d07d5f2",
+      "status": "completed",
+      "startedAt": "2026-09-13T17:59:27.226Z",
+      "finishedAt": "2026-09-13T18:01:42.986Z",
+      "inputEdited": false,
+      "manualGenerationRetries": 0,
+      "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+      "artifacts": [
+        {
+          "filename": "F05-resume.docx",
+          "downloadName": "Benji-Patel-Claims-Administration-Assistant.docx",
+          "sha256": "f7dd38c3446879d660e3eea0f1275488be14a6ac62b4b00701418986f4f2958e"
+        },
+        {
+          "filename": "F05-resume.pdf",
+          "downloadName": "Benji-Patel-Claims-Administration-Assistant.pdf",
+          "sha256": "351516b2703a0b31974ea8f0ed612334831b73c0159f2828b999f119ff44c57d"
+        },
+        {
+          "filename": "F05-letter.docx",
+          "downloadName": "Benji-Patel-Insurance-Claims-Assistant-cover-letter.docx",
+          "sha256": "c13c62b427a49b96b327c7584f9153d666ff72cddc9a34079c85fef0ca3c2a72"
+        },
+        {
+          "filename": "F05-letter.pdf",
+          "downloadName": "Benji-Patel-Insurance-Claims-Assistant-cover-letter.pdf",
+          "sha256": "5f525649877c003e8091fcfccf478c7d7dd0154c8b44b3bc1d84322162faf0b7"
+        }
+      ],
+      "letterCopyConfirmed": true,
+      "clipboardReadback": "Not independently read; success status and preview checked.",
+      "recordedAt": "2026-09-13T18:02:01.409Z",
+      "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+    },
+    {
+      "caseId": "F06",
+      "attempt": 1,
+      "revision": "d5c9fe60568fb34ade44b0d13167250d6d07d5f2",
+      "status": "completed",
+      "startedAt": "2026-09-13T18:01:46.153Z",
+      "finishedAt": "2026-09-13T18:04:07.016Z",
+      "inputEdited": false,
+      "manualGenerationRetries": 0,
+      "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+      "artifacts": [
+        {
+          "filename": "F06-letter.docx",
+          "downloadName": "Tessa-Morgan-Recycling-Sort-Line-Operator-cover-letter.docx",
+          "sha256": "77eab60dedf0765746f2b9f4669276bdfea6e8a02b5cefa78ec93c941e9d12c8"
+        },
+        {
+          "filename": "F06-letter.pdf",
+          "downloadName": "Tessa-Morgan-Recycling-Sort-Line-Operator-cover-letter.pdf",
+          "sha256": "676d3648905747203b571f6a6795825e48aa3a4c096cf61ac48365ce29ff8278"
+        },
+        {
+          "filename": "F06-resume.docx",
+          "downloadName": "Tessa-Morgan-Recycling-Sorter.docx",
+          "sha256": "6f2520f7cbc3e464fd5097fb992e5db4013af4add8022bc40f1453d2cf69cf09"
+        },
+        {
+          "filename": "F06-resume.pdf",
+          "downloadName": "Tessa-Morgan-Recycling-Sorter.pdf",
+          "sha256": "8668975e2bb4bdfb145992756f7e7b1bb9fdfef5aaf88da2b81ae41ea4c8f573"
+        }
+      ],
+      "letterCopyConfirmed": true,
+      "clipboardReadback": "Not independently read; success status and preview checked.",
+      "recordedAt": "2026-09-13T18:04:24.180Z",
+      "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+    },
+    {
+      "caseId": "F07",
+      "attempt": 1,
+      "revision": "d5c9fe60568fb34ade44b0d13167250d6d07d5f2",
+      "status": "completed",
+      "startedAt": "2026-09-13T18:04:10.162Z",
+      "finishedAt": "2026-09-13T18:06:24.890Z",
+      "inputEdited": false,
+      "manualGenerationRetries": 0,
+      "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+      "artifacts": [
+        {
+          "filename": "F07-letter.docx",
+          "downloadName": "Isaac-Reed-Funeral-Service-Assistant-cover-letter.docx",
+          "sha256": "63d36c924208352542e7b8f6f0d7c77b6d264ec98947290d0209ae93cd5c223d"
+        },
+        {
+          "filename": "F07-letter.pdf",
+          "downloadName": "Isaac-Reed-Funeral-Service-Assistant-cover-letter.pdf",
+          "sha256": "34275ae324b61c56f13bbb037b51922cce86b9e33baa1810aaf49167b9625dc0"
+        },
+        {
+          "filename": "F07-resume.docx",
+          "downloadName": "Isaac-Reed-Service-Attendant-Memorial-Services.docx",
+          "sha256": "ca4d7aee01b41afae872d521a6f14bd4e6c20b316b0fc2016596b5ad8066691a"
+        },
+        {
+          "filename": "F07-resume.pdf",
+          "downloadName": "Isaac-Reed-Service-Attendant-Memorial-Services.pdf",
+          "sha256": "2500bb985c1c9f526f221397e8c8aba42563746d24768e90091a1a7e9f34d56d"
+        }
+      ],
+      "letterCopyConfirmed": true,
+      "clipboardReadback": "Not independently read; success status and preview checked.",
+      "recordedAt": "2026-09-13T18:06:42.240Z",
+      "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+    },
+    {
+      "caseId": "F08",
+      "attempt": 1,
+      "revision": "d5c9fe60568fb34ade44b0d13167250d6d07d5f2",
+      "status": "completed",
+      "startedAt": "2026-09-13T18:06:28.038Z",
+      "finishedAt": "2026-09-13T18:08:38.998Z",
+      "inputEdited": false,
+      "manualGenerationRetries": 0,
+      "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+      "artifacts": [
+        {
+          "filename": "F08-letter.docx",
+          "downloadName": "Yuki-Tanaka-Localization-QA-Tester-cover-letter.docx",
+          "sha256": "6aca799f91b1f3f7017ccf10e496f958690124d19b61e37d0debfaf1fdf81411"
+        },
+        {
+          "filename": "F08-letter.pdf",
+          "downloadName": "Yuki-Tanaka-Localization-QA-Tester-cover-letter.pdf",
+          "sha256": "9edf02970b5bec487d31b41600e591ea47913dcfaf1aeb053548a5162976f83e"
+        },
+        {
+          "filename": "F08-resume.docx",
+          "downloadName": "Yuki-Tanaka-Localization-QA-Tester.docx",
+          "sha256": "6e83d6b197d550969a70fed63c6ac7f88d78fe5d6964e6186d2baccb7c04ae6c"
+        },
+        {
+          "filename": "F08-resume.pdf",
+          "downloadName": "Yuki-Tanaka-Localization-QA-Tester.pdf",
+          "sha256": "f5d88b9f34062031f115da350373ae9a93b4e2907950cecfc1f2e7238d8a16ac"
+        }
+      ],
+      "letterCopyConfirmed": true,
+      "clipboardReadback": "Not independently read; success status and preview checked.",
+      "recordedAt": "2026-09-13T18:08:56.049Z",
+      "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+    },
+    {
+      "caseId": "F09",
+      "attempt": 1,
+      "revision": "d5c9fe60568fb34ade44b0d13167250d6d07d5f2",
+      "status": "partial",
+      "startedAt": "2026-09-13T18:08:42.138Z",
+      "finishedAt": "2026-09-13T18:10:58.320Z",
+      "inputEdited": false,
+      "manualGenerationRetries": 0,
+      "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+      "artifacts": [
+        {
+          "filename": "F09-resume.docx",
+          "downloadName": "Sophie-Diallo-Floral-Designer-Bouquets-Table-Arrangements.docx",
+          "sha256": "fb0e5bd99871ebd3bfc7799528a1b38c260c4a94817897f6ee4fd5d807cda03d"
+        },
+        {
+          "filename": "F09-resume.pdf",
+          "downloadName": "Sophie-Diallo-Floral-Designer-Bouquets-Table-Arrangements.pdf",
+          "sha256": "43e0ecf56035e6d191a7d51b6c782dd6a3fa3efac14f72b0ee2a3f418406ae0f"
+        }
+      ],
+      "letterCopyConfirmed": false,
+      "clipboardReadback": "Not independently read; success status and preview checked.",
+      "recordedAt": "2026-09-13T18:11:24.489Z",
+      "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+    },
+    {
+      "caseId": "F10",
+      "attempt": 1,
+      "revision": "d5c9fe60568fb34ade44b0d13167250d6d07d5f2",
+      "status": "completed",
+      "startedAt": "2026-09-13T18:11:06.493Z",
+      "finishedAt": "2026-09-13T18:13:51.219Z",
+      "inputEdited": false,
+      "manualGenerationRetries": 0,
+      "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+      "artifacts": [
+        {
+          "filename": "F10-resume.docx",
+          "downloadName": "Arthur-Quinn-Theatre-Wardrobe-Assistant-Costume-Support.docx",
+          "sha256": "f65cc0da83291de3e791fd69778cf4f938671765114ff4484098fe9fb7468d00"
+        },
+        {
+          "filename": "F10-resume.pdf",
+          "downloadName": "Arthur-Quinn-Theatre-Wardrobe-Assistant-Costume-Support.pdf",
+          "sha256": "91b540d6439f942b604a7cc7b3a916493b93db2a5be0351395eb5127f0950972"
+        },
+        {
+          "filename": "F10-letter.docx",
+          "downloadName": "Arthur-Quinn-Theatre-Wardrobe-Assistant-cover-letter.docx",
+          "sha256": "9a130e2291201b5328201f2198c7f0d7778a1d8e627f85ec314613dd8a232640"
+        },
+        {
+          "filename": "F10-letter.pdf",
+          "downloadName": "Arthur-Quinn-Theatre-Wardrobe-Assistant-cover-letter.pdf",
+          "sha256": "a3fa760e4b52200101f69a62bebc3c5ead72ab16c39bf6b593b0cf0f85d49d74"
+        }
+      ],
+      "letterCopyConfirmed": true,
+      "clipboardReadback": "Not independently read; success status and preview checked.",
+      "recordedAt": "2026-09-13T18:14:01.718Z",
+      "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+    }
+  ],
+  "retests": []
+}

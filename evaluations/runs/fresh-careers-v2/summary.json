@@ -1,0 +1,40 @@
+{
+  "runId": "fresh-careers-v2",
+  "testedRevision": "d5c9fe60568fb34ade44b0d13167250d6d07d5f2",
+  "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273",
+  "rubricHash": "31b081525a7ee569f48df6211d95c7929a54955a8997fac73efb734fd5bc30af",
+  "firstAttempts": 10,
+  "completePackages": 9,
+  "partialPackages": 1,
+  "availableDocuments": 19,
+  "firstAttemptDownloadFiles": 38,
+  "firstAttemptPdfPages": 19,
+  "resumeMean": 16.1,
+  "letterMean": 14.333333333333334,
+  "resumesMeetingBar": 7,
+  "lettersMeetingBar": 3,
+  "packagesMeetingBar": 3,
+  "evidence": {
+    "pass": 18,
+    "review": 1,
+    "confirmedFalseInFirstReturnedDocuments": 0,
+    "unavailable": 1
+  },
+  "resumeRequestsWithSecondProviderDraft": 8,
+  "summaryEditorialRevisionsApplied": 10,
+  "letterEditorialRevisionsApplied": 4,
+  "letterEditorialKept": 5,
+  "automatedTests": {
+    "passed": 865,
+    "failed": 0
+  },
+  "extraEditProbes": 4,
+  "extraEditExportFiles": 6,
+  "allInspectedFiles": 44,
+  "allInspectedPdfPages": 22,
+  "fullNormalizedTextParity": true,
+  "originalResumeRestored": true,
+  "nativeWordPagination": "unverified",
+  "clipboardByteReadback": "unverified",
+  "releaseVerdict": "Do not treat document-check success as evidence of factual reliability: an approval-reversal edit was accepted and exported. Fix this integrity failure before another broad quality pass."
+}

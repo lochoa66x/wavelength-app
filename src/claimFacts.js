@@ -43,7 +43,8 @@ const ignored = new Set(['i','a','an','the','to','did','do','does','not','never'
 const actionWords = text => factWords(text).filter(w=>!ignored.has(w)).map(stem);
 function negativeActions(text) {
   const expanded=String(text).replace(/[’‘]/g,"'").replace(/\b(did|do|does|was|were|is|are|have|has)n['’]t\b/gi,'$1 not');
-  return [...expanded.matchAll(/\b(?:did not|do not|does not|cannot|can not|never|not)\s+([^;.!?]+?)(?=\s+(?:and|but)\b|[;.!?]|$)/gi)].map(m=>actionWords(m[1]));
+  const explicit = expanded.replace(/\b(requir(?:e[ds]?|ing)|need(?:s|ed)?)\s+no\s+(approval|permission|supervision|authori[sz]ation)\b/gi, 'not $1 $2');
+  return [...explicit.matchAll(/\b(?:did not|do not|does not|cannot|can not|never|not)\s+([^;.!?]+?)(?=\s+(?:and|but)\b|[;.!?]|$)/gi)].map(m=>actionWords(m[1]));
 }
 function containsAction(text, action) {
   const tokens=actionWords(text);

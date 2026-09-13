@@ -1,0 +1,841 @@
+{
+  "runId": "fresh-careers-v2",
+  "reviewer": "Codex; same-agent editorial review, not independent human or recruiter scoring",
+  "rubricVersion": 1,
+  "testedRevision": "d5c9fe60568fb34ade44b0d13167250d6d07d5f2",
+  "firstAttemptOnly": true,
+  "cases": [
+    {
+      "caseId": "F01",
+      "resume": {
+        "scores": [
+          4,
+          4,
+          3,
+          3,
+          3
+        ],
+        "evidence": "pass",
+        "notes": [
+          "The profile selects small-batch aluminium milling and dimensional inspection, directly matching the posting.",
+          "The first-off inspection bullet preserves both the measuring tool and technician approval; 180 brackets remains a shared total.",
+          "The two-sentence profile establishes trade and focus without reciting the whole experience inventory.",
+          "Relevant inspection appears first; certificate is slightly repeated in profile and education.",
+          "Clear occupational prose; 'in total across both operators' is faithful but clumsy."
+        ],
+        "total": 17,
+        "meetsContentBar": true,
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "rationale": "The profile selects small-batch aluminium milling and dimensional inspection, directly matching the posting."
+          },
+          "useful_detail": {
+            "score": 4,
+            "rationale": "The first-off inspection bullet preserves both the measuring tool and technician approval; 180 brackets remains a shared total."
+          },
+          "document_purpose": {
+            "score": 3,
+            "rationale": "The two-sentence profile establishes trade and focus without reciting the whole experience inventory."
+          },
+          "selection": {
+            "score": 3,
+            "rationale": "Relevant inspection appears first; certificate is slightly repeated in profile and education."
+          },
+          "natural_writing": {
+            "score": 3,
+            "rationale": "Clear occupational prose; 'in total across both operators' is faithful but clumsy."
+          }
+        }
+      },
+      "letter": {
+        "scores": [
+          3,
+          3,
+          1,
+          2,
+          3
+        ],
+        "evidence": "pass",
+        "notes": [
+          "The opening selects CNC milling and first-off measurement, matching the job, but makes no specific case for this employer.",
+          "Digital calipers and technician approval are useful constraints retained from the source.",
+          "'At Example Alloy Works, I loaded aluminium blanks…' simply converts the résumé bullets to first person; the letter adds no interpretation.",
+          "The second paragraph inventories deburring and labels; the available shared production context is unused, leaving a thin case.",
+          "Plain readable sentences and an acceptable brief closing, but little personal voice."
+        ],
+        "total": 12,
+        "meetsContentBar": false,
+        "dimensions": {
+          "relevance": {
+            "score": 3,
+            "rationale": "The opening selects CNC milling and first-off measurement, matching the job, but makes no specific case for this employer."
+          },
+          "useful_detail": {
+            "score": 3,
+            "rationale": "Digital calipers and technician approval are useful constraints retained from the source."
+          },
+          "document_purpose": {
+            "score": 1,
+            "rationale": "'At Example Alloy Works, I loaded aluminium blanks…' simply converts the résumé bullets to first person; the letter adds no interpretation."
+          },
+          "selection": {
+            "score": 2,
+            "rationale": "The second paragraph inventories deburring and labels; the available shared production context is unused, leaving a thin case."
+          },
+          "natural_writing": {
+            "score": 3,
+            "rationale": "Plain readable sentences and an acceptable brief closing, but little personal voice."
+          }
+        }
+      },
+      "bothMeetBar": false
+    },
+    {
+      "caseId": "F02",
+      "resume": {
+        "scores": [
+          4,
+          4,
+          3,
+          3,
+          3
+        ],
+        "evidence": "pass",
+        "notes": [
+          "'Short-run journal production' is an appropriate focus for this small-edition job.",
+          "The sample bullet retains cloth, endpaper, spine lettering and approval before production; defect checks retain owner referral.",
+          "The concise assistant identity avoids claiming independent master-binder status, though 'including signature sewing and cloth-cover fitting' repeats tasks.",
+          "Sample approval leads the experience; library volunteering remains correctly labelled.",
+          "Specific and readable, with modest repetition in the profile and skill list."
+        ],
+        "total": 17,
+        "meetsContentBar": true,
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "rationale": "'Short-run journal production' is an appropriate focus for this small-edition job."
+          },
+          "useful_detail": {
+            "score": 4,
+            "rationale": "The sample bullet retains cloth, endpaper, spine lettering and approval before production; defect checks retain owner referral."
+          },
+          "document_purpose": {
+            "score": 3,
+            "rationale": "The concise assistant identity avoids claiming independent master-binder status, though 'including signature sewing and cloth-cover fitting' repeats tasks."
+          },
+          "selection": {
+            "score": 3,
+            "rationale": "Sample approval leads the experience; library volunteering remains correctly labelled."
+          },
+          "natural_writing": {
+            "score": 3,
+            "rationale": "Specific and readable, with modest repetition in the profile and skill list."
+          }
+        }
+      },
+      "letter": {
+        "scores": [
+          4,
+          3,
+          2,
+          2,
+          3
+        ],
+        "evidence": "pass",
+        "notes": [
+          "The approved binding sample and finished-journal checks closely fit the small-edition posting.",
+          "'Approved cloth, endpaper, and spine lettering before production' supplies a concrete constraint and process.",
+          "The sample-to-inspection paragraph gives some process context, although much remains a direct retelling of source duties.",
+          "'Sewed text blocks' is immediately followed by 'This hands-on work included both signature sewing and case binding', adding repetition rather than another reason to hire.",
+          "Readable and professional, with a stock but acceptable closing; the redundant explanatory sentence weakens economy."
+        ],
+        "total": 14,
+        "meetsContentBar": false,
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "rationale": "The approved binding sample and finished-journal checks closely fit the small-edition posting."
+          },
+          "useful_detail": {
+            "score": 3,
+            "rationale": "'Approved cloth, endpaper, and spine lettering before production' supplies a concrete constraint and process."
+          },
+          "document_purpose": {
+            "score": 2,
+            "rationale": "The sample-to-inspection paragraph gives some process context, although much remains a direct retelling of source duties."
+          },
+          "selection": {
+            "score": 2,
+            "rationale": "'Sewed text blocks' is immediately followed by 'This hands-on work included both signature sewing and case binding', adding repetition rather than another reason to hire."
+          },
+          "natural_writing": {
+            "score": 3,
+            "rationale": "Readable and professional, with a stock but acceptable closing; the redundant explanatory sentence weakens economy."
+          }
+        }
+      },
+      "bothMeetBar": false
+    },
+    {
+      "caseId": "F03",
+      "resume": {
+        "scores": [
+          4,
+          3,
+          2,
+          2,
+          3
+        ],
+        "evidence": "pass",
+        "notes": [
+          "'Civic-event panel discussions' and lead-technician support appropriately position an assistant for the target role.",
+          "Two meeting rooms, presenter rehearsals and backup-cable labels give concrete setting and process.",
+          "'Including room AV setup, rehearsal preparation and live sound support' largely repeats the bullets; the setting and supervision add some context.",
+          "Supervised mixing leads the experience, but the retained 'expired June 2025' height training is not requested by this posting and distracts from relevant strengths.",
+          "Readable overall, although 'with 2022–2026 experience' is awkward résumé prose."
+        ],
+        "total": 14,
+        "meetsContentBar": false,
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "rationale": "'Civic-event panel discussions' and lead-technician support appropriately position an assistant for the target role."
+          },
+          "useful_detail": {
+            "score": 3,
+            "rationale": "Two meeting rooms, presenter rehearsals and backup-cable labels give concrete setting and process."
+          },
+          "document_purpose": {
+            "score": 2,
+            "rationale": "'Including room AV setup, rehearsal preparation and live sound support' largely repeats the bullets; the setting and supervision add some context."
+          },
+          "selection": {
+            "score": 2,
+            "rationale": "Supervised mixing leads the experience, but the retained 'expired June 2025' height training is not requested by this posting and distracts from relevant strengths."
+          },
+          "natural_writing": {
+            "score": 3,
+            "rationale": "Readable overall, although 'with 2022–2026 experience' is awkward résumé prose."
+          }
+        }
+      },
+      "letter": {
+        "scores": [
+          3,
+          3,
+          2,
+          3,
+          3
+        ],
+        "evidence": "pass",
+        "notes": [
+          "The letter selects room setup, rehearsal checks and supervised live mixing; it does not claim missing evening/weekend availability.",
+          "'Two meeting rooms' and 'under the lead technician’s direction' retain useful scope and contribution limits.",
+          "Rehearsal versus live-session context gives some structure, but the letter still mostly replays the same job bullets.",
+          "One employer's setup and session work form a coherent short example; it appropriately leaves expired, unrequested training out.",
+          "Plain, clear prose; 'logged equipment faults for the equipment team' is repetitive wording."
+        ],
+        "total": 14,
+        "meetsContentBar": false,
+        "dimensions": {
+          "relevance": {
+            "score": 3,
+            "rationale": "The letter selects room setup, rehearsal checks and supervised live mixing; it does not claim missing evening/weekend availability."
+          },
+          "useful_detail": {
+            "score": 3,
+            "rationale": "'Two meeting rooms' and 'under the lead technician’s direction' retain useful scope and contribution limits."
+          },
+          "document_purpose": {
+            "score": 2,
+            "rationale": "Rehearsal versus live-session context gives some structure, but the letter still mostly replays the same job bullets."
+          },
+          "selection": {
+            "score": 3,
+            "rationale": "One employer's setup and session work form a coherent short example; it appropriately leaves expired, unrequested training out."
+          },
+          "natural_writing": {
+            "score": 3,
+            "rationale": "Plain, clear prose; 'logged equipment faults for the equipment team' is repetitive wording."
+          }
+        }
+      },
+      "packageNote": "Correctly marked preliminary for unconfirmed evening/weekend availability; no availability invented.",
+      "bothMeetBar": false
+    },
+    {
+      "caseId": "F04",
+      "resume": {
+        "scores": [
+          4,
+          4,
+          3,
+          3,
+          4
+        ],
+        "evidence": "pass",
+        "notes": [
+          "'Coach-tour and accommodation booking settings' synthesizes both roles into a useful professional focus.",
+          "Supplier confirmation before promises and senior-agent review of exceptions preserve valuable judgement boundaries.",
+          "The profile combines domain, diploma and languages instead of listing the reservation tasks again.",
+          "The current job's three distinct responsibilities are easy to find; education/languages are repeated briefly in the profile but remain relevant.",
+          "Clear, economical prose and conventional headings. 'Fluent English and Italian' is supported without inventing language use in past duties."
+        ],
+        "total": 18,
+        "meetsContentBar": true,
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "rationale": "'Coach-tour and accommodation booking settings' synthesizes both roles into a useful professional focus."
+          },
+          "useful_detail": {
+            "score": 4,
+            "rationale": "Supplier confirmation before promises and senior-agent review of exceptions preserve valuable judgement boundaries."
+          },
+          "document_purpose": {
+            "score": 3,
+            "rationale": "The profile combines domain, diploma and languages instead of listing the reservation tasks again."
+          },
+          "selection": {
+            "score": 3,
+            "rationale": "The current job's three distinct responsibilities are easy to find; education/languages are repeated briefly in the profile but remain relevant."
+          },
+          "natural_writing": {
+            "score": 4,
+            "rationale": "Clear, economical prose and conventional headings. 'Fluent English and Italian' is supported without inventing language use in past duties."
+          }
+        }
+      },
+      "letter": {
+        "scores": [
+          4,
+          3,
+          2,
+          2,
+          3
+        ],
+        "evidence": "pass",
+        "notes": [
+          "Reservations, cancellation exceptions and accessibility confirmation closely match the posting.",
+          "'Asked suppliers to confirm arrangements before promising them to customers' preserves an important judgement boundary.",
+          "The exception/confirmation paragraph provides some relevant context, but is primarily a verbatim duty inventory.",
+          "'This work required accurate reservation records and clear communication with suppliers' restates the opening without strengthening the case.",
+          "Readable, restrained language; the definitional sentence and standard invitation make it mechanical."
+        ],
+        "total": 14,
+        "meetsContentBar": false,
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "rationale": "Reservations, cancellation exceptions and accessibility confirmation closely match the posting."
+          },
+          "useful_detail": {
+            "score": 3,
+            "rationale": "'Asked suppliers to confirm arrangements before promising them to customers' preserves an important judgement boundary."
+          },
+          "document_purpose": {
+            "score": 2,
+            "rationale": "The exception/confirmation paragraph provides some relevant context, but is primarily a verbatim duty inventory."
+          },
+          "selection": {
+            "score": 2,
+            "rationale": "'This work required accurate reservation records and clear communication with suppliers' restates the opening without strengthening the case."
+          },
+          "natural_writing": {
+            "score": 3,
+            "rationale": "Readable, restrained language; the definitional sentence and standard invitation make it mechanical."
+          }
+        }
+      },
+      "bothMeetBar": false
+    },
+    {
+      "caseId": "F05",
+      "resume": {
+        "scores": [
+          4,
+          4,
+          1,
+          3,
+          3
+        ],
+        "evidence": "pass",
+        "notes": [
+          "Motor-claim intake, missing information and adjuster escalation align closely with the job.",
+          "'Shared follow-up queue for approximately 45 active files as part of a three-person administration team' preserves scope without personalizing the team total.",
+          "'Claims Administration Assistant with experience in motor-claim file administration' is circular and adds almost nothing beyond the title; the source offers records experience and relevant ongoing study.",
+          "Distinct intake, queue and decision-escalation bullets are easy to scan; ongoing study appears once with its exact status.",
+          "Experience prose is clear; the tautological summary is flat rather than informative."
+        ],
+        "total": 15,
+        "meetsContentBar": false,
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "rationale": "Motor-claim intake, missing information and adjuster escalation align closely with the job."
+          },
+          "useful_detail": {
+            "score": 4,
+            "rationale": "'Shared follow-up queue for approximately 45 active files as part of a three-person administration team' preserves scope without personalizing the team total."
+          },
+          "document_purpose": {
+            "score": 1,
+            "rationale": "'Claims Administration Assistant with experience in motor-claim file administration' is circular and adds almost nothing beyond the title; the source offers records experience and relevant ongoing study."
+          },
+          "selection": {
+            "score": 3,
+            "rationale": "Distinct intake, queue and decision-escalation bullets are easy to scan; ongoing study appears once with its exact status."
+          },
+          "natural_writing": {
+            "score": 3,
+            "rationale": "Experience prose is clear; the tautological summary is flat rather than informative."
+          }
+        }
+      },
+      "letter": {
+        "scores": [
+          4,
+          4,
+          1,
+          2,
+          3
+        ],
+        "evidence": "pass",
+        "notes": [
+          "The selected motor-claim administration work directly matches the role.",
+          "The adjuster's checklist, shared 45-file workload and three-person denominator are concrete and preserved.",
+          "'In my Claims Administration Assistant role… I opened motor-claim files' starts an almost line-for-line replay of all three résumé bullets.",
+          "Intake, queue size and repair documents are listed without a focused explanation of the candidate's approach; relevant records background goes unused.",
+          "Clear and accurate sentences, but mechanical first-person conversion rather than a developed application."
+        ],
+        "total": 14,
+        "meetsContentBar": false,
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "rationale": "The selected motor-claim administration work directly matches the role."
+          },
+          "useful_detail": {
+            "score": 4,
+            "rationale": "The adjuster's checklist, shared 45-file workload and three-person denominator are concrete and preserved."
+          },
+          "document_purpose": {
+            "score": 1,
+            "rationale": "'In my Claims Administration Assistant role… I opened motor-claim files' starts an almost line-for-line replay of all three résumé bullets."
+          },
+          "selection": {
+            "score": 2,
+            "rationale": "Intake, queue size and repair documents are listed without a focused explanation of the candidate's approach; relevant records background goes unused."
+          },
+          "natural_writing": {
+            "score": 3,
+            "rationale": "Clear and accurate sentences, but mechanical first-person conversion rather than a developed application."
+          }
+        }
+      },
+      "bothMeetBar": false
+    },
+    {
+      "caseId": "F06",
+      "resume": {
+        "scores": [
+          4,
+          4,
+          3,
+          3,
+          4
+        ],
+        "evidence": "pass",
+        "notes": [
+          "'Recovery depot' and material-identification/hazard-escalation focus match the role without padding the short source.",
+          "The mixed-paper belt, contamination checklist and authorized-staff isolation retain important work constraints.",
+          "A short profile gives setting and focus rather than recounting all three tasks; it is modest but informative.",
+          "Hazard escalation is prominent, and no invented education or irrelevant empty sections are added.",
+          "Direct, specific wording; 'after authorized staff isolated the line' clearly assigns authority to the right people."
+        ],
+        "total": 18,
+        "meetsContentBar": true,
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "rationale": "'Recovery depot' and material-identification/hazard-escalation focus match the role without padding the short source."
+          },
+          "useful_detail": {
+            "score": 4,
+            "rationale": "The mixed-paper belt, contamination checklist and authorized-staff isolation retain important work constraints."
+          },
+          "document_purpose": {
+            "score": 3,
+            "rationale": "A short profile gives setting and focus rather than recounting all three tasks; it is modest but informative."
+          },
+          "selection": {
+            "score": 3,
+            "rationale": "Hazard escalation is prominent, and no invented education or irrelevant empty sections are added."
+          },
+          "natural_writing": {
+            "score": 4,
+            "rationale": "Direct, specific wording; 'after authorized staff isolated the line' clearly assigns authority to the right people."
+          }
+        }
+      },
+      "letter": {
+        "scores": [
+          4,
+          4,
+          2,
+          3,
+          3
+        ],
+        "evidence": "pass",
+        "notes": [
+          "Sorting against a material guide and escalating hazards address both required qualifications precisely.",
+          "'Did not handle unidentified hazardous items' and cleanup only after authorized isolation preserve essential limits.",
+          "The hazard-to-escalation/cleanup paragraph makes an adequate focused safety example; it remains source-close and does not reach strong document-purpose quality.",
+          "A concise material-sorting introduction supports one bounded safety example. The sparse source is used without invented credentials or filler.",
+          "Plain credible prose with a conventional closing. Shortness itself earns no points; explicit authority and work constraints do."
+        ],
+        "total": 16,
+        "meetsContentBar": true,
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "rationale": "Sorting against a material guide and escalating hazards address both required qualifications precisely."
+          },
+          "useful_detail": {
+            "score": 4,
+            "rationale": "'Did not handle unidentified hazardous items' and cleanup only after authorized isolation preserve essential limits."
+          },
+          "document_purpose": {
+            "score": 2,
+            "rationale": "The hazard-to-escalation/cleanup paragraph makes an adequate focused safety example; it remains source-close and does not reach strong document-purpose quality."
+          },
+          "selection": {
+            "score": 3,
+            "rationale": "A concise material-sorting introduction supports one bounded safety example. The sparse source is used without invented credentials or filler."
+          },
+          "natural_writing": {
+            "score": 3,
+            "rationale": "Plain credible prose with a conventional closing. Shortness itself earns no points; explicit authority and work constraints do."
+          }
+        }
+      },
+      "bothMeetBar": true
+    },
+    {
+      "caseId": "F07",
+      "resume": {
+        "scores": [
+          4,
+          4,
+          3,
+          3,
+          3
+        ],
+        "evidence": "pass",
+        "notes": [
+          "Memorial-service experience and bereavement communication training are relevant to sensitive service support.",
+          "Family-approved photographs, the coordinator's final programme and approved collection instructions retain concrete approval boundaries.",
+          "The profile combines work setting and training; 'service-room preparation and visitor and family support' provides modest focus without claiming counselling expertise.",
+          "Preparation, personal-item records and visitor assistance are distinct; the earlier hospitality role supports continuity.",
+          "Respectful and factual, although 'with…with a focus' and 'visitor and family support' make the profile slightly clumsy."
+        ],
+        "total": 17,
+        "meetsContentBar": true,
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "rationale": "Memorial-service experience and bereavement communication training are relevant to sensitive service support."
+          },
+          "useful_detail": {
+            "score": 4,
+            "rationale": "Family-approved photographs, the coordinator's final programme and approved collection instructions retain concrete approval boundaries."
+          },
+          "document_purpose": {
+            "score": 3,
+            "rationale": "The profile combines work setting and training; 'service-room preparation and visitor and family support' provides modest focus without claiming counselling expertise."
+          },
+          "selection": {
+            "score": 3,
+            "rationale": "Preparation, personal-item records and visitor assistance are distinct; the earlier hospitality role supports continuity."
+          },
+          "natural_writing": {
+            "score": 3,
+            "rationale": "Respectful and factual, although 'with…with a focus' and 'visitor and family support' make the profile slightly clumsy."
+          }
+        }
+      },
+      "letter": {
+        "scores": [
+          4,
+          3,
+          1,
+          2,
+          3
+        ],
+        "evidence": "review",
+        "evidenceNotes": "Output adds 'before visitors arrived'. The source says 'Prepared seating, displayed family-approved photographs and checked printed service programmes against the coordinator’s final copy' and separately describes welcoming visitors; it does not establish this timing. Plausible, but inferred rather than verified; review, not a proven falsehood.",
+        "notes": [
+          "Service preparation, family instructions and keepsake records are well matched to the posting.",
+          "Coordinator/family approval and keepsake collection are concrete, but no richer use is made of the relevant communication training.",
+          "'This work required careful preparation from approved instructions before visitors arrived' explains the preceding duty inventory rather than developing a distinct case.",
+          "The two paragraphs largely replay the three current-role bullets; the definitional sentence adds repetition.",
+          "Respectful and readable, with mechanical 'This work required…' wording and an unnecessary inferred timing clause."
+        ],
+        "total": 13,
+        "meetsContentBar": false,
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "rationale": "Service preparation, family instructions and keepsake records are well matched to the posting."
+          },
+          "useful_detail": {
+            "score": 3,
+            "rationale": "Coordinator/family approval and keepsake collection are concrete, but no richer use is made of the relevant communication training."
+          },
+          "document_purpose": {
+            "score": 1,
+            "rationale": "'This work required careful preparation from approved instructions before visitors arrived' explains the preceding duty inventory rather than developing a distinct case."
+          },
+          "selection": {
+            "score": 2,
+            "rationale": "The two paragraphs largely replay the three current-role bullets; the definitional sentence adds repetition."
+          },
+          "natural_writing": {
+            "score": 3,
+            "rationale": "Respectful and readable, with mechanical 'This work required…' wording and an unnecessary inferred timing clause."
+          }
+        }
+      },
+      "bothMeetBar": false
+    },
+    {
+      "caseId": "F08",
+      "resume": {
+        "scores": [
+          4,
+          4,
+          3,
+          2,
+          3
+        ],
+        "evidence": "pass",
+        "notes": [
+          "Pre-release game builds and Japanese interface text make the professional focus specific.",
+          "Screenshots, build numbers, reproduction steps and lead-approved wording preserve concrete QA and authority details.",
+          "The profile identifies language/domain and glossary focus without listing the full bug-report procedure.",
+          "The role leads with retesting, then reporting, then initial testing; putting the primary testing/reporting contribution first would be easier to follow.",
+          "Mostly clear. 'Native Japanese localization QA tester' should more explicitly say native Japanese speaker to avoid ambiguity; the source establishes language fluency, not nationality."
+        ],
+        "total": 16,
+        "meetsContentBar": true,
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "rationale": "Pre-release game builds and Japanese interface text make the professional focus specific."
+          },
+          "useful_detail": {
+            "score": 4,
+            "rationale": "Screenshots, build numbers, reproduction steps and lead-approved wording preserve concrete QA and authority details."
+          },
+          "document_purpose": {
+            "score": 3,
+            "rationale": "The profile identifies language/domain and glossary focus without listing the full bug-report procedure."
+          },
+          "selection": {
+            "score": 2,
+            "rationale": "The role leads with retesting, then reporting, then initial testing; putting the primary testing/reporting contribution first would be easier to follow."
+          },
+          "natural_writing": {
+            "score": 3,
+            "rationale": "Mostly clear. 'Native Japanese localization QA tester' should more explicitly say native Japanese speaker to avoid ambiguity; the source establishes language fluency, not nationality."
+          }
+        }
+      },
+      "letter": {
+        "scores": [
+          4,
+          4,
+          3,
+          2,
+          3
+        ],
+        "evidence": "pass",
+        "notes": [
+          "Japanese interface defects and reproducible reporting address the employer's central need.",
+          "Jira, screenshots, build identifiers, reproduction steps and lead approval make the example specific.",
+          "The report-to-retest paragraph develops the defect lifecycle using an explicitly supported sequence, rather than separate unrelated jobs.",
+          "'Displayed text…approved glossary' appears in both opening and second paragraph and could be consolidated.",
+          "Readable professional prose; 'As a native Japanese speaker' correctly specifies language and is clearer than the résumé's wording."
+        ],
+        "total": 16,
+        "meetsContentBar": true,
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "rationale": "Japanese interface defects and reproducible reporting address the employer's central need."
+          },
+          "useful_detail": {
+            "score": 4,
+            "rationale": "Jira, screenshots, build identifiers, reproduction steps and lead approval make the example specific."
+          },
+          "document_purpose": {
+            "score": 3,
+            "rationale": "The report-to-retest paragraph develops the defect lifecycle using an explicitly supported sequence, rather than separate unrelated jobs."
+          },
+          "selection": {
+            "score": 2,
+            "rationale": "'Displayed text…approved glossary' appears in both opening and second paragraph and could be consolidated."
+          },
+          "natural_writing": {
+            "score": 3,
+            "rationale": "Readable professional prose; 'As a native Japanese speaker' correctly specifies language and is clearer than the résumé's wording."
+          }
+        }
+      },
+      "bothMeetBar": true
+    },
+    {
+      "caseId": "F09",
+      "resume": {
+        "scores": [
+          4,
+          4,
+          1,
+          2,
+          3
+        ],
+        "evidence": "pass",
+        "notes": [
+          "Client-approved floral designs, substitutions and arrangements directly match the freelance brief.",
+          "The shared 12-arrangement total and Courtyard Wedding sightline/palette example retain useful contribution and design constraints.",
+          "'Freelance floral designer with retail florist experience' repeats the role headings and fails to convey the available design focus.",
+          "The actual project and a single header portfolio URL are preserved, but skills such as 'Flower lists' and 'Spending limits' are objects, not well-written capabilities.",
+          "Experience and project prose are clear; the generic profile and noun-only skill additions weaken the professional presentation."
+        ],
+        "total": 14,
+        "meetsContentBar": false,
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "rationale": "Client-approved floral designs, substitutions and arrangements directly match the freelance brief."
+          },
+          "useful_detail": {
+            "score": 4,
+            "rationale": "The shared 12-arrangement total and Courtyard Wedding sightline/palette example retain useful contribution and design constraints."
+          },
+          "document_purpose": {
+            "score": 1,
+            "rationale": "'Freelance floral designer with retail florist experience' repeats the role headings and fails to convey the available design focus."
+          },
+          "selection": {
+            "score": 2,
+            "rationale": "The actual project and a single header portfolio URL are preserved, but skills such as 'Flower lists' and 'Spending limits' are objects, not well-written capabilities."
+          },
+          "natural_writing": {
+            "score": 3,
+            "rationale": "Experience and project prose are clear; the generic profile and noun-only skill additions weaken the professional presentation."
+          }
+        }
+      },
+      "packageNote": "Portfolio URL occurs once in résumé header; descriptive Courtyard Wedding project retained with client, date, sightline constraint and palette. Cover-letter generation failed; preserve first failure. Rejected provider text unavailable for direct factual review.",
+      "letter": {
+        "scores": null,
+        "evidence": "unavailable",
+        "notes": [
+          "No letter returned. The UI reported: 'The draft could not be verified against your résumé and posting. Nothing was saved; try again.' No manual retry was made."
+        ],
+        "total": null,
+        "meetsContentBar": false,
+        "dimensions": null
+      },
+      "bothMeetBar": false
+    },
+    {
+      "caseId": "F10",
+      "resume": {
+        "scores": [
+          4,
+          4,
+          2,
+          2,
+          3
+        ],
+        "evidence": "pass",
+        "notes": [
+          "Costume care, rehearsed quick changes and supervisor-directed work are closely relevant.",
+          "Buttons, hems, costume plots, pre-performance fastenings and supervisor approval give concrete contribution boundaries.",
+          "The diploma adds background, but 'Theatre wardrobe assistant with theatre-production experience' is repetitive and the rest retells duties.",
+          "The order goes repairs, quick changes, preparation; leading with performance preparation would make the main contribution easier to scan.",
+          "Experience prose is precise. 'Within wardrobe supervisor instructions' is awkward and should read 'following the wardrobe supervisor’s instructions'."
+        ],
+        "total": 15,
+        "meetsContentBar": true,
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "rationale": "Costume care, rehearsed quick changes and supervisor-directed work are closely relevant."
+          },
+          "useful_detail": {
+            "score": 4,
+            "rationale": "Buttons, hems, costume plots, pre-performance fastenings and supervisor approval give concrete contribution boundaries."
+          },
+          "document_purpose": {
+            "score": 2,
+            "rationale": "The diploma adds background, but 'Theatre wardrobe assistant with theatre-production experience' is repetitive and the rest retells duties."
+          },
+          "selection": {
+            "score": 2,
+            "rationale": "The order goes repairs, quick changes, preparation; leading with performance preparation would make the main contribution easier to scan."
+          },
+          "natural_writing": {
+            "score": 3,
+            "rationale": "Experience prose is precise. 'Within wardrobe supervisor instructions' is awkward and should read 'following the wardrobe supervisor’s instructions'."
+          }
+        }
+      },
+      "letter": {
+        "scores": [
+          4,
+          4,
+          2,
+          3,
+          3
+        ],
+        "evidence": "pass",
+        "notes": [
+          "Performance preparation, quick changes and minor repairs answer the wardrobe brief directly.",
+          "Rehearsed cues, post-show repair records and supervisor approval for alterations preserve useful process and limits.",
+          "The performance/repair example has an adequate coherent purpose, although it stays close to the résumé wording.",
+          "Preparation is followed by performance support and repairs; each paragraph contributes a distinct part of the same relevant work.",
+          "Plain credible writing with a brief conventional closing; it avoids inflated design ownership and padding."
+        ],
+        "total": 16,
+        "meetsContentBar": true,
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "rationale": "Performance preparation, quick changes and minor repairs answer the wardrobe brief directly."
+          },
+          "useful_detail": {
+            "score": 4,
+            "rationale": "Rehearsed cues, post-show repair records and supervisor approval for alterations preserve useful process and limits."
+          },
+          "document_purpose": {
+            "score": 2,
+            "rationale": "The performance/repair example has an adequate coherent purpose, although it stays close to the résumé wording."
+          },
+          "selection": {
+            "score": 3,
+            "rationale": "Preparation is followed by performance support and repairs; each paragraph contributes a distinct part of the same relevant work."
+          },
+          "natural_writing": {
+            "score": 3,
+            "rationale": "Plain credible writing with a brief conventional closing; it avoids inflated design ownership and padding."
+          }
+        }
+      },
+      "bothMeetBar": true
+    }
+  ]
+}

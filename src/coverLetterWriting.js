@@ -42,7 +42,7 @@ export function reviewCoverLetterWriting(paragraphs, length = "standard", { part
     if (editorialSentences(text).slice(1).some((sentence, index) => {
       const prior = editorialSentences(text).slice(0, index + 1).join(' ');
       const known = new Set(editorialContentTokens(prior));
-      return /^(?:my|this|that) work (?:cent(?:er|re)s on|focuses on|involves|consists of|combines?|combined|brings? together|brought together)\b/i.test(sentence.trim())
+      return /^(?:my|this|that) (?:hands-on )?work (?:cent(?:er|re)s on|focuses on|involves|consists of|combines?|combined|requires?|required|includes?|included|brings? together|brought together)\b/i.test(sentence.trim())
         && [...new Set(editorialContentTokens(sentence))].filter((token) => known.has(token) && !['work', 'include', 'use'].includes(token)).length >= 2;
     })) {
       add("restated_work_description", "Check whether the following description repeats the example. Keep distinct source-supported scope, constraints or outcomes; remove it only if it adds no useful information.");

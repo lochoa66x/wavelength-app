@@ -224,7 +224,7 @@ export function CoverLetterWorkspace({
 
       {plan && !requiresFreshDraft ? <p data-cover-letter-draft-settings style={{ color: C.textSub, fontSize: 12, lineHeight: 1.5 }}>
         Current draft: {COVER_LETTER_VOICES.find((option) => option.id === plan.voice)?.label} · {COVER_LETTER_LENGTHS.find((option) => option.id === plan.length)?.label} · {writingReview.wordCount} words.
-        {writingReview.issues.length ? " Writing suggestions are available in Edit letter." : " Review how well the letter makes your case; passing checks does not grade its quality."}
+        {plan.editorialReview === 'needs_review' ? " Writing review is still needed. Check whether the example makes a useful case for this role." : writingReview.issues.length ? " Writing suggestions are available in Edit letter." : " Review how well the letter makes your case; passing checks does not grade its quality."}
         {voice !== plan.voice || length !== plan.length ? " Your selections apply when you generate a fresh draft. Regenerating one paragraph keeps the current draft settings." : ""}
       </p> : null}
 

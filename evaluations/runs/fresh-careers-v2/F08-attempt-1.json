@@ -1,0 +1,37 @@
+{
+  "caseId": "F08",
+  "attempt": 1,
+  "revision": "d5c9fe60568fb34ade44b0d13167250d6d07d5f2",
+  "status": "completed",
+  "startedAt": "2026-09-13T18:06:28.038Z",
+  "finishedAt": "2026-09-13T18:08:38.998Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F08-letter.docx",
+      "downloadName": "Yuki-Tanaka-Localization-QA-Tester-cover-letter.docx",
+      "sha256": "6aca799f91b1f3f7017ccf10e496f958690124d19b61e37d0debfaf1fdf81411"
+    },
+    {
+      "filename": "F08-letter.pdf",
+      "downloadName": "Yuki-Tanaka-Localization-QA-Tester-cover-letter.pdf",
+      "sha256": "9edf02970b5bec487d31b41600e591ea47913dcfaf1aeb053548a5162976f83e"
+    },
+    {
+      "filename": "F08-resume.docx",
+      "downloadName": "Yuki-Tanaka-Localization-QA-Tester.docx",
+      "sha256": "6e83d6b197d550969a70fed63c6ac7f88d78fe5d6964e6186d2baccb7c04ae6c"
+    },
+    {
+      "filename": "F08-resume.pdf",
+      "downloadName": "Yuki-Tanaka-Localization-QA-Tester.pdf",
+      "sha256": "f5d88b9f34062031f115da350373ae9a93b4e2907950cecfc1f2e7238d8a16ac"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "recordedAt": "2026-09-13T18:08:56.049Z",
+  "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+}

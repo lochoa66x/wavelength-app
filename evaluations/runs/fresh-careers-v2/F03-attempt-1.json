@@ -1,0 +1,37 @@
+{
+  "caseId": "F03",
+  "attempt": 1,
+  "revision": "d5c9fe60568fb34ade44b0d13167250d6d07d5f2",
+  "status": "completed",
+  "startedAt": "2026-09-13T17:54:55.724Z",
+  "finishedAt": "2026-09-13T17:57:29.894Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F03-resume.docx",
+      "downloadName": "Malik-Adebayo-Audiovisual-Assistant-preliminary.docx",
+      "sha256": "6da70b019283b20ff7f97616c780c45b6771712e83019c1503e1b3d610c4f670"
+    },
+    {
+      "filename": "F03-resume.pdf",
+      "downloadName": "Malik-Adebayo-Audiovisual-Assistant-preliminary.pdf",
+      "sha256": "c684a855f3be09448a119c90b81e26548a305ee3de30905d99899274cbcb289d"
+    },
+    {
+      "filename": "F03-letter.docx",
+      "downloadName": "Malik-Adebayo-Audiovisual-Event-Technician-cover-letter-preliminary.docx",
+      "sha256": "99fab5926a816dde2620c15d0424ade9c74d387964130f75e0f0adc621d4334d"
+    },
+    {
+      "filename": "F03-letter.pdf",
+      "downloadName": "Malik-Adebayo-Audiovisual-Event-Technician-cover-letter-preliminary.pdf",
+      "sha256": "cf8685dd569528d5986ce7bd19bedc8fd29dfcacf8d2f0ce81ccae8fb7ad8cbd"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "recordedAt": "2026-09-13T17:57:48.148Z",
+  "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+}

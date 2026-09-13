@@ -1,0 +1,37 @@
+{
+  "caseId": "F04",
+  "attempt": 1,
+  "revision": "d5c9fe60568fb34ade44b0d13167250d6d07d5f2",
+  "status": "completed",
+  "startedAt": "2026-09-13T17:57:33.051Z",
+  "finishedAt": "2026-09-13T17:59:24.090Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F04-resume.docx",
+      "downloadName": "Elena-Rossi-Reservations-Assistant.docx",
+      "sha256": "7278a719b70bd461fee4d1cc70dbc00f5080d6a2b8ddee7b57cf219f38292ccf"
+    },
+    {
+      "filename": "F04-resume.pdf",
+      "downloadName": "Elena-Rossi-Reservations-Assistant.pdf",
+      "sha256": "36e4ad63a9b8a51ef94f10b7ae75a61fa3b5ccf7d747cb32fc654c9fe49f5b25"
+    },
+    {
+      "filename": "F04-letter.docx",
+      "downloadName": "Elena-Rossi-Travel-Reservations-Agent-cover-letter.docx",
+      "sha256": "b1168bf26a76552daab58bbe81d039c17738a8feef2b98c6be319b647bfc8cd1"
+    },
+    {
+      "filename": "F04-letter.pdf",
+      "downloadName": "Elena-Rossi-Travel-Reservations-Agent-cover-letter.pdf",
+      "sha256": "c55218491aeb9e03a2bd3e511f1cc842c8479591360156bc88e24b2b1a395326"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "recordedAt": "2026-09-13T17:59:53.319Z",
+  "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+}

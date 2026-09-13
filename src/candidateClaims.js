@@ -102,11 +102,18 @@ export function candidateClaimIssues(proposed,sources=[],context={}) {
   const numeric=quantityFacts(sentence);
   // Ignore the article "one" unless it modifies a measurable quantity.
   const requiredNumbers=numeric.filter(n=>n.number!=='1'||n.unit);
+  const namedEmployer=sentence.match(/\b(?:At|at)\s+([\p{Lu}][\p{L}\p{N}&.'’-]*(?:\s+(?:(?:and|of|the)\s+)?[\p{Lu}][\p{L}\p{N}&.'’-]*)*)/u)?.[1]?.trim().replace(/[.]$/, '');
   for(const measure of requiredNumbers){
    const number=measure.number;
-   const matches=relevant.filter(f=>f.measures.some(source=>sameQuantity(measure,source)));
+   // A compound sentence can cite several facts. Select a measured fact by its
+   // own unit/rate and employer, not the other clause's larger word overlap.
+   // Percentages and unitless values still need the narrower lexical scope.
+   const numericFacts=measure.unit && measure.unit!=='percent' ? scored : relevant;
+   const matches=numericFacts.filter(f=>(!namedEmployer || !f.employer || normalize(f.employer)===normalize(namedEmployer) || normalize(f.text).includes(normalize(namedEmployer))) && f.measures.some(source=>sameQuantity(measure,source)));
    if(!matches.length){issues.push('A number or duration is not supported by this claim’s cited candidate evidence.');continue;}
-   if(/\b(?:independently|personally|single.hand(?:ed)?ly)\b/i.test(sentence)&&matches.every(f=>/\b(?:as part of|with|our|the)\s+(?:a\s+)?(?:[a-z]+\s+)?(?:team|crew)\b/i.test(f.text)))issues.push('Preserve the team or crew attribution for this quantity.');
+   const shared = f => /\b(?:as part of|with|our|the)\s+(?:an?\s+)?(?:[a-z]+\s+)?(?:team|crew|assistant)\b|\bcombined total\b/i.test(f.text);
+   const sharedClaim = shared({text:sentence}) || /\btogether\b/i.test(sentence);
+   if(matches.every(shared) && (/\b(?:independently|personally|single.hand(?:ed)?ly)\b/i.test(sentence) || (/\bI\s+(?:prepared|made|produced|created|completed|built|assembled)\b/i.test(sentence) && !sharedClaim)))issues.push('Preserve the team or crew attribution for this quantity.');
    const years=normalizeClaimNumbers(sentence).match(new RegExp(`\\b${number}\\s*(?:\\+\\s*)?years?\\b`,'i'));
    if(years&&!matches.some(f=>new RegExp(`\\b${number}\\s*(?:\\+\\s*)?years?\\b`,'i').test(normalizeClaimNumbers(f.text))))issues.push('The cited evidence does not establish the claimed years of experience.');
    if(matches.every(f=>/\b(?:team|store|department|company|program)\b/i.test(f.text)&&/\b(?:participated|helped|contributed|supported|team.s|store.s)\b/i.test(f.text))&&/\bI\s+(?:(?:personally|independently|directly|single.hand(?:ed)?ly)\s+)?(?:reduced|increased|improved|delivered|achieved|saved|cut|grew)\b/i.test(sentence))issues.push('Keep this result attributed to the team or programme and preserve the candidate’s contribution.');
@@ -121,7 +128,6 @@ export function candidateClaimIssues(proposed,sources=[],context={}) {
   for(const assertion of credentialClauses(credentialAssertion)){
    if(credentialMarker.test(assertion)&&['held','current'].includes(credentialStatus(assertion))&&/\b(?:I (?:also )?(?:hold|have|am|earned|obtained)|certified|certification|certificate|licen[cs]e|authorization)\b/i.test(assertion))issues.push(...credentialEvidenceIssues(assertion,facts.map(f=>f.text),{prose:true}));
   }
-  const namedEmployer=sentence.match(/\b(?:At|at)\s+([\p{Lu}][\p{L}\p{N}&.'’-]*(?:\s+(?:(?:and|of|the)\s+)?[\p{Lu}][\p{L}\p{N}&.'’-]*)*)/u)?.[1]?.trim().replace(/[.]$/, '');
   if(namedEmployer&&relevant.some(f=>f.employer)&&!relevant.some(f=>normalize(f.employer)===normalize(namedEmployer)||normalize(f.text).includes(normalize(namedEmployer))))issues.push('Keep this claim attached to the employer or project established by its cited evidence.');
  }
  return [...new Set(issues)];

@@ -1,0 +1,100 @@
+{
+  "version": 1,
+  "runId": "fresh-careers-v2",
+  "revision": "d5c9fe60568fb34ade44b0d13167250d6d07d5f2",
+  "frozenAt": "2026-09-13T17:50:10.328Z",
+  "rubricHash": "31b081525a7ee569f48df6211d95c7929a54955a8997fac73efb734fd5bc30af",
+  "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273",
+  "cases": [
+    {
+      "id": "F01",
+      "name": "Owen Mercer",
+      "title": "CNC Machine Operator",
+      "voice": "direct",
+      "length": "standard",
+      "resume": "Owen Mercer\nf01.v2@example.com | Hamilton, Ontario\nCNC Machine Operator | Example Alloy Works | 2022 - 2026\nLoaded aluminium blanks into CNC milling machines and ran approved programmes for small production batches.\nMeasured first-off parts with digital calipers and recorded dimensions against the drawing; the setup technician approved offsets and programme changes.\nWorked with another operator on a cell producing 180 brackets per shift in total across both operators.\nProduction Assistant | Example Alloy Works | 2020 - 2022\nDeburred machined edges, labelled completed batches and separated nonconforming parts for inspection.\nEducation\nMechanical Techniques certificate | Example Technical College | 2020\nSkills\nCNC operation; digital calipers; drawing dimensions; batch traceability",
+      "posting": "CNC Machine Operator — Example Precision Parts\nLocation: Hamilton, Ontario\nEmployment type: Full-time\nAbout the role: Example Precision Parts seeks a cnc machine operator to support the work described below.\nResponsibilities\n- Run approved machining programmes and record first-off measurements\n- Identify out-of-tolerance parts and escalate setup changes\n- Maintain batch labels and shift handover notes\nRequired qualifications\n- Experience operating CNC milling machines\n- Ability to measure parts against engineering drawings\nHow to apply: Submit a résumé and a short cover letter describing relevant work."
+    },
+    {
+      "id": "F02",
+      "name": "Clara Voss",
+      "title": "Hand Bookbinder",
+      "voice": "direct",
+      "length": "standard",
+      "resume": "Clara Voss\nf02.v2@example.com | Hamilton, Ontario\nBookbinding Assistant | Example Paper Studio | 2023 - 2026\nFolded and gathered printed signatures, sewed text blocks and fitted cloth covers for short-run journals.\nMade a sample binding for each customer order and recorded the approved cloth, endpaper and spine lettering before production.\nChecked finished journals for loose threads and uneven trimming, referring damaged printed pages to the studio owner.\nLibrary Volunteer | Example Reading Room | 2021 - 2023\nMade protective paper covers and recorded damaged books for librarian review.\nTraining\nHand bookbinding workshop | Example Paper Arts Centre | 2023\nSkills\nSignature sewing; case binding; cloth covering; sample approval records",
+      "posting": "Hand Bookbinder — Example Bound Editions\nLocation: Hamilton, Ontario\nEmployment type: Contract\nAbout the role: Example Bound Editions seeks a hand bookbinder to support the work described below.\nResponsibilities\n- Assemble text blocks and fit covers for small editions\n- Record material choices and check finished bindings\n- Flag damaged pages before completing an order\nRequired qualifications\n- Practical experience with sewn and case-bound books\n- Ability to follow an approved binding sample\nHow to apply: Submit a résumé and a short cover letter describing relevant work."
+    },
+    {
+      "id": "F03",
+      "name": "Malik Adebayo",
+      "title": "Audiovisual Event Technician",
+      "voice": "direct",
+      "length": "standard",
+      "resume": "Malik Adebayo\nf03.v2@example.com | Hamilton, Ontario\nAudiovisual Assistant | Example Civic Events | 2022 - 2026\nSet up wired microphones, powered speakers and presentation laptops for panel discussions in two meeting rooms.\nChecked each presenter’s slides and audio during rehearsal and labelled backup cables at the technical desk.\nOperated the sound mixer during sessions under the lead technician’s direction and logged faults for the equipment team.\nEvent Volunteer | Example Community Forum | 2020 - 2022\nPlaced directional signs and guided speakers to the rehearsal room.\nTraining\nWorking at Heights training | Example Safety School | expired June 2025\nSkills\nMicrophone setup; basic audio mixing; presentation playback; cable labelling",
+      "posting": "Audiovisual Event Technician — Example Stage Services\nLocation: Hamilton, Ontario\nEmployment type: Casual\nAbout the role: Example Stage Services seeks a audiovisual event technician to support the work described below.\nResponsibilities\n- Prepare room audio and test presenter material\n- Operate event sound under the lead technician’s direction\n- Record equipment faults and support pack-down\nRequired qualifications\n- Experience setting up microphones and presentation equipment\n- Ability to troubleshoot playback during rehearsals\n- Availability for evening and weekend events\nHow to apply: Submit a résumé and a short cover letter describing relevant work."
+    },
+    {
+      "id": "F04",
+      "name": "Elena Rossi",
+      "title": "Travel Reservations Agent",
+      "voice": "direct",
+      "length": "standard",
+      "resume": "Elena Rossi\nf04.v2@example.com | Hamilton, Ontario\nReservations Assistant | Example Lakeside Tours | 2023 - 2026\nEntered coach-tour reservations, checked traveller names against booking forms and emailed supplier confirmations.\nCompared requested dates with the operator’s published cancellation terms and referred exceptions to a senior agent.\nRecorded accessibility requests and asked suppliers to confirm arrangements before promising them to customers.\nGuest Services Assistant | Example Harbour Lodge | 2021 - 2023\nUpdated room bookings and prepared arrival lists for reception colleagues.\nEducation\nTourism Operations diploma | Example Regional College | 2021\nLanguages\nEnglish: Fluent\nItalian: Fluent\nSkills\nReservation records; supplier confirmations; booking amendments; customer email",
+      "posting": "Travel Reservations Agent — Example Journey Desk\nLocation: Hamilton, Ontario\nEmployment type: Full-time\nAbout the role: Example Journey Desk seeks a travel reservations agent to support the work described below.\nResponsibilities\n- Maintain bookings and communicate supplier confirmations\n- Explain published booking terms and escalate exceptions\n- Track accessibility arrangements without assuming supplier approval\nRequired qualifications\n- Travel or accommodation reservation experience\n- Accurate customer and supplier communication\nHow to apply: Submit a résumé and a short cover letter describing relevant work."
+    },
+    {
+      "id": "F05",
+      "name": "Benji Patel",
+      "title": "Insurance Claims Assistant",
+      "voice": "direct",
+      "length": "standard",
+      "resume": "Benji Patel\nf05.v2@example.com | Hamilton, Ontario\nClaims Administration Assistant | Example Mutual Services | 2022 - 2026\nOpened motor-claim files, checked forms for missing information and requested photographs listed on the adjuster’s checklist.\nRecorded repair-estimate documents and routed customer questions about coverage or settlement to the assigned adjuster.\nMaintained a shared follow-up queue for approximately 45 active files; the queue belonged to a three-person administration team.\nRecords Clerk | Example Document Bureau | 2020 - 2022\nIndexed scanned correspondence and checked document dates against the file register.\nEducation\nBusiness Administration diploma | Example Metro College | 2020\nTraining\nIntroduction to Insurance course | Example Continuing Education | in progress, expected November 2026\nSkills\nClaim-file administration; document indexing; follow-up queues; missing-information checks",
+      "posting": "Insurance Claims Assistant — Example Claims Support\nLocation: Hamilton, Ontario\nEmployment type: Full-time\nAbout the role: Example Claims Support seeks a insurance claims assistant to support the work described below.\nResponsibilities\n- Check intake documents and request listed missing items\n- Maintain follow-up records for adjusters\n- Refer coverage and settlement decisions to authorized staff\nRequired qualifications\n- Experience maintaining customer case files\n- Ability to handle records accurately and escalate specialist decisions\nHow to apply: Submit a résumé and a short cover letter describing relevant work."
+    },
+    {
+      "id": "F06",
+      "name": "Tessa Morgan",
+      "title": "Recycling Sort Line Operator",
+      "voice": "direct",
+      "length": "standard",
+      "resume": "Tessa Morgan\nf06.v2@example.com | Hamilton, Ontario\nRecycling Sorter | Example Recovery Depot | 2024 - 2026\nRemoved plastic film and other listed contaminants from a mixed-paper sorting belt using the site’s material guide.\nStopped work and notified the line supervisor when batteries or sharp objects appeared; did not handle unidentified hazardous items.\nRecorded repeated contamination types on the shift checklist and cleaned the work station after the line was isolated by authorized staff.\nSkills\nMaterial identification; sorting-line checklists; hazard escalation; workstation housekeeping",
+      "posting": "Recycling Sort Line Operator — Example Material Recovery\nLocation: Hamilton, Ontario\nEmployment type: Full-time\nAbout the role: Example Material Recovery seeks a recycling sort line operator to support the work described below.\nResponsibilities\n- Sort material against the accepted-items guide\n- Report batteries, sharps and unknown materials\n- Record recurring contamination and complete safe cleanup\nRequired qualifications\n- Experience sorting recyclable materials\n- Ability to follow site safety and escalation procedures\nHow to apply: Submit a résumé and a short cover letter describing relevant work."
+    },
+    {
+      "id": "F07",
+      "name": "Isaac Reed",
+      "title": "Funeral Service Assistant",
+      "voice": "direct",
+      "length": "standard",
+      "resume": "Isaac Reed\nf07.v2@example.com | Hamilton, Ontario\nService Attendant | Example Memorial House | 2023 - 2026\nPrepared seating, displayed family-approved photographs and checked printed service programmes against the coordinator’s final copy.\nWelcomed visitors, directed them to the service room and passed requests from family members to the funeral director.\nLogged returned keepsakes and arranged collection times with families using instructions approved by the service coordinator.\nHospitality Assistant | Example Civic Hall | 2020 - 2023\nPrepared meeting rooms and assisted guests with arrival information.\nTraining\nBereavement Communication workshop | Example Community Learning | 2024\nSkills\nService-room preparation; guest assistance; programme checking; keepsake records",
+      "posting": "Funeral Service Assistant — Example Remembrance Services\nLocation: Hamilton, Ontario\nEmployment type: Part-time\nAbout the role: Example Remembrance Services seeks a funeral service assistant to support the work described below.\nResponsibilities\n- Prepare service rooms using approved family instructions\n- Welcome visitors and escalate family requests to the director\n- Keep accurate records of returned personal items\nRequired qualifications\n- Experience supporting sensitive customer-facing services\n- Attention to detail when preparing events\nHow to apply: Submit a résumé and a short cover letter describing relevant work."
+    },
+    {
+      "id": "F08",
+      "name": "Yuki Tanaka",
+      "title": "Localization QA Tester",
+      "voice": "direct",
+      "length": "standard",
+      "resume": "Yuki Tanaka\nf08.v2@example.com | Hamilton, Ontario\nLocalization QA Tester | Example Pixel Workshop | 2023 - 2026\nTested Japanese interface text in pre-release game builds and logged clipped labels, inconsistent terminology and untranslated strings in Jira.\nAttached screenshots, build numbers and reproduction steps to each issue; the localization lead approved wording changes.\nRetested assigned issues after updated builds and reopened reports when the displayed text still differed from the approved glossary.\nEducation\nDigital Media diploma | Example Media Institute | 2023\nLanguages\nJapanese: Native\nEnglish: Fluent\nSkills\nLocalization QA; Jira; screenshot annotation; glossary checks; regression testing",
+      "posting": "Localization QA Tester — Example Language Games\nLocation: Hamilton, Ontario\nEmployment type: Fixed-term\nAbout the role: Example Language Games seeks a localization qa tester to support the work described below.\nResponsibilities\n- Test localized screens against a supplied glossary\n- Write reproducible defect reports with screenshots and build details\n- Retest fixes and refer wording decisions to the localization lead\nRequired qualifications\n- Japanese fluency\n- Experience documenting reproducible software or localization defects\nHow to apply: Submit a résumé and a short cover letter describing relevant work."
+    },
+    {
+      "id": "F09",
+      "name": "Sophie Diallo",
+      "title": "Freelance Floral Designer",
+      "voice": "direct",
+      "length": "standard",
+      "resume": "Sophie Diallo\nf09.v2@example.com | Hamilton, Ontario\nFreelance Floral Designer | Self-employed | 2022 - 2026\nPrepared bouquets and table arrangements from client-approved colour palettes, flower lists and spending limits.\nFor one wedding, prepared 12 table arrangements with a freelance assistant; this quantity was the combined output.\nChecked stem condition on delivery and confirmed substitutions with the client before changing the agreed flower list.\nRetail Florist Assistant | Example Bloom Shop | 2020 - 2022\nConditioned cut flowers, wrapped bouquets and recorded collection times.\nTraining\nFloral Design certificate | Example Design School | 2022\nPortfolio\nhttps://example.com/sophie-flowers\nSelected Projects\nCourtyard Wedding | Independent client | 2025\nDesigned low table arrangements to preserve guests’ sightlines, using the client’s approved cream-and-green palette.\nSkills\nFloral conditioning; client approvals; table arrangements; substitution planning",
+      "posting": "Freelance Floral Designer — Example Celebration Flowers\nLocation: Hamilton, Ontario\nEmployment type: Freelance\nAbout the role: Example Celebration Flowers seeks a freelance floral designer to support the work described below.\nResponsibilities\n- Prepare event arrangements from agreed palettes and flower lists\n- Confirm substitutions before changing the design\n- Coordinate arrangement quantities and collection details\nRequired qualifications\n- Portfolio of floral arrangements\n- Experience working to client-approved designs and spending limits\nHow to apply: Submit a résumé and a short cover letter describing relevant work."
+    },
+    {
+      "id": "F10",
+      "name": "Arthur Quinn",
+      "title": "Theatre Wardrobe Assistant",
+      "voice": "direct",
+      "length": "standard",
+      "resume": "Arthur Quinn\nf10.v2@example.com | Hamilton, Ontario\nWardrobe Assistant | Example Little Theatre | 2022 - 2026\nPrepared labelled costume rails from the wardrobe supervisor’s plot and checked fastenings before each performance.\nAssisted performers with quick changes using rehearsed cues and recorded repairs needed after the show.\nHand-sewed replacement buttons and repaired loose hems within the supervisor’s instructions; design alterations required the supervisor’s approval.\nStudent Costume Volunteer | Example College Players | 2020 - 2022\nSorted donated garments by size and prepared a costume inventory for a student production.\nEducation\nFashion Techniques diploma | Example Arts College | 2022\nSkills\nCostume plots; quick-change assistance; hand sewing; repair logs",
+      "posting": "Theatre Wardrobe Assistant — Example Repertory Stage\nLocation: Hamilton, Ontario\nEmployment type: Fixed-term\nAbout the role: Example Repertory Stage seeks a theatre wardrobe assistant to support the work described below.\nResponsibilities\n- Prepare costume rails and inspect fastenings\n- Assist with rehearsed quick changes\n- Complete minor repairs and escalate design changes\nRequired qualifications\n- Practical costume or garment-care experience\n- Ability to follow performance cues and wardrobe instructions\nHow to apply: Submit a résumé and a short cover letter describing relevant work."
+    }
+  ]
+}

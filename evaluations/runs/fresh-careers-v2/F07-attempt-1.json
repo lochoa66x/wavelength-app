@@ -1,0 +1,37 @@
+{
+  "caseId": "F07",
+  "attempt": 1,
+  "revision": "d5c9fe60568fb34ade44b0d13167250d6d07d5f2",
+  "status": "completed",
+  "startedAt": "2026-09-13T18:04:10.162Z",
+  "finishedAt": "2026-09-13T18:06:24.890Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F07-letter.docx",
+      "downloadName": "Isaac-Reed-Funeral-Service-Assistant-cover-letter.docx",
+      "sha256": "63d36c924208352542e7b8f6f0d7c77b6d264ec98947290d0209ae93cd5c223d"
+    },
+    {
+      "filename": "F07-letter.pdf",
+      "downloadName": "Isaac-Reed-Funeral-Service-Assistant-cover-letter.pdf",
+      "sha256": "34275ae324b61c56f13bbb037b51922cce86b9e33baa1810aaf49167b9625dc0"
+    },
+    {
+      "filename": "F07-resume.docx",
+      "downloadName": "Isaac-Reed-Service-Attendant-Memorial-Services.docx",
+      "sha256": "ca4d7aee01b41afae872d521a6f14bd4e6c20b316b0fc2016596b5ad8066691a"
+    },
+    {
+      "filename": "F07-resume.pdf",
+      "downloadName": "Isaac-Reed-Service-Attendant-Memorial-Services.pdf",
+      "sha256": "2500bb985c1c9f526f221397e8c8aba42563746d24768e90091a1a7e9f34d56d"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "recordedAt": "2026-09-13T18:06:42.240Z",
+  "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+}

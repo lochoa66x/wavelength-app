@@ -213,7 +213,10 @@ async function callAI({ fetchImpl, openAIKey, anthropicKey, openAIModel, anthrop
   } finally { clearTimeout(timeout); }
 }
 
+import { evaluationCapture } from './_lib/evaluationCapture.js';
+
 export function createCoverLetterHandler({
+  recordEvaluationEvent,
   reviewContent = reviewApplicationContent,
   authenticate = authenticateSupabaseRequest,
   loadListing = loadTrustedListing,
@@ -227,6 +230,7 @@ export function createCoverLetterHandler({
   return async function handler(req, res) {
     applyPrivateResponseHeaders(res);
     const startedAt = Date.now();
+    const capture = evaluationCapture(recordEvaluationEvent, 'cover-letter');
     if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
     const token = bearerToken(req);
     if (!token) return res.status(401).json({ error: "Authentication required" });
@@ -337,6 +341,7 @@ RULES
       const initialIntegrityPass = validation.issues.length === 0;
       let writing = reviewCoverLetterWriting(validation.letter.paragraphs, length, writingOptions);
       let repairApplied = false;
+      await capture('first_draft', { raw, document: validation.letter, issues: validation.issues, writing: writing.issues, candidateCatalog, postingCatalog });
       if (validation.issues.length || writing.issues.length) {
         const ids = new Set(validation.letter.paragraphs.map((p) => p.id));
         const integrityIds = validation.issues.map((issue) => issue.split(":")[0]);
@@ -349,17 +354,20 @@ RULES
           const merged = regenerateParagraph ? revised : targeted ? mergeCoverLetterParagraphRepair(validation.letter, revised, affected) : revised;
           const candidate = merged ? validateLetter(merged, validationContext) : null;
           const revisedWriting = candidate ? reviewCoverLetterWriting(candidate.letter.paragraphs, length, writingOptions) : null;
+          await capture('repair', { raw: revised, merged, issues: candidate?.issues || ['Invalid paragraph replacement'], writing: revisedWriting?.issues || [] });
           if (candidate && !candidate.issues.length && (!initialIntegrityPass || revisedWriting.issues.length < writing.issues.length)) {
             validation = candidate;
             writing = revisedWriting;
             repairApplied = true;
           }
         } catch (error) {
+          await capture('repair_error', { error: { name: error.name, status: error.status || null } });
           if (!initialIntegrityPass) throw error;
           console.warn("[cover-letter] optional polish unavailable", JSON.stringify({ name: error.name, status: error.status || null }));
         }
       }
       if (validation.issues.length) {
+        await capture('outcome', { status: 'blocked', document: validation.letter, issues: validation.issues, repairApplied });
         const issueTypes = [...new Set(validation.issues.map((issue) => issue.replace(/^[^:]+:\s*/, "")).slice(0, 12))];
         console.warn("[cover-letter] validation blocked", JSON.stringify({ issueCount: validation.issues.length, issueTypes, durationMs: Date.now() - startedAt }));
         return res.status(422).json({ error: "The draft could not be verified against your résumé and posting. Nothing was saved; try again." });
@@ -378,10 +386,12 @@ RULES
         });
         if (editorial.applied) { validation = editorial.validation; writing = reviewCoverLetterWriting(validation.letter.paragraphs, length, writingOptions); }
       }
+      await capture('outcome', { status: 'accepted', document: validation.letter, issues: [], writing: writing.issues, firstDraftIntegrityPass: initialIntegrityPass, repairApplied, editorialStatus: editorial.status });
       console.info("[cover-letter] editorial", JSON.stringify({ status: editorial.status, reason: editorial.reason || null, applied: editorial.applied }));
       console.info("[cover-letter] completed", JSON.stringify({ paragraphCount: validation.letter.paragraphs.length, regenerated: Boolean(regenerateParagraph), firstDraftIntegrityPass: initialIntegrityPass, repairApplied, wordCount: writing.wordCount, writingIssueCount: writing.issues.length, durationMs: Date.now() - startedAt }));
-      return res.status(200).json({ letter: { ...validation.letter, voice, length }, validation: { contractVersion: DOCUMENT_CONTRACT_VERSION, firstDraftIntegrityPass: initialIntegrityPass, repairApplied, writingIssueCount: writing.issues.length, editorialStatus: editorial.status, editorialApplied: editorial.applied } });
+      return res.status(200).json({ letter: { ...validation.letter, voice, length }, validation: { contractVersion: DOCUMENT_CONTRACT_VERSION, firstDraftIntegrityPass: initialIntegrityPass, repairApplied, writingIssueCount: writing.issues.length, editorialStatus: editorial.status, editorialApplied: editorial.applied, editorialReviewNeeded: editorial.reviewNeeded ?? false } });
     } catch (error) {
+      await capture('outcome', { status: 'error', error: { name: error.name, status: error.status || null } });
       console.error("[cover-letter] failed", JSON.stringify({ name: error.name, status: error.status || null, durationMs: Date.now() - startedAt }));
       if (error.name === "AbortError") return res.status(504).json({ error: "The cover letter took too long to verify. Your résumé and current draft are unchanged." });
       if (error.upstream) return res.status(502).json({ error: "Cover-letter generation failed upstream" });
