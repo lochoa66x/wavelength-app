@@ -1,0 +1,30 @@
+Priya Nair
+
+GIS Student Researcher | Geography Graduate
+
+f03@example.com | Hamilton, Ontario
+
+PROFESSIONAL SUMMARY
+
+GIS Student Researcher with an academic QGIS mapping background in public municipal data.
+
+CORE SKILLS
+
+QGIS | Coordinate reference systems | CSV cleaning | Map legends
+
+PROFESSIONAL EXPERIENCE
+
+GIS Student Researcher - Example University Geography Lab | 2025 – 2026
+
+Built a QGIS map of public drinking-water fountains using an open municipal dataset and documented missing coordinates.
+Compared address points with satellite imagery and submitted ambiguous locations to the research supervisor for review.
+Prepared a map legend and methods note for a student poster based on public data.
+
+Library Assistant - Example University Library | 2023 – 2025
+
+Updated catalogue locations and helped visitors find digital resources.
+EDUCATION
+
+B.Sc. in Geography
+
+Example University | 2026

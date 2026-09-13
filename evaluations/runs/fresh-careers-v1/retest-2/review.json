@@ -1,0 +1,310 @@
+{
+  "reviewer": "Codex editorial assessment; subjective, not independently calibrated human review",
+  "attempt": 2,
+  "revision": "f41114ee2093ec8136607ba355895e12b10390bc",
+  "rubric": "evaluations/QUALITY_RUBRIC.md",
+  "packagesCompleted": 9,
+  "attempts": 10,
+  "missingDocuments": 2,
+  "downloadFiles": 36,
+  "results": [
+    {
+      "id": "F01",
+      "attempt": 2,
+      "revision": "f41114ee2093ec8136607ba355895e12b10390bc",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 3,
+          "natural_writing": 3
+        },
+        "total": 14,
+        "excerpt": "Experienced with sourdough and enriched doughs",
+        "analysis": "Bread priorities remain relevant; detailed role evidence is retained; profile again inventories duties; both jobs and qualification preserved; clear but repetitive."
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 3,
+          "selection": 3,
+          "natural_writing": 3
+        },
+        "total": 15,
+        "excerpt": "For a morning production schedule",
+        "analysis": "Selects the production schedule; proofing method and team quantity are concrete; groups the main example more coherently; distinct allergen paragraph; clear with a clumsy total-team aside."
+      }
+    },
+    {
+      "id": "F02",
+      "attempt": 2,
+      "revision": "f41114ee2093ec8136607ba355895e12b10390bc",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 2,
+          "natural_writing": 3
+        },
+        "total": 13,
+        "excerpt": "preparing examination rooms, supporting supervised dog and cat handling",
+        "analysis": "Clinical priorities retained; supervision and approval correct; profile repeats duties; qualifications and languages repeat profile/body; readable but overpacked."
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 1,
+          "selection": 1,
+          "natural_writing": 2
+        },
+        "total": 10,
+        "excerpt": "I restrained dogs and cats under a veterinary technician’s direction",
+        "analysis": "Relevant clinical evidence; contribution boundaries preserved; letter is three copied duty sentences; each duty becomes an isolated paragraph; abrupt and mechanical."
+      }
+    },
+    {
+      "id": "F03",
+      "attempt": 2,
+      "revision": "f41114ee2093ec8136607ba355895e12b10390bc",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 4,
+          "useful_detail": 3,
+          "document_purpose": 4,
+          "selection": 4,
+          "natural_writing": 3
+        },
+        "total": 18,
+        "excerpt": "an academic QGIS mapping background in public municipal data",
+        "analysis": "Precise GIS match; academic context and review preserved; profile introduces professional context; all source roles and qualifications retained; economical and clear."
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 2,
+          "natural_writing": 3
+        },
+        "total": 13,
+        "excerpt": "My Geography degree and skills in coordinate reference systems and CSV cleaning",
+        "analysis": "Relevant GIS evidence; concrete mapping and review detail; still recites tasks; generic skills-support sentence adds little; degree status no longer invented."
+      }
+    },
+    {
+      "id": "F04",
+      "attempt": 2,
+      "revision": "f41114ee2093ec8136607ba355895e12b10390bc",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 3,
+          "natural_writing": 3
+        },
+        "total": 14,
+        "excerpt": "Cleaned glassware, labelled stock solutions, and recorded refrigerator temperatures.",
+        "analysis": "Water-lab priorities present; useful measurement/quality detail; profile still lists body tasks; missing assistant bullet is restored; complete readable résumé."
+      },
+      "letter": {
+        "evidenceGate": "review",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 2,
+          "natural_writing": 3
+        },
+        "total": 13,
+        "excerpt": "then ran blanks and duplicate samples",
+        "analysis": "Relevant routine lab process; senior approval retained; work example remains mostly inventory; degree gets an orphan paragraph; then introduces an order not explicitly supplied, requiring review."
+      }
+    },
+    {
+      "id": "F05",
+      "attempt": 2,
+      "revision": "f41114ee2093ec8136607ba355895e12b10390bc",
+      "resume": {
+        "evidenceGate": "unavailable",
+        "scores": null,
+        "total": null,
+        "excerpt": "Your session expired. Sign in again, then retry.",
+        "analysis": "Authentication failed before résumé output. No generation retry occurred within this attempt."
+      },
+      "letter": {
+        "evidenceGate": "unavailable",
+        "scores": null,
+        "total": null,
+        "excerpt": "Your session expired. Sign in again, then retry.",
+        "analysis": "No letter was generated after the résumé request failed."
+      }
+    },
+    {
+      "id": "F06",
+      "attempt": 2,
+      "revision": "f41114ee2093ec8136607ba355895e12b10390bc",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 4,
+          "useful_detail": 3,
+          "document_purpose": 3,
+          "selection": 3,
+          "natural_writing": 3
+        },
+        "total": 16,
+        "excerpt": "from needs statements and proposed programme-budget development to final-submission preparation",
+        "analysis": "Good proposal-support relevance; source details and proposed-budget status retained; profile gives a useful lifecycle theme; all three current-role bullets restored; clear and complete."
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 1,
+          "selection": 1,
+          "natural_writing": 2
+        },
+        "total": 10,
+        "excerpt": "I maintained a deadlines calendar and assembled attachments",
+        "analysis": "Relevant proposal/budget/submission evidence; factual limits retained; three duty statements do not develop a case; one sentence per paragraph fragments the letter; reads like a checklist."
+      }
+    },
+    {
+      "id": "F07",
+      "attempt": 2,
+      "revision": "f41114ee2093ec8136607ba355895e12b10390bc",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 4,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 2,
+          "natural_writing": 3
+        },
+        "total": 14,
+        "excerpt": "Archive volunteer experience includes scanning community photographs",
+        "analysis": "Direct museum/archive relevance; curator authority retained; profile repeats current and older role bullets; same evidence appears twice; readable but unselective."
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 2,
+          "natural_writing": 3
+        },
+        "total": 13,
+        "excerpt": "I prepared padded storage trays for small objects",
+        "analysis": "Relevant collections priorities; detailed catalogue and ownership review; mostly follows the résumé inventory; storage task gets its own short paragraph; clear but mechanical."
+      }
+    },
+    {
+      "id": "F08",
+      "attempt": 2,
+      "revision": "f41114ee2093ec8136607ba355895e12b10390bc",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 2,
+          "natural_writing": 3
+        },
+        "total": 13,
+        "excerpt": "Experienced in passenger pickup-delay updates, dispatch notes, and breakdown coordination",
+        "analysis": "Transport context relevant; source authority boundaries correct; profile recaps duties; skills and language repeat; clear but crowded. Availability remains correctly preliminary."
+      },
+      "letter": {
+        "evidenceGate": "review",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 2,
+          "natural_writing": 2
+        },
+        "total": 12,
+        "excerpt": "then updated passengers when vehicle delays changed pickup estimates",
+        "analysis": "Relevant scheduling and breakdown work; supervisor approval preserved; largely repeats source tasks; generic clear-communication bridge adds little; then links separately listed tasks into an unstated sequence."
+      }
+    },
+    {
+      "id": "F09",
+      "attempt": 2,
+      "revision": "f41114ee2093ec8136607ba355895e12b10390bc",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 4,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 3,
+          "natural_writing": 3
+        },
+        "total": 15,
+        "excerpt": "First Aid certificate | Example Training Centre | 2025, current",
+        "analysis": "Leadership and current credential fit; total crew scope retained; profile still recaps some tasks; certificate now appears once and both jobs remain; complete readable document."
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 4,
+          "useful_detail": 3,
+          "document_purpose": 3,
+          "selection": 3,
+          "natural_writing": 3
+        },
+        "total": 16,
+        "excerpt": "I led a three-person crew, including myself",
+        "analysis": "Direct grounds-lead priorities; crew total and current certificate preserved; develops work-order/checking example; supporting reporting and qualification grouped sensibly; clear and restrained."
+      }
+    },
+    {
+      "id": "F10",
+      "attempt": 2,
+      "revision": "f41114ee2093ec8136607ba355895e12b10390bc",
+      "resume": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 4,
+          "useful_detail": 3,
+          "document_purpose": 3,
+          "selection": 2,
+          "natural_writing": 3
+        },
+        "total": 15,
+        "excerpt": "Portfolio: https://example.com/nadia-audio",
+        "analysis": "Portfolio requirement now visible; editing quantity and delivery scope retained; profile gives domain/training context; URL is duplicated in header and profile; otherwise clear."
+      },
+      "letter": {
+        "evidenceGate": "pass",
+        "scores": {
+          "relevance": 3,
+          "useful_detail": 3,
+          "document_purpose": 2,
+          "selection": 2,
+          "natural_writing": 3
+        },
+        "total": 13,
+        "excerpt": "My portfolio is available at https://example.com/nadia-audio.",
+        "analysis": "Relevant audio and client-review work; quantities and supplied music cues correct; task inventory dominates; portfolio address repeats the fixed header; concise readable prose."
+      }
+    }
+  ]
+}

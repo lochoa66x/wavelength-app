@@ -1,0 +1,53 @@
+- banner:
+  - link "Gigscapes home":
+    - /url: /
+    - generic: Gigscapes
+  - button "Sign out":
+    - text: Sign out
+- button "Back to job matches":
+  - generic: Back to matches
+- generic: Bring your own job
+- heading "Prepare documents for a posting you found" [level=2]
+- paragraph: Choose the documents you need, then paste the posting, share its public link, or upload screenshots. You review the extracted facts before Gigscapes prepares anything.
+- heading "Review the extracted job" [level=3]
+- paragraph: Correct anything the page reader or screenshot OCR misunderstood.
+- button "Change source":
+  - text: Change source
+- text: Job title
+- textbox "Job title": Upholsterer
+- text: Company
+- textbox "Company": Example Restored Seating
+- text: Location
+- textbox "Location": Hamilton, Ontario
+- text: Employment type
+- textbox "Employment type": Contract
+- text: Category
+- combobox "Category":
+  - option "Technology & IT"
+  - option "Design"
+  - option "Writing & content"
+  - option "Marketing"
+  - option "Sales"
+  - option "Administration"
+  - option "Customer service"
+  - option "Business & management"
+  - option "Finance & accounting"
+  - option "Skilled trades" [selected]
+  - option "Home & outdoor services"
+  - option "Logistics & labour"
+  - option "Hospitality & retail"
+  - option "Care & education"
+  - option "Other"
+- text: Role description
+- textbox "Role description": Example Restored Seating seeks an upholsterer to assess upholstery condition, prepare work plans, replace coverings, and maintain customer work records.
+- text: Responsibilities · one per line
+- textbox "Responsibilities · one per line": Assess upholstery condition and prepare an agreed work plan Cut, sew and fit replacement coverings Confirm fabric choices and maintain customer work records
+- text: Required qualifications · one per line
+- textbox "Required qualifications · one per line": Furniture upholstery experience Ability to measure and cut patterned fabric
+- text: Preferred qualifications · one per line
+- textbox "Preferred qualifications · one per line"
+- text: High-signal keywords · one per line
+- textbox "High-signal keywords · one per line": Furniture upholstery experience measure and cut patterned fabric Cut, sew and fit replacement coverings maintain customer work records
+- alert: Your session expired. Sign in again, then retry.
+- button "Build my résumé first":
+  - text: Build my résumé first

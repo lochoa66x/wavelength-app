@@ -108,3 +108,31 @@ test('production letter handler invokes content review even when mechanical writ
  await handler({method:'POST',headers:{authorization:'Bearer qa'},body:{resume:source,customJob:{title:'Panel Artisan',company:'Example Craft',description:'Prepare panels to measured patterns.',responsibilities:['Prepare panels to measured patterns.'],required_qualifications:['Workshop experience']}}},res);
  assert.equal(res.statusCode,200);assert.deepEqual(calls,['return_evidence_first_cover_letter','return_content_editorial_review']);assert.equal(res.body.validation.editorialStatus,'kept');
 });
+
+test('profile review can trade repeated bullet detail for context while preserving the experience section',async()=>{
+ const candidate={...review,before:{relevance:3,useful_detail:4,document_purpose:1,selection:2,natural_writing:2},after:{relevance:3,useful_detail:3,document_purpose:4,selection:3,natural_writing:3}};
+ const result=await reviewApplicationContent({kind:'profile',document:original,source,generate:async()=>candidate,validate:async value=>({valid:value.experience===original.experience})});
+ assert.equal(result.applied,true);
+});
+test('full editorial revision may merge redundant evidence paragraphs but must keep opening and closing',async()=>{
+ const full={...letter,paragraphs:[letter.paragraphs[0],{...letter.paragraphs[0],id:'e1',purpose:'evidence'},letter.paragraphs[1]]};
+ const candidate={...review,changes:[{original_excerpt:full.paragraphs[0].text,source_excerpt:'Wove custom panels to measured patterns and logged material batches.',benefit:'Groups panel work into a single example without repeating the same contribution.'}],document:{...letter,paragraphs:[{...letter.paragraphs[0],text:'At Loom House, I wove custom panels to measured patterns and logged material batches.'},letter.paragraphs[1]]}};
+ const result=await reviewApplicationContent({kind:'cover-letter',document:full,source,generate:async()=>candidate,validate:async value=>({valid:validateApplicationDocument({kind:'cover-letter',document:value}).valid})});
+ assert.equal(result.applied,true);assert.equal(result.document.paragraphs.length,2);
+});
+test('editorial diagnostics distinguish unsupported quotation from inadequate content gain',async()=>{
+ for(const [candidate,reason] of [[{...review,after:scores(2)},'insufficient_content_gain'],[{...review,changes:[{...review.changes[0],source_excerpt:'The source never supplied this supposed fact.'}]},'source_quote_mismatch']]){
+  const result=await reviewApplicationContent({kind:'profile',document:original,source,generate:async()=>candidate,validate:async()=>({valid:true})});
+  assert.equal(result.reason,reason);assert.equal(result.applied,false);
+ }
+});
+
+test('a portfolio contact link is not repeated as a standalone profile label',()=>{
+ const link={label:'Portfolio',url:'https://example.com/folio'};
+ const input={profile:'Audio specialist with studio training. Portfolio: https://example.com/folio',professionalLinks:[link]};
+ const output=organizeResumeSections(input);
+ assert.equal(output.profile,'Audio specialist with studio training.');
+ assert.deepEqual(output.professionalLinks,[link]);assert.deepEqual(organizeResumeSections(output),output);
+ const bodyOnly={profile:'Portfolio: https://example.com/folio'};
+ assert.equal(organizeResumeSections(bodyOnly).profile,bodyOnly.profile);
+});

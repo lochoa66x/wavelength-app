@@ -934,7 +934,7 @@ INSTRUCTIONS
           },
         }) : { document: resumeData, applied: false, status: 'budget_unavailable' };
         if (summaryPolish.applied) { resumeData = summaryPolish.document; atsReview = summaryPolish.validation; }
-        console.info("[tailor:editorial]", JSON.stringify({ status: summaryPolish.status, applied: summaryPolish.applied }));
+        console.info("[tailor:editorial]", JSON.stringify({ status: summaryPolish.status, reason: summaryPolish.reason || null, applied: summaryPolish.applied }));
         logTailoringCompleted(requestStartedAt, { repairApplied: attempt > 0 || sourceRestoredBullets > 0 || summaryPolish.applied, summaryPolishApplied: summaryPolish.applied, draftAttempts: attempt + 1, sourceRestoredBullets, firstDraftIssueCounts });
         return res.status(200).json({
           resume: resumeData,

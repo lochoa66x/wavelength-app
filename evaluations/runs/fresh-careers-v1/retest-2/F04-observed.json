@@ -1,0 +1,35 @@
+{
+  "caseId": "F04",
+  "attempt": 2,
+  "revision": "f41114ee2093ec8136607ba355895e12b10390bc",
+  "status": "completed",
+  "startedAt": "2026-09-13T05:04:53.448Z",
+  "finishedAt": "2026-09-13T05:08:50.617Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F04-resume.docx",
+      "downloadName": "Elliot-Chen-Laboratory-Technician.docx",
+      "sha256": "5dc44d4518c25e6190d51c990124d7d7f05c458d2a8b1df7a3e8f374c4b49ff0"
+    },
+    {
+      "filename": "F04-resume.pdf",
+      "downloadName": "Elliot-Chen-Laboratory-Technician.pdf",
+      "sha256": "46633081afb5c34014692c2a7e3dac8cc7d4205ac737efdc75d998f77ca5ccb2"
+    },
+    {
+      "filename": "F04-letter.docx",
+      "downloadName": "Elliot-Chen-Water-Quality-Laboratory-Technician-cover-letter (1).docx",
+      "sha256": "c3689f183bdc3c8764e86358e387c21fc805a93fa2531ed4ecc1a328da4583a9"
+    },
+    {
+      "filename": "F04-letter.pdf",
+      "downloadName": "Elliot-Chen-Water-Quality-Laboratory-Technician-cover-letter (1).pdf",
+      "sha256": "a23c5b0e2be2bc83822e92e7f10c4f4a8bc3ba7e75b558e93b246a693c0eb345"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked."
+}

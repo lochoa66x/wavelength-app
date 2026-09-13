@@ -1,0 +1,35 @@
+{
+  "caseId": "F08",
+  "attempt": 2,
+  "revision": "f41114ee2093ec8136607ba355895e12b10390bc",
+  "status": "completed",
+  "startedAt": "2026-09-13T05:21:05.532Z",
+  "finishedAt": "2026-09-13T05:25:24.504Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F08-letter.docx",
+      "downloadName": "Sana-Haddad-Transit-Dispatcher-cover-letter-preliminary (1).docx",
+      "sha256": "6e9f617258a889d78aeddab85855319f1cc612e316a4a9dc5e3dbcca17f13a97"
+    },
+    {
+      "filename": "F08-letter.pdf",
+      "downloadName": "Sana-Haddad-Transit-Dispatcher-cover-letter-preliminary (1).pdf",
+      "sha256": "d4079d207b29da62edfe2a5ef964ac0bb4fb4c41943b306f91ffc51e73cbb940"
+    },
+    {
+      "filename": "F08-resume.docx",
+      "downloadName": "Sana-Haddad-Transport-Scheduling-Professional-preliminary.docx",
+      "sha256": "7f83ab3431cacbc926c1aee545adc9dc67e4697e54bd286e25b2d6c1e19189d5"
+    },
+    {
+      "filename": "F08-resume.pdf",
+      "downloadName": "Sana-Haddad-Transport-Scheduling-Professional-preliminary.pdf",
+      "sha256": "9b1ae16279ec50396bd9893aa653a100b942f3524218c6a8ec6378eae30e90ce"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked."
+}

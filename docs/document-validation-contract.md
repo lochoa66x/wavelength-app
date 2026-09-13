@@ -33,9 +33,13 @@ Editorial judgement is separate from validity. A bounded model review now runs
 even when mechanical writing checks find nothing, if the request budget permits.
 It evaluates relevance, useful detail, document purpose, selection and natural
 writing. A revision must identify exact original/source excerpts and a concrete
-content gain, improve its comparative scores without reducing another dimension,
-and pass full document validation. Profile review can change only profile.
-Letter review preserves ids and purposes. Unavailable, malformed or unsafe reviews
+content gain, improve its comparative content score and reach the stated quality floor,
+and pass full document validation. Profile review can trade repeated task detail
+for useful professional context because work history remains intact; letter review
+must preserve useful-detail quality. Profile review can change only profile.
+Letter review preserves the opening/closing and the order and purpose of retained
+ids; a full editorial revision may merge redundant middle paragraphs. A requested
+single-paragraph regeneration still preserves that exact id and purpose. Unavailable, malformed or unsafe reviews
 keep the checked original. Status is logged; model scores are not advertised as
 independent or human quality ratings. Rechecks after manual paragraph editing use
 the same factual contract but do not silently launch whole-document editorial edits.

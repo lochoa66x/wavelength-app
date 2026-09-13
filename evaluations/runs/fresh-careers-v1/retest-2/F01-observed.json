@@ -1,0 +1,35 @@
+{
+  "caseId": "F01",
+  "attempt": 2,
+  "revision": "f41114ee2093ec8136607ba355895e12b10390bc",
+  "status": "completed",
+  "startedAt": "2026-09-13T04:54:39.915Z",
+  "finishedAt": "2026-09-13T04:58:44.394Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F01-letter.docx",
+      "downloadName": "Maya-Bennett-Commercial-Baker-cover-letter (1).docx",
+      "sha256": "611cd7420cc6e857ada72f031ba518626d1be8a9065e5d15ac724f9a4eb78a38"
+    },
+    {
+      "filename": "F01-letter.pdf",
+      "downloadName": "Maya-Bennett-Commercial-Baker-cover-letter (1).pdf",
+      "sha256": "d77ab63e779f3ea54f8db935a562be724f5d9a484aee0f09215dea24de5b6f78"
+    },
+    {
+      "filename": "F01-resume.docx",
+      "downloadName": "Maya-Bennett-Commercial-Bakery-Professional.docx",
+      "sha256": "4b955ca4243844884957c792c9a377cbd6f560f0d872c84a0b9b030f6e66e43e"
+    },
+    {
+      "filename": "F01-resume.pdf",
+      "downloadName": "Maya-Bennett-Commercial-Bakery-Professional.pdf",
+      "sha256": "12e89f8c55f8cb84bd99da815bb6aed50147b73dbdc7cc24383d85846cc84d87"
+    }
+  ],
+  "letterCopyConfirmed": false,
+  "clipboardReadback": "Not independently read; success status and preview checked."
+}

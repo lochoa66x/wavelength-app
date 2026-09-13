@@ -1,0 +1,35 @@
+{
+  "caseId": "F06",
+  "attempt": 2,
+  "revision": "f41114ee2093ec8136607ba355895e12b10390bc",
+  "status": "completed",
+  "startedAt": "2026-09-13T05:12:57.124Z",
+  "finishedAt": "2026-09-13T05:17:26.458Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F06-resume.docx",
+      "downloadName": "Amara-Okafor-Fundraising-Assistant-Proposal-Drafting.docx",
+      "sha256": "db712d0e8ea331620fbc536080087dfebe431a7ec48ac421805c5817e7175654"
+    },
+    {
+      "filename": "F06-resume.pdf",
+      "downloadName": "Amara-Okafor-Fundraising-Assistant-Proposal-Drafting.pdf",
+      "sha256": "50c91c6de0d361a9829f5f2aed624dd648b0ac7f0db021c25c8463f1def96017"
+    },
+    {
+      "filename": "F06-letter.docx",
+      "downloadName": "Amara-Okafor-Grant-Writer-cover-letter (1).docx",
+      "sha256": "698047696a36a648213af11bc1719e15db97ddebfc027b6445b048b0cfdc2592"
+    },
+    {
+      "filename": "F06-letter.pdf",
+      "downloadName": "Amara-Okafor-Grant-Writer-cover-letter (1).pdf",
+      "sha256": "1e5e58ed7338d6f6ef6f14c4961d1b92e9118394b30bd4afd9f2d7ba838af69f"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked."
+}

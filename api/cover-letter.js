@@ -10,6 +10,7 @@ import { containsSelfDisqualifyingCoverLetterLanguage } from "../src/coverLetter
 import { reviewCoverLetterWriting, mergeCoverLetterParagraphRepair } from "../src/coverLetterWriting.js";
 import { validateApplicationDocument, mergeCoverLetterReplacement, DOCUMENT_CONTRACT_VERSION } from '../src/applicationDocumentContract.js';
 import { contentReviewTool, reviewApplicationContent } from './_lib/contentEditorialReview.js';
+import { resumeProfessionalLinks } from '../src/resumeIdentity.js';
 
 const LETTER_TOOL = {
   name: "return_evidence_first_cover_letter",
@@ -367,6 +368,7 @@ RULES
       if (!regenerateParagraph && Date.now() - startedAt < 95_000) {
         editorial = await reviewContent({
           kind: 'cover-letter', document: validation.letter, source: candidateCorpus, posting: postingCorpus,
+          contactLinks: resumeProfessionalLinks(resume).map(link => link.url),
           generate: editorialPrompt => callAI({ ...providerOptions, prompt: editorialPrompt, tool: contentReviewTool(LETTER_TOOL.input_schema), timeoutMs: 25_000, maxTokens: 4_000 }),
           validate: async document => {
             const checked = validateLetter({ ...document, length }, validationContext);
@@ -376,7 +378,7 @@ RULES
         });
         if (editorial.applied) { validation = editorial.validation; writing = reviewCoverLetterWriting(validation.letter.paragraphs, length, writingOptions); }
       }
-      console.info("[cover-letter] editorial", JSON.stringify({ status: editorial.status, applied: editorial.applied }));
+      console.info("[cover-letter] editorial", JSON.stringify({ status: editorial.status, reason: editorial.reason || null, applied: editorial.applied }));
       console.info("[cover-letter] completed", JSON.stringify({ paragraphCount: validation.letter.paragraphs.length, regenerated: Boolean(regenerateParagraph), firstDraftIntegrityPass: initialIntegrityPass, repairApplied, wordCount: writing.wordCount, writingIssueCount: writing.issues.length, durationMs: Date.now() - startedAt }));
       return res.status(200).json({ letter: { ...validation.letter, voice, length }, validation: { contractVersion: DOCUMENT_CONTRACT_VERSION, firstDraftIntegrityPass: initialIntegrityPass, repairApplied, writingIssueCount: writing.issues.length, editorialStatus: editorial.status, editorialApplied: editorial.applied } });
     } catch (error) {

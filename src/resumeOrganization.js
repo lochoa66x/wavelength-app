@@ -115,9 +115,20 @@ export function organizeResumeSections(source = {}, baseResume = "") {
   const safetyRecords = list(source.safety_certifications ?? source.safety?.certifications).filter((entry) => !primaryKeys.has(qualificationKey(entry)));
 
   const languageNames = new Set(organizedLanguages.map((entry) => key(languageIdentity(entry))));
+  const professionalLinks = unique([...list(source.professionalLinks ?? source.professional_links), ...resumeProfessionalLinks(baseResume)], (entry) => entry?.url || text(entry));
+  let profile = source.profile;
+  if (typeof profile === "string") for (const link of professionalLinks) {
+    if (!/^https?:\/\//i.test(link?.url || "")) continue;
+    const start = profile.toLowerCase().indexOf("portfolio:");
+    const suffix = start < 0 ? "" : profile.slice(start + "portfolio:".length).trim();
+    if (start >= 0 && (start === 0 || /\s/.test(profile[start - 1]))
+      && [link.url, link.url + "."].includes(suffix)) profile = profile.slice(0, start).trim();
+
+  }
   return {
     ...source,
-    ...(resumeProfessionalLinks(baseResume).length ? { professionalLinks: unique([...list(source.professionalLinks ?? source.professional_links), ...resumeProfessionalLinks(baseResume)], (entry) => entry?.url || text(entry)) } : {}),
+    ...(professionalLinks.length ? { professionalLinks } : {}),
+    ...(typeof profile === "string" ? { profile } : {}),
     ...(Array.isArray(source.skills) ? { skills: source.skills.filter((entry) => !credentialNames.has(credentialKey(entry)) && !languageSkills.includes(entry) && !languageNames.has(key(text(entry)))) } : {}),
     training: trainingRecords.filter((entry) => !certificationKeys.has(qualificationKey(entry))),
     ...(Array.isArray(source.certifications) ? { certifications: certificationRecords } : {}),
