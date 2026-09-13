@@ -1,0 +1,29 @@
+{
+  "caseId": "F09",
+  "attempt": 3,
+  "revision": "74ba6452bf6945ea7bfd1c3a3171b00045fa4dfe",
+  "status": "partial",
+  "startedAt": "2026-09-13T20:35:53.789Z",
+  "finishedAt": "2026-09-13T20:39:35.618Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F09-resume.docx",
+      "downloadName": "Sophie-Diallo-Freelance-Floral-Designer.docx",
+      "sha256": "835e483c481241bbb436308cf99582a90bcf7c8ca55ea8e83019a5a3e97bce92"
+    },
+    {
+      "filename": "F09-resume.pdf",
+      "downloadName": "Sophie-Diallo-Freelance-Floral-Designer.pdf",
+      "sha256": "03a50ae54c8c009981ca1dae31851374e3803679e56f922a035ac6f1eedf6ee7"
+    }
+  ],
+  "letterCopyConfirmed": false,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "artifactDirectory": "tmp/validation-fixes-v3-live-2026-09-13/after-refresh",
+  "failure": "Cover-letter HTTP 422: number or duration not supported by cited candidate evidence. Raw provider draft not captured.",
+  "recordedAt": "2026-09-13T20:42:33.462Z",
+  "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+}

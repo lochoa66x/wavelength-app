@@ -142,3 +142,12 @@ test('restatement advice covers required/included without deleting a distinct co
  for(const text of ['I repaired loose hems and replaced buttons. This work required repairing hems and replacing buttons.','I repaired loose hems and replaced buttons. This hands-on work included loose hems and replacement buttons.'])assert.ok(reviewCoverLetterWriting([{id:'o',purpose:'opening',text}]).issues.some(i=>i.code==='restated_work_description'));
  assert.ok(!reviewCoverLetterWriting([{id:'o',purpose:'opening',text:'I repaired loose hems and replaced buttons. This work required the supervisor’s approval for changes to the original design.'}]).issues.some(i=>i.code==='restated_work_description'));
 });
+
+test('authenticated opt-in evaluation response retains a failed draft without enabling default logging',async()=>{
+ const raw=draft();raw.paragraphs[1].text='Design alterations required no approval.';
+ const result=await invoke([raw],{extra:{captureEvaluation:true}});
+ assert.equal(result.statusCode,422);assert.equal(result.body.evaluationReport.version,1);
+ assert.ok(result.body.evaluationReport.events[0].raw.paragraphs[1].text.includes('no approval'));
+ assert.equal(result.body.evaluationReport.events.at(-1).status,'blocked');
+ assert.equal('evaluationReport' in (await invoke([raw])).body,false);
+});

@@ -63,6 +63,13 @@ export function CoverLetterWorkspace({
   const [plan, setPlan] = useState(() => loadCoverLetterDraftForReview(userId, item));
   const [state, setState] = useState("idle");
   const [message, setMessage] = useState(null);
+  const [evaluationReport, setEvaluationReport] = useState(null);
+  const evaluationMode = new URLSearchParams(window.location.search).get('evaluation') === '1';
+  const downloadEvaluation = () => {
+    const url = URL.createObjectURL(new Blob([JSON.stringify(evaluationReport, null, 2)], { type: 'application/json' }));
+    const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'gigscapes-generation-evaluation.json'; anchor.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
   const [documentMode, setDocumentMode] = useState("preview");
   const [editingId, setEditingId] = useState("");
   const [editText, setEditText] = useState("");
@@ -71,6 +78,7 @@ export function CoverLetterWorkspace({
   useEffect(() => {
     const storedPlan = loadCoverLetterDraftForReview(userId, item);
     setPlan(storedPlan);
+    setEvaluationReport(null);
     if (storedPlan?.voice) setVoice(storedPlan.voice);
     if (storedPlan?.length) setLength(storedPlan.length);
     setEditingId("");
@@ -116,6 +124,7 @@ export function CoverLetterWorkspace({
   };
   const requestPayload = (extra = {}) => ({
     resume: baseResume,
+    ...(evaluationMode ? { captureEvaluation: true } : {}),
     ...(customJob ? { customJob } : { listingId: item?.id }),
     candidateEvidence,
     voice,
@@ -135,10 +144,12 @@ export function CoverLetterWorkspace({
     const controller = new AbortController();
     controllerRef.current = controller;
     setState("generating");
+    setEvaluationReport(null);
     setMessage(null);
     try {
       const settings = coverLetterGenerationSettings({ plan, voice, length, paragraphId: regenerateParagraph });
       const raw = await generateCoverLetter(requestPayload({ ...settings, existingDraft: requiresFreshDraft ? undefined : plan, ...(regenerateParagraph ? { regenerateParagraph } : {}) }), { signal: controller.signal });
+      setEvaluationReport(raw.evaluationReport || null);
       if (regenerateParagraph) {
         const replacement = raw.paragraphs?.[0];
         if (!replacement) throw new Error("The regenerated paragraph was incomplete.");
@@ -151,6 +162,7 @@ export function CoverLetterWorkspace({
       setEditingId("");
       setState("idle");
     } catch (error) {
+      setEvaluationReport(error.evaluationReport || null);
       if (error.name === "AbortError") setMessage({ type: "info", text: "Generation cancelled. Your existing draft is unchanged." });
       else setMessage({ type: "error", text: error.message || "The cover letter could not be generated." });
       setState("idle");
@@ -234,6 +246,7 @@ export function CoverLetterWorkspace({
         {state === "generating" ? <button type="button" onClick={cancel} className="wl-btn" style={{ border: `1px solid ${C.border}`, borderRadius: 980, background: C.bgCard, color: C.text, padding: "9px 14px" }}><X size={13} /> Cancel</button> : null}
       </div>
 
+      {evaluationMode && <p style={{ color: C.textSub, fontSize: 12 }}>Evaluation mode: the generation report includes draft text and cited résumé excerpts. {evaluationReport && <button type="button" onClick={downloadEvaluation}>Download generation report</button>}</p>}
       {requiresFreshDraft ? (
         <div role="alert" data-cover-letter-replacement-required style={{ marginTop: 16, padding: "12px 14px", borderRadius: 10, border: `1px solid ${C.amberBorder || C.amber}`, background: C.amberTint || "#fff8eb", color: C.text, fontSize: 12.5, lineHeight: 1.5 }}>
           <strong>Fresh draft required.</strong> This browser-saved letter was created from older inputs or older employer-facing rules, so Gigscapes has hidden its text. Regenerate it to use the current résumé, candidate selections, and strengths-only cover-letter policy.

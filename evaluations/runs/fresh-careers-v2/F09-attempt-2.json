@@ -1,0 +1,12 @@
+{
+  "caseId": "F09",
+  "attempt": 2,
+  "status": "partial",
+  "reason": "The browser loaded the prior frontend before deployment finished; contract version mismatch correctly blocked export.",
+  "revision": "74ba6452bf6945ea7bfd1c3a3171b00045fa4dfe",
+  "recordedAt": "2026-09-13T20:42:33.458Z",
+  "exportedFiles": 0,
+  "artifactDirectory": "tmp/validation-fixes-v3-live-2026-09-13",
+  "inputEdited": false,
+  "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+}

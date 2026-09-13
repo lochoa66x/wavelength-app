@@ -230,7 +230,12 @@ export function createCoverLetterHandler({
   return async function handler(req, res) {
     applyPrivateResponseHeaders(res);
     const startedAt = Date.now();
-    const capture = evaluationCapture(recordEvaluationEvent, 'cover-letter');
+    const evaluationEvents = req.body?.captureEvaluation === true ? [] : null;
+    const capture = evaluationCapture(recordEvaluationEvent || evaluationEvents ? async event => {
+      evaluationEvents?.push(event);
+      await recordEvaluationEvent?.(event);
+    } : null, 'cover-letter');
+    const respond = (status, payload) => res.status(status).json(evaluationEvents ? { ...payload, evaluationReport: { version: 1, events: evaluationEvents } } : payload);
     if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
     const token = bearerToken(req);
     if (!token) return res.status(401).json({ error: "Authentication required" });
@@ -370,7 +375,7 @@ RULES
         await capture('outcome', { status: 'blocked', document: validation.letter, issues: validation.issues, repairApplied });
         const issueTypes = [...new Set(validation.issues.map((issue) => issue.replace(/^[^:]+:\s*/, "")).slice(0, 12))];
         console.warn("[cover-letter] validation blocked", JSON.stringify({ issueCount: validation.issues.length, issueTypes, durationMs: Date.now() - startedAt }));
-        return res.status(422).json({ error: "The draft could not be verified against your résumé and posting. Nothing was saved; try again." });
+        return respond(422, { error: "The draft could not be verified against your résumé and posting. Nothing was saved; try again." });
       }
       let editorial = { applied: false, status: 'not_requested' };
       if (!regenerateParagraph && Date.now() - startedAt < 95_000) {
@@ -389,13 +394,13 @@ RULES
       await capture('outcome', { status: 'accepted', document: validation.letter, issues: [], writing: writing.issues, firstDraftIntegrityPass: initialIntegrityPass, repairApplied, editorialStatus: editorial.status });
       console.info("[cover-letter] editorial", JSON.stringify({ status: editorial.status, reason: editorial.reason || null, applied: editorial.applied }));
       console.info("[cover-letter] completed", JSON.stringify({ paragraphCount: validation.letter.paragraphs.length, regenerated: Boolean(regenerateParagraph), firstDraftIntegrityPass: initialIntegrityPass, repairApplied, wordCount: writing.wordCount, writingIssueCount: writing.issues.length, durationMs: Date.now() - startedAt }));
-      return res.status(200).json({ letter: { ...validation.letter, voice, length }, validation: { contractVersion: DOCUMENT_CONTRACT_VERSION, firstDraftIntegrityPass: initialIntegrityPass, repairApplied, writingIssueCount: writing.issues.length, editorialStatus: editorial.status, editorialApplied: editorial.applied, editorialReviewNeeded: editorial.reviewNeeded ?? false } });
+      return respond(200, { letter: { ...validation.letter, voice, length }, validation: { contractVersion: DOCUMENT_CONTRACT_VERSION, firstDraftIntegrityPass: initialIntegrityPass, repairApplied, writingIssueCount: writing.issues.length, editorialStatus: editorial.status, editorialApplied: editorial.applied, editorialReviewNeeded: editorial.reviewNeeded ?? false } });
     } catch (error) {
       await capture('outcome', { status: 'error', error: { name: error.name, status: error.status || null } });
       console.error("[cover-letter] failed", JSON.stringify({ name: error.name, status: error.status || null, durationMs: Date.now() - startedAt }));
-      if (error.name === "AbortError") return res.status(504).json({ error: "The cover letter took too long to verify. Your résumé and current draft are unchanged." });
-      if (error.upstream) return res.status(502).json({ error: "Cover-letter generation failed upstream" });
-      return res.status(500).json({ error: "Internal error" });
+      if (error.name === "AbortError") return respond(504, { error: "The cover letter took too long to verify. Your résumé and current draft are unchanged." });
+      if (error.upstream) return respond(502, { error: "Cover-letter generation failed upstream" });
+      return respond(500, { error: "Internal error" });
     }
   };
 }

@@ -40,6 +40,10 @@ export async function authenticatedJsonPost(path, payload, {auth, signal, fetchI
   }
   if (response.status === 401) throw sessionError();
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || `Request failed (${response.status})`);
+  if (!response.ok) {
+    const error = new Error(data.error || `Request failed (${response.status})`);
+    if (payload?.captureEvaluation === true && data.evaluationReport?.version === 1) error.evaluationReport = data.evaluationReport;
+    throw error;
+  }
   return data;
 }
