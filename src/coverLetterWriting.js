@@ -21,6 +21,22 @@ export function reviewEditorialText(text) {
   return issues;
 }
 
+// A narrow signal for a follow-up sentence that defines the same work again.
+// A new measurement or material condition is useful information, not filler.
+export function isRestatedFollowup(sentence, prior, strict = false) {
+  if (!/^(?:my|this|that|these) (?:hands-on )?(?:work|experience|responsibilities) (?:cent(?:er|re)s on|focuses on|involves|consists of|combines?|combined|requires?|required|includes?|included|follows?|followed|brings? together|brought together)\b/i.test(sentence.trim())) return false;
+  const known = new Set(editorialContentTokens(prior));
+  const current = [...new Set(editorialContentTokens(sentence))];
+  if (current.filter(token => known.has(token) && !['work', 'include', 'use'].includes(token)).length < 2) return false;
+  const numbers = String(sentence).match(/\b\d[\d,.]*\b/g) || [];
+  if (numbers.some(number => !String(prior).includes(number))) return false;
+  if (/\b(?:approval|approve|approved|permission|supervision|deadline|temperature|without|not|only|unless|until)\b/i.test(sentence)
+    && current.some(token => /^(?:approval|approve|approved|permission|supervision|deadline|temperature|without|not|only|unless|until)$/.test(token) && !known.has(token))) return false;
+  if (!strict) return true;
+  const generic = new Set('work experience responsibility follow followed following require required include included instruction keeping keep organized organise organize ready use while together involve combine'.split(' '));
+  return current.filter(token => !known.has(token) && !generic.has(token)).length <= 2;
+}
+
 // Editorial advice is independent of evidence validation: it must never
 // authorize a claim or force a short, factual letter to grow filler.
 export function reviewCoverLetterWriting(paragraphs, length = "standard", { partial = false, existingDraft } = {}) {
@@ -39,13 +55,8 @@ export function reviewCoverLetterWriting(paragraphs, length = "standard", { part
     const count = words(text).length;
     wordCount += count;
     const add = (code, advice) => { if (!issues.some((issue) => issue.paragraphId === paragraph.id && issue.code === code)) issues.push({ paragraphId: paragraph.id, code, advice }); };
-    if (editorialSentences(text).slice(1).some((sentence, index) => {
-      const prior = editorialSentences(text).slice(0, index + 1).join(' ');
-      const known = new Set(editorialContentTokens(prior));
-      return /^(?:my|this|that) (?:hands-on )?work (?:cent(?:er|re)s on|focuses on|involves|consists of|combines?|combined|requires?|required|includes?|included|brings? together|brought together)\b/i.test(sentence.trim())
-        && [...new Set(editorialContentTokens(sentence))].filter((token) => known.has(token) && !['work', 'include', 'use'].includes(token)).length >= 2;
-    })) {
-      add("restated_work_description", "Check whether the following description repeats the example. Keep distinct source-supported scope, constraints or outcomes; remove it only if it adds no useful information.");
+    if (editorialSentences(text).slice(1).some((sentence, index) => isRestatedFollowup(sentence, editorialSentences(text).slice(0, index + 1).join(' ')))) {
+      add("restated_work_description", "This follow-up restates the same work. Retain the specific example and any distinct source-supported condition; remove the redundant explanation.");
     }
     if (paragraph.purpose === "opening" && /^(?:I(?: am|['’]m) (?:applying (?:for|to)|writing to (?:apply|express|submit)|writing (?:regarding|in response to))|I would like to apply|Please accept (?:my|this) application)\b/i.test(text.trim())) {
       add("formulaic_opening", "Start with a relevant contribution, work setting or professional focus already supported by the cited evidence. The subject line identifies the application. Do not substitute enthusiasm, a stock hook or a list of every example in the body.");

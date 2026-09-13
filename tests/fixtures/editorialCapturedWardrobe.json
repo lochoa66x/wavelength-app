@@ -1,0 +1,122 @@
+{
+  "sourceRevision": "a6fa1bb5ce403a356435bb334f7e1021d6d837e6",
+  "original": {
+    "salutation": "Dear Hiring Team,",
+    "paragraphs": [
+      {
+        "id": "p1",
+        "purpose": "opening",
+        "text": "At Example Little Theatre, I prepared labelled costume rails from the wardrobe supervisor’s plot and checked fastenings before each performance. This work followed the supervisor’s wardrobe instructions while keeping costumes organized and ready for use.",
+        "evidence_refs": [
+          "Wardrobe Assistant | Example Little Theatre | 2022 - 2026",
+          "Prepared labelled costume rails from the wardrobe supervisor’s plot and checked fastenings before each performance."
+        ],
+        "requirement_refs": [
+          "Prepare costume rails and inspect fastenings",
+          "Ability to follow performance cues and wardrobe instructions"
+        ],
+        "explanation": "Highlights direct theatre wardrobe experience preparing costume rails, checking fastenings, and working from a supervisor’s plot and instructions.",
+        "evidence_match": "direct"
+      },
+      {
+        "id": "p2",
+        "purpose": "evidence",
+        "text": "I assisted performers with quick changes using rehearsed cues and recorded repairs needed after the show. Within the supervisor’s instructions, I hand-sewed replacement buttons and repaired loose hems; design alterations went to the supervisor for approval.",
+        "evidence_refs": [
+          "Assisted performers with quick changes using rehearsed cues and recorded repairs needed after the show.",
+          "Hand-sewed replacement buttons and repaired loose hems within the supervisor’s instructions; design alterations required the supervisor’s approval.",
+          "Costume plots; quick-change assistance; hand sewing; repair logs"
+        ],
+        "requirement_refs": [
+          "Assist with rehearsed quick changes",
+          "Complete minor repairs and escalate design changes",
+          "Ability to follow performance cues and wardrobe instructions"
+        ],
+        "explanation": "Highlights direct quick-change support using rehearsed cues, minor hand-sewn repairs, repair documentation, and appropriate escalation of design alterations.",
+        "evidence_match": "direct"
+      },
+      {
+        "id": "p3",
+        "purpose": "closing",
+        "text": "I welcome the opportunity to discuss my wardrobe experience with Example Repertory Stage.",
+        "evidence_refs": [],
+        "requirement_refs": [],
+        "explanation": "Provides a brief, factual invitation to continue the conversation without adding new claims.",
+        "evidence_match": "neutral"
+      }
+    ],
+    "signoff": "Sincerely,",
+    "length": "standard"
+  },
+  "review": {
+    "decision": "revise",
+    "before": {
+      "relevance": 4,
+      "useful_detail": 4,
+      "document_purpose": 4,
+      "selection": 4,
+      "natural_writing": 3
+    },
+    "after": {
+      "relevance": 4,
+      "useful_detail": 4,
+      "document_purpose": 4,
+      "selection": 4,
+      "natural_writing": 4
+    },
+    "changes": [
+      {
+        "original_excerpt": "This work followed the supervisor’s wardrobe instructions while keeping costumes organized and ready for use.",
+        "source_id": "S4",
+        "benefit": "Removes a generic inferred effect while retaining the directly supported detail that the rails were prepared from the supervisor’s plot."
+      }
+    ],
+    "document": {
+      "salutation": "Dear Hiring Team,",
+      "paragraphs": [
+        {
+          "id": "p1",
+          "purpose": "opening",
+          "text": "At Example Little Theatre, I prepared labelled costume rails from the wardrobe supervisor’s plot and checked fastenings before each performance.",
+          "evidence_refs": [
+            "Wardrobe Assistant | Example Little Theatre | 2022 - 2026",
+            "Prepared labelled costume rails from the wardrobe supervisor’s plot and checked fastenings before each performance."
+          ],
+          "requirement_refs": [
+            "Prepare costume rails and inspect fastenings",
+            "Ability to follow performance cues and wardrobe instructions"
+          ],
+          "explanation": "Highlights direct theatre wardrobe experience preparing costume rails, checking fastenings, and working from a supervisor’s plot and instructions.",
+          "evidence_match": "direct"
+        },
+        {
+          "id": "p2",
+          "purpose": "evidence",
+          "text": "I assisted performers with quick changes using rehearsed cues and recorded repairs needed after the show. Within the supervisor’s instructions, I hand-sewed replacement buttons and repaired loose hems; design alterations went to the supervisor for approval.",
+          "evidence_refs": [
+            "Assisted performers with quick changes using rehearsed cues and recorded repairs needed after the show.",
+            "Hand-sewed replacement buttons and repaired loose hems within the supervisor’s instructions; design alterations required the supervisor’s approval.",
+            "Costume plots; quick-change assistance; hand sewing; repair logs"
+          ],
+          "requirement_refs": [
+            "Assist with rehearsed quick changes",
+            "Complete minor repairs and escalate design changes",
+            "Ability to follow performance cues and wardrobe instructions"
+          ],
+          "explanation": "Highlights direct quick-change support using rehearsed cues, minor hand-sewn repairs, repair documentation, and appropriate escalation of design alterations.",
+          "evidence_match": "direct"
+        },
+        {
+          "id": "p3",
+          "purpose": "closing",
+          "text": "I welcome the opportunity to discuss my wardrobe experience with Example Repertory Stage.",
+          "evidence_refs": [],
+          "requirement_refs": [],
+          "explanation": "Provides a brief, factual invitation to continue the conversation without adding new claims.",
+          "evidence_match": "neutral"
+        }
+      ],
+      "signoff": "Sincerely,"
+    }
+  }
+}

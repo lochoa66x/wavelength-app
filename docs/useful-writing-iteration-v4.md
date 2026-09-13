@@ -1,0 +1,17 @@
+# Useful application writing — iteration 4
+
+Starting revision: 0a49910. Execute this brief, verify the actual documents, and deploy validated changes using the existing Git integration.
+
+Objective: deliver focused, useful résumé profiles and cover letters while preserving the shared factual contract. The release must improve observable writing; fewer warnings, shorter text, and model self-scores are not evidence of success.
+
+1. Fix revision selection. Reproduce the captured wardrobe editorial proposal that removes a redundant sentence but was rejected because a 19/20 score increased by only one point. Allow a small, verified improvement without lowering the factual gate. Distinguish deletion of a redundant sentence from deletion of an example, quantity, responsibility limit or meaningful constraint. Require an exact original excerpt, valid source reference and concrete benefit. Unchanged text and unexplained shortening remain rejected. Preserve useful originals when a rewrite loses detail.
+
+2. Improve selection before prose. Supply a compact brief of relevant source blocks, their exact source IDs, work setting and available process/constraint/result details. Group facts only under their actual employer or project. Never manufacture sequence, outcomes or candidate capabilities from the posting. The writer chooses a principal employer need and develops the strongest available example; a second paragraph earns its space through distinct evidence. The brief is internal and must never enter exports.
+
+3. Align profile instructions. Remove contradictory length and content instructions. A profile states professional identity, relevant setting and focus; experience retains task detail. Preserve a useful background or specialty when removing repeated bullets. Permit concise sources to produce concise documents without padding.
+
+4. Make first failures inspectable. Extend the existing authenticated opt-in evaluation report to résumé generation, including the original provider response, factual findings, bounded repair, editorial proposal and outcome. Keep reports out of normal responses, storage, logs and employer documents. Preserve cancellation and account/source boundaries.
+
+5. Verification. Freeze ten new fictional careers and the existing quality rubric before live generation. Keep first-attempt artifacts, raw reports and errors; do not repair the evaluation inputs. Use known failures only for regression development. Run targeted tests, full tests and production build. Deploy, then exercise ten unchanged career packages once each through the authenticated UI, collect actual DOCX/PDF files and inspect their contents and rendered pages. Score each résumé and letter with excerpts under the unchanged five-dimension rubric. Separate initial provider failure, automatic repair, application completion, writing quality and file integrity. Do not call this same-agent authored set an independent blind benchmark. Restore the user's original résumé exactly.
+
+6. Decision and next iteration. Report all ten attempts, including failures. Aim for at least 9/10 completed packages, 8/10 pairs at 15/20 or higher with every dimension at least 2, and no unresolved false claims or export defects in accepted documents. These are release-review targets, not guarantees. If the target is missed, identify the dominant failure family before another implementation round. Two consecutive fresh sets meeting these targets would justify leaving broad iteration mode; do not promise perfection or a fixed completion date.

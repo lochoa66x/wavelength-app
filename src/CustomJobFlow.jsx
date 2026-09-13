@@ -120,6 +120,15 @@ export function CustomJobFlow({
   const [status, setStatus] = useState("idle");
   const [error, setError] = useState("");
   const [tailored, setTailored] = useState(null);
+  const [evaluation, setEvaluation] = useState(null);
+  const evaluationMode = new URLSearchParams(window.location.search).get('evaluation') === '1';
+  const activeEvaluation = evaluation && evaluation.userId === userId && evaluation?.resume === resume && evaluation?.brief === brief ? evaluation.report : null;
+  const downloadEvaluation = () => {
+    if (!activeEvaluation) return;
+    const url = URL.createObjectURL(new Blob([JSON.stringify(activeEvaluation, null, 2)], { type: 'application/json' }));
+    const anchor = document.createElement('a'); anchor.href = url; anchor.download = 'gigscapes-resume-evaluation.json'; anchor.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
   const [evidenceTargetKey, setEvidenceTargetKey] = useState(null);
   const [evidenceRecords, setEvidenceRecords] = useState([]);
   const [evidenceStorageError, setEvidenceStorageError] = useState("");
@@ -168,6 +177,7 @@ export function CustomJobFlow({
     setFiles([]);
     setBrief(null);
     setTailored(null);
+    setEvaluation(null);
     setEvidenceTargetKey(null);
     setEvidenceRecords([]);
     setEvidenceStorageError("");
@@ -253,19 +263,22 @@ export function CustomJobFlow({
     setStatus("tailoring");
     setError("");
     const previous = tailored;
+    setEvaluation(null);
     try {
       const candidateEvidence = candidateEvidenceForRequest(
         submittableCandidateEvidence(evidenceOverride),
         submittableCandidateEvidence(loadReusableCandidateEvidence(userId)),
       );
-      const target = { customJob: activeBrief, candidateEvidence };
+      const target = { customJob: activeBrief, candidateEvidence, ...(evaluationMode && requestedIntent !== 'cover_letter_only' ? { captureEvaluation: true } : {}) };
       const result = requestedIntent === "cover_letter_only"
         ? await analyzeResumeForApplication(resume, target, { signal: request.signal })
         : await tailorPosting(resume, target, { signal: request.signal });
       if (!requestCoordinator.isCurrent(request)) return;
       requestCoordinator.finish(request);
+      const { evaluationReport, ...documentResult } = result;
+      if (evaluationReport) setEvaluation({ report: evaluationReport, resume, userId, brief: activeBrief });
       setTailored({
-        ...result,
+        ...documentResult,
         documentIntent: requestedIntent,
         baselineAtsReview: result.atsReview,
         baselineCoverage: previous?.baselineCoverage || previous?.atsReview?.coverage || result.atsReview?.coverage,
@@ -286,6 +299,7 @@ export function CustomJobFlow({
     } catch (tailorError) {
       if (!requestCoordinator.isCurrent(request) || request.signal.aborted) return;
       requestCoordinator.finish(request);
+      if (tailorError.evaluationReport) setEvaluation({ report: tailorError.evaluationReport, resume, userId, brief: activeBrief });
       setError(tailorError.message);
       setStatus("review");
       void emitQualitySignal(buildQualitySignal("tailoring_blocked", {
@@ -402,6 +416,8 @@ export function CustomJobFlow({
           Choose the documents you need, then paste the posting, share its public link, or upload screenshots. You review the extracted facts before Gigscapes prepares anything.
         </p>
       </div>
+
+      {evaluationMode && <p style={{ color: C.textSub, fontSize: 12 }}>Evaluation mode: the résumé report includes private draft text and source evidence. {activeEvaluation && <button type="button" onClick={downloadEvaluation}>Download résumé generation report</button>}</p>}
 
       {!brief ? (
         <div style={{ background: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 18, padding: 16, marginBottom: 14 }}>

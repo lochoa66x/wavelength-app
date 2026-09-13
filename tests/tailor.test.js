@@ -276,7 +276,7 @@ test("tailoring accepts a reviewed custom job without loading a database listing
   });
   const res = responseRecorder();
 
-  await handler({
+  const request = {
     method: "POST",
     headers: { authorization: "Bearer valid" },
     body: {
@@ -294,7 +294,8 @@ test("tailoring accepts a reviewed custom job without loading a database listing
         keywords: ["stakeholder management"],
       },
     },
-  }, res);
+  };
+  await handler(request, res);
 
   assert.equal(loadCalled, false);
   assert.equal(res.statusCode, 200);
@@ -316,6 +317,15 @@ test("tailoring accepts a reviewed custom job without loading a database listing
   assert.deepEqual(captureEvents.at(-1).document, res.body.resume);
   assert.equal(new Set(captureEvents.map(event => event.requestId)).size, 1);
   assert.equal('candidateEvidence' in res.body, false);
+  assert.equal('evaluationReport' in res.body, false);
+  const optIn = responseRecorder();
+  await handler({ ...request, body: { ...request.body, captureEvaluation: true } }, optIn);
+  assert.equal(optIn.statusCode, 200);
+  assert.equal(optIn.body.evaluationReport.version, 1);
+  assert.equal(optIn.body.evaluationReport.events[0].stage, 'first_draft');
+  assert.ok(optIn.body.evaluationReport.events[0].raw.profile);
+  assert.equal(optIn.body.evaluationReport.events.at(-1).stage, 'outcome');
+  assert.deepEqual(optIn.body.resume, res.body.resume);
 });
 
 test("analysis-only mode returns shared evidence assessment without requesting a résumé draft", async () => {

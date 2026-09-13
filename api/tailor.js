@@ -586,7 +586,12 @@ export function createTailorHandler({
   return async function handler(req, res) {
   applyPrivateResponseHeaders(res);
   const requestStartedAt = Date.now();
-  const capture = evaluationCapture(recordEvaluationEvent, 'resume');
+  const evaluationEvents = req.body?.captureEvaluation === true ? [] : null;
+  const capture = evaluationCapture(recordEvaluationEvent || evaluationEvents ? async event => {
+    evaluationEvents?.push(event);
+    await recordEvaluationEvent?.(event);
+  } : null, 'resume');
+  const respond = (status, payload) => res.status(status).json(evaluationEvents ? { ...payload, evaluationReport: { version: 1, events: evaluationEvents } } : payload);
   const correlationId = createTailoringCorrelationId();
   const requestDeadlineAt = requestStartedAt + resolvedTiming.requestBudgetMs;
   if (req.method !== "POST") {
@@ -607,19 +612,19 @@ export function createTailorHandler({
   const openAIKey = getOpenAIKey();
   if (!hasConfiguredProvider({ openAIKey, anthropicKey })) {
     console.error("No AI processing provider is configured in this deployment");
-    return res.status(503).json({ error: "Résumé tailoring is temporarily unavailable" });
+    return respond(503, { error: "Résumé tailoring is temporarily unavailable" });
   }
 
   const { resume, listingId, customJob, extraContext, candidateEvidence: rawCandidateEvidence, analysisOnly = false } = req.body || {};
   const validListingId = typeof listingId === "string" || typeof listingId === "number";
   const normalizedCustomJob = normalizeCustomJobBrief(customJob);
   if (typeof resume !== "string" || !resume.trim() || Number(validListingId) + Number(Boolean(normalizedCustomJob)) !== 1) {
-    return res.status(400).json({ error: "Provide a resume and exactly one trusted listing or reviewed custom job." });
+    return respond(400, { error: "Provide a resume and exactly one trusted listing or reviewed custom job." });
   }
 
   const candidateEvidenceValidation = validateCandidateEvidence(rawCandidateEvidence);
   if (candidateEvidenceValidation.errors.length) {
-    return res.status(400).json({
+    return respond(400, {
       error: "Candidate evidence could not be verified.",
       details: candidateEvidenceValidation.errors,
     });
@@ -635,7 +640,7 @@ export function createTailorHandler({
       // existing harmless mock client.
       listingClient = loadListing === loadTrustedListing ? createAdmin() : auth.supabase;
     } catch {
-      return res.status(500).json({ error: "Server database access is not configured" });
+      return respond(500, { error: "Server database access is not configured" });
     }
   }
 
@@ -647,7 +652,7 @@ export function createTailorHandler({
       reason: "Candidate-provided posting reviewed before tailoring.",
     };
   if (!item?.title) {
-    return res.status(404).json({ error: "Listing not found" });
+    return respond(404, { error: "Listing not found" });
   }
 
   const cappedResume = resume.trim().slice(0, 16000);
@@ -775,7 +780,7 @@ INSTRUCTIONS
 - Identify the skills/requirements this specific posting cares about most and make the bullets within each role lead with the most relevant supported evidence. Compress genuinely irrelevant older detail, but do not move an older role above a newer one.
 - Transferable framing must state relevance without equivalence. Never say experience "translates directly", is "directly analogous", is "comparable to", is "equivalent to", "parallels" the target, "shares the same foundation/engine/discipline" as the target, or proves hands-on target-domain implementation when the analysis classifies it only as adjacent or transferable.
 - For transferable positioning, lead with the proven professional foundation, map only verified transferable skills, and include a project, course, portfolio, or certification only when it appears in CANDIDATE EVIDENCE.
-- Keep every profile concise, usually 35-65 words in two or three sentences. There is no minimum word count. Lead with professional identity and relevant scope, then the strongest two or three evidence themes. Do not turn the profile into a module/keyword inventory or end it with generic soft-skill filler. Do not claim the candidate is "actively building", "currently learning", studying, training, or pursuing a credential unless CANDIDATE EVIDENCE explicitly proves that activity.
+- Keep the profile focused on professional identity, relevant work setting and one useful specialty or background. One informative sentence usually suffices; use a second only for a distinct dimension. There is no minimum length. Leave employer-specific task sequences, metrics and results in experience, and tool inventories in skills. Do not turn the profile into a recap of the strongest bullets or end it with generic soft-skill filler. Do not claim the candidate is "actively building", "currently learning", studying, training, or pursuing a credential unless CANDIDATE EVIDENCE explicitly proves that activity.
 - Write employer-facing prose only. Never use internal audit words such as "verified", "evidence-safe", "supported requirement", "adjacent evidence", or "candidate-confirmed" in the headline, profile, skills, or experience.
 - Organize the skills section by scan value: first core products/modules, then functional capabilities, then delivery methods/tools. Avoid a flat repetition-heavy keyword dump; merge close duplicates while preserving exact product names.
 - Use consistent professional style: "go-live", "mock cutover", "gap analysis", "knowledge transfer", and "functional specifications" in running prose. Preserve official product and organization capitalization. Normalize obvious employer display variants such as "CAP GEMINI" to "Capgemini" without renaming a genuinely different employer.
@@ -846,7 +851,7 @@ INSTRUCTIONS
     if (analysisOnly === true) {
       const atsReview = analysisOnlyReview(analysis);
       logTailoringCompleted(requestStartedAt);
-      return res.status(200).json({
+      return respond(200, {
         analysis_only: true,
         ats_review: atsReview,
         tailoring_analysis: analysis,
@@ -888,7 +893,7 @@ INSTRUCTIONS
           experienceCount: Array.isArray(resumeData.experience) ? resumeData.experience.length : null,
         }));
         await capture('outcome', { status: 'incomplete', attempt: attempt + 1 });
-        return res.status(502).json({ error: "Model returned incomplete resume data" });
+        return respond(502, { error: "Model returned incomplete resume data" });
       }
 
       const focusReview = await layoutAwareFocusReview(resumeData, analysis, item, shaped.focusReview);
@@ -931,7 +936,11 @@ INSTRUCTIONS
       if (atsReview.status !== "blocked") {
         const summaryPolish = requestDeadlineAt - Date.now() >= 23_000 ? await reviewContent({
           kind: 'profile', document: resumeData, source: candidateEvidence, posting: JSON.stringify({ title: item.title, requirements: analysis.requirements }),
-          generate: (summaryPrompt) => callAITool({ ...providerOptions, fetchImpl, tool: contentReviewTool(SUMMARY_TOOL.input_schema), prompt: summaryPrompt, maxTokens: 2000, reasoningEffort: "low", timeoutMs: 20_000, stage: "summary_editorial" }),
+          generate: async (summaryPrompt) => {
+            const raw = await callAITool({ ...providerOptions, fetchImpl, tool: contentReviewTool(SUMMARY_TOOL.input_schema), prompt: summaryPrompt, maxTokens: 2000, reasoningEffort: "low", timeoutMs: 20_000, stage: "summary_editorial" });
+            await capture('editorial_draft', { raw });
+            return raw;
+          },
           validate: async (candidate) => {
             if (typeof candidate.profile !== 'string' || candidate.profile.length > 700 || !hasUsefulProfileContext(candidate, candidateEvidence)
               || reviewResumeProfile(candidate, candidateEvidence).length > reviewResumeProfile(resumeData, candidateEvidence).length) return { valid: false };
@@ -940,6 +949,7 @@ INSTRUCTIONS
               isTrades: isTradesGig, category: item.category,
               focusReview: await layoutAwareFocusReview(candidate, analysis, item, shaped.focusReview), historyEvidence: cappedResume,
             });
+            await capture('editorial_validation', { document: candidate, review: checked });
             return { valid: checked.status !== 'blocked', validation: checked };
           },
         }) : { document: resumeData, applied: false, status: 'budget_unavailable' };
@@ -948,7 +958,7 @@ INSTRUCTIONS
         await capture('outcome', { status: 'accepted', document: resumeData, review: atsReview, draftAttempts: attempt + 1, firstDraftIssueCounts, sourceRestoredBullets });
         console.info("[tailor:editorial]", JSON.stringify({ status: summaryPolish.status, reason: summaryPolish.reason || null, applied: summaryPolish.applied }));
         logTailoringCompleted(requestStartedAt, { repairApplied: attempt > 0 || sourceRestoredBullets > 0 || summaryPolish.applied, summaryPolishApplied: summaryPolish.applied, draftAttempts: attempt + 1, sourceRestoredBullets, firstDraftIssueCounts });
-        return res.status(200).json({
+        return respond(200, {
           resume: resumeData,
           ats_review: atsReview,
           tailoring_analysis: analysis,
@@ -1023,7 +1033,7 @@ INSTRUCTIONS
           removedNumbers: safetyReport.removed_numeric_claim_count,
         }));
         logTailoringCompleted(requestStartedAt, { repairApplied: true, safetyFallbackApplied: true, draftAttempts: attempt + 1, sourceRestoredBullets, firstDraftIssueCounts });
-        return res.status(200).json({
+        return respond(200, {
           resume: safeResume,
           ats_review: safeReview,
           tailoring_analysis: analysis,
@@ -1044,7 +1054,7 @@ INSTRUCTIONS
         experienceCount: safeResume.experience.length,
         issueGroups: Object.entries(finalIssues).filter(([, value]) => Array.isArray(value) ? value.length : value?.status === "blocked").map(([key]) => key),
       }));
-      return res.status(422).json({
+      return respond(422, {
         error: "Gigscapes could not produce a complete evidence-safe draft from these inputs. Your original résumé and current application documents are unchanged.",
         ats_review: safeReview,
       });
@@ -1064,12 +1074,12 @@ INSTRUCTIONS
       correlationId,
     }));
     if (err.name === "AbortError" || err.name === "TailoringDeadlineError") {
-      return res.status(504).json({ error: `This résumé needed more processing time than usual. We retried it automatically, but could not finish safely. Your original résumé is unchanged. Reference: ${correlationId}`, reference: correlationId });
+      return respond(504, { error: `This résumé needed more processing time than usual. We retried it automatically, but could not finish safely. Your original résumé is unchanged. Reference: ${correlationId}`, reference: correlationId });
     }
     if (err.upstream) {
-      return res.status(502).json({ error: `We couldn't finish the tailored documents right now. Please try again. If it happens again, share this reference: ${correlationId}`, reference: correlationId });
+      return respond(502, { error: `We couldn't finish the tailored documents right now. Please try again. If it happens again, share this reference: ${correlationId}`, reference: correlationId });
     }
-    return res.status(500).json({ error: "Internal error" });
+    return respond(500, { error: "Internal error" });
   }
   };
 }

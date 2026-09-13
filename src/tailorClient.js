@@ -10,6 +10,7 @@ export async function tailorResume(resume, target, options = {}) {
   if (!data.resume?.profile) throw new Error("The tailor returned an incomplete draft.");
   return {
     resume: data.resume,
+    evaluationReport: data.evaluationReport,
     atsReview: data.ats_review || null,
     postingReadiness: data.posting_readiness || data.ats_review?.posting_readiness || null,
     listingRelevance: data.listing_relevance || null,
