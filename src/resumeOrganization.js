@@ -91,12 +91,17 @@ export function organizeResumeSections(source = {}, baseResume = "") {
   if (clearSection) clearSection.items = unique(clearance);
   const credentialKey = (entry) => key(text(entry).replace(/\s+certificate$/i, ""));
   const credentialNames = new Set(list(source.certifications).map(credentialKey).filter(Boolean));
+  const languageSkills = list(source.skills).filter((entry) => languageLine.test(text(entry)));
+  languages.push(...languageSkills);
+  const splitLanguages = (entry) => typeof entry === 'string' ? entry.split(/[,;]\s*(?=[\p{L}][\p{L} -]{1,25}(?::|\s+(?:native|fluent|basic|intermediate|advanced)\b))/iu) : [entry];
+  const organizedLanguages = unique(languages.flatMap(splitLanguages), languageIdentity);
+  const languageNames = new Set(organizedLanguages.map((entry) => key(languageIdentity(entry))));
   return {
     ...source,
     ...(resumeProfessionalLinks(baseResume).length ? { professionalLinks: unique([...list(source.professionalLinks ?? source.professional_links), ...resumeProfessionalLinks(baseResume)], (entry) => entry?.url || text(entry)) } : {}),
-    ...(Array.isArray(source.skills) ? { skills: source.skills.filter((entry) => !credentialNames.has(credentialKey(entry))) } : {}),
+    ...(Array.isArray(source.skills) ? { skills: source.skills.filter((entry) => !credentialNames.has(credentialKey(entry)) && !languageSkills.includes(entry) && !languageNames.has(key(text(entry)))) } : {}),
     training: unique(training, courseIdentity),
-    languages: unique(languages.flatMap((entry) => typeof entry === "string" ? entry.split(/[,;]\s*(?=[\p{L}][\p{L} -]{1,25}:)/u) : [entry]), languageIdentity),
+    languages: organizedLanguages,
     additionalSections: additional.map((entry) => ({ ...entry, items: unique(entry.items) })).filter((entry) => entry.items.length),
   };
 }

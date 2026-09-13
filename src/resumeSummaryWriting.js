@@ -1,7 +1,9 @@
 // These are conservative editorial signals, never evidence or eligibility gates.
 const STOP_WORDS = new Set('a an the i my we our you your and or in on at to of for with by from as is are was were be been have has had this that these those experience experienced professional approximately average monthly daily per'.split(' '));
 const normalize = (text) => String(text || '').normalize('NFKC').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, ' ').trim();
-export const editorialSentences = (text) => String(text || '').split(/(?<=[.!?])\s+/).filter((sentence) => sentence.trim());
+export const editorialSentences = (text) => String(text || '')
+  .replace(/\b(?:[A-Za-z]\.){2,}|\b(?:Mr|Mrs|Ms|Dr|Prof|Inc|Ltd|B\.Sc|M\.Sc|Ph\.D|B\.A|M\.A)\./g, (value) => value.replace(/\./g, '\uE000'))
+  .split(/(?<=[.!?])\s+/).map((sentence) => sentence.replace(/\uE000/g, '.')).filter((sentence) => sentence.trim());
 const tokens = (text) => (normalize(text).match(/\p{L}[\p{L}\p{N}]*/gu) || []).filter((word) => !STOP_WORDS.has(word));
 const ACTION_FORMS = new Map([
   ['prepare', 'prepares', 'prepared', 'preparing'], ['process', 'processes', 'processed', 'processing'],
@@ -13,14 +15,18 @@ const ACTION_FORMS = new Map([
   ['manage', 'manages', 'managed', 'managing'], ['repair', 'repairs', 'repaired', 'repairing'],
   ['install', 'installs', 'installed', 'installing'], ['coordinate', 'coordinates', 'coordinated', 'coordinating'],
 ].flatMap((forms) => forms.map((form) => [form, forms[0]])));
-const actionKey = (word) => ACTION_FORMS.get(word) || word;
+const actionKey = (word) => ({ preparation: 'prepare', reconciliation: 'reconcile', coordination: 'coordinate', installation: 'install', implementation: 'implement', development: 'develop' }[word] || ACTION_FORMS.get(word) || word);
+export const editorialContentTokens = (text) => tokens(text).map(actionKey).map((word) => word.length > 4 && /s$/.test(word) && !/ss$/.test(word) ? word.slice(0, -1) : word);
+const quantitiesDiffer = (left, right) => {
+  const numbers = (value) => String(value).match(/\b\d[\d,.]*(?:%)?/g) || [];
+  const a = numbers(left), b = numbers(right);
+  return a.length > 0 && b.length > 0 && (a.some((number) => !b.includes(number)) || b.some((number) => !a.includes(number)));
+};
 
 export function repeatsContribution(text, example) {
-  const numbers = (value) => String(value).match(/\b\d[\d,.]*(?:%)?/g) || [];
-  const leftNumbers = numbers(text), rightNumbers = numbers(example);
   // Similar assignments with different explicit results are distinct evidence.
-  if (leftNumbers.length && rightNumbers.length && !leftNumbers.some((value) => rightNumbers.includes(value))) return false;
-  const left = tokens(text), right = tokens(example);
+  if (quantitiesDiffer(text, example)) return false;
+  const left = editorialContentTokens(text), right = editorialContentTokens(example);
   const shorter = left.length <= right.length ? left : right;
   const longer = new Set(left.length <= right.length ? right : left);
   const unique = [...new Set(shorter)];
@@ -41,16 +47,17 @@ export function reviewResumeSummary(resume, source = '') {
     return quantities.some((quantity) => profileQuantities.includes(quantity));
   }));
   const exactCopy = sentences.some((sentence) => normalize(sentence).split(' ').length >= 8 && bullets.some((bullet) => normalize(sentence) === normalize(bullet)));
-  const firstWord = (text) => actionKey(normalize(text).split(' ')[0]);
+  const firstWord = (text) => actionKey(normalize(text).replace(/^(?:my )?(?:recent )?(?:work|background|experience) includes /, '').split(' ')[0]);
   const clauses = sentences.flatMap((sentence) => sentence.split(/\band\b|,/i));
   const actionRecap = clauses.some((clause) => bullets.some((bullet) => {
+    if (quantitiesDiffer(clause, bullet)) return false;
     if (firstWord(clause) !== firstWord(bullet)) return false;
     const sourceTokens = new Set(tokens(bullet).map(actionKey));
     return [...new Set(tokens(clause).map(actionKey))].filter((word) => sourceTokens.has(word)).length >= 3;
   }));
   const issues = [];
   const taskActions = profile.match(/\b(?:preparing|building|processing|reconciling|translating|creating|recording|discussing|supporting|cleaning|working|planning|developing|managing|leading|coordinating|installing|repairing|measuring|scheduling|picking|packing|updating|checking)\b/gi) || [];
-  if (new Set(taskActions.map((word) => word.toLowerCase())).size >= 2 && /\band\b/i.test(profile)) {
+  if (new Set(taskActions.map((word) => word.toLowerCase())).size >= 2 && /\b(?:experience (?:in|with|\w+ing\b)|skilled (?:in|at)|responsible for)\b/i.test(profile) && /\band\b/i.test(profile)) {
     issues.push({ code: 'summary_task_list', advice: 'Remove the list of activities introduced as experience. State the profession, work setting or distinctive background instead; leave what the candidate did in the experience bullets.' });
   }
   if (sentences.some((sentence) => /^(?:brings?|background includes|experience includes|skills include)\b/i.test(sentence.trim()) && /\band\b/i.test(sentence) && tokens(sentence).length >= 6)) {

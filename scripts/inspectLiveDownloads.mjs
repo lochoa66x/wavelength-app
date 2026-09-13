@@ -3,7 +3,9 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import mammoth from 'mammoth';
 import {getDocument} from 'pdfjs-dist/legacy/build/pdf.mjs';
-import {liveCareerCases} from '../tests/fixtures/liveCareerCorpus.mjs';
+import {liveCareerCases as regressionCases} from '../tests/fixtures/liveCareerCorpus.mjs';
+import {freshCareerCases} from '../evaluations/fresh-careers-v1.mjs';
+const liveCareerCases = [...regressionCases, ...freshCareerCases];
 
 // Reads files saved by the real browser. It never substitutes generated fixtures.
 const directory=path.resolve(process.argv[2] || 'tmp/live-career-review-2026-09-12');

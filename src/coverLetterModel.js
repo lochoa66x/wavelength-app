@@ -6,9 +6,10 @@ import { createApplicationPresentation, validateApplicationPresentation } from "
 import { containsSelfDisqualifyingCoverLetterLanguage } from "./coverLetterLanguage.js";
 import { pendingApplicationConfirmations } from './applicationConfirmations.js';
 import {resumeProfessionalLinks} from './resumeIdentity.js';
+import { validateApplicationDocument, candidateDocumentCorpus, mergeCoverLetterReplacement, COVER_LETTER_PARAGRAPH_LIMIT } from './applicationDocumentContract.js';
 
 export const COVER_LETTER_SCHEMA_VERSION = 1;
-export const COVER_LETTER_PARAGRAPH_LIMIT = 2_400;
+export { COVER_LETTER_PARAGRAPH_LIMIT } from './applicationDocumentContract.js';
 export { COVER_LETTER_VOICES, COVER_LETTER_LENGTHS } from "./coverLetterControls.js";
 
 const VOICES = new Set(COVER_LETTER_VOICES.map(({ id }) => id));
@@ -25,7 +26,7 @@ function clean(value, maxLength = 4_000) {
     : "";
 }
 
-function cleanArray(value, maxItems = 8, maxLength = 600) {
+function cleanArray(value, maxItems = 6, maxLength = 700) {
   if (!Array.isArray(value)) return [];
   return value.slice(0, maxItems).map((item) => clean(item, maxLength)).filter(Boolean);
 }
@@ -85,7 +86,7 @@ export function createCoverLetterSourceFingerprint({ baseResume, resumeData, ite
 }
 
 function normalizeParagraph(raw, index) {
-  const purpose = PARAGRAPH_PURPOSES.has(raw?.purpose) ? raw.purpose : index === 0 ? "opening" : "evidence";
+  const purpose = PARAGRAPH_PURPOSES.has(raw?.purpose) ? raw.purpose : '';
   const text = stripEmbeddedSignoff(raw?.text);
   return {
     id: clean(raw?.id, 80) || `paragraph-${index + 1}`,
@@ -167,7 +168,7 @@ export function validateCoverLetterEdit(text, paragraph, { baseResume = "", cand
   if (String(text || '').length > COVER_LETTER_PARAGRAPH_LIMIT) return { ok: false, message: `This paragraph is ${String(text).length - COVER_LETTER_PARAGRAPH_LIMIT} characters over the ${COVER_LETTER_PARAGRAPH_LIMIT.toLocaleString('en-US')}-character limit. Shorten it before saving; your draft and full input are preserved.` };
   const next = clean(text, Number.POSITIVE_INFINITY);
   if (hasInternalDocumentLanguage(next)) return { ok: false, message: "Remove internal application terminology from the letter." };
-  const meaningIssues = claimMeaningIssues(next, paragraph?.evidenceRefs || [], { candidateCorpus: baseResume });
+  const meaningIssues = claimMeaningIssues(next, paragraph?.evidenceRefs || [], { candidateCorpus: candidateDocumentCorpus(baseResume, candidateEvidence) });
   const contributionIssue = contributionEditIssue(next, paragraph?.evidenceRefs || []);
   if (contributionIssue) meaningIssues.push(contributionIssue);
   if (meaningIssues.length) return { ok: false, message: meaningIssues.join(" ") };
@@ -204,7 +205,17 @@ export function updateCoverLetterParagraph(plan, paragraphId, text, context) {
     ? { ...entry, text: validation.text, verification: "verified" }
     : entry);
   const next = { ...plan, paragraphs, updatedAt: new Date().toISOString() };
+  const contract = validateApplicationDocument({ kind: 'cover-letter', document: next, candidateCorpus: candidateDocumentCorpus(context.baseResume, context.candidateEvidence) });
+  if (!contract.valid) return { ok: false, message: contract.issues.map((issue) => issue.message).join(' ') };
   return { ok: true, plan: { ...next, contentHash: stableHash(planContent(next), "cover-letter") } };
+}
+
+export function replaceCoverLetterParagraph(plan, paragraphId, replacement, context = {}) {
+  const next = mergeCoverLetterReplacement(plan, replacement, paragraphId);
+  if (!next) throw new Error('Regeneration must preserve the requested paragraph id and purpose.');
+  const contract = validateApplicationDocument({ kind: 'cover-letter', document: next, candidateCorpus: candidateDocumentCorpus(context.baseResume, context.candidateEvidence) });
+  if (!contract.valid) throw new Error(contract.issues.map((issue) => issue.message).join(' '));
+  return createCoverLetterPlan(next, context);
 }
 
 export function removeCoverLetterParagraph(plan, paragraphId) {
@@ -227,7 +238,8 @@ export function getCoverLetterReadiness(plan, { baseResume = "", resumeData = {}
   const invalidHash = Boolean(plan) && plan.contentHash !== stableHash(planContent(plan), "cover-letter");
   const unverified = (plan?.paragraphs || []).some((entry) => entry.verification !== "verified");
   const internalLanguage = (plan?.paragraphs || []).some((entry) => hasInternalDocumentLanguage(entry.text));
-  const meaningChanged = !internalLanguage && (plan?.paragraphs || []).some((entry) => claimMeaningIssues(entry.text, entry.evidenceRefs, { candidateCorpus: baseResume }).length > 0 || entry.text.length > COVER_LETTER_PARAGRAPH_LIMIT);
+  const contract = validateApplicationDocument({ kind: 'cover-letter', document: plan, candidateCorpus: candidateDocumentCorpus(baseResume, candidateEvidence) });
+  const meaningChanged = !internalLanguage && contract.issues.some((issue) => issue.code === 'claim_meaning');
   const selfDisqualifying = (plan?.paragraphs || []).some((entry) => containsSelfDisqualifyingCoverLetterLanguage(entry.text));
   const incomplete = (plan?.paragraphs?.length || 0) < 2 || !plan?.candidate?.fullName || !plan?.target?.jobTitle;
   const missingIdentity = !hasUsableResumeIdentity(plan?.candidate?.fullName);
@@ -238,7 +250,7 @@ export function getCoverLetterReadiness(plan, { baseResume = "", resumeData = {}
   const pendingConfirmations = pendingApplicationConfirmations(atsReview);
   const significantGap = ["significant_gap", "needs_full_posting"].includes(atsReview?.readiness?.status) || pendingConfirmations.length > 0;
   const integrityBlocked = atsReview?.integrity?.status === "blocked";
-  const blocked = missingIdentity || stale || invalidHash || unverified || selfDisqualifying || internalLanguage || incomplete || integrityBlocked || meaningChanged;
+  const blocked = missingIdentity || stale || invalidHash || unverified || selfDisqualifying || internalLanguage || incomplete || integrityBlocked || !contract.valid;
   const preliminary = !blocked && (assessmentIncomplete || significantGap);
   return {
     state: blocked ? "blocked" : preliminary ? "preliminary" : "application_ready",
@@ -249,6 +261,7 @@ export function getCoverLetterReadiness(plan, { baseResume = "", resumeData = {}
     selfDisqualifying,
     internalLanguage,
     meaningChanged,
+    contract,
     pendingConfirmations,
     message: missingIdentity
       ? "Add your real name to the saved résumé before exporting a cover letter."
@@ -266,13 +279,13 @@ export function getCoverLetterReadiness(plan, { baseResume = "", resumeData = {}
               ? "This saved draft contains internal application wording. Edit the affected paragraph or regenerate the letter; your draft is preserved."
             : selfDisqualifying
               ? "This saved draft uses self-disqualifying language from an earlier version. Generate a fresh draft before exporting."
-              : incomplete
-                ? "Generate a complete evidence-backed letter before exporting."
+              : incomplete || !contract.valid
+                ? contract.issues.map((issue) => issue.message).join(' ') || "Generate a complete evidence-backed letter before exporting."
                 : pendingConfirmations.length
                   ? `Document checks passed. ${pendingConfirmations.map(r=>r.message).join(' ')}`
                 : preliminary
                   ? "Preliminary letter — the reviewed evidence or posting is not yet sufficient for application-ready status."
-                  : "Application-ready cover letter — identity, posting, and evidence checks passed.",
+                  : "Document checks passed. Review the relevance and usefulness of the letter before applying.",
   };
 }
 
@@ -286,11 +299,11 @@ export function createCoverLetterExportContext(plan, context = {}) {
   return {
     kind: "cover-letter-export-context",
     plan,
-    candidateCorpus: context.baseResume || '',
+    candidateCorpus: candidateDocumentCorpus(context.baseResume, context.candidateEvidence),
     readiness,
     sourceFingerprint: createCoverLetterSourceFingerprint(context),
     applicationPresentation,
-    authorizationHash: stableHash({ contentHash: plan.contentHash, sourceFingerprint: plan.sourceFingerprint, candidateCorpusHash: stableHash(context.baseResume || '', 'candidate-evidence'), presentationHash: applicationPresentation.presentationHash, mode: readiness.preliminary ? "preliminary" : "final" }, "cover-authorization"),
+    authorizationHash: stableHash({ contentHash: plan.contentHash, sourceFingerprint: plan.sourceFingerprint, candidateCorpusHash: stableHash(candidateDocumentCorpus(context.baseResume, context.candidateEvidence), 'candidate-evidence'), presentationHash: applicationPresentation.presentationHash, mode: readiness.preliminary ? "preliminary" : "final" }, "cover-authorization"),
     createdAt,
     expiresAt: createdAt + 5 * 60 * 1_000,
   };
@@ -302,8 +315,8 @@ export function validateCoverLetterExportContext(context, now = Date.now()) {
   if (context.plan?.sourceFingerprint !== context.sourceFingerprint) throw new Error("The cover letter is stale because its source evidence changed.");
   const expectedContentHash = stableHash(planContent(context.plan), "cover-letter");
   if (context.plan?.contentHash !== expectedContentHash) throw new Error("The cover-letter content hash is invalid or stale.");
-  if ((context.plan?.paragraphs || []).some((entry) => hasInternalDocumentLanguage(entry.text))) throw new Error("Remove internal application wording before exporting.");
-  if ((context.plan?.paragraphs || []).some((entry) => claimMeaningIssues(entry.text, entry.evidenceRefs, { candidateCorpus: context.candidateCorpus }).length || entry.text.length > COVER_LETTER_PARAGRAPH_LIMIT)) throw new Error("Correct wording that changes the scope or responsibility in its sources before exporting.");
+  const contract = validateApplicationDocument({ kind: 'cover-letter', document: context.plan, candidateCorpus: context.candidateCorpus });
+  if (!contract.valid) throw new Error(contract.issues.map((issue) => issue.message).join(' '));
   const applicationPresentation = validateApplicationPresentation(context.applicationPresentation);
   const expectedAuthorization = stableHash({
     contentHash: context.plan.contentHash,

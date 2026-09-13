@@ -1,4 +1,5 @@
-import { RESUME_SUMMARY_INSTRUCTIONS, reviewResumeSummary, trimSummaryTaskList } from '../../src/resumeSummaryWriting.js';
+import { RESUME_SUMMARY_INSTRUCTIONS, trimSummaryTaskList } from '../../src/resumeSummaryWriting.js';
+import { reviewResumeProfile, hasUsefulProfileContext } from '../../src/resumeProfileReview.js';
 
 export const SUMMARY_TOOL = {
   name: 'return_resume_summary',
@@ -10,13 +11,13 @@ export const SUMMARY_TOOL = {
 // already checked draft, and the caller owns the remaining request budget.
 export async function polishResumeSummary({ resume, review, source, targetTitle, generate, validate }) {
   const original = { resume, review, applied: false };
-  const issues = reviewResumeSummary(resume, source);
+  const issues = reviewResumeProfile(resume, source);
   if (!issues.length) return original;
   try {
     if (issues.some((issue) => issue.code === 'summary_task_list')) {
       const profile = trimSummaryTaskList(resume.profile);
       const candidate = profile ? { ...resume, profile } : null;
-      if (candidate && !reviewResumeSummary(candidate, source).length) {
+      if (candidate && hasUsefulProfileContext(candidate, source) && !reviewResumeProfile(candidate, source).length) {
         const checked = await validate(candidate);
         if (checked && checked.status !== 'blocked') return { resume: candidate, review: checked, applied: true };
       }
@@ -26,7 +27,7 @@ export async function polishResumeSummary({ resume, review, source, targetTitle,
     const profile = result.profile.replace(/\s+/g, ' ').trim();
     if (!profile || profile.length > 700) return original;
     const candidate = { ...resume, profile };
-    if (reviewResumeSummary(candidate, source).length) return original;
+    if (reviewResumeProfile(candidate, source).length || !hasUsefulProfileContext(candidate, source)) return original;
     const checked = await validate(candidate);
     if (!checked || checked.status === 'blocked') return original;
     return { resume: candidate, review: checked, applied: true };

@@ -8,6 +8,7 @@ import {
 } from "./resumeModel.js";
 
 import { pendingApplicationConfirmations } from './applicationConfirmations.js';
+import { validateApplicationDocument } from './applicationDocumentContract.js';
 const EXPORT_AUTHORIZATION_TTL_MS = 5 * 60 * 1000;
 
 export function hasUsableResumeIdentity(value) {
@@ -41,7 +42,8 @@ export function deriveResumeReadinessState({
 export function getResumeExportReadiness(resumeData, atsReview) {
   const resumePackage = createResumePackage(resumeData, { atsReview });
   const missingIdentity = !hasUsableCandidateIdentity(resumePackage);
-  const integrityBlocked = atsReview?.integrity?.status === "blocked";
+  const contract = validateApplicationDocument({ kind: 'resume', document: resumePackage, assessment: atsReview });
+  const integrityBlocked = !contract.valid;
   const verifiedPosting = hasVerifiedPosting(atsReview);
   const requirementCount = Array.isArray(atsReview?.requirements) ? atsReview.requirements.length : 0;
   const coverageTotal = ["direct", "adjacent", "transferable", "missing"]
@@ -72,6 +74,7 @@ export function getResumeExportReadiness(resumeData, atsReview) {
     canExport: !missingIdentity && !integrityBlocked,
     integrityBlocked,
     missingIdentity,
+    contract,
     verifiedPosting,
     requirementsAnalyzed,
     applicationReady,
@@ -100,6 +103,7 @@ export function getResumeExportNotice(resumeData, atsReview) {
       message: "The current posting and evidence checks authorize a final DOCX or PDF export.",
     };
   }
+  if (readiness.contract.issues.some((issue) => issue.code === 'stale_assessment')) return { state: 'blocked', code: 'stale_assessment', title: 'Recheck this résumé before exporting', message: readiness.contract.issues.filter((issue) => issue.code === 'stale_assessment').map((issue) => issue.message).join(' ') };
   if (readiness.integrityBlocked) {
     return { state: "blocked", code: "integrity_blocked", title: "Export blocked — evidence needs correction", message: "Resolve the résumé evidence integrity issues and check the draft again before exporting." };
   }
@@ -137,6 +141,7 @@ export function getResumeExportNotice(resumeData, atsReview) {
 function assessmentSnapshot(atsReview = {}) {
   return {
     posting_readiness: atsReview?.posting_readiness || null,
+    document_contract: atsReview?.document_contract || (atsReview?.writing_review ? { version: 0, contentHash: null } : null),
     readiness: atsReview?.readiness || null,
     integrity: atsReview?.integrity || null,
     writing: atsReview?.writing || null,

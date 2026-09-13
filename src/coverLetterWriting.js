@@ -1,5 +1,5 @@
 import { coverLetterLengthPolicy } from "./coverLetterControls.js";
-import { editorialSentences, repeatsContribution } from "./resumeSummaryWriting.js";
+import { editorialSentences, repeatsContribution, editorialContentTokens } from "./resumeSummaryWriting.js";
 const words = (value) => String(value || "").trim().split(/\s+/).filter(Boolean);
 const FILLER = /\b(?:aligns? closely|provides? a practical basis|(?:this|these) (?:combination|strengths?) equips? me|disciplined approach|uniquely positioned|proven track record|(?:this|that) (?:experience|background|involvement) is (?:directly relevant|well suited)|equip(?:s)? me to drive|pair (?:that|this) .*discipline with)\b/i;
 const CLICHES = /\b(?:highly motivated|results[- ]driven|valuable asset|exceptional interpersonal skills|excellent communication skills|dynamic professional|extensive experience|stakeholder[- ]facing (?:technical and business )?expertise)\b/i;
@@ -7,6 +7,7 @@ const normalizedWords = (value) => words(String(value).toLowerCase().replace(/[^
 
 export function reviewEditorialText(text) {
   const issues = [];
+  if (/\b(?:no|not|without)\b[^.!?;]{0,65}\b(?:promise|guarantee)s?\b/i.test(text)) issues.push({ code: 'service_disclaimer', advice: 'Review this service disclaimer. Keep an agreed deadline or material qualification when relevant; omit a private statement about what is not promised if it adds no application value.' });
   if (/\b(?:this|that) (?:work|experience|background) (?:addresses|matches|meets|supports)\b[^.!?]{0,160}\b(?:your posting|job description|this position)\b/i.test(text)
     || /\bI would bring (?:that|this)\b[^.!?]{0,160}\b(?:work described|responsibilit(?:y|ies) (?:in|for)|listed in your)\b/i.test(text)
     || /\b(?:supporting|matching)\b[^.!?]{0,130}\b(?:work described in the posting|the role[’']s [^.!?]{0,65}responsibilities)\b/i.test(text)) {
@@ -15,7 +16,7 @@ export function reviewEditorialText(text) {
   if (/\b(?:this|that|these) (?:work|experience|responsibilities) (?:speaks? directly to|reflects?)\b[^.!?]{0,180}\b(?:your need|your posting|the role|work listed)\b/i.test(text)) issues.push({ code: "posting_echo", advice: "Cut the sentence announcing a match and retain the specific contribution. Add a distinct supported detail only when useful." });
   if (FILLER.test(text)) issues.push({ code: "generic_bridge", advice: "Cut the generic claim of relevance, or replace it with a specific connection supported by the example." });
   if (CLICHES.test(text)) issues.push({ code: "empty_self_description", advice: "Replace broad self-description with a specific responsibility, example, or supported result; otherwise omit it." });
-  if (String(text).split(/(?<=[.!?])\s+/).some((sentence) => words(sentence).length > 40)) issues.push({ code: "long_sentence", advice: "Split the long sentence around its principal contribution; retain the source's scope and qualifications." });
+  if (editorialSentences(text).some((sentence) => words(sentence).length > 40)) issues.push({ code: "long_sentence", advice: "Split the long sentence around its principal contribution; retain the source's scope and qualifications." });
   if (words(text).length > 35 && (String(text).match(/[,;|]/g) || []).length >= 7) issues.push({ code: "technical_inventory", advice: "Select the few tools or delivery activities that explain this example instead of listing the full inventory." });
   return issues;
 }
@@ -23,6 +24,11 @@ export function reviewEditorialText(text) {
 // Editorial advice is independent of evidence validation: it must never
 // authorize a claim or force a short, factual letter to grow filler.
 export function reviewCoverLetterWriting(paragraphs, length = "standard", { partial = false, existingDraft } = {}) {
+  if (partial && existingDraft?.paragraphs) {
+    const replacements = new Map((paragraphs || []).map((entry) => [entry.id, entry]));
+    const complete = reviewCoverLetterWriting(existingDraft.paragraphs.map((entry) => replacements.get(entry.id) || entry), length);
+    return { ...complete, issues: complete.issues.filter((issue) => replacements.has(issue.paragraphId) || ['letter_length', 'letter_structure'].includes(issue.code)) };
+  }
   const issues = [];
   const seen = new Map();
   const sentencesSeen = new Set();
@@ -33,10 +39,15 @@ export function reviewCoverLetterWriting(paragraphs, length = "standard", { part
     const count = words(text).length;
     wordCount += count;
     const add = (code, advice) => { if (!issues.some((issue) => issue.paragraphId === paragraph.id && issue.code === code)) issues.push({ paragraphId: paragraph.id, code, advice }); };
-    if (editorialSentences(text).slice(1).some((sentence) => /^(?:my|this|that) work (?:cent(?:er|re)s on|focuses on|involves|consists of|combines?|combined|brings? together|brought together)\b/i.test(sentence.trim()))) {
-      add("restated_work_description", "The example is followed by a generic description of the same work. Remove that restatement; keep a second sentence only for a distinct source-supported scope, constraint or outcome.");
+    if (editorialSentences(text).slice(1).some((sentence, index) => {
+      const prior = editorialSentences(text).slice(0, index + 1).join(' ');
+      const known = new Set(editorialContentTokens(prior));
+      return /^(?:my|this|that) work (?:cent(?:er|re)s on|focuses on|involves|consists of|combines?|combined|brings? together|brought together)\b/i.test(sentence.trim())
+        && [...new Set(editorialContentTokens(sentence))].filter((token) => known.has(token) && !['work', 'include', 'use'].includes(token)).length >= 2;
+    })) {
+      add("restated_work_description", "Check whether the following description repeats the example. Keep distinct source-supported scope, constraints or outcomes; remove it only if it adds no useful information.");
     }
-    if (paragraph.purpose === "opening" && /^(?:I(?: am|['’]m) (?:applying|writing)|I would like to apply|Please accept (?:my|this) application)\b/i.test(text.trim())) {
+    if (paragraph.purpose === "opening" && /^(?:I(?: am|['’]m) (?:applying (?:for|to)|writing to (?:apply|express|submit)|writing (?:regarding|in response to))|I would like to apply|Please accept (?:my|this) application)\b/i.test(text.trim())) {
       add("formulaic_opening", "Start with a relevant contribution, work setting or professional focus already supported by the cited evidence. The subject line identifies the application. Do not substitute enthusiasm, a stock hook or a list of every example in the body.");
     }
     if (paragraph.purpose === "opening") {
@@ -52,7 +63,7 @@ export function reviewCoverLetterWriting(paragraphs, length = "standard", { part
     }
     if (count > (paragraph.purpose === "closing" ? 45 : 95)) add("dense_paragraph", "Shorten this paragraph around one example; retain the candidate's contribution level.");
     for (const issue of reviewEditorialText(text)) add(issue.code, issue.advice);
-    for (const sentence of text.split(/(?<=[.!?])\s+/)) {
+    for (const sentence of editorialSentences(text)) {
       const descriptor = /^(?:[\p{L}-]+\s+){1,7}(?:with (?:experience|expertise|knowledge)|responsible for|specializing in|skilled in)\b/u.test(sentence.trim());
       if (descriptor && !/\b(?:I|we|is|are|was|were|has|have|brings?|leads?|works?|supports?)\b/i.test(sentence)) add("sentence_fragment", "Rewrite this résumé-style fragment as a complete first-person sentence about a supported contribution.");
       const tokens = normalizedWords(sentence);

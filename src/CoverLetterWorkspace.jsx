@@ -20,6 +20,7 @@ import {
   createCoverLetterSourceFingerprint,
   getCoverLetterReadiness,
   removeCoverLetterParagraph,
+  replaceCoverLetterParagraph,
   restoreCoverLetterParagraph,
   updateCoverLetterParagraph,
 } from "./coverLetterModel.js";
@@ -141,8 +142,7 @@ export function CoverLetterWorkspace({
       if (regenerateParagraph) {
         const replacement = raw.paragraphs?.[0];
         if (!replacement) throw new Error("The regenerated paragraph was incomplete.");
-        const combined = { ...plan, paragraphs: plan.paragraphs.map((entry) => entry.id === regenerateParagraph ? replacement : entry), ...settings };
-        persist(createCoverLetterPlan(combined, { ...context, ...settings }));
+        persist(replaceCoverLetterParagraph(plan, regenerateParagraph, replacement, { ...context, ...settings }));
         setMessage({ type: "info", text: "The paragraph was regenerated from the same verified evidence." });
       } else {
         persist(createCoverLetterPlan(raw, { ...context, ...settings }));
@@ -224,6 +224,7 @@ export function CoverLetterWorkspace({
 
       {plan && !requiresFreshDraft ? <p data-cover-letter-draft-settings style={{ color: C.textSub, fontSize: 12, lineHeight: 1.5 }}>
         Current draft: {COVER_LETTER_VOICES.find((option) => option.id === plan.voice)?.label} · {COVER_LETTER_LENGTHS.find((option) => option.id === plan.length)?.label} · {writingReview.wordCount} words.
+        {writingReview.issues.length ? " Writing suggestions are available in Edit letter." : " Review how well the letter makes your case; passing checks does not grade its quality."}
         {voice !== plan.voice || length !== plan.length ? " Your selections apply when you generate a fresh draft. Regenerating one paragraph keeps the current draft settings." : ""}
       </p> : null}
 
@@ -241,7 +242,7 @@ export function CoverLetterWorkspace({
 
       {plan && !requiresFreshDraft ? (
         <>
-          <div role={readiness.state === "blocked" ? "alert" : "status"} data-cover-letter-readiness={readiness.state} style={{ marginTop: 16, padding: "10px 12px", borderRadius: 10, border: `1px solid ${readiness.state === "application_ready" ? (C.greenBorder || C.green) : (C.amberBorder || C.amber)}`, background: readiness.state === "application_ready" ? (C.greenTint || "#f2fbf6") : (C.amberTint || "#fff8eb"), color: readiness.state === "application_ready" ? C.green : C.amber, fontSize: 12.5, lineHeight: 1.5 }}><strong>{readiness.state === "application_ready" ? "Application-ready" : readiness.state === "preliminary" ? "Preliminary" : "Export blocked"}</strong> · {readiness.message} This guidance is not included in the letter file.</div>
+          <div role={readiness.state === "blocked" ? "alert" : "status"} data-cover-letter-readiness={readiness.state} style={{ marginTop: 16, padding: "10px 12px", borderRadius: 10, border: `1px solid ${readiness.state === "application_ready" ? (C.greenBorder || C.green) : (C.amberBorder || C.amber)}`, background: readiness.state === "application_ready" ? (C.greenTint || "#f2fbf6") : (C.amberTint || "#fff8eb"), color: readiness.state === "application_ready" ? C.green : C.amber, fontSize: 12.5, lineHeight: 1.5 }}><strong>{readiness.state === "application_ready" ? "Document checks passed" : readiness.state === "preliminary" ? "Preliminary" : "Export blocked"}</strong> · {readiness.message} This guidance is not included in the letter file.</div>
           <div className="document-controls" role="group" aria-label="Cover letter view" style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 14 }}>
             {[["preview", "Preview"], ["edit", "Edit letter"], ["sources", "Sources and relevance"]].map(([mode, label]) => <button key={mode} type="button" aria-pressed={documentMode === mode} onClick={() => setDocumentMode(mode)} className="wl-btn" style={{ border: `1px solid ${C.border}`, borderRadius: 999, background: documentMode === mode ? C.blueTint : C.bgCard, color: C.text, padding: "9px 14px" }}>{label}</button>)}
           </div>

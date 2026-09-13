@@ -128,9 +128,9 @@ const context = {
   atsReview: { posting_readiness: { status: "reviewed_complete", fit_allowed: true, application_ready_allowed: true }, requirements: [{ id: "R1" }], coverage: { direct: 1 }, readiness: { status: "strong_fit" } },
 };
 const letter = { paragraphs: [
-  { id: "opening", text: "I led the Master Data team through testing.", evidence_refs: architect.bullets },
-  { id: "evidence", text: "I prepared functional specifications for Contract Accounts.", evidence_refs: designer.bullets },
-  { id: "closing", text: "I would welcome a conversation about the migration role." },
+  { id: "opening", purpose: 'opening', text: "I led the Master Data team through testing.", evidence_refs: architect.bullets, requirement_refs: ['Coordinate testing'] },
+  { id: "evidence", purpose: 'evidence', text: "I prepared functional specifications for Contract Accounts.", evidence_refs: designer.bullets, requirement_refs: ['Prepare functional specifications'] },
+  { id: "closing", purpose: 'closing', text: "I would welcome a conversation about the migration role." },
 ] };
 
 test("internal wording in a legacy letter is preserved for review but cannot be exported", () => {

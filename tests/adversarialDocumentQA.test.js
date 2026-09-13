@@ -144,7 +144,7 @@ test("QA conservative fallback preserves structured degrees and credentials inst
 
 test("QA long letter paragraphs export every line inside PDF page bounds", async () => {
   const longText = "W".repeat(2390) + "END";
-  const plan = createCoverLetterPlan({ ...qualityLetter, paragraphs: [{ id: "long", text: longText }, { id: "closing", text: "Thank you for considering my application." }] }, context);
+  const plan = createCoverLetterPlan({ ...qualityLetter, paragraphs: [{ id: "long", purpose: 'opening', text: longText, evidence_refs: [longText], requirement_refs: ['Document technical work'] }, { id: "closing", purpose: 'closing', text: "Thank you for considering my application." }] }, context);
   const blob = await createCoverLetterPdfBlob(createCoverLetterExportContext(plan, context));
   const task = getDocument({ data: new Uint8Array(await blob.arrayBuffer()) });
   const pdf = await task.promise;

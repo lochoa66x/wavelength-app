@@ -5,6 +5,7 @@ import { isPlaceholderIdentity } from "./resumeQuality.js";
 import { buildWritingReview } from "./resumeWriting.js";
 import { claimMeaningIssues, requirementEvidenceBoundary } from "../../src/documentIntegrity.js";
 import { pendingApplicationConfirmations } from "../../src/applicationConfirmations.js";
+import { validateApplicationDocument, resumeReviewedContentHash, DOCUMENT_CONTRACT_VERSION } from '../../src/applicationDocumentContract.js';
 
 function normalized(value) {
   return String(value || "")
@@ -727,7 +728,8 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
   if (keywords.length) score -= Math.round((missing_keywords.length / keywords.length) * 15);
   score = Math.max(0, Math.min(100, score));
 
-  const integrityBlocked = Boolean(
+  const documentContract = validateApplicationDocument({ kind: 'resume', document: resumeData });
+  const integrityBlocked = Boolean(!documentContract.valid ||
     unsupported_metrics.length
       || unsupported_history.length
       || missing_history.length
@@ -835,6 +837,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
 
   return {
     score,
+    document_contract: { version: DOCUMENT_CONTRACT_VERSION, contentHash: resumeReviewedContentHash(resumeData) },
     status,
     reverse_chronological,
     unsupported_metrics,

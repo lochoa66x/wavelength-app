@@ -1,0 +1,22 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtemp,readFile,writeFile} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import path from 'node:path';
+import {freezeEvaluation,recordEvaluationAttempt,summarizeEvaluation} from '../scripts/evaluationLedger.mjs';
+test('failed first attempts survive successful retries and unrun cases stay in denominator',async()=>{
+ const directory=await mkdtemp(path.join(tmpdir(),'gigscapes-evaluation-'));
+ const cases=Array.from({length:10},(_,i)=>({id:'F'+String(i+1).padStart(2,'0'),input:'synthetic ledger input '+i}));
+ await freezeEvaluation(directory,{cases,rubric:'rubric-v1',revision:'baseline',runId:'ledger-unit-test'});
+ await recordEvaluationAttempt(directory,{caseId:'F01',attempt:1,revision:'first',status:'failed',error:'provider failed'});
+ await assert.rejects(recordEvaluationAttempt(directory,{caseId:'F01',attempt:1,revision:'replacement',status:'completed'}),/EEXIST/);
+ await recordEvaluationAttempt(directory,{caseId:'F01',attempt:2,revision:'retest',status:'completed'});
+ const result=await summarizeEvaluation(directory);
+ assert.equal(result.denominator,10);assert.equal(result.completedFirstAttempts,0);
+ assert.equal(result.firstAttempts[0].error,'provider failed');assert.equal(result.retests.length,1);
+ assert.equal(result.firstAttempts.filter(r=>r.status==='not_run').length,9);
+ await assert.rejects(recordEvaluationAttempt(directory,{caseId:'F02',attempt:2,revision:'retest',status:'completed'}),/ENOENT/);
+ const manifest=JSON.parse(await readFile(path.join(directory,'manifest.json'),'utf8'));manifest.cases[0].input='changed';
+ await writeFile(path.join(directory,'manifest.json'),JSON.stringify(manifest));
+ await assert.rejects(recordEvaluationAttempt(directory,{caseId:'F02',attempt:1,revision:'first',status:'completed'}),/modified/);
+});

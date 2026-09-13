@@ -66,7 +66,7 @@ export function credentialEvidenceIssues(requirement, evidence) {
 function contextForExcerpt(excerpt, corpus) {
  let employer='';
  for(const line of String(corpus||'').split(/\r?\n/)){
-  const heading=line.match(/^(.+?)\s+[-–—]\s+(.+?)\s*[|]\s*.*(?:19|20)\d{2}/);
+  const heading=line.match(/^(.+?)\s+(?:[-–—]|\|)\s+(.+?)\s*[|]\s*.*(?:19|20)\d{2}/);
   if(heading)employer=heading[2].trim();
   else if(/^(?:education|(?:professional )?(?:training|certifications?)|languages|selected projects|core skills|professional summary)\s*$/i.test(line.trim()))employer='';
   if(normalize(line).includes(normalize(excerpt)))return employer;
@@ -113,7 +113,7 @@ export function candidateClaimIssues(proposed,sources=[],context={}) {
   for(const assertion of credentialClauses(credentialAssertion)){
    if(credentialMarker.test(assertion)&&['held','current'].includes(credentialStatus(assertion))&&/\b(?:I (?:also )?(?:hold|have|am|earned|obtained)|certified|certification|certificate|licen[cs]e|authorization)\b/i.test(assertion))issues.push(...credentialEvidenceIssues(assertion,facts.map(f=>f.text)));
   }
-  const namedEmployer=sentence.match(/\b(?:At|at)\s+([\p{Lu}][\p{L}\p{N}&.' -]{1,65}?)(?=,|\s+I\b|[.!?]?$)/u)?.[1]?.trim();
+  const namedEmployer=sentence.match(/\b(?:At|at)\s+([\p{Lu}][\p{L}\p{N}&.'’-]*(?:\s+(?:(?:and|of|the)\s+)?[\p{Lu}][\p{L}\p{N}&.'’-]*)*)/u)?.[1]?.trim().replace(/[.]$/, '');
   if(namedEmployer&&relevant.some(f=>f.employer)&&!relevant.some(f=>normalize(f.employer)===normalize(namedEmployer)||normalize(f.text).includes(normalize(namedEmployer))))issues.push('Keep this claim attached to the employer or project established by its cited evidence.');
  }
  return [...new Set(issues)];
