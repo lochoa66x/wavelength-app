@@ -107,12 +107,15 @@ export function candidateClaimIssues(proposed,sources=[],context={}) {
    const number=measure.number;
    // A compound sentence can cite several facts. Select a measured fact by its
    // own unit/rate and employer, not the other clause's larger word overlap.
-   // Percentages and unitless values still need the narrower lexical scope.
-   const numericFacts=measure.unit && measure.unit!=='percent' ? scored : relevant;
+   // Percentages and untyped values retain lexical scope. An explicit calendar
+   // year can belong to a separately cited project heading.
+   const calendarYear = !measure.unit && /^(?:19|20)\d{2}$/.test(measure.number) && new RegExp(`\\b(?:in|during|since|until|from)\\s+${measure.number}\\b`, 'i').test(sentence);
+   const numericFacts=(measure.unit && measure.unit!=='percent') || calendarYear ? scored : relevant;
    const matches=numericFacts.filter(f=>(!namedEmployer || !f.employer || normalize(f.employer)===normalize(namedEmployer) || normalize(f.text).includes(normalize(namedEmployer))) && f.measures.some(source=>sameQuantity(measure,source)));
    if(!matches.length){issues.push('A number or duration is not supported by this claim’s cited candidate evidence.');continue;}
    const shared = f => /\b(?:as part of|with|our|the)\s+(?:an?\s+)?(?:[a-z]+\s+)?(?:team|crew|assistant)\b|\bcombined total\b/i.test(f.text);
-   const sharedClaim = shared({text:sentence}) || /\btogether\b/i.test(sentence);
+   const sharedSubject = /\b(?:(?:an?|the|my|our)\s+)?(?:[a-z-]+\s+){0,3}(?:assistant|team|crew)\s+and\s+I\s+(?:have\s+)?(?:prepared|made|produced|created|completed|built|assembled)\b|\bI\s+and\s+(?:an?|the|my|our)\s+(?:[a-z-]+\s+){0,3}(?:assistant|team|crew)\s+(?:have\s+)?(?:prepared|made|produced|created|completed|built|assembled)\b/i.test(sentence);
+   const sharedClaim = shared({text:sentence}) || sharedSubject || /\btogether\b/i.test(sentence);
    if(matches.every(shared) && (/\b(?:independently|personally|single.hand(?:ed)?ly)\b/i.test(sentence) || (/\bI\s+(?:prepared|made|produced|created|completed|built|assembled)\b/i.test(sentence) && !sharedClaim)))issues.push('Preserve the team or crew attribution for this quantity.');
    const years=normalizeClaimNumbers(sentence).match(new RegExp(`\\b${number}\\s*(?:\\+\\s*)?years?\\b`,'i'));
    if(years&&!matches.some(f=>new RegExp(`\\b${number}\\s*(?:\\+\\s*)?years?\\b`,'i').test(normalizeClaimNumbers(f.text))))issues.push('The cited evidence does not establish the claimed years of experience.');

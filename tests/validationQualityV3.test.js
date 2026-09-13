@@ -68,6 +68,8 @@ for(const text of ['Design alterations needed the supervisor’s approval.','Des
  assert.ok(replaceCoverLetterParagraph(plan,'e',raw.paragraphs[1],context));
 });
 test('authority and supervision remain scoped to the same action',()=>{
+ assert.ok(workConditionIssues('The supervisor approved project budgets.',['The supervisor approved design changes.']).length);
+ assert.ok(workConditionIssues('The client approved design changes.',['The supervisor approved design changes.','The client approved project budgets.']).length);
  assert.ok(workConditionIssues('I repaired loose hems independently.',[supervised,'I independently labelled storage boxes.']).length);
  assert.ok(workConditionIssues('I repaired loose hems.',[supervised]).length);
  assert.deepEqual(workConditionIssues('I repaired loose hems under the supervisor’s direction.',[supervised]),[]);
@@ -150,4 +152,49 @@ test('authenticated opt-in evaluation response retains a failed draft without en
  assert.ok(result.body.evaluationReport.events[0].raw.paragraphs[1].text.includes('no approval'));
  assert.equal(result.body.evaluationReport.events.at(-1).status,'blocked');
  assert.equal('evaluationReport' in (await invoke([raw])).body,false);
+});
+
+test('captured floral first draft preserves shared credit with coordinated subjects',()=>{
+ const sources=['For one wedding, prepared 12 table arrangements with a freelance assistant; this quantity was the combined output.'];
+ for(const claim of ['For one wedding, a freelance assistant and I prepared 12 table arrangements in total.','For one wedding, I and a freelance assistant prepared 12 table arrangements in total.']) assert.deepEqual(claimMeaningIssues(claim,sources),[],claim);
+ assert.ok(claimMeaningIssues('For one wedding, I independently prepared 12 table arrangements.',sources).length);
+ assert.ok(claimMeaningIssues('For one wedding, a freelance assistant and I prepared 12 bouquets.',sources).length);
+});
+test('an explicit project year can be supported by the separately cited project heading',()=>{
+ const sources=['Courtyard Wedding | Independent client | 2025','Designed low table arrangements to preserve guests’ sightlines, using the client’s approved cream-and-green palette.'];
+ const claim='In 2025, I designed low table arrangements to preserve guests’ sightlines, using the client’s approved cream-and-green palette.';
+ assert.deepEqual(claimMeaningIssues(claim,sources),[]);
+ assert.ok(claimMeaningIssues(claim,[sources[1]]).length);
+ assert.ok(claimMeaningIssues(claim.replace('2025','2024'),sources).length);
+ assert.ok(claimMeaningIssues('I prepared 2025 table arrangements.',sources).length);
+});
+
+
+test('wardrobe work completion cannot change a diploma status in the next sentence', async () => {
+ const { academicStatusIssues } = await import('../src/academicClaims.js');
+ const { freshCareerCases } = await import('../evaluations/fresh-careers-v2.mjs');
+ const corpus = freshCareerCases[9].resume;
+ const profile = 'Theatre Wardrobe Assistant with practical experience preparing costume rails, supporting rehearsed quick changes, and completing hand-sewn minor repairs within wardrobe supervisor instructions. Fashion Techniques diploma graduate with student-production costume inventory experience.';
+ assert.deepEqual(academicStatusIssues(profile, [corpus]), []);
+ const document = {name:'Arthur Quinn',profile,education:[{degree:'Fashion Techniques diploma',institution:'Example Arts College',dates:'2022'}]};
+ assert.equal(validateApplicationDocument({kind:'resume',document,candidateCorpus:corpus}).valid,true);
+ assert.ok(academicStatusIssues('I am completing a Fashion Techniques diploma.',[corpus]).length);
+ assert.ok(academicStatusIssues('Fashion Techniques diploma graduate.',[corpus.replace('diploma |','diploma in progress |')]).length);
+ assert.deepEqual(academicStatusIssues('I completed repairs. I am pursuing a B.Sc. in Geography.',['B.Sc. in Geography | in progress']),[]);
+});
+
+test('every résumé contract blocker is counted and available to repairs and the review UI',async()=>{
+ const { resumeIssueCounts }=await import('../api/_lib/resumeSourceRepair.js');
+ const corpus=source+'\nEducation\nDiploma in Theatre Design | Cedar College | 2022';
+ const document={...resumeData,profile:'I am pursuing a Diploma in Theatre Design.',education:[{degree:'Diploma in Theatre Design',institution:'Cedar College',dates:'2022'}]};
+ const review=buildAtsReview(document,corpus,{keywords:[]});
+ assert.equal(review.integrity.status,'blocked');
+ assert.ok(review.contract_issues.some(issue=>issue.code==='academic_status'));
+ assert.ok(review.integrity.issue_count>=review.contract_issues.length);
+ assert.equal(resumeIssueCounts(review).contract_issues,review.contract_issues.length);
+ assert.equal(getResumeExportReadiness(document,review).canExport,false);
+ const valid={...document,profile:'I completed costume repairs. Diploma in Theatre Design graduate.'};
+ const validReview=buildAtsReview(valid,corpus,{keywords:[]});
+ assert.deepEqual(validReview.contract_issues,[]);
+ assert.equal(getResumeExportReadiness(valid,validReview).canExport,true);
 });

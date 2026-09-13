@@ -20,7 +20,7 @@ export function restoreCitedResumeBullets(resume, review) {
 }
 
 export function resumeIssueCounts(review) {
-  const fields = ["unsupported_metrics", "unsupported_history", "missing_history", "missing_qualifications", "unsupported_skills", "unsupported_projects", "unsupported_training", "unsupported_target_terms", "unsupported_positioning", "risky_claims", "provenance_issues"];
+  const fields = ["unsupported_metrics", "unsupported_history", "missing_history", "missing_qualifications", "unsupported_skills", "unsupported_projects", "unsupported_training", "unsupported_target_terms", "unsupported_positioning", "risky_claims", "provenance_issues", "contract_issues"];
   return Object.fromEntries(fields.map((field) => [field, Array.isArray(review?.[field]) ? review[field].length : 0]).concat([
     ["requirement_consistency", review?.requirement_consistency?.status === "blocked" ? 1 : 0],
     ["writing", review?.writing?.status === "blocked" ? 1 : 0],

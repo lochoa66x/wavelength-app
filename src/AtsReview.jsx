@@ -140,7 +140,8 @@ export function AtsReview({ review, C }) {
         <summary style={{ color: C.text, cursor: "pointer", fontSize: 12.5, fontWeight: 750 }}>
           Detailed document checks
         </summary>
-      <StatusRow label="Evidence integrity" value={integrityPass ? "Pass" : "Blocked"} detail={integrity.issue_count ? `${integrity.issue_count} unsupported claim${integrity.issue_count === 1 ? "" : "s"}` : "No unsupported history, numbers, skills, projects, training, or positioning detected"} ok={integrityPass} C={C} />
+      <StatusRow label="Evidence integrity" value={integrityPass ? "Pass" : "Blocked"} detail={integrity.issue_count ? `${integrity.issue_count} evidence issue${integrity.issue_count === 1 ? "" : "s"} to resolve` : integrityPass ? "No unsupported history, numbers, skills, projects, training, or positioning detected" : "This draft needs a fresh evidence review before export."} ok={integrityPass} C={C} />
+      {review.contract_issues?.length > 0 && <ul aria-label="Document validation issues" style={{ color: C.red, fontSize: 12, lineHeight: 1.5, paddingLeft: 20 }}>{review.contract_issues.map((issue, index) => <li key={`${issue.code}-${index}`}>{issue.message}</li>)}</ul>}
       <StatusRow label="Candidate identity" value={identity.status === "complete" ? "Complete" : "Missing"} detail={identity.reason} ok={identity.status === "complete"} C={C} />
       {materialSafetyFallback ? (
         <div role="status" style={{ margin: "12px 0 4px", padding: "10px 12px", borderRadius: 10, background: C.amberTint, border: `1px solid ${C.amberBorder}`, color: C.textSub, fontSize: 12, lineHeight: 1.5 }}>

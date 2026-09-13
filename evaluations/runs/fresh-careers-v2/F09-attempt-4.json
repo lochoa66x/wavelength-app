@@ -1,0 +1,33 @@
+{
+  "caseId": "F09",
+  "attempt": 4,
+  "revision": "5bbaf09529681a17306c9bc791f0db91dedf9b34",
+  "status": "completed",
+  "startedAt": "2026-09-13T20:44:51.838Z",
+  "finishedAt": "2026-09-13T20:46:58.633Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F09-letter.docx",
+      "downloadName": "Sophie-Diallo-Freelance-Floral-Designer-cover-letter.docx",
+      "sha256": "66e6d371e67f38f0d02414124a377478296fc0f73f876621e3c54f3e9ac762d6"
+    },
+    {
+      "filename": "F09-letter.pdf",
+      "downloadName": "Sophie-Diallo-Freelance-Floral-Designer-cover-letter.pdf",
+      "sha256": "e37e57721bf2b9221898a33d03f05dd087ebd73f102273a86ab3446b296f27e2"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "documentScope": "cover-letter-only",
+  "artifactDirectory": "tmp/validation-fixes-v3-live-2026-09-13/diagnostic",
+  "firstProviderDraftPassed": false,
+  "builtinRepairApplied": true,
+  "capturedFinding": "Valid coordinated subject (a freelance assistant and I) incorrectly rejected as missing shared credit.",
+  "quality": "Exportable; editorial review still needed. Not an independently scored new cohort.",
+  "recordedAt": "2026-09-13T20:50:25.870Z",
+  "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+}

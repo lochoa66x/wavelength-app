@@ -860,6 +860,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
     unsupported_positioning: semantic.unsupported_positioning,
     risky_claims: semantic.risky_claims,
     provenance_issues,
+    contract_issues: documentContract.issues,
     requirement_consistency: requirementConsistency,
     verb_issues,
     tense_issues,
@@ -867,7 +868,7 @@ export function buildAtsReview(resumeData, baseResume, jobBrief, options = {}) {
     missing_keywords,
     integrity: {
       status: integrityBlocked ? "blocked" : "pass",
-      issue_count: unsupported_metrics.length
+      issue_count: documentContract.issues.length + unsupported_metrics.length
         + unsupported_history.length
         + missing_history.length
         + missing_qualifications.length

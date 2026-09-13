@@ -1,0 +1,16 @@
+{
+  "caseId": "F10",
+  "attempt": 2,
+  "revision": "5bbaf09529681a17306c9bc791f0db91dedf9b34",
+  "status": "partial",
+  "documentScope": "resume-and-cover-letter",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "artifacts": [],
+  "artifactDirectory": "tmp/validation-fixes-v3-live-2026-09-13/wardrobe",
+  "finding": "Resume integrity blocked with zero visible issues. Reproduced academic validator applying completing minor repairs in the first sentence to diploma graduate in the next. Blocking contract issues were absent from UI counts and provider repair payload. Matching letter export correctly inherited the resume block.",
+  "rawLetterReport": "F10-generation-report.json",
+  "quality": "Letter has 68 words and largely repeats duties; editorial review still needed. No new cohort quality score.",
+  "recordedAt": "2026-09-13T21:05:24.677Z",
+  "corpusHash": "3986edb855803398cc7b4d416e5c55430928319b0539b7bdd9fa5296aecd0273"
+}

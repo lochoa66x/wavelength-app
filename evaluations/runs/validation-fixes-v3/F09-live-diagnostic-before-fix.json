@@ -1,0 +1,392 @@
+{
+  "version": 1,
+  "events": [
+    {
+      "version": 1,
+      "requestId": "fd98c788-860d-430f-915a-9d1da35c1c6a",
+      "documentKind": "cover-letter",
+      "sequence": 1,
+      "stage": "first_draft",
+      "raw": {
+        "salutation": "Dear Hiring Team,",
+        "paragraphs": [
+          {
+            "id": "p1",
+            "purpose": "opening",
+            "text": "In my self-employed floral design work, I have prepared bouquets and table arrangements from client-approved colour palettes, flower lists, and spending limits. For one wedding, a freelance assistant and I prepared 12 table arrangements in total.",
+            "evidence_refs": [
+              "C3",
+              "C4",
+              "C5"
+            ],
+            "requirement_refs": [
+              "P3",
+              "P5",
+              "P8"
+            ],
+            "explanation": "Highlights direct experience preparing arrangements to approved palettes, flower lists, and spending limits, with a clearly stated wedding quantity.",
+            "evidence_match": "direct"
+          },
+          {
+            "id": "p2",
+            "purpose": "evidence",
+            "text": "I checked stem condition on delivery and confirmed substitutions with the client before changing an agreed flower list.",
+            "evidence_refs": [
+              "C6"
+            ],
+            "requirement_refs": [
+              "P4"
+            ],
+            "explanation": "Highlights direct substitution planning and client-approval practice before a design change.",
+            "evidence_match": "direct"
+          },
+          {
+            "id": "p3",
+            "purpose": "closing",
+            "text": "I welcome the opportunity to discuss the floral arrangements in my portfolio.",
+            "evidence_refs": [
+              "C12"
+            ],
+            "requirement_refs": [
+              "P7"
+            ],
+            "explanation": "Points to the verified portfolio as a direct response to the portfolio requirement.",
+            "evidence_match": "direct"
+          }
+        ],
+        "signoff": "Sincerely,"
+      },
+      "document": {
+        "salutation": "Dear Hiring Team,",
+        "paragraphs": [
+          {
+            "id": "p1",
+            "purpose": "opening",
+            "text": "In my self-employed floral design work, I have prepared bouquets and table arrangements from client-approved colour palettes, flower lists, and spending limits. For one wedding, a freelance assistant and I prepared 12 table arrangements in total.",
+            "evidence_refs": [
+              "Freelance Floral Designer | Self-employed | 2022 - 2026",
+              "Prepared bouquets and table arrangements from client-approved colour palettes, flower lists and spending limits.",
+              "For one wedding, prepared 12 table arrangements with a freelance assistant; this quantity was the combined output."
+            ],
+            "requirement_refs": [
+              "Prepare event arrangements from agreed palettes and flower lists",
+              "Coordinate arrangement quantities and collection details",
+              "Experience working to client-approved designs and spending limits"
+            ],
+            "explanation": "Highlights direct experience preparing arrangements to approved palettes, flower lists, and spending limits, with a clearly stated wedding quantity.",
+            "evidence_match": "direct"
+          },
+          {
+            "id": "p2",
+            "purpose": "evidence",
+            "text": "I checked stem condition on delivery and confirmed substitutions with the client before changing an agreed flower list.",
+            "evidence_refs": [
+              "Checked stem condition on delivery and confirmed substitutions with the client before changing the agreed flower list."
+            ],
+            "requirement_refs": [
+              "Confirm substitutions before changing the design"
+            ],
+            "explanation": "Highlights direct substitution planning and client-approval practice before a design change.",
+            "evidence_match": "direct"
+          },
+          {
+            "id": "p3",
+            "purpose": "closing",
+            "text": "I welcome the opportunity to discuss the floral arrangements in my portfolio.",
+            "evidence_refs": [
+              "https://example.com/sophie-flowers"
+            ],
+            "requirement_refs": [
+              "Portfolio of floral arrangements"
+            ],
+            "explanation": "Points to the verified portfolio as a direct response to the portfolio requirement.",
+            "evidence_match": "direct"
+          }
+        ],
+        "signoff": "Sincerely,",
+        "length": "standard"
+      },
+      "issues": [
+        "p1: Preserve the team or crew attribution for this quantity."
+      ],
+      "writing": [],
+      "candidateCatalog": [
+        {
+          "id": "C1",
+          "excerpt": "Sophie Diallo"
+        },
+        {
+          "id": "C2",
+          "excerpt": "f09.v2@example.com | Hamilton, Ontario"
+        },
+        {
+          "id": "C3",
+          "excerpt": "Freelance Floral Designer | Self-employed | 2022 - 2026"
+        },
+        {
+          "id": "C4",
+          "excerpt": "Prepared bouquets and table arrangements from client-approved colour palettes, flower lists and spending limits."
+        },
+        {
+          "id": "C5",
+          "excerpt": "For one wedding, prepared 12 table arrangements with a freelance assistant; this quantity was the combined output."
+        },
+        {
+          "id": "C6",
+          "excerpt": "Checked stem condition on delivery and confirmed substitutions with the client before changing the agreed flower list."
+        },
+        {
+          "id": "C7",
+          "excerpt": "Retail Florist Assistant | Example Bloom Shop | 2020 - 2022"
+        },
+        {
+          "id": "C8",
+          "excerpt": "Conditioned cut flowers, wrapped bouquets and recorded collection times."
+        },
+        {
+          "id": "C9",
+          "excerpt": "Training"
+        },
+        {
+          "id": "C10",
+          "excerpt": "Floral Design certificate | Example Design School | 2022"
+        },
+        {
+          "id": "C11",
+          "excerpt": "Portfolio"
+        },
+        {
+          "id": "C12",
+          "excerpt": "https://example.com/sophie-flowers"
+        },
+        {
+          "id": "C13",
+          "excerpt": "Selected Projects"
+        },
+        {
+          "id": "C14",
+          "excerpt": "Courtyard Wedding | Independent client | 2025"
+        },
+        {
+          "id": "C15",
+          "excerpt": "Designed low table arrangements to preserve guests’ sightlines, using the client’s approved cream-and-green palette."
+        },
+        {
+          "id": "C16",
+          "excerpt": "Floral conditioning; client approvals; table arrangements; substitution planning"
+        },
+        {
+          "id": "C17",
+          "excerpt": "No additional candidate-confirmed notes were supplied."
+        }
+      ],
+      "postingCatalog": [
+        {
+          "id": "P1",
+          "excerpt": "Example Celebration Flowers seeks a freelance floral designer to support preparation and coordination of event arrangements."
+        },
+        {
+          "id": "P2",
+          "excerpt": "Responsibilities:"
+        },
+        {
+          "id": "P3",
+          "excerpt": "Prepare event arrangements from agreed palettes and flower lists"
+        },
+        {
+          "id": "P4",
+          "excerpt": "Confirm substitutions before changing the design"
+        },
+        {
+          "id": "P5",
+          "excerpt": "Coordinate arrangement quantities and collection details"
+        },
+        {
+          "id": "P6",
+          "excerpt": "Required qualifications:"
+        },
+        {
+          "id": "P7",
+          "excerpt": "Portfolio of floral arrangements"
+        },
+        {
+          "id": "P8",
+          "excerpt": "Experience working to client-approved designs and spending limits"
+        },
+        {
+          "id": "P9",
+          "excerpt": "Keywords:"
+        },
+        {
+          "id": "P10",
+          "excerpt": "event arrangements"
+        },
+        {
+          "id": "P11",
+          "excerpt": "agreed palettes"
+        },
+        {
+          "id": "P12",
+          "excerpt": "flower lists"
+        },
+        {
+          "id": "P13",
+          "excerpt": "client-approved designs"
+        },
+        {
+          "id": "P14",
+          "excerpt": "spending limits"
+        },
+        {
+          "id": "P15",
+          "excerpt": "floral arrangements"
+        }
+      ]
+    },
+    {
+      "version": 1,
+      "requestId": "fd98c788-860d-430f-915a-9d1da35c1c6a",
+      "documentKind": "cover-letter",
+      "sequence": 2,
+      "stage": "repair",
+      "raw": {
+        "salutation": "Dear Hiring Team,",
+        "paragraphs": [
+          {
+            "id": "p1",
+            "purpose": "opening",
+            "text": "In my self-employed floral design work, I prepared bouquets and table arrangements from client-approved colour palettes, flower lists, and spending limits. For one wedding, I prepared 12 table arrangements with a freelance assistant; that quantity was our combined output.",
+            "evidence_refs": [
+              "C3",
+              "C4",
+              "C5"
+            ],
+            "requirement_refs": [
+              "P3",
+              "P5",
+              "P8"
+            ],
+            "explanation": "Highlights direct experience preparing arrangements to client-approved palettes, flower lists, and spending limits, while preserving the shared attribution for the wedding quantity.",
+            "evidence_match": "direct"
+          }
+        ],
+        "signoff": "Sincerely,"
+      },
+      "merged": {
+        "salutation": "Dear Hiring Team,",
+        "paragraphs": [
+          {
+            "id": "p1",
+            "purpose": "opening",
+            "text": "In my self-employed floral design work, I prepared bouquets and table arrangements from client-approved colour palettes, flower lists, and spending limits. For one wedding, I prepared 12 table arrangements with a freelance assistant; that quantity was our combined output.",
+            "evidence_refs": [
+              "C3",
+              "C4",
+              "C5"
+            ],
+            "requirement_refs": [
+              "P3",
+              "P5",
+              "P8"
+            ],
+            "explanation": "Highlights direct experience preparing arrangements to client-approved palettes, flower lists, and spending limits, while preserving the shared attribution for the wedding quantity.",
+            "evidence_match": "direct"
+          },
+          {
+            "id": "p2",
+            "purpose": "evidence",
+            "text": "I checked stem condition on delivery and confirmed substitutions with the client before changing an agreed flower list.",
+            "evidence_refs": [
+              "Checked stem condition on delivery and confirmed substitutions with the client before changing the agreed flower list."
+            ],
+            "requirement_refs": [
+              "Confirm substitutions before changing the design"
+            ],
+            "explanation": "Highlights direct substitution planning and client-approval practice before a design change.",
+            "evidence_match": "direct"
+          },
+          {
+            "id": "p3",
+            "purpose": "closing",
+            "text": "I welcome the opportunity to discuss the floral arrangements in my portfolio.",
+            "evidence_refs": [
+              "https://example.com/sophie-flowers"
+            ],
+            "requirement_refs": [
+              "Portfolio of floral arrangements"
+            ],
+            "explanation": "Points to the verified portfolio as a direct response to the portfolio requirement.",
+            "evidence_match": "direct"
+          }
+        ],
+        "signoff": "Sincerely,",
+        "length": "standard"
+      },
+      "issues": [],
+      "writing": []
+    },
+    {
+      "version": 1,
+      "requestId": "fd98c788-860d-430f-915a-9d1da35c1c6a",
+      "documentKind": "cover-letter",
+      "sequence": 3,
+      "stage": "outcome",
+      "status": "accepted",
+      "document": {
+        "salutation": "Dear Hiring Team,",
+        "paragraphs": [
+          {
+            "id": "p1",
+            "purpose": "opening",
+            "text": "In my self-employed floral design work, I prepared bouquets and table arrangements from client-approved colour palettes, flower lists, and spending limits. For one wedding, I prepared 12 table arrangements with a freelance assistant; that quantity was our combined output.",
+            "evidence_refs": [
+              "Freelance Floral Designer | Self-employed | 2022 - 2026",
+              "Prepared bouquets and table arrangements from client-approved colour palettes, flower lists and spending limits.",
+              "For one wedding, prepared 12 table arrangements with a freelance assistant; this quantity was the combined output."
+            ],
+            "requirement_refs": [
+              "Prepare event arrangements from agreed palettes and flower lists",
+              "Coordinate arrangement quantities and collection details",
+              "Experience working to client-approved designs and spending limits"
+            ],
+            "explanation": "Highlights direct experience preparing arrangements to client-approved palettes, flower lists, and spending limits, while preserving the shared attribution for the wedding quantity.",
+            "evidence_match": "direct"
+          },
+          {
+            "id": "p2",
+            "purpose": "evidence",
+            "text": "I checked stem condition on delivery and confirmed substitutions with the client before changing an agreed flower list.",
+            "evidence_refs": [
+              "Checked stem condition on delivery and confirmed substitutions with the client before changing the agreed flower list."
+            ],
+            "requirement_refs": [
+              "Confirm substitutions before changing the design"
+            ],
+            "explanation": "Highlights direct substitution planning and client-approval practice before a design change.",
+            "evidence_match": "direct"
+          },
+          {
+            "id": "p3",
+            "purpose": "closing",
+            "text": "I welcome the opportunity to discuss the floral arrangements in my portfolio.",
+            "evidence_refs": [
+              "https://example.com/sophie-flowers"
+            ],
+            "requirement_refs": [
+              "Portfolio of floral arrangements"
+            ],
+            "explanation": "Points to the verified portfolio as a direct response to the portfolio requirement.",
+            "evidence_match": "direct"
+          }
+        ],
+        "signoff": "Sincerely,",
+        "length": "standard"
+      },
+      "issues": [],
+      "writing": [],
+      "firstDraftIntegrityPass": false,
+      "repairApplied": true,
+      "editorialStatus": "rejected_validation"
+    }
+  ]
+}

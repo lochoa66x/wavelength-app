@@ -382,10 +382,15 @@ RULES
         editorial = await reviewContent({
           kind: 'cover-letter', document: validation.letter, source: candidateCorpus, posting: postingCorpus,
           contactLinks: resumeProfessionalLinks(resume).map(link => link.url),
-          generate: editorialPrompt => callAI({ ...providerOptions, prompt: editorialPrompt, tool: contentReviewTool(LETTER_TOOL.input_schema), timeoutMs: 25_000, maxTokens: 4_000 }),
+          generate: async editorialPrompt => {
+            const result = await callAI({ ...providerOptions, prompt: editorialPrompt, tool: contentReviewTool(LETTER_TOOL.input_schema), timeoutMs: 25_000, maxTokens: 4_000 });
+            await capture('editorial_draft', { raw: result });
+            return result;
+          },
           validate: async document => {
             const checked = validateLetter({ ...document, length }, validationContext);
             const advice = reviewCoverLetterWriting(checked.letter.paragraphs, length, writingOptions);
+            await capture('editorial_validation', { document: checked.letter, issues: checked.issues, writing: advice.issues });
             return { valid: !checked.issues.length && advice.issues.length <= writing.issues.length, document: checked.letter, validation: checked };
           },
         });

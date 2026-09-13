@@ -485,11 +485,13 @@ function resumeValidationIssues(atsReview) {
     unsupported_positioning: atsReview.unsupported_positioning,
     risky_claims: atsReview.risky_claims,
     provenance_issues: atsReview.provenance_issues,
+    contract_issues: atsReview.contract_issues || [],
     requirement_consistency: atsReview.requirement_consistency,
   };
 }
 
 function employerFacingResumeIsSafe(atsReview) {
+  if (atsReview.integrity?.status === "blocked") return false;
   return [
     atsReview.unsupported_metrics,
     atsReview.unsupported_history,

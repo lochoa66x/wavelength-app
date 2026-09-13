@@ -58,7 +58,10 @@ export function workConditionIssues(proposed, sources = []) {
   const issues = [];
   for (const condition of claimed) {
     const matching = established.filter(source => source.kind === condition.kind && matchedObject(source.object, condition.object));
-    if (!matching.length) continue;
+    if (!matching.length) {
+      if (established.some(source => source.kind === condition.kind)) issues.push('The cited approval or supervision applies to different work. Cite the condition for this action.');
+      continue;
+    }
     if (!matching.some(source => source.required === condition.required)) issues.push('Preserve whether this work required approval or supervision; the proposed condition contradicts its cited evidence.');
     else if (!matching.some(source => source.required === condition.required && sameActor(source.actor, condition.actor))) issues.push('Keep approval or supervision with the person established by this action’s cited evidence.');
   }
