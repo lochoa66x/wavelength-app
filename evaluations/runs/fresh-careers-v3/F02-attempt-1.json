@@ -1,0 +1,57 @@
+{
+  "caseId": "F02",
+  "attempt": 1,
+  "revision": "90c85f4a0a936eb8f28b48f1de210290c4c0cf6c",
+  "status": "completed",
+  "startedAt": "2026-09-13T23:09:06.565Z",
+  "finishedAt": "2026-09-13T23:11:22.629Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F02-letter.docx",
+      "downloadName": "Noah-Iqbal-Payroll-Clerk-cover-letter.docx",
+      "sha256": "c34dba53129c1cf8a91ee0b311bf866d935e3c532d8289bc490e43ccc074d8f7"
+    },
+    {
+      "filename": "F02-letter.pdf",
+      "downloadName": "Noah-Iqbal-Payroll-Clerk-cover-letter.pdf",
+      "sha256": "111b2c7139d1e439db2ca0fe00e98f8ddc46067ebcc5bce744f1e8a04ea7f68d"
+    },
+    {
+      "filename": "F02-resume.docx",
+      "downloadName": "Noah-Iqbal-Payroll-Clerk-Excel-Reconciliation.docx",
+      "sha256": "5b060cdb8a39bf71e9111dc046e70bcd58cd9d0b24f10f61de537d7146f15b36"
+    },
+    {
+      "filename": "F02-resume.pdf",
+      "downloadName": "Noah-Iqbal-Payroll-Clerk-Excel-Reconciliation.pdf",
+      "sha256": "98918be668149947b5ae2911888fa4a079685a9880af95967055c239ea02f163"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "artifactDirectory": "tmp/useful-writing-v4-live-2026-09-13",
+  "documentScope": "resume-and-cover-letter",
+  "resumeFirstIntegrity": {
+    "status": "blocked",
+    "issue_count": 4
+  },
+  "resumeFirstContractIssues": [],
+  "resumeDraftAttempts": 2,
+  "resumeEditorialStatus": {
+    "status": "kept",
+    "review_needed": false,
+    "issues": []
+  },
+  "letterFirstIntegrityPass": true,
+  "letterRepairApplied": false,
+  "letterEditorialStatus": "kept",
+  "rawReports": {
+    "resume": true,
+    "letter": true
+  },
+  "recordedAt": "2026-09-13T23:13:31.777Z",
+  "corpusHash": "274eeb27f925ac092a0635aa2b47873fa208c61f227068b81e83054cc7c6410a"
+}

@@ -1,3 +1,4 @@
+import { RESUME_SUMMARY_INSTRUCTIONS } from '../src/resumeSummaryWriting.js';
 // Editorial judgement has its own production-path tests; these fixtures isolate the named validation/repair behaviour.
 const skipContentReview = async ({ document }) => ({ document, applied: false, status: "not_tested_here" });
 import test from "node:test";
@@ -239,6 +240,7 @@ test("tailoring loads the trusted listing by id and ignores a caller URL", async
 
   const anthropicBody = JSON.parse(anthropicRequest.options.body);
   const prompt = anthropicBody.messages[0].content;
+  assert.equal(anthropicBody.tools[0].input_schema.properties.profile.description, RESUME_SUMMARY_INSTRUCTIONS);
   assert.equal(loadedId, 42);
   assert.equal(anthropicRequest.url, "https://api.anthropic.com/v1/messages");
   assert.match(prompt, /Trusted stored description/);
@@ -297,6 +299,7 @@ test("tailoring accepts a reviewed custom job without loading a database listing
   };
   await handler(request, res);
 
+  assert.equal(anthropicRequest.tools[0].input_schema.properties.profile.description, RESUME_SUMMARY_INSTRUCTIONS);
   assert.equal(loadCalled, false);
   assert.equal(res.statusCode, 200);
   assert.notEqual(res.body.ats_review.status, "blocked");

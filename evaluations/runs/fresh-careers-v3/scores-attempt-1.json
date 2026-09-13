@@ -1,0 +1,699 @@
+{
+  "reviewer": "Agent rubric review; not human/recruiter calibrated",
+  "revision": "90c85f4a0a936eb8f28b48f1de210290c4c0cf6c",
+  "attempt": 1,
+  "counts": {
+    "denominator": 10,
+    "completed": 10,
+    "resumeFirstIntegrityPassed": 3,
+    "resumeAutomaticRepair": 7,
+    "letterFirstIntegrityPassed": 9,
+    "resumeQualityPassed": 5,
+    "resumeEvidenceAndQualityPassed": 4,
+    "letterQualityPassed": 9,
+    "pairsAccepted": 3,
+    "resumeEvidenceFailures": 2
+  },
+  "rows": [
+    {
+      "caseId": "F01",
+      "resume": {
+        "evidence": "pass",
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "excerpt": "control-panel assembly",
+            "reason": "Directly addresses supervised panel assembly and drawing work."
+          },
+          "useful_detail": {
+            "score": 3,
+            "excerpt": "supervising electrician controls energization and signs the test sheet",
+            "reason": "Preserves the useful boundary between taking readings and authorizing work."
+          },
+          "document_purpose": {
+            "score": 2,
+            "excerpt": "drawing-based control-panel assembly, drawing revision checks, and test recordkeeping",
+            "reason": "Profile mostly inventories the same three experience duties; certificate provides some context."
+          },
+          "selection": {
+            "score": 3,
+            "excerpt": "Checked terminal labels against the drawing revision",
+            "reason": "Relevant experience is easy to find; the two-sentence profile repeats much of it."
+          },
+          "natural_writing": {
+            "score": 2,
+            "excerpt": "2023–2026 workshop experience",
+            "reason": "A date-range phrase and long skill list make the profile feel assembled rather than natural."
+          }
+        },
+        "total": 14,
+        "qualityPass": false
+      },
+      "letter": {
+        "evidence": "pass",
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "excerpt": "assembled control-panel backplates",
+            "reason": "Directly supports the advertised supervised assembly work."
+          },
+          "useful_detail": {
+            "score": 3,
+            "excerpt": "before enclosure handover",
+            "reason": "Gives a concrete checkpoint and retains supervisory authorization."
+          },
+          "document_purpose": {
+            "score": 2,
+            "excerpt": "I also recorded continuity-test readings",
+            "reason": "Focused, but the body still follows the source duty inventory more than developing one example."
+          },
+          "selection": {
+            "score": 3,
+            "excerpt": "marked discrepancies for the supervising electrician",
+            "reason": "Useful detail is selected without unrelated background."
+          },
+          "natural_writing": {
+            "score": 3,
+            "excerpt": "I checked terminal labels against the drawing revision",
+            "reason": "Clear personal prose; the conventional close is acceptable and earns no novelty bonus."
+          }
+        },
+        "total": 15,
+        "qualityPass": true
+      },
+      "pairAccepted": false
+    },
+    {
+      "caseId": "F02",
+      "resume": {
+        "evidence": "pass",
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "excerpt": "Payroll Clerk",
+            "reason": "Correct profession and payroll focus."
+          },
+          "useful_detail": {
+            "score": 4,
+            "excerpt": "fortnightly timesheet imports for 85 employees",
+            "reason": "Retains frequency, scale, exception handling and the manager’s final authorization."
+          },
+          "document_purpose": {
+            "score": 3,
+            "excerpt": "experienced in care administration",
+            "reason": "Profile gives role and setting with a compact reconciliation focus rather than retelling the entire workflow."
+          },
+          "selection": {
+            "score": 3,
+            "excerpt": "Kept a dated exception log",
+            "reason": "Exception control is prominent, although the experience order is less natural than imports then reconciliation."
+          },
+          "natural_writing": {
+            "score": 3,
+            "excerpt": "referred pay-rate changes to the payroll manager",
+            "reason": "Precise and readable responsibility boundary."
+          }
+        },
+        "total": 17,
+        "qualityPass": true
+      },
+      "letter": {
+        "evidence": "pass",
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "excerpt": "fortnightly timesheet imports for 85 employees",
+            "reason": "Selects the job’s central payroll preparation requirement."
+          },
+          "useful_detail": {
+            "score": 4,
+            "excerpt": "unresolved entries remained visible at the next payroll review",
+            "reason": "Explains why the exception log matters while retaining final authorization."
+          },
+          "document_purpose": {
+            "score": 3,
+            "excerpt": "reconcile imported hours with the approved roster",
+            "reason": "Connects imports, checks and exception handling into a relevant process."
+          },
+          "selection": {
+            "score": 3,
+            "excerpt": "the manager authorized the final run",
+            "reason": "Retains essential limits and excludes the weaker invoice example."
+          },
+          "natural_writing": {
+            "score": 2,
+            "excerpt": "timesheet imports, reconciliations, and exception tracking",
+            "reason": "The close repeats the body as a list; otherwise clear."
+          }
+        },
+        "total": 16,
+        "qualityPass": true
+      },
+      "pairAccepted": true
+    },
+    {
+      "caseId": "F03",
+      "resume": {
+        "evidence": "pass",
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "excerpt": "Production Baker",
+            "reason": "Role and bread-production evidence directly fit the posting."
+          },
+          "useful_detail": {
+            "score": 4,
+            "excerpt": "120 loaves per shift with another baker",
+            "reason": "Preserves the combined oven output and written proofing limits."
+          },
+          "document_purpose": {
+            "score": 1,
+            "excerpt": "preparing sourdough dough from a head baker’s formula and maintaining batch records",
+            "reason": "Profile retells the first source bullet rather than establishing a distinct professional focus."
+          },
+          "selection": {
+            "score": 3,
+            "excerpt": "Adjusted proofing time within the head baker’s written limits",
+            "reason": "Strong detail is accessible; résumé space is duplicated by the profile."
+          },
+          "natural_writing": {
+            "score": 3,
+            "excerpt": "when the recorded dough temperature changed",
+            "reason": "Natural and concrete condition; no invented productivity claim."
+          }
+        },
+        "total": 15,
+        "qualityPass": false
+      },
+      "letter": {
+        "evidence": "pass",
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "excerpt": "prepared sourdough dough from the head baker’s formula",
+            "reason": "Directly addresses formula-based bread preparation."
+          },
+          "useful_detail": {
+            "score": 4,
+            "excerpt": "When the recorded dough temperature changed",
+            "reason": "Develops the useful condition and the candidate’s permitted adjustment."
+          },
+          "document_purpose": {
+            "score": 3,
+            "excerpt": "I adjusted proofing time within the head baker’s written limits",
+            "reason": "Shows a focused work process rather than merely listing bread skills."
+          },
+          "selection": {
+            "score": 3,
+            "excerpt": "kept labelled allergen containers separate",
+            "reason": "Second example contributes distinct food-handling evidence."
+          },
+          "natural_writing": {
+            "score": 3,
+            "excerpt": "I also completed a Food Handling course in 2024",
+            "reason": "Plain, proportionate support; no inflated credential status."
+          }
+        },
+        "total": 17,
+        "qualityPass": true
+      },
+      "pairAccepted": false
+    },
+    {
+      "caseId": "F04",
+      "resume": {
+        "evidence": "pass",
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "excerpt": "Archive Collections Assistant",
+            "reason": "Makes the appropriate collections focus immediately clear."
+          },
+          "useful_detail": {
+            "score": 3,
+            "excerpt": "treatment decisions remained with the conservator",
+            "reason": "Preserves the useful distinction between condition reporting and treatment."
+          },
+          "document_purpose": {
+            "score": 2,
+            "excerpt": "with a Museum Studies certificate",
+            "reason": "Adds relevant background, but most of the profile repeats records duties."
+          },
+          "selection": {
+            "score": 3,
+            "excerpt": "recorded their shelf locations so the registrar could retrieve them",
+            "reason": "Useful retrieval context remains; the profile adds avoidable duplication."
+          },
+          "natural_writing": {
+            "score": 2,
+            "excerpt": "Archive collections assistant with archive experience",
+            "reason": "Conspicuous repeated word makes the profile look unfinished."
+          }
+        },
+        "total": 14,
+        "qualityPass": false
+      },
+      "letter": {
+        "evidence": "pass",
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "excerpt": "photographed donated objects beside their accession labels",
+            "reason": "Chooses direct documentation evidence."
+          },
+          "useful_detail": {
+            "score": 4,
+            "excerpt": "before moving an object; treatment decisions remained with the conservator",
+            "reason": "Concrete handling constraint without claiming treatment authority."
+          },
+          "document_purpose": {
+            "score": 2,
+            "excerpt": "I also packed approved stable objects",
+            "reason": "Provides process context, but moves through almost every current-role duty."
+          },
+          "selection": {
+            "score": 3,
+            "excerpt": "so the registrar could retrieve them for exhibit planning",
+            "reason": "Retains useful purpose and omits the less relevant library role."
+          },
+          "natural_writing": {
+            "score": 3,
+            "excerpt": "I flagged flaking surfaces to the conservator",
+            "reason": "Specific, economical language."
+          }
+        },
+        "total": 16,
+        "qualityPass": true
+      },
+      "pairAccepted": false
+    },
+    {
+      "caseId": "F05",
+      "resume": {
+        "evidence": "pass",
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "excerpt": "stream-water sampling and chain-of-custody experience",
+            "reason": "Clear match without upgrading the original job title."
+          },
+          "useful_detail": {
+            "score": 4,
+            "excerpt": "isolated the bottle, called the laboratory coordinator",
+            "reason": "Preserves damaged-seal response, resampling authority and absence of a reported result."
+          },
+          "document_purpose": {
+            "score": 3,
+            "excerpt": "Field Sampling Assistant",
+            "reason": "Concise identity and setting, with no unnecessary recap paragraph."
+          },
+          "selection": {
+            "score": 3,
+            "excerpt": "chain-of-custody forms before courier collection",
+            "reason": "Important work sequence and purpose are easy to locate."
+          },
+          "natural_writing": {
+            "score": 3,
+            "excerpt": "using labelled bottles and the laboratory’s written sampling procedure",
+            "reason": "Concrete, readable wording throughout."
+          }
+        },
+        "total": 17,
+        "qualityPass": true
+      },
+      "letter": {
+        "evidence": "pass",
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "excerpt": "collected stream-water samples at assigned sites",
+            "reason": "Addresses the actual field collection task."
+          },
+          "useful_detail": {
+            "score": 4,
+            "excerpt": "site identifiers, collection times, and cooler temperatures",
+            "reason": "Specific records and handoff detail support the application."
+          },
+          "document_purpose": {
+            "score": 3,
+            "excerpt": "When a bottle seal was damaged",
+            "reason": "Develops the sampling process through a relevant exception response."
+          },
+          "selection": {
+            "score": 3,
+            "excerpt": "did not report a result for it",
+            "reason": "Retains a critical result boundary rather than implying successful analysis."
+          },
+          "natural_writing": {
+            "score": 3,
+            "excerpt": "called the laboratory coordinator for resampling instructions",
+            "reason": "Direct, clear prose; conventional opening and close are proportionate."
+          }
+        },
+        "total": 17,
+        "qualityPass": true
+      },
+      "pairAccepted": true
+    },
+    {
+      "caseId": "F06",
+      "resume": {
+        "evidence": "pass",
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "excerpt": "Maintenance Assistant",
+            "reason": "Correct minor residential maintenance positioning."
+          },
+          "useful_detail": {
+            "score": 3,
+            "excerpt": "stopped work and referred them to the licensed contractor",
+            "reason": "Preserves the electrical-work boundary."
+          },
+          "document_purpose": {
+            "score": 1,
+            "excerpt": "Coordinates resident access and follows safe escalation procedures",
+            "reason": "Profile copies the core duties already covered in experience."
+          },
+          "selection": {
+            "score": 3,
+            "excerpt": "recorded the work completed and any remaining fault",
+            "reason": "Good work-order detail remains prominent, but profile repetition wastes attention."
+          },
+          "natural_writing": {
+            "score": 2,
+            "excerpt": "residential apartment experience completing assigned minor repairs in occupied apartments",
+            "reason": "Repeated apartments and cumbersome phrasing weaken the top of the document."
+          }
+        },
+        "total": 13,
+        "qualityPass": false
+      },
+      "letter": {
+        "evidence": "pass",
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "excerpt": "door-hardware adjustments and small plaster repairs",
+            "reason": "Specific fit to minor maintenance duties."
+          },
+          "useful_detail": {
+            "score": 4,
+            "excerpt": "recorded the work completed and any remaining fault",
+            "reason": "Shows practical handover detail for occupied properties."
+          },
+          "document_purpose": {
+            "score": 3,
+            "excerpt": "When I encountered suspected electrical faults, I stopped work",
+            "reason": "Connects work, documentation and escalation into a focused process."
+          },
+          "selection": {
+            "score": 3,
+            "excerpt": "through the property supervisor",
+            "reason": "Retains authority boundaries while excluding less relevant grounds work."
+          },
+          "natural_writing": {
+            "score": 3,
+            "excerpt": "I confirmed access times with residents",
+            "reason": "Straightforward personal voice with concrete actions."
+          }
+        },
+        "total": 17,
+        "qualityPass": true
+      },
+      "pairAccepted": false
+    },
+    {
+      "caseId": "F07",
+      "resume": {
+        "evidence": "fail",
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "excerpt": "Veterinary Reception",
+            "reason": "Appropriate profession and appointment focus."
+          },
+          "useful_detail": {
+            "score": 3,
+            "excerpt": "the clinical team determines urgency and advice",
+            "reason": "Useful evidence retains the nonclinical responsibility limit."
+          },
+          "document_purpose": {
+            "score": 2,
+            "excerpt": "experience in a companion-animal practice",
+            "reason": "Attempts a concise setting statement, but the narrowed clientele is unsupported."
+          },
+          "selection": {
+            "score": 2,
+            "excerpt": "Approved paperwork | Approved discharge paperwork preparation",
+            "reason": "Near-duplicate skills crowd a short résumé."
+          },
+          "natural_writing": {
+            "score": 2,
+            "excerpt": "clinical escalation within decision boundaries",
+            "reason": "Internal-sounding noun pile makes the profile less natural."
+          }
+        },
+        "total": 13,
+        "qualityPass": false
+      },
+      "letter": {
+        "evidence": "pass",
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "excerpt": "booked appointments using the clinic’s visit-type guide",
+            "reason": "Precise administrative evidence for the role."
+          },
+          "useful_detail": {
+            "score": 4,
+            "excerpt": "without interpreting them, leaving urgency and advice to the clinical team",
+            "reason": "Preserves the important clinical boundary."
+          },
+          "document_purpose": {
+            "score": 3,
+            "excerpt": "passed symptom descriptions to the veterinary nurse",
+            "reason": "Develops how reception handles information and hands it to clinical staff."
+          },
+          "selection": {
+            "score": 3,
+            "excerpt": "clinician-approved notes",
+            "reason": "Selects relevant documentation and omits unrelated retail details."
+          },
+          "natural_writing": {
+            "score": 3,
+            "excerpt": "confirmed clients received the medication instructions provided by the clinician",
+            "reason": "Readable and appropriately limited claim."
+          }
+        },
+        "total": 17,
+        "qualityPass": true
+      },
+      "pairAccepted": false
+    },
+    {
+      "caseId": "F08",
+      "resume": {
+        "evidence": "fail",
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "excerpt": "Bicycle Mechanic",
+            "reason": "Correct role and repair focus."
+          },
+          "useful_detail": {
+            "score": 3,
+            "excerpt": "after customer approval",
+            "reason": "Preserves repair authorization and documented inspection details."
+          },
+          "document_purpose": {
+            "score": 2,
+            "excerpt": "five years at a commuter-cycle workshop",
+            "reason": "Provides setting, but invents a precise duration from year-only dates."
+          },
+          "selection": {
+            "score": 3,
+            "excerpt": "referred frame-alignment concerns to the senior mechanic",
+            "reason": "Important responsibility boundary retained; small overlapping volunteer project omitted."
+          },
+          "natural_writing": {
+            "score": 3,
+            "excerpt": "repair estimates, brake servicing, and documented inspection records",
+            "reason": "Readable compact profile, though still partly a duty list."
+          }
+        },
+        "total": 15,
+        "qualityPass": true
+      },
+      "letter": {
+        "evidence": "pass",
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "excerpt": "inspected commuter bicycles for brake wear",
+            "reason": "Directly addresses the advertised inspection and repair work."
+          },
+          "useful_detail": {
+            "score": 4,
+            "excerpt": "After customer approval",
+            "reason": "Retains the approval-to-repair sequence and final inspection."
+          },
+          "document_purpose": {
+            "score": 3,
+            "excerpt": "before preparing written repair estimates",
+            "reason": "Builds a focused process from inspection to estimate, repair and handover."
+          },
+          "selection": {
+            "score": 3,
+            "excerpt": "recorded remaining wheel damage on handover sheets",
+            "reason": "Selects a useful distinction between completed repairs and remaining concerns."
+          },
+          "natural_writing": {
+            "score": 3,
+            "excerpt": "referred frame-alignment concerns to the senior mechanic",
+            "reason": "Specific and economical; no unsupported tenure claim in the letter."
+          }
+        },
+        "total": 17,
+        "qualityPass": true
+      },
+      "pairAccepted": false
+    },
+    {
+      "caseId": "F09",
+      "resume": {
+        "evidence": "pass",
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "excerpt": "Dental Sterilization Assistant",
+            "reason": "Direct profession match."
+          },
+          "useful_detail": {
+            "score": 4,
+            "excerpt": "release decisions remained with authorized clinical staff",
+            "reason": "Retains failed-cycle and clinical-release boundaries."
+          },
+          "document_purpose": {
+            "score": 3,
+            "excerpt": "clinic-based experience",
+            "reason": "Profile establishes setting and training without a duty inventory."
+          },
+          "selection": {
+            "score": 3,
+            "excerpt": "Quarantined packs from failed indicator cycles",
+            "reason": "Important handling detail is immediately visible."
+          },
+          "natural_writing": {
+            "score": 3,
+            "excerpt": "supported by dental instrument processing training",
+            "reason": "Plain description without inflating a course into a licence."
+          }
+        },
+        "total": 17,
+        "qualityPass": true
+      },
+      "letter": {
+        "evidence": "pass",
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "excerpt": "written cleaning and packaging sequence",
+            "reason": "Direct evidence for instrument processing."
+          },
+          "useful_detail": {
+            "score": 4,
+            "excerpt": "When an indicator cycle failed, I quarantined the affected packs",
+            "reason": "Includes a useful exception and the appropriate response."
+          },
+          "document_purpose": {
+            "score": 3,
+            "excerpt": "recorded sterilizer indicators on the cycle log",
+            "reason": "Develops a coherent processing and review sequence in one body paragraph."
+          },
+          "selection": {
+            "score": 3,
+            "excerpt": "release decisions remained with authorized clinical staff",
+            "reason": "All selected detail serves the main process; critical qualifier remains."
+          },
+          "natural_writing": {
+            "score": 3,
+            "excerpt": "I labelled packs with cycle and date information",
+            "reason": "Clear prose with no unnecessary claim of independent authority."
+          }
+        },
+        "total": 17,
+        "qualityPass": true
+      },
+      "pairAccepted": true
+    },
+    {
+      "caseId": "F10",
+      "resume": {
+        "evidence": "pass",
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "excerpt": "Freelance Photo Editor",
+            "reason": "Correct interior photo-editing positioning."
+          },
+          "useful_detail": {
+            "score": 4,
+            "excerpt": "window light and ceiling light differed",
+            "reason": "Retains a specific mixed-light project example, software and approval boundary."
+          },
+          "document_purpose": {
+            "score": 3,
+            "excerpt": "specializing in interior photographs",
+            "reason": "Profile gives a useful specialty and working context."
+          },
+          "selection": {
+            "score": 4,
+            "excerpt": "Evening Apartment Set",
+            "reason": "Distinct selected project and portfolio survive alongside experience."
+          },
+          "natural_writing": {
+            "score": 3,
+            "excerpt": "photographer-supplied colour references",
+            "reason": "Clear professional language, with some repetition of supplied in the profile."
+          }
+        },
+        "total": 18,
+        "qualityPass": true
+      },
+      "letter": {
+        "evidence": "pass",
+        "dimensions": {
+          "relevance": {
+            "score": 4,
+            "excerpt": "edited interior photographs in Lightroom",
+            "reason": "Relevant specialty and software."
+          },
+          "useful_detail": {
+            "score": 3,
+            "excerpt": "changes to permanent features required photographer approval",
+            "reason": "Useful boundary, but the mixed-light example is missing."
+          },
+          "document_purpose": {
+            "score": 2,
+            "excerpt": "I delivered named image sets in the client’s specified order",
+            "reason": "The single body paragraph walks through the résumé duty inventory."
+          },
+          "selection": {
+            "score": 2,
+            "excerpt": "I corrected white balance and vertical alignment",
+            "reason": "Uses generic duties while omitting Evening Apartment Set and its distinct colour-matching condition."
+          },
+          "natural_writing": {
+            "score": 3,
+            "excerpt": "checked export dimensions against the delivery checklist",
+            "reason": "Clear economical wording, though the paragraph is mechanical."
+          }
+        },
+        "total": 14,
+        "qualityPass": false
+      },
+      "pairAccepted": false
+    }
+  ]
+}

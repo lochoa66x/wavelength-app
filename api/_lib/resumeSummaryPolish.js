@@ -4,7 +4,7 @@ import { reviewResumeProfile, hasUsefulProfileContext } from '../../src/resumePr
 export const SUMMARY_TOOL = {
   name: 'return_resume_summary',
   description: 'Return only a revised professional profile. All other resume fields remain unchanged.',
-  input_schema: { type: 'object', properties: { profile: { type: 'string' } }, required: ['profile'] },
+  input_schema: { type: 'object', properties: { profile: { type: 'string', description: RESUME_SUMMARY_INSTRUCTIONS } }, required: ['profile'] },
 };
 
 // One optional, summary-only pass. Provider/validation failures preserve the

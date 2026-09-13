@@ -1,0 +1,57 @@
+{
+  "caseId": "F09",
+  "attempt": 1,
+  "revision": "90c85f4a0a936eb8f28b48f1de210290c4c0cf6c",
+  "status": "completed",
+  "startedAt": "2026-09-13T23:33:34.533Z",
+  "finishedAt": "2026-09-13T23:38:22.864Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F09-letter.docx",
+      "downloadName": "Evan-Brooks-Dental-Sterilization-Assistant-cover-letter.docx",
+      "sha256": "7c26129d8e23388cb849e018b0e9929f7fe9734f2a1f89f16c49df4766d05ee5"
+    },
+    {
+      "filename": "F09-letter.pdf",
+      "downloadName": "Evan-Brooks-Dental-Sterilization-Assistant-cover-letter.pdf",
+      "sha256": "1baba6ea082f537ef91c6253f33292d63e6ce66501ae5aab0a7539b25dccb648"
+    },
+    {
+      "filename": "F09-resume.docx",
+      "downloadName": "Evan-Brooks-Dental-Sterilization-Assistant.docx",
+      "sha256": "87fff6a41cf9089e37c159966eea2cba0bca69d435f5eaaeb33b1c86a5d1a918"
+    },
+    {
+      "filename": "F09-resume.pdf",
+      "downloadName": "Evan-Brooks-Dental-Sterilization-Assistant.pdf",
+      "sha256": "d5f8586abd0a5d4d19eab7cc01fed410bd2652955ce6e3bfdd8bb8c5da155d47"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "artifactDirectory": "tmp/useful-writing-v4-live-2026-09-13",
+  "documentScope": "resume-and-cover-letter",
+  "resumeFirstIntegrity": {
+    "status": "pass",
+    "issue_count": 0
+  },
+  "resumeFirstContractIssues": [],
+  "resumeDraftAttempts": 1,
+  "resumeEditorialStatus": {
+    "status": "revised",
+    "review_needed": false,
+    "issues": []
+  },
+  "letterFirstIntegrityPass": true,
+  "letterRepairApplied": false,
+  "letterEditorialStatus": "revised",
+  "rawReports": {
+    "resume": true,
+    "letter": true
+  },
+  "recordedAt": "2026-09-13T23:39:19.663Z",
+  "corpusHash": "274eeb27f925ac092a0635aa2b47873fa208c61f227068b81e83054cc7c6410a"
+}

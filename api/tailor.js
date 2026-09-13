@@ -132,7 +132,7 @@ const PROFESSIONAL_TOOL = {
       },
       profile: {
         type: "string",
-        description: "2-4 sentence employer-facing profile tailored to this gig using verified evidence. Never mention missing requirements, gaps, application risk, unsupported capabilities, or what the candidate lacks; those belong only in the private review.",
+        description: RESUME_SUMMARY_INSTRUCTIONS,
       },
       fit_assessment: {
         type: "object",
@@ -161,7 +161,7 @@ const PROFESSIONAL_TOOL = {
       },
       skills: {
         type: "array",
-        description: "Compact list of skills/tools/technologies, including specific tool names (e.g. SAP, specific languages) even when de-emphasized in the prose above.",
+        description: "Select compact skill labels exactly as written in the candidate source or authoritative verified_transferable_skills. Do not invent compound labels or rename skills with unsupported synonyms. Use prose in experience to explain their application.",
         items: { type: "string" },
       },
       education: {
@@ -239,7 +239,7 @@ const TRADES_TOOL = {
       },
       profile: {
         type: "string",
-        description: "2-3 sentence profile. For direct trade candidates, lead with supported credentials, years, and specialty. Otherwise lead with the candidate's proven transferable strengths while avoiding irrelevant domain jargon. Never invent trade experience or credentials.",
+        description: RESUME_SUMMARY_INSTRUCTIONS,
       },
       fit_assessment: {
         type: "object",
@@ -290,7 +290,7 @@ const TRADES_TOOL = {
       },
       skills: {
         type: "array",
-        description: "Trade skills plus equipment/tools proficiency. Include specific systems, equipment models, and specialized techniques when present in the base resume.",
+        description: "Select compact trade skill and equipment labels exactly as written in the candidate source or authoritative verified_transferable_skills. Do not infer licensed status, independence or proficiency beyond that source. Do not invent compound labels or rename skills with unsupported synonyms.",
         items: { type: "string" },
       },
       education: {

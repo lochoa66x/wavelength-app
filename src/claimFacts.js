@@ -9,7 +9,7 @@ export function normalizeClaimNumbers(value) {
 export const factWords = value => String(value || '').toLowerCase().replace(/[’‘]/g,"'").match(/[a-z]+/g) || [];
 const singular = word => ({people:'person',children:'child',men:'man',women:'woman',feet:'foot',mice:'mouse'}[word] || word.replace(/ies$/, 'y').replace(/(?<!s)s$/, ''));
 const timeUnit = /^(?:minute|hour|day|week|month|year|shift|season)$/;
-const boundaries = /\b(?:per|each|every|a|an|for|from|to|with|within|in|on|at|during|by|using|as|and|or|of|through|across|under|before|after|between|while|that|which|who)\b/;
+const boundaries = /\b(?:per|each|every|a|an|for|from|to|with|alongside|together|without|including|excluding|within|in|on|at|during|by|using|as|and|or|of|through|across|under|before|after|between|while|that|which|who)\b/;
 function countUnit(tail) {
   if (/^\s*%/.test(tail)) return {unit:'percent',business:false};
   // Do not interpret dates, version suffixes or amounts as count nouns.

@@ -1,0 +1,57 @@
+{
+  "caseId": "F07",
+  "attempt": 1,
+  "revision": "90c85f4a0a936eb8f28b48f1de210290c4c0cf6c",
+  "status": "completed",
+  "startedAt": "2026-09-13T23:25:06.629Z",
+  "finishedAt": "2026-09-13T23:29:48.558Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F07-resume.docx",
+      "downloadName": "Rafael-Chen-Veterinary-Reception-Professional.docx",
+      "sha256": "8384e3b8feafda8acaec89f8e370ac9abe292278f562baa1f78091515f5c6296"
+    },
+    {
+      "filename": "F07-resume.pdf",
+      "downloadName": "Rafael-Chen-Veterinary-Reception-Professional.pdf",
+      "sha256": "3be836004bd0084e8d087578256c0a4b39b5af1f48566b5f3c59446be9672328"
+    },
+    {
+      "filename": "F07-letter.docx",
+      "downloadName": "Rafael-Chen-Veterinary-Receptionist-cover-letter.docx",
+      "sha256": "08b5bdc26f26837ee6604e189d7d8e14652c605b9d7dc83547983f261e8dc2cf"
+    },
+    {
+      "filename": "F07-letter.pdf",
+      "downloadName": "Rafael-Chen-Veterinary-Receptionist-cover-letter.pdf",
+      "sha256": "81c349f838172a79cc50e84b22e6d0995fb516477a954129f5076e3739a3a043"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "artifactDirectory": "tmp/useful-writing-v4-live-2026-09-13",
+  "documentScope": "resume-and-cover-letter",
+  "resumeFirstIntegrity": {
+    "status": "pass",
+    "issue_count": 0
+  },
+  "resumeFirstContractIssues": [],
+  "resumeDraftAttempts": 1,
+  "resumeEditorialStatus": {
+    "status": "revised",
+    "review_needed": false,
+    "issues": []
+  },
+  "letterFirstIntegrityPass": false,
+  "letterRepairApplied": true,
+  "letterEditorialStatus": "kept",
+  "rawReports": {
+    "resume": true,
+    "letter": true
+  },
+  "recordedAt": "2026-09-13T23:30:18.823Z",
+  "corpusHash": "274eeb27f925ac092a0635aa2b47873fa208c61f227068b81e83054cc7c6410a"
+}

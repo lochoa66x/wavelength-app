@@ -1,0 +1,57 @@
+{
+  "caseId": "F08",
+  "attempt": 1,
+  "revision": "90c85f4a0a936eb8f28b48f1de210290c4c0cf6c",
+  "status": "completed",
+  "startedAt": "2026-09-13T23:29:51.784Z",
+  "finishedAt": "2026-09-13T23:33:31.376Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F08-letter.docx",
+      "downloadName": "Inez-Calder-Bicycle-Mechanic-cover-letter.docx",
+      "sha256": "fad219c8008d2bd080d21fd7f68be605811f63d2b2b7413c3b24fe3c00521cd7"
+    },
+    {
+      "filename": "F08-letter.pdf",
+      "downloadName": "Inez-Calder-Bicycle-Mechanic-cover-letter.pdf",
+      "sha256": "594a4f78f06bc52af060a6c57db3fc565ff7efab5dd472f96a132328993ce62c"
+    },
+    {
+      "filename": "F08-resume.docx",
+      "downloadName": "Inez-Calder-Bicycle-Mechanic.docx",
+      "sha256": "a9ae775a456a4cd30641ce978bb5dbee156ba7139811fe125bf64790ee0bb29f"
+    },
+    {
+      "filename": "F08-resume.pdf",
+      "downloadName": "Inez-Calder-Bicycle-Mechanic.pdf",
+      "sha256": "b3c26cc79900e8640b5c18516e447db76f924451191847bf614659be28bf572c"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "artifactDirectory": "tmp/useful-writing-v4-live-2026-09-13",
+  "documentScope": "resume-and-cover-letter",
+  "resumeFirstIntegrity": {
+    "status": "blocked",
+    "issue_count": 3
+  },
+  "resumeFirstContractIssues": [],
+  "resumeDraftAttempts": 2,
+  "resumeEditorialStatus": {
+    "status": "revised",
+    "review_needed": false,
+    "issues": []
+  },
+  "letterFirstIntegrityPass": true,
+  "letterRepairApplied": false,
+  "letterEditorialStatus": "revised",
+  "rawReports": {
+    "resume": true,
+    "letter": true
+  },
+  "recordedAt": "2026-09-13T23:35:06.436Z",
+  "corpusHash": "274eeb27f925ac092a0635aa2b47873fa208c61f227068b81e83054cc7c6410a"
+}

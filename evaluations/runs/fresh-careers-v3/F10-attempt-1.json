@@ -1,0 +1,57 @@
+{
+  "caseId": "F10",
+  "attempt": 1,
+  "revision": "90c85f4a0a936eb8f28b48f1de210290c4c0cf6c",
+  "status": "completed",
+  "startedAt": "2026-09-13T23:38:26.039Z",
+  "finishedAt": "2026-09-13T23:42:59.460Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F10-resume.docx",
+      "downloadName": "Sana-Okafor-Freelance-Photo-Editor.docx",
+      "sha256": "c6c1e995f95ea4c7dc2b434ba21f750af83d09c725828127c1aee08e7a5a2c1c"
+    },
+    {
+      "filename": "F10-resume.pdf",
+      "downloadName": "Sana-Okafor-Freelance-Photo-Editor.pdf",
+      "sha256": "64862ba8f2736f2c1ccd5d637d77f458d83d468ec8d1a62a9edab9ad63b4d59f"
+    },
+    {
+      "filename": "F10-letter.docx",
+      "downloadName": "Sana-Okafor-Real-Estate-Photo-Editor-cover-letter.docx",
+      "sha256": "d7b74d4ab3deda121846b373e17059c1d41cff934e9727269b6904b606114c09"
+    },
+    {
+      "filename": "F10-letter.pdf",
+      "downloadName": "Sana-Okafor-Real-Estate-Photo-Editor-cover-letter.pdf",
+      "sha256": "9491bf0fc60267986f81266545bdebb1405f495ebc5c4ac98055062450c54e80"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "artifactDirectory": "tmp/useful-writing-v4-live-2026-09-13",
+  "documentScope": "resume-and-cover-letter",
+  "resumeFirstIntegrity": {
+    "status": "blocked",
+    "issue_count": 5
+  },
+  "resumeFirstContractIssues": [],
+  "resumeDraftAttempts": 2,
+  "resumeEditorialStatus": {
+    "status": "revised",
+    "review_needed": false,
+    "issues": []
+  },
+  "letterFirstIntegrityPass": true,
+  "letterRepairApplied": false,
+  "letterEditorialStatus": "revised",
+  "rawReports": {
+    "resume": true,
+    "letter": true
+  },
+  "recordedAt": "2026-09-13T23:43:11.116Z",
+  "corpusHash": "274eeb27f925ac092a0635aa2b47873fa208c61f227068b81e83054cc7c6410a"
+}

@@ -1,0 +1,57 @@
+{
+  "caseId": "F03",
+  "attempt": 1,
+  "revision": "90c85f4a0a936eb8f28b48f1de210290c4c0cf6c",
+  "status": "completed",
+  "startedAt": "2026-09-13T23:11:25.771Z",
+  "finishedAt": "2026-09-13T23:14:02.785Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F03-letter.docx",
+      "downloadName": "Celeste-Wong-Production-Baker-cover-letter.docx",
+      "sha256": "4b1ac55d83e7c1ca0b988e024afc4de3b654ae9f61e50a2718320f162526b91d"
+    },
+    {
+      "filename": "F03-letter.pdf",
+      "downloadName": "Celeste-Wong-Production-Baker-cover-letter.pdf",
+      "sha256": "ca7e98ec5e39e5fd61e003c10ff2a84f3ea84efab43e9784715206d5ebf7ca94"
+    },
+    {
+      "filename": "F03-resume.docx",
+      "downloadName": "Celeste-Wong-Production-Baker-Dough-Preparation.docx",
+      "sha256": "224e13d1f3bf2b4456718f20d74455dc7619942f79a219984ba7f82220e0a95c"
+    },
+    {
+      "filename": "F03-resume.pdf",
+      "downloadName": "Celeste-Wong-Production-Baker-Dough-Preparation.pdf",
+      "sha256": "f524973441f7ff74c36e47feba2463bc93e31c241f4b3410f101cd2cf530db4c"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "artifactDirectory": "tmp/useful-writing-v4-live-2026-09-13",
+  "documentScope": "resume-and-cover-letter",
+  "resumeFirstIntegrity": {
+    "status": "blocked",
+    "issue_count": 3
+  },
+  "resumeFirstContractIssues": [],
+  "resumeDraftAttempts": 2,
+  "resumeEditorialStatus": {
+    "status": "needs_review",
+    "review_needed": true,
+    "issues": []
+  },
+  "letterFirstIntegrityPass": true,
+  "letterRepairApplied": false,
+  "letterEditorialStatus": "kept",
+  "rawReports": {
+    "resume": true,
+    "letter": true
+  },
+  "recordedAt": "2026-09-13T23:15:05.715Z",
+  "corpusHash": "274eeb27f925ac092a0635aa2b47873fa208c61f227068b81e83054cc7c6410a"
+}

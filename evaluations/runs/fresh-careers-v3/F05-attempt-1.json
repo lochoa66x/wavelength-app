@@ -1,0 +1,57 @@
+{
+  "caseId": "F05",
+  "attempt": 1,
+  "revision": "90c85f4a0a936eb8f28b48f1de210290c4c0cf6c",
+  "status": "completed",
+  "startedAt": "2026-09-13T23:16:51.778Z",
+  "finishedAt": "2026-09-13T23:20:07.800Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F05-resume.docx",
+      "downloadName": "Jonas-Silva-Field-Sampling-Assistant.docx",
+      "sha256": "457d4a7bbbe2d8c241ba6fa7808d2136a9eb00d05f4ef1a17b440cdbba8e1bd1"
+    },
+    {
+      "filename": "F05-resume.pdf",
+      "downloadName": "Jonas-Silva-Field-Sampling-Assistant.pdf",
+      "sha256": "069b6a09fa4f8b634e77dc0bcd16a7d653d2ec4a2364e90a096d7584b12c98de"
+    },
+    {
+      "filename": "F05-letter.docx",
+      "downloadName": "Jonas-Silva-Water-Sampling-Technician-cover-letter.docx",
+      "sha256": "24e4229853263cc6bed57ad79a806b62b95fa83e8e6c606675e550dc3d312ff3"
+    },
+    {
+      "filename": "F05-letter.pdf",
+      "downloadName": "Jonas-Silva-Water-Sampling-Technician-cover-letter.pdf",
+      "sha256": "50964893957e79f81e0a2e8123064a83ab15d5627aa6e6df2db1b7e00497345c"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "artifactDirectory": "tmp/useful-writing-v4-live-2026-09-13",
+  "documentScope": "resume-and-cover-letter",
+  "resumeFirstIntegrity": {
+    "status": "blocked",
+    "issue_count": 3
+  },
+  "resumeFirstContractIssues": [],
+  "resumeDraftAttempts": 2,
+  "resumeEditorialStatus": {
+    "status": "revised",
+    "review_needed": false,
+    "issues": []
+  },
+  "letterFirstIntegrityPass": true,
+  "letterRepairApplied": false,
+  "letterEditorialStatus": "kept",
+  "rawReports": {
+    "resume": true,
+    "letter": true
+  },
+  "recordedAt": "2026-09-13T23:26:16.116Z",
+  "corpusHash": "274eeb27f925ac092a0635aa2b47873fa208c61f227068b81e83054cc7c6410a"
+}

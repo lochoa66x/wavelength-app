@@ -1,0 +1,57 @@
+{
+  "caseId": "F01",
+  "attempt": 1,
+  "revision": "90c85f4a0a936eb8f28b48f1de210290c4c0cf6c",
+  "status": "completed",
+  "startedAt": "2026-09-13T23:06:11.001Z",
+  "finishedAt": "2026-09-13T23:09:03.401Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F01-letter.docx",
+      "downloadName": "Mara-Bennett-Electrical-Apprentice-cover-letter.docx",
+      "sha256": "4e18afe6a7c92ec44fc5a91633f6cda649096bc35914da4e034ad846be6d4c34"
+    },
+    {
+      "filename": "F01-letter.pdf",
+      "downloadName": "Mara-Bennett-Electrical-Apprentice-cover-letter.pdf",
+      "sha256": "38f24d76b7350b4f4233cbc96f7a1ae3f68144c9b7abf5d94bf998d11b6866c1"
+    },
+    {
+      "filename": "F01-resume.docx",
+      "downloadName": "Mara-Bennett-Electrical-Apprentice.docx",
+      "sha256": "c265f764998e3599e206a6bd4155f6be39dfc881ddc45364ad96260b5841ebde"
+    },
+    {
+      "filename": "F01-resume.pdf",
+      "downloadName": "Mara-Bennett-Electrical-Apprentice.pdf",
+      "sha256": "a170a5e7d3e9c7e97533079555d0a09e6563e87be79a9075f62b77bec5b8257a"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "artifactDirectory": "tmp/useful-writing-v4-live-2026-09-13",
+  "documentScope": "resume-and-cover-letter",
+  "resumeFirstIntegrity": {
+    "status": "pass",
+    "issue_count": 0
+  },
+  "resumeFirstContractIssues": [],
+  "resumeDraftAttempts": 1,
+  "resumeEditorialStatus": {
+    "status": "revised",
+    "review_needed": false,
+    "issues": []
+  },
+  "letterFirstIntegrityPass": true,
+  "letterRepairApplied": false,
+  "letterEditorialStatus": "kept",
+  "rawReports": {
+    "resume": true,
+    "letter": true
+  },
+  "recordedAt": "2026-09-13T23:13:31.772Z",
+  "corpusHash": "274eeb27f925ac092a0635aa2b47873fa208c61f227068b81e83054cc7c6410a"
+}

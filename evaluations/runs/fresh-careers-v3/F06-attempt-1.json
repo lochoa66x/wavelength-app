@@ -1,0 +1,57 @@
+{
+  "caseId": "F06",
+  "attempt": 1,
+  "revision": "90c85f4a0a936eb8f28b48f1de210290c4c0cf6c",
+  "status": "completed",
+  "startedAt": "2026-09-13T23:20:10.972Z",
+  "finishedAt": "2026-09-13T23:25:03.494Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F06-resume.docx",
+      "downloadName": "Leila-Hart-Maintenance-Assistant.docx",
+      "sha256": "f9d31d7178bd69dc938d972fb4668107852632540e6a02b6100445a21005dfc7"
+    },
+    {
+      "filename": "F06-resume.pdf",
+      "downloadName": "Leila-Hart-Maintenance-Assistant.pdf",
+      "sha256": "d660ac576e71f4da3f27be6ea51fcfec87247175d88cf314fb94de04b3f8f154"
+    },
+    {
+      "filename": "F06-letter.docx",
+      "downloadName": "Leila-Hart-Property-Maintenance-Assistant-cover-letter.docx",
+      "sha256": "8bdc0ecccea1df7b36269f69c49731ad9c8c6ec23ed794af48db0a33a40a7c48"
+    },
+    {
+      "filename": "F06-letter.pdf",
+      "downloadName": "Leila-Hart-Property-Maintenance-Assistant-cover-letter.pdf",
+      "sha256": "6f11a61f4dc152ff9424129ce94754855226153bfbdb08f21ce5fd732a8db71e"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "artifactDirectory": "tmp/useful-writing-v4-live-2026-09-13",
+  "documentScope": "resume-and-cover-letter",
+  "resumeFirstIntegrity": {
+    "status": "blocked",
+    "issue_count": 2
+  },
+  "resumeFirstContractIssues": [],
+  "resumeDraftAttempts": 2,
+  "resumeEditorialStatus": {
+    "status": "needs_review",
+    "review_needed": true,
+    "issues": []
+  },
+  "letterFirstIntegrityPass": true,
+  "letterRepairApplied": false,
+  "letterEditorialStatus": "rejected_review",
+  "rawReports": {
+    "resume": true,
+    "letter": true
+  },
+  "recordedAt": "2026-09-13T23:26:16.121Z",
+  "corpusHash": "274eeb27f925ac092a0635aa2b47873fa208c61f227068b81e83054cc7c6410a"
+}

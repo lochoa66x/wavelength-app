@@ -1,3 +1,4 @@
+import { candidateClaimIssues } from './candidateClaims.js';
 import { coverLetterLengthPolicy, countCoverLetterWords } from './coverLetterControls.js';
 import { claimMeaningIssues, contributionEditIssue, hasInternalDocumentLanguage } from './documentIntegrity.js';
 import { containsSelfDisqualifyingCoverLetterLanguage } from './coverLetterLanguage.js';
@@ -8,7 +9,7 @@ import { academicStatusIssues } from './academicClaims.js';
 // edits, saved-draft readiness and every exporter call the same entry point.
 // Provider citation resolution, source/identity hashes and authorization remain
 // boundary checks; passing this contract never replaces those protections.
-export const DOCUMENT_CONTRACT_VERSION = 5;
+export const DOCUMENT_CONTRACT_VERSION = 6;
 export const COVER_LETTER_PARAGRAPH_LIMIT = 2400;
 export const COVER_LETTER_PARAGRAPH_MIN = 20;
 const refs = (paragraph, camel, snake) => paragraph?.[camel] ?? paragraph?.[snake] ?? [];
@@ -66,6 +67,7 @@ export function validateApplicationDocument({ kind, document, candidateCorpus = 
     }
   } else if (kind === 'resume') {
     const content = document?.document || document || {};
+    if (candidateCorpus) for (const message of candidateClaimIssues(content.profile ?? content.summary ?? '', candidateCorpus.split(/\r?\n/), { candidateCorpus })) add('profile_claim', message);
     if (candidateCorpus) for (const value of strings({ profile: content.profile ?? content.summary, education: content.education }))
       for (const message of academicStatusIssues(value, [candidateCorpus])) add('academic_status', message);
     if (strings(content).some(hasInternalDocumentLanguage)) add('internal_language', 'Remove internal application terminology from the résumé.');

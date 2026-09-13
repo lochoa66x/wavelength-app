@@ -1,0 +1,57 @@
+{
+  "caseId": "F04",
+  "attempt": 1,
+  "revision": "90c85f4a0a936eb8f28b48f1de210290c4c0cf6c",
+  "status": "completed",
+  "startedAt": "2026-09-13T23:14:05.947Z",
+  "finishedAt": "2026-09-13T23:16:48.622Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F04-resume.docx",
+      "downloadName": "Amina-Foster-Archive-Collections-Assistant.docx",
+      "sha256": "e6527d47bf1675f5df0d528f276e849ed63b43beb409ad8b7b3a38eb1f463919"
+    },
+    {
+      "filename": "F04-resume.pdf",
+      "downloadName": "Amina-Foster-Archive-Collections-Assistant.pdf",
+      "sha256": "5f0163fcf586f8b4389df62f49e13040a2e6165a7b367927c9cc4cf05ef1ba75"
+    },
+    {
+      "filename": "F04-letter.docx",
+      "downloadName": "Amina-Foster-Collections-Assistant-cover-letter.docx",
+      "sha256": "c969df52401d87ed4ebd3998f209a9c7fbce54a72034370284a05a13d354d588"
+    },
+    {
+      "filename": "F04-letter.pdf",
+      "downloadName": "Amina-Foster-Collections-Assistant-cover-letter.pdf",
+      "sha256": "0763aa07b04becc1638267a5bfdba1951e7f0a9c254425e4e160840bd659a048"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "artifactDirectory": "tmp/useful-writing-v4-live-2026-09-13",
+  "documentScope": "resume-and-cover-letter",
+  "resumeFirstIntegrity": {
+    "status": "blocked",
+    "issue_count": 4
+  },
+  "resumeFirstContractIssues": [],
+  "resumeDraftAttempts": 2,
+  "resumeEditorialStatus": {
+    "status": "revised",
+    "review_needed": false,
+    "issues": []
+  },
+  "letterFirstIntegrityPass": true,
+  "letterRepairApplied": false,
+  "letterEditorialStatus": "revised",
+  "rawReports": {
+    "resume": true,
+    "letter": true
+  },
+  "recordedAt": "2026-09-13T23:17:52.562Z",
+  "corpusHash": "274eeb27f925ac092a0635aa2b47873fa208c61f227068b81e83054cc7c6410a"
+}

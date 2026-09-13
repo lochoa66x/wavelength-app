@@ -66,3 +66,30 @@ test('a distinct follow-up condition is retained by the writing advice',()=>{
  const text='I checked costume labels against the wardrobe plot. This work required keeping costume labels separate until the supervisor approved design changes.';
  assert.ok(!reviewCoverLetterWriting([{id:'o',purpose:'opening',text}]).issues.some(i=>i.code==='restated_work_description'));
 });
+
+
+test('a rate stops before alongside rather than treating a colleague as the denominator',async()=>{
+ const { quantityFacts }=await import('../src/claimFacts.js');
+ const { candidateClaimIssues }=await import('../src/candidateClaims.js');
+ const source='Baked 120 loaves per shift with another baker; that figure was the combined oven output, not an individual total.';
+ const paraphrase='Baked 120 loaves per shift alongside another baker; the figure reflects combined oven output.';
+ assert.equal(quantityFacts(paraphrase)[0].rate,'shift');
+ assert.deepEqual(candidateClaimIssues(paraphrase,[source]),[]);
+ for(const text of [paraphrase.replace('per shift','per hour'),paraphrase.replace('120 loaves','120 batches'),'I independently baked 120 loaves per shift.','I baked 120 loaves per shift.']) assert.ok(candidateClaimIssues(text,[source]).length,text);
+ assert.deepEqual(candidateClaimIssues('With another baker, I baked 120 loaves per shift; it was our combined output.',[source]),[]);
+});
+
+
+test('résumé profile cannot derive a spelled-out tenure from employment years',async()=>{
+ const {buildAtsReview}=await import('../api/_lib/atsValidation.js');
+ const {getResumeExportReadiness}=await import('../src/resumeReadiness.js');
+ const corpus='Inez Calder\nine@example.com\nBicycle Mechanic | Cedar Workshop | 2021 - 2026\nInspected commuter bicycles before preparing repair estimates.';
+ const document={name:'Inez Calder',profile:'Bicycle mechanic with five years at a commuter-cycle workshop.',experience:[{role:'Bicycle Mechanic',company:'Cedar Workshop',dates:'2021 - 2026',bullets:['Inspected commuter bicycles before preparing repair estimates.']}]};
+ const contract=validateApplicationDocument({kind:'resume',document,candidateCorpus:corpus});
+ assert.equal(contract.valid,false);
+ assert.ok(contract.issues.some(i=>i.code==='profile_claim'));
+ const review=buildAtsReview(document,corpus,{keywords:[]});
+ assert.equal(getResumeExportReadiness(document,review).canExport,false);
+ assert.equal(validateApplicationDocument({kind:'resume',document,candidateCorpus:corpus+'\nFive years of bicycle workshop experience.'}).valid,true);
+ assert.equal(validateApplicationDocument({kind:'resume',document:{...document,profile:'Bicycle mechanic with commuter bicycle inspection experience.'},candidateCorpus:corpus}).valid,true);
+});
