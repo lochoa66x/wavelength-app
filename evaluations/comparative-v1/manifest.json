@@ -1,0 +1,382 @@
+{
+  "experiment": "comparative-v1",
+  "frozenAt": "2026-09-14T00:35:34.145Z",
+  "baselineRevision": "764b5aa98b55408cf2cfa62047f424cc06cdf777",
+  "files": {
+    "evaluations/comparative-v1/cases.js": "9dca71612c5eb1d7f7991eb847b965c17b66ac77b77b510ca592d423bd3a6853",
+    "evaluations/comparative-v1/runner.js": "e0c79fd83c477f80a760ad660a688aea47232c19e25b27188a4e900dae5d3859",
+    "evaluations/comparative-v1/PROTOCOL.md": "6bd3396cd28d86bbb43c0cacea622baac25f007fed3053a8b9010c4255644c9b",
+    "evaluations/QUALITY_RUBRIC.md": "31b081525a7ee569f48df6211d95c7929a54955a8997fac73efb734fd5bc30af",
+    "api/tailor.js": "f2579863bacd09ada31a09c2eddb3e3136c352c4386b3c44f5b77b4c31e0a95f",
+    "api/cover-letter.js": "43b74d5593e626c4dab664a460622fc449ae2343658d1d9f9171decc2f6b5127"
+  },
+  "cases": [
+    {
+      "caseId": "C01",
+      "sourceHash": "31f17464581ba030a5089f15468d1246e7ebcdbc1b736111787069b8a45361b1"
+    },
+    {
+      "caseId": "C02",
+      "sourceHash": "dd5368f92ee26955d6104de08616aa44ebb488ab5a3372287ae39a53078455c5"
+    },
+    {
+      "caseId": "C03",
+      "sourceHash": "d9ccfd2df5b8f9024b2f237b00926bda906f765d5870873c9034edaabcc56fde"
+    },
+    {
+      "caseId": "C04",
+      "sourceHash": "454364089742df50b20536d31118f0ce385ea19b20914a29a9a4180d6c12bdd1"
+    },
+    {
+      "caseId": "C05",
+      "sourceHash": "3a1cc342c9f60841d38086fe5f0f955d5f2c167e703be9706d6f9565727cb64a"
+    },
+    {
+      "caseId": "C06",
+      "sourceHash": "699a2e8ede082f8c539263e8a3263c44feee588dae0adb3e6d028032ac88e687"
+    }
+  ],
+  "queue": [
+    {
+      "caseId": "C01",
+      "arm": "pipeline",
+      "kind": "resume",
+      "promptHash": null,
+      "schemaHash": null
+    },
+    {
+      "caseId": "C01",
+      "arm": "pipeline",
+      "kind": "letter",
+      "promptHash": null,
+      "schemaHash": null
+    },
+    {
+      "caseId": "C01",
+      "arm": "simple",
+      "kind": "resume",
+      "promptHash": "2cf9d09106c7308ddcafec2e0c3ef26d7329e47e646fed3350e9b7dd7434207a",
+      "schemaHash": "2482250683c2cb5b608471f007ec3827f3cfb1ab608fa2d0c0475d578672efcc"
+    },
+    {
+      "caseId": "C01",
+      "arm": "simple",
+      "kind": "letter",
+      "promptHash": "ac69578e54064e6f5779a04a01f1c11c40febb8d50b89073d56a73570f0d3475",
+      "schemaHash": "f485455eeafee9dfffa14ff5f4499731ec8b70b62f829382056ae42b50cca720"
+    },
+    {
+      "caseId": "C01",
+      "arm": "reasoning",
+      "kind": "resume",
+      "promptHash": "2cf9d09106c7308ddcafec2e0c3ef26d7329e47e646fed3350e9b7dd7434207a",
+      "schemaHash": "2482250683c2cb5b608471f007ec3827f3cfb1ab608fa2d0c0475d578672efcc"
+    },
+    {
+      "caseId": "C01",
+      "arm": "reasoning",
+      "kind": "letter",
+      "promptHash": "ac69578e54064e6f5779a04a01f1c11c40febb8d50b89073d56a73570f0d3475",
+      "schemaHash": "f485455eeafee9dfffa14ff5f4499731ec8b70b62f829382056ae42b50cca720"
+    },
+    {
+      "caseId": "C01",
+      "arm": "selection",
+      "kind": "resume",
+      "promptHash": "5ed2bdc6138723d9a7a3f417eb239f1dc8d710e983f4476367ef3cfca1e6adc1",
+      "schemaHash": "2482250683c2cb5b608471f007ec3827f3cfb1ab608fa2d0c0475d578672efcc"
+    },
+    {
+      "caseId": "C01",
+      "arm": "selection",
+      "kind": "letter",
+      "promptHash": "37811ff515c9da28158823d1c22f2fba7305e81ded48a588f49a2401b6b5fdce",
+      "schemaHash": "f485455eeafee9dfffa14ff5f4499731ec8b70b62f829382056ae42b50cca720"
+    },
+    {
+      "caseId": "C02",
+      "arm": "simple",
+      "kind": "resume",
+      "promptHash": "429588a494593e243296d3cae9130a17052a833a1fb07917f24c6c0418169845",
+      "schemaHash": "2482250683c2cb5b608471f007ec3827f3cfb1ab608fa2d0c0475d578672efcc"
+    },
+    {
+      "caseId": "C02",
+      "arm": "simple",
+      "kind": "letter",
+      "promptHash": "bee3bfedcceafad352d821be59cfe1b622fef24d341aaf6906d33e4203e58952",
+      "schemaHash": "f485455eeafee9dfffa14ff5f4499731ec8b70b62f829382056ae42b50cca720"
+    },
+    {
+      "caseId": "C02",
+      "arm": "reasoning",
+      "kind": "resume",
+      "promptHash": "429588a494593e243296d3cae9130a17052a833a1fb07917f24c6c0418169845",
+      "schemaHash": "2482250683c2cb5b608471f007ec3827f3cfb1ab608fa2d0c0475d578672efcc"
+    },
+    {
+      "caseId": "C02",
+      "arm": "reasoning",
+      "kind": "letter",
+      "promptHash": "bee3bfedcceafad352d821be59cfe1b622fef24d341aaf6906d33e4203e58952",
+      "schemaHash": "f485455eeafee9dfffa14ff5f4499731ec8b70b62f829382056ae42b50cca720"
+    },
+    {
+      "caseId": "C02",
+      "arm": "selection",
+      "kind": "resume",
+      "promptHash": "8a2b0cdf641d45208245b11c2bd414f42e88bb2ca7c964f1f5bcde3f0bda2110",
+      "schemaHash": "2482250683c2cb5b608471f007ec3827f3cfb1ab608fa2d0c0475d578672efcc"
+    },
+    {
+      "caseId": "C02",
+      "arm": "selection",
+      "kind": "letter",
+      "promptHash": "5e532f17f05d16dc4f4f93f5730ef54e159834b48c0f5830d11e0d8d867ce3d6",
+      "schemaHash": "f485455eeafee9dfffa14ff5f4499731ec8b70b62f829382056ae42b50cca720"
+    },
+    {
+      "caseId": "C02",
+      "arm": "pipeline",
+      "kind": "resume",
+      "promptHash": null,
+      "schemaHash": null
+    },
+    {
+      "caseId": "C02",
+      "arm": "pipeline",
+      "kind": "letter",
+      "promptHash": null,
+      "schemaHash": null
+    },
+    {
+      "caseId": "C03",
+      "arm": "reasoning",
+      "kind": "resume",
+      "promptHash": "b94fcae42b3fc32b36b249088127cd5c3176810931b7adf3d783e76cb5c18089",
+      "schemaHash": "2482250683c2cb5b608471f007ec3827f3cfb1ab608fa2d0c0475d578672efcc"
+    },
+    {
+      "caseId": "C03",
+      "arm": "reasoning",
+      "kind": "letter",
+      "promptHash": "44f7ed99f521d9abd14fb5d9062769fe3c9e1890ee338e0c7ba4dca3e2158974",
+      "schemaHash": "f485455eeafee9dfffa14ff5f4499731ec8b70b62f829382056ae42b50cca720"
+    },
+    {
+      "caseId": "C03",
+      "arm": "selection",
+      "kind": "resume",
+      "promptHash": "f0db6565c2158755b26d1d5f211c8bb9b5aa83f294a212f5e4a51576022a3ef0",
+      "schemaHash": "2482250683c2cb5b608471f007ec3827f3cfb1ab608fa2d0c0475d578672efcc"
+    },
+    {
+      "caseId": "C03",
+      "arm": "selection",
+      "kind": "letter",
+      "promptHash": "1a4deb83e6e80019624c362e9c73993dc76b171214cb4af55d6d507f32814fc0",
+      "schemaHash": "f485455eeafee9dfffa14ff5f4499731ec8b70b62f829382056ae42b50cca720"
+    },
+    {
+      "caseId": "C03",
+      "arm": "pipeline",
+      "kind": "resume",
+      "promptHash": null,
+      "schemaHash": null
+    },
+    {
+      "caseId": "C03",
+      "arm": "pipeline",
+      "kind": "letter",
+      "promptHash": null,
+      "schemaHash": null
+    },
+    {
+      "caseId": "C03",
+      "arm": "simple",
+      "kind": "resume",
+      "promptHash": "b94fcae42b3fc32b36b249088127cd5c3176810931b7adf3d783e76cb5c18089",
+      "schemaHash": "2482250683c2cb5b608471f007ec3827f3cfb1ab608fa2d0c0475d578672efcc"
+    },
+    {
+      "caseId": "C03",
+      "arm": "simple",
+      "kind": "letter",
+      "promptHash": "44f7ed99f521d9abd14fb5d9062769fe3c9e1890ee338e0c7ba4dca3e2158974",
+      "schemaHash": "f485455eeafee9dfffa14ff5f4499731ec8b70b62f829382056ae42b50cca720"
+    },
+    {
+      "caseId": "C04",
+      "arm": "selection",
+      "kind": "resume",
+      "promptHash": "2db19fc27250ec8dec65532d657c2c56e16dfd3e2367b93cc2cbcb0da0869c04",
+      "schemaHash": "2482250683c2cb5b608471f007ec3827f3cfb1ab608fa2d0c0475d578672efcc"
+    },
+    {
+      "caseId": "C04",
+      "arm": "selection",
+      "kind": "letter",
+      "promptHash": "a8d083ef25fe22f136a3562d308e9edfdcdcf4ef1fe44ea0b17215c7d4f87150",
+      "schemaHash": "f485455eeafee9dfffa14ff5f4499731ec8b70b62f829382056ae42b50cca720"
+    },
+    {
+      "caseId": "C04",
+      "arm": "pipeline",
+      "kind": "resume",
+      "promptHash": null,
+      "schemaHash": null
+    },
+    {
+      "caseId": "C04",
+      "arm": "pipeline",
+      "kind": "letter",
+      "promptHash": null,
+      "schemaHash": null
+    },
+    {
+      "caseId": "C04",
+      "arm": "simple",
+      "kind": "resume",
+      "promptHash": "9844e8ce231ef383c7880bcacaa0e37dde851a60c854dfa6720363e1f71b1c7a",
+      "schemaHash": "2482250683c2cb5b608471f007ec3827f3cfb1ab608fa2d0c0475d578672efcc"
+    },
+    {
+      "caseId": "C04",
+      "arm": "simple",
+      "kind": "letter",
+      "promptHash": "26984961bf285d88427c5e4eb72b3d4b9eee68a93d28fd05d5d40cf0691977ba",
+      "schemaHash": "f485455eeafee9dfffa14ff5f4499731ec8b70b62f829382056ae42b50cca720"
+    },
+    {
+      "caseId": "C04",
+      "arm": "reasoning",
+      "kind": "resume",
+      "promptHash": "9844e8ce231ef383c7880bcacaa0e37dde851a60c854dfa6720363e1f71b1c7a",
+      "schemaHash": "2482250683c2cb5b608471f007ec3827f3cfb1ab608fa2d0c0475d578672efcc"
+    },
+    {
+      "caseId": "C04",
+      "arm": "reasoning",
+      "kind": "letter",
+      "promptHash": "26984961bf285d88427c5e4eb72b3d4b9eee68a93d28fd05d5d40cf0691977ba",
+      "schemaHash": "f485455eeafee9dfffa14ff5f4499731ec8b70b62f829382056ae42b50cca720"
+    },
+    {
+      "caseId": "C05",
+      "arm": "pipeline",
+      "kind": "resume",
+      "promptHash": null,
+      "schemaHash": null
+    },
+    {
+      "caseId": "C05",
+      "arm": "pipeline",
+      "kind": "letter",
+      "promptHash": null,
+      "schemaHash": null
+    },
+    {
+      "caseId": "C05",
+      "arm": "simple",
+      "kind": "resume",
+      "promptHash": "ed2c25e36d6488e75e0dbdb8cbd3db3cbe8763c32cb8cb20119c4bfda8722183",
+      "schemaHash": "2482250683c2cb5b608471f007ec3827f3cfb1ab608fa2d0c0475d578672efcc"
+    },
+    {
+      "caseId": "C05",
+      "arm": "simple",
+      "kind": "letter",
+      "promptHash": "414bbfb4bddaaa35c0a206661cbc5eca68d55d41b0e1b65783a0550047e0f578",
+      "schemaHash": "f485455eeafee9dfffa14ff5f4499731ec8b70b62f829382056ae42b50cca720"
+    },
+    {
+      "caseId": "C05",
+      "arm": "reasoning",
+      "kind": "resume",
+      "promptHash": "ed2c25e36d6488e75e0dbdb8cbd3db3cbe8763c32cb8cb20119c4bfda8722183",
+      "schemaHash": "2482250683c2cb5b608471f007ec3827f3cfb1ab608fa2d0c0475d578672efcc"
+    },
+    {
+      "caseId": "C05",
+      "arm": "reasoning",
+      "kind": "letter",
+      "promptHash": "414bbfb4bddaaa35c0a206661cbc5eca68d55d41b0e1b65783a0550047e0f578",
+      "schemaHash": "f485455eeafee9dfffa14ff5f4499731ec8b70b62f829382056ae42b50cca720"
+    },
+    {
+      "caseId": "C05",
+      "arm": "selection",
+      "kind": "resume",
+      "promptHash": "48c66965d209e93ca2b48ef8840e68046480cd24ec4496e27be101ea79b803ea",
+      "schemaHash": "2482250683c2cb5b608471f007ec3827f3cfb1ab608fa2d0c0475d578672efcc"
+    },
+    {
+      "caseId": "C05",
+      "arm": "selection",
+      "kind": "letter",
+      "promptHash": "4c36d31e7c8bb24f3e6ec56b482ac098545ceff878b0281ac44a0e2e48df1eda",
+      "schemaHash": "f485455eeafee9dfffa14ff5f4499731ec8b70b62f829382056ae42b50cca720"
+    },
+    {
+      "caseId": "C06",
+      "arm": "simple",
+      "kind": "resume",
+      "promptHash": "7a61a90b5123ea5ed27e6240fba56cfa932f35121a34a544a9d5a9092ceb3299",
+      "schemaHash": "2482250683c2cb5b608471f007ec3827f3cfb1ab608fa2d0c0475d578672efcc"
+    },
+    {
+      "caseId": "C06",
+      "arm": "simple",
+      "kind": "letter",
+      "promptHash": "9e8f6cd5d674ff1d6fdcacf5509c321dbddf4634c2201754a2922364f8650fb8",
+      "schemaHash": "f485455eeafee9dfffa14ff5f4499731ec8b70b62f829382056ae42b50cca720"
+    },
+    {
+      "caseId": "C06",
+      "arm": "reasoning",
+      "kind": "resume",
+      "promptHash": "7a61a90b5123ea5ed27e6240fba56cfa932f35121a34a544a9d5a9092ceb3299",
+      "schemaHash": "2482250683c2cb5b608471f007ec3827f3cfb1ab608fa2d0c0475d578672efcc"
+    },
+    {
+      "caseId": "C06",
+      "arm": "reasoning",
+      "kind": "letter",
+      "promptHash": "9e8f6cd5d674ff1d6fdcacf5509c321dbddf4634c2201754a2922364f8650fb8",
+      "schemaHash": "f485455eeafee9dfffa14ff5f4499731ec8b70b62f829382056ae42b50cca720"
+    },
+    {
+      "caseId": "C06",
+      "arm": "selection",
+      "kind": "resume",
+      "promptHash": "c11bccdc96822d5cd2764e9457e2d0faf821d4f1a9bfbd68e1e4800581105b53",
+      "schemaHash": "2482250683c2cb5b608471f007ec3827f3cfb1ab608fa2d0c0475d578672efcc"
+    },
+    {
+      "caseId": "C06",
+      "arm": "selection",
+      "kind": "letter",
+      "promptHash": "217acdfd5571ea521d4250df3787d25bfb307c79781b2fe97de66dafe3b03736",
+      "schemaHash": "f485455eeafee9dfffa14ff5f4499731ec8b70b62f829382056ae42b50cca720"
+    },
+    {
+      "caseId": "C06",
+      "arm": "pipeline",
+      "kind": "resume",
+      "promptHash": null,
+      "schemaHash": null
+    },
+    {
+      "caseId": "C06",
+      "arm": "pipeline",
+      "kind": "letter",
+      "promptHash": null,
+      "schemaHash": null
+    }
+  ],
+  "humanReviewStatus": "pending",
+  "competitorStatus": {
+    "Teal": "sign-in required",
+    "Rezi": "sign-in required"
+  }
+}

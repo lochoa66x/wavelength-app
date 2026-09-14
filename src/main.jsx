@@ -12,6 +12,7 @@ import { APP_PATH, AUTH_CALLBACK_PATH, SIGN_IN_PATH } from "./authRoutes.js";
 import { sanitizeVercelAnalyticsEvent } from "./analytics.js";
 
 const Gigscapes = lazy(() => import("./App.jsx"));
+const ComparisonExperiment = lazy(() => import("./ComparisonExperiment.jsx"));
 const LandingPage = lazy(() => import("./landing/LandingPage.jsx"));
 const PrivacyPage = lazy(() => import("./privacy/PrivacyPage.jsx"));
 const ProductTourCapture = import.meta.env.DEV
@@ -38,6 +39,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
+            <Route path="/app/comparison" element={<ComparisonExperiment />} />
             {ProductTourCapture ? <Route path="/__product-tour-capture" element={<ProductTourCapture />} /> : null}
             <Route
               path={SIGN_IN_PATH}

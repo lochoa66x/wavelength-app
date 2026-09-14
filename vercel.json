@@ -1,5 +1,6 @@
 {
   "functions": {
+    "api/comparison.js": { "maxDuration": 300 },
     "api/tailor.js": {
       "maxDuration": 300
     },
