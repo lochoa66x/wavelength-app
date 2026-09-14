@@ -33,7 +33,7 @@ export async function recoveryDownload(results) {
  }
  zip.file('export-report.json',JSON.stringify(report,null,2));
  const url=URL.createObjectURL(await zip.generateAsync({type:'blob'}));
- const anchor=document.createElement('a');anchor.href=url;anchor.download='gigscapes-validation-recovery-retest-documents.zip';anchor.click();
+ const anchor=document.createElement('a');anchor.href=url;anchor.download='gigscapes-validation-recovery-content-retest-documents.zip';anchor.click();
  setTimeout(()=>URL.revokeObjectURL(url),1000);
  return report;
 }

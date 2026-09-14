@@ -50,7 +50,7 @@ export function createRecoveryHandler({ authenticate = authenticateSupabaseReque
     const calls = [];
     const traced = traceFetch(fetchImpl, calls);
     const start = now();
-    const result = { version: 1, experiment: 'validation-recovery-v1', caseId, arm: 'recovery_pipeline', kind, attempt: 2, round: 'targeted_fix_retest',
+    const result = { version: 1, experiment: 'validation-recovery-v1', caseId, arm: 'recovery_pipeline', kind, attempt: 3, round: 'project_preservation_retest',
       startedAt: new Date(start).toISOString(), sourceHash: hash(JSON.stringify(fixture)),
       deploymentRevision: process.env.VERCEL_GIT_COMMIT_SHA || null, calls };
     try {

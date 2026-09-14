@@ -2,6 +2,7 @@ import { isTradesLikeCategory, normalizeListingCategory } from "../src/listingCa
 import { buildResumeRenderPlan, createResumePackage } from "../src/resumeModel.js";
 import { getResumePdfPageCount } from "../src/resumePdf.js";
 import { callStructuredAI, hasConfiguredProvider } from "./_lib/aiProvider.js";
+import { recoverSelectedProjects } from './_lib/resumeProjectRecovery.js';
 import { buildAtsReview, enforceReverseChronology, sourceHistoryEntries, restoreEmptyHistoryFromSource, missingSourceQualifications } from "./_lib/atsValidation.js";
 import { restoreCitedResumeBullets, resumeIssueCounts } from "./_lib/resumeSourceRepair.js";
 import { jobBriefToText, normalizeCustomJobBrief } from "./_lib/jobBrief.js";
@@ -225,6 +226,7 @@ const TRADES_TOOL = {
   input_schema: {
     type: "object",
     properties: {
+      projects: PROFESSIONAL_TOOL.input_schema.properties.projects,
       name: {
         type: "string",
         description: "Candidate's full name, taken from the base resume. Empty string if not present.",
@@ -306,7 +308,7 @@ const TRADES_TOOL = {
         },
       },
     },
-    required: ["profile", "experience", "skills", "certifications", "safety_certifications", "fit_assessment"],
+    required: ["profile", "experience", "skills", "certifications", "safety_certifications", "fit_assessment", "projects"],
   },
 };
 
@@ -886,7 +888,7 @@ INSTRUCTIONS
         fit_assessment: analysis.fit_assessment,
         content_strategy: analysis.content_strategy,
       }), analysis, cappedResume);
-      let resumeData = restoreEmptyHistoryFromSource(shaped.resume, cappedResume);
+      let resumeData = recoverSelectedProjects(restoreEmptyHistoryFromSource(shaped.resume, cappedResume), cappedResume);
       if (!resumeData.profile || !Array.isArray(resumeData.experience) || resumeData.experience.length === 0) {
         console.error("[tailor:resume_draft] Incomplete structured response", JSON.stringify({
           hasProfile: Boolean(resumeData.profile),
@@ -985,7 +987,7 @@ INSTRUCTIONS
       const initialFallback = createSafeResumeFallback(resumeData, atsReview, analysis);
       const safetyReport = { ...initialFallback.report };
       const safeShaped = shapeTailoredResumeWithReview(initialFallback.resume, analysis, cappedResume);
-      let safeResume = restoreEmptyHistoryFromSource(safeShaped.resume, cappedResume);
+      let safeResume = recoverSelectedProjects(restoreEmptyHistoryFromSource(safeShaped.resume, cappedResume), cappedResume);
       let safeFocusReview = await layoutAwareFocusReview(safeResume, analysis, item, safeShaped.focusReview);
       let safeReview = buildAtsReview(
         safeResume,
@@ -1007,7 +1009,7 @@ INSTRUCTIONS
         for (const [key, value] of Object.entries(cleaned.report)) {
           safetyReport[key] = Number(safetyReport[key] || 0) + Number(value || 0);
         }
-        safeResume = restoreEmptyHistoryFromSource(enforceReverseChronology(cleaned.resume), cappedResume);
+        safeResume = recoverSelectedProjects(restoreEmptyHistoryFromSource(enforceReverseChronology(cleaned.resume), cappedResume), cappedResume);
         safeFocusReview = await layoutAwareFocusReview(safeResume, analysis, item, safeReview.focus_review || safeShaped.focusReview);
         safeReview = buildAtsReview(
           safeResume,

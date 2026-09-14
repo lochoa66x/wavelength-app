@@ -1,0 +1,20 @@
+[tailor:request] started {"source":"reviewed_custom_job","resumeSize":"short","postingSize":"short","requestBudgetMs":285000,"requirementCount":4,"analysisMaxTokens":5200,"correlationId":"tailor-d30944b3-0f57-43bb-a316-06ec59a35fd1"}
+[tailor:evidence_analysis] AI request started {"tool":"return_tailoring_analysis","timeoutMs":95000,"maxTokens":5200,"reasoningEffort":"low","correlationId":"tailor-d30944b3-0f57-43bb-a316-06ec59a35fd1"}
+[tailor:evidence_analysis] AI request completed {"tool":"return_tailoring_analysis","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":1,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-d30944b3-0f57-43bb-a316-06ec59a35fd1"}
+[tailor:resume_draft] AI request started {"tool":"return_trades_resume","timeoutMs":105000,"maxTokens":5200,"reasoningEffort":null,"correlationId":"tailor-d30944b3-0f57-43bb-a316-06ec59a35fd1"}
+[tailor:resume_draft] AI request completed {"tool":"return_trades_resume","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-d30944b3-0f57-43bb-a316-06ec59a35fd1"}
+✔ R06: source project recovery retains the example without borrowing the following job (7.7208ms)
+✔ R08: source project recovery retains the example without borrowing the following job (3.054ms)
+✔ source repair removes only a duplicate statement and preserves a distinct condition (0.4029ms)
+[tailor:validation] draft checked {"correlationId":"tailor-d30944b3-0f57-43bb-a316-06ec59a35fd1","attempt":1,"status":"ready","issueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:editorial] {"status":"not_tested_here","reason":null,"applied":false}
+[tailor:request] completed {"durationMs":155,"repairApplied":false,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":1,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+✔ trades generation schema and normal handler preserve an explicit project through validation (158.1963ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 663.5095

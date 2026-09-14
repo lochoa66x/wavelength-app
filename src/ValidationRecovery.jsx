@@ -37,12 +37,12 @@ export default function ValidationRecovery() {
   function download() {
     const url = URL.createObjectURL(new Blob([JSON.stringify(results, null, 2)], { type: 'application/json' }));
     const anchor = document.createElement('a');
-    anchor.href = url; anchor.download = 'gigscapes-validation-recovery-retest.json'; anchor.click();
+    anchor.href = url; anchor.download = 'gigscapes-validation-recovery-content-retest.json'; anchor.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
   return <main style={{ maxWidth: 960, margin: '40px auto', padding: 24, fontFamily: 'system-ui' }}>
     <h1>Validation recovery evaluation</h1>
-    <p>Targeted retest of the two blocked careers. Each request and failure is retained. Your saved résumé is never read or changed here.</p>
+    <p>Verify project preservation in the two trades careers. Each request and failure is retained. Your saved résumé is never read or changed here.</p>
     {loading ? <p>Checking session…</p> : !session ? <a href="/sign-in?next=/app/validation-recovery">Sign in to continue</a> : <>
       <label>Experiment access key <input type="password" value={capability} onChange={e => setCapability(e.target.value)} disabled={started.current} autoComplete="off" /></label>
       <p><button onClick={run} disabled={!capability || started.current}>Run frozen comparison</button> <button disabled={!running} onClick={() => { stop.current = true; }}>Stop after current request</button> <button onClick={download} disabled={!results.length}>Download captured results</button></p>

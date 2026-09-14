@@ -16,7 +16,10 @@ export function restoreCitedResumeBullets(resume, review) {
     restored += 1;
     return original;
   }) }));
-  return { resume: restored ? { ...resume, experience } : resume, restored };
+  const forms={prepared:'prepare',maintained:'maintain',recorded:'record',checked:'check',loaded:'load',measured:'measure',logged:'log',delivered:'deliver',corrected:'correct',labelled:'label',fed:'feed'};
+  const key=text=>String(text).toLowerCase().replace(/[^a-z0-9]+/g,' ').trim().split(' ').map(w=>forms[w]||w).join(' ');
+  const uniqueExperience=restored?experience.map(entry=>{const seen=new Set();return {...entry,bullets:entry.bullets.filter(b=>{const k=key(b);if(seen.has(k))return false;seen.add(k);return true;})};}):experience;
+  return { resume: restored ? { ...resume, experience:uniqueExperience } : resume, restored };
 }
 
 export function resumeIssueCounts(review) {

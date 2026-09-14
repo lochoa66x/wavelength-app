@@ -1,0 +1,3 @@
+# Project-preservation retest
+
+Attempt 2 delivered both trades résumés but omitted both selected project examples. The trades generation schema had no projects field, and restoring a source bullet could create a duplicate. Add the shared projects schema, recover omitted explicitly selected source projects within their own boundaries, and deduplicate source-repair equivalents without dropping distinct conditions. Run R06 and R08 once more, both documents, as attempt 3. Preserve attempts 1 and 2 and compare content retention, not just HTTP status. These four additional requests do not count as fresh careers.
