@@ -1,0 +1,94 @@
+{
+  "frozenAt": "2026-09-14T00:48:20.969Z",
+  "reason": "The original harness omitted the reviewed-complete metadata flag. Original 48 results are preserved. This is a separately labelled 12-request diagnostic confirmation, not replacements or first-attempt passes.",
+  "inputChange": "source_review metadata only; same candidate facts and job requirements",
+  "runnerHash": "89f2902fdc9f319fa2306383223b97a5c3067dd52d45e296058f8ce796ae3c0e",
+  "cases": [
+    {
+      "caseId": "C01",
+      "sourceHash": "a5e53c037c1d3cc7c2976dd7575113fa5ba5f97dda78c5c487a2437dc58aa378"
+    },
+    {
+      "caseId": "C02",
+      "sourceHash": "cb7bd982ab9e6b0af2d0b7dcf9038257e60ebe860bb546cd5ffee43e4ed7ff4e"
+    },
+    {
+      "caseId": "C03",
+      "sourceHash": "d8c0bddd70e87daf356bd8a97c4be5d1552c1bb57bb4bd23efc5b188b86e7a33"
+    },
+    {
+      "caseId": "C04",
+      "sourceHash": "0e34ae5ca7b5aa18f67c1c69fa13d57ce9b82aa55db9610688eb557425112e90"
+    },
+    {
+      "caseId": "C05",
+      "sourceHash": "bd823f331b749514694b51c1ee02378af19eee258e1b47472043fd89bab1c2d8"
+    },
+    {
+      "caseId": "C06",
+      "sourceHash": "e0dcc6664137186d7c447a995dceeb515d9aafc4cfc118131b6d504d4141a1ab"
+    }
+  ],
+  "queue": [
+    {
+      "caseId": "C01",
+      "arm": "confirmed_pipeline",
+      "kind": "resume"
+    },
+    {
+      "caseId": "C01",
+      "arm": "confirmed_pipeline",
+      "kind": "letter"
+    },
+    {
+      "caseId": "C02",
+      "arm": "confirmed_pipeline",
+      "kind": "resume"
+    },
+    {
+      "caseId": "C02",
+      "arm": "confirmed_pipeline",
+      "kind": "letter"
+    },
+    {
+      "caseId": "C03",
+      "arm": "confirmed_pipeline",
+      "kind": "resume"
+    },
+    {
+      "caseId": "C03",
+      "arm": "confirmed_pipeline",
+      "kind": "letter"
+    },
+    {
+      "caseId": "C04",
+      "arm": "confirmed_pipeline",
+      "kind": "resume"
+    },
+    {
+      "caseId": "C04",
+      "arm": "confirmed_pipeline",
+      "kind": "letter"
+    },
+    {
+      "caseId": "C05",
+      "arm": "confirmed_pipeline",
+      "kind": "resume"
+    },
+    {
+      "caseId": "C05",
+      "arm": "confirmed_pipeline",
+      "kind": "letter"
+    },
+    {
+      "caseId": "C06",
+      "arm": "confirmed_pipeline",
+      "kind": "resume"
+    },
+    {
+      "caseId": "C06",
+      "arm": "confirmed_pipeline",
+      "kind": "letter"
+    }
+  ]
+}
