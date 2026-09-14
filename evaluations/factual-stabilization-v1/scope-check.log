@@ -1,0 +1,19 @@
+{
+  "baseline": "c433385f38246a2d8e044114ad7716f7fedabd70",
+  "allowedRuntimeFiles": [
+    "api/_lib/atsValidation.js",
+    "api/_lib/resumeProjectRecovery.js",
+    "api/_lib/resumeSourceRepair.js",
+    "api/_lib/outcomeSourceRepair.js",
+    "api/cover-letter.js",
+    "api/tailor.js",
+    "src/applicationDocumentContract.js",
+    "src/candidateClaims.js",
+    "src/outcomeAttribution.js",
+    "src/sourceProjectEvidence.js"
+  ],
+  "unexpectedFiles": [],
+  "templatesAndPresentationUnchanged": true,
+  "modelConfigurationUnchanged": true,
+  "featureSetUnchanged": true
+}

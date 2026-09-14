@@ -869,6 +869,7 @@ INSTRUCTIONS
     let requestPrompt = baseDraftPrompt;
     let firstDraftIssueCounts = null;
     let sourceRestoredBullets = 0;
+    let projectRecoveryApplied = false;
 
     for (let attempt = 0; attempt < 3; attempt += 1) {
       const rawResumeData = await callAIToolWithRetry({
@@ -888,7 +889,17 @@ INSTRUCTIONS
         fit_assessment: analysis.fit_assessment,
         content_strategy: analysis.content_strategy,
       }), analysis, cappedResume);
-      let resumeData = recoverSelectedProjects(restoreEmptyHistoryFromSource(shaped.resume, cappedResume), cappedResume);
+      const historyRestored = restoreEmptyHistoryFromSource(shaped.resume, cappedResume);
+      let resumeData = recoverSelectedProjects(historyRestored, cappedResume);
+      if (resumeData !== historyRestored) {
+        projectRecoveryApplied = true;
+        const beforeReview = buildAtsReview(historyRestored, candidateEvidence, { keywords: analysis.target_keywords }, {
+          analysis, postingAssessment: analysis.posting_assessment, targetTitle: item.title,
+          isTrades: isTradesGig, category: item.category, focusReview: shaped.focusReview, historyEvidence: cappedResume,
+        });
+        if (attempt === 0) firstDraftIssueCounts = resumeIssueCounts(beforeReview);
+        await capture('source_recovery', { attempt: attempt + 1, beforeDocument: historyRestored, beforeReview, document: resumeData });
+      }
       if (!resumeData.profile || !Array.isArray(resumeData.experience) || resumeData.experience.length === 0) {
         console.error("[tailor:resume_draft] Incomplete structured response", JSON.stringify({
           hasProfile: Boolean(resumeData.profile),
@@ -914,10 +925,10 @@ INSTRUCTIONS
         },
       );
       await capture('validation', { attempt: attempt + 1, document: resumeData, review: atsReview });
-      if (attempt === 0) firstDraftIssueCounts = resumeIssueCounts(atsReview);
+      if (attempt === 0 && !firstDraftIssueCounts) firstDraftIssueCounts = resumeIssueCounts(atsReview);
       console.info("[tailor:validation] draft checked", JSON.stringify({ correlationId, attempt: attempt + 1, status: atsReview.status, issueCounts: resumeIssueCounts(atsReview) }));
       if (atsReview.status === "blocked") {
-        const restored = restoreCitedResumeBullets(resumeData, atsReview);
+        const restored = restoreCitedResumeBullets(resumeData, atsReview, cappedResume);
         if (restored.restored) {
           const restoredFocus = await layoutAwareFocusReview(restored.resume, analysis, item, shaped.focusReview);
           const restoredReview = buildAtsReview(restored.resume, candidateEvidence, { keywords: analysis.target_keywords }, {
@@ -959,13 +970,13 @@ INSTRUCTIONS
         atsReview = { ...atsReview, editorial_review: { status: summaryPolish.status, review_needed: summaryPolish.reviewNeeded !== false, issues: summaryPolish.issues || [] } };
         await capture('outcome', { status: 'accepted', document: resumeData, review: atsReview, draftAttempts: attempt + 1, firstDraftIssueCounts, sourceRestoredBullets });
         console.info("[tailor:editorial]", JSON.stringify({ status: summaryPolish.status, reason: summaryPolish.reason || null, applied: summaryPolish.applied }));
-        logTailoringCompleted(requestStartedAt, { repairApplied: attempt > 0 || sourceRestoredBullets > 0 || summaryPolish.applied, summaryPolishApplied: summaryPolish.applied, draftAttempts: attempt + 1, sourceRestoredBullets, firstDraftIssueCounts });
+        logTailoringCompleted(requestStartedAt, { repairApplied: attempt > 0 || sourceRestoredBullets > 0 || projectRecoveryApplied || summaryPolish.applied, summaryPolishApplied: summaryPolish.applied, draftAttempts: attempt + 1, sourceRestoredBullets, firstDraftIssueCounts });
         return respond(200, {
           resume: resumeData,
           ats_review: atsReview,
           tailoring_analysis: analysis,
           ...tailoringResponseMetadata(analysis, atsReview, verifiedCandidateEvidence),
-          repair_applied: attempt > 0 || sourceRestoredBullets > 0 || summaryPolish.applied,
+          repair_applied: attempt > 0 || sourceRestoredBullets > 0 || projectRecoveryApplied || summaryPolish.applied,
         });
       }
 

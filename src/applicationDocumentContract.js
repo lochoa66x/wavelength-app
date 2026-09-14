@@ -1,3 +1,5 @@
+import { outcomeAttributionIssues, missingSourceOutcomeStatements } from './outcomeAttribution.js';
+import { sourceProjectEntries, sourceBlockForEntry, sourceTextKey } from './sourceProjectEvidence.js';
 import { candidateClaimIssues } from './candidateClaims.js';
 import { coverLetterLengthPolicy, countCoverLetterWords } from './coverLetterControls.js';
 import { claimMeaningIssues, contributionEditIssue, hasInternalDocumentLanguage } from './documentIntegrity.js';
@@ -9,7 +11,7 @@ import { academicStatusIssues } from './academicClaims.js';
 // edits, saved-draft readiness and every exporter call the same entry point.
 // Provider citation resolution, source/identity hashes and authorization remain
 // boundary checks; passing this contract never replaces those protections.
-export const DOCUMENT_CONTRACT_VERSION = 9;
+export const DOCUMENT_CONTRACT_VERSION = 10;
 export const COVER_LETTER_PARAGRAPH_LIMIT = 2400;
 export const COVER_LETTER_PARAGRAPH_MIN = 20;
 const refs = (paragraph, camel, snake) => paragraph?.[camel] ?? paragraph?.[snake] ?? [];
@@ -69,6 +71,18 @@ export function validateApplicationDocument({ kind, document, candidateCorpus = 
     const content = document?.document || document || {};
     for (const entry of content.experience || []) if (!(entry.bullets || []).some(bullet => typeof bullet === 'string' ? bullet.trim() : bullet?.text?.trim()))
       add('empty_experience', `Restore supported work details for ${entry.role || entry.title || 'this role'} before exporting.`);
+    const sourceProjects = sourceProjectEntries(candidateCorpus);
+    for (const entry of content.experience || []) if (sourceProjects.some(p => sourceTextKey(p.name) === sourceTextKey(entry.role || entry.title)
+      && sourceTextKey(p.organization) === sourceTextKey(entry.company)
+      && sourceTextKey(p.dates) === sourceTextKey(entry.dates))) add('project_as_employment', 'Keep this source project in Projects; its organization and year do not establish a job.');
+    if (candidateCorpus) for (const section of ['experience', 'projects']) for (const [index, entry] of (content[section] || []).entries()) {
+      const source = sourceBlockForEntry(entry, candidateCorpus, section);
+      if (!source) continue;
+      for (const bullet of entry.bullets || []) for (const message of outcomeAttributionIssues(typeof bullet === 'string' ? bullet : bullet?.text, source.statements))
+        add('outcome_attribution', message, section + '-' + index);
+      if (section === 'projects' && missingSourceOutcomeStatements(strings(entry).join(' '), source.statements).length)
+        add('missing_outcome_evidence', 'Restore the supported project outcome and its source context instead of dropping the evidence.', section + '-' + index);
+    }
     if (candidateCorpus) for (const message of candidateClaimIssues(content.profile ?? content.summary ?? '', candidateCorpus.split(/\r?\n/), { candidateCorpus })) add('profile_claim', message);
     if (candidateCorpus) for (const value of strings({ profile: content.profile ?? content.summary, education: content.education }))
       for (const message of academicStatusIssues(value, [candidateCorpus])) add('academic_status', message);

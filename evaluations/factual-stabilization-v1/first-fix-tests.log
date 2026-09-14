@@ -1,0 +1,69 @@
+✔ observed outcomes cannot acquire personal or implied candidate causality (14.8791ms)
+✔ neutral results, explicit achievements and literal trade tasks remain valid (2.4092ms)
+✔ C02 source project is not an employment entry; real jobs and source boundaries survive (6.0206ms)
+✔ clear job titles and short unfamiliar engagements do not become projects (0.3268ms)
+✔ C02: captured factual defect is blocked by the shared contract (39.6675ms)
+✔ R07: captured factual defect is blocked by the shared contract (9.5864ms)
+[tailor:request] started {"source":"reviewed_custom_job","resumeSize":"short","postingSize":"short","requestBudgetMs":285000,"requirementCount":4,"analysisMaxTokens":5200,"correlationId":"tailor-e205c246-926a-46dc-bcbe-b1c96cc8bc34"}
+[tailor:evidence_analysis] AI request started {"tool":"return_tailoring_analysis","timeoutMs":95000,"maxTokens":5200,"reasoningEffort":"low","correlationId":"tailor-e205c246-926a-46dc-bcbe-b1c96cc8bc34"}
+[tailor:evidence_analysis] AI request completed {"tool":"return_tailoring_analysis","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-e205c246-926a-46dc-bcbe-b1c96cc8bc34"}
+[tailor:resume_draft] AI request started {"tool":"return_trades_resume","timeoutMs":105000,"maxTokens":5200,"reasoningEffort":null,"correlationId":"tailor-e205c246-926a-46dc-bcbe-b1c96cc8bc34"}
+[tailor:resume_draft] AI request completed {"tool":"return_trades_resume","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-e205c246-926a-46dc-bcbe-b1c96cc8bc34"}
+✖ R06: source project recovery retains the example without borrowing the following job (8.7942ms)
+✔ R08: source project recovery retains the example without borrowing the following job (2.2858ms)
+✔ source repair removes only a duplicate statement and preserves a distinct condition (0.4089ms)
+[tailor:validation] draft checked {"correlationId":"tailor-e205c246-926a-46dc-bcbe-b1c96cc8bc34","attempt":1,"status":"ready","issueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:editorial] {"status":"not_tested_here","reason":null,"applied":false}
+[tailor:request] completed {"durationMs":156,"repairApplied":false,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":1,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+✔ trades generation schema and normal handler preserve an explicit project through validation (159.0973ms)
+✔ C02: captured project-year paragraph retains its date and passes claim checks (15.6081ms)
+✔ C06: captured project-year paragraph retains its date and passes claim checks (5.4477ms)
+✔ calendar years cannot authorize counts, durations or another employer/project (1.8961ms)
+✔ captured apprentice profile distinguishes a held certificate and supervised work (7.2143ms)
+✔ employment after a selected project has its own evidence and survives fallback (40.4253ms)
+✔ project sections recover explicit new jobs, never project titles or courses (0.7327ms)
+✔ operational transition is accepted while career-change positioning remains flagged (8.334ms)
+✔ shared résumé contract rejects empty role content without relying on parser success (0.1853ms)
+✔ comma-separated active supervision cannot use the adjective exception (0.3463ms)
+✔ credential name and current status do not borrow the surrounding professional identity (1.1731ms)
+✔ ground-worker profiles retain the supervisor as actor and the named qualification (2.4002ms)
+✔ moving equipment is separate from a candidate relocation commitment (0.5427ms)
+ℹ tests 22
+ℹ suites 0
+ℹ pass 21
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1196.2065
+
+✖ failing tests:
+
+test at tests\projectRecovery.test.js:9:31
+✖ R06: source project recovery retains the example without borrowing the following job (8.7942ms)
+  AssertionError [ERR_ASSERTION]: the complete source statement can already have a deliberate home in experience
+  + actual - expected
+  
+  + [
+  +   {
+  +     bullets: [
+  +       'Deburred components and labelled completed trays with job numbers.'
+  +     ],
+  +     description: 'Example Earlier Workplace | 2023',
+  +     name: 'Production Helper'
+  +   }
+  + ]
+  - undefined
+  
+      at TestContext.<anonymous> (file:///C:/Users/Luis/Documents/Codex/gigscapes-v7/tests/projectRecovery.test.js:17:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ { name: 'Production Helper', description: 'Example Earlier Workplace | 2023', bullets: [Array] } ],
+    expected: undefined,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

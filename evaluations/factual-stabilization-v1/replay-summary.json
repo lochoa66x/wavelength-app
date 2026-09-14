@@ -1,0 +1,13 @@
+{
+  "kind": "deterministic replay, no new provider requests",
+  "documents": 32,
+  "changedResumes": [
+    "C02",
+    "R07"
+  ],
+  "blockedBefore": [
+    "C02",
+    "R07"
+  ],
+  "blockedAfter": []
+}

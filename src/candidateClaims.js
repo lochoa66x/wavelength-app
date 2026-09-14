@@ -2,6 +2,7 @@
 // An exact citation establishes a source, not unrestricted permission to rewrite it.
 const normalize = value => String(value || '').normalize('NFKC').toLowerCase().replace(/[’‘]/g, "'").replace(/[^\p{L}\p{N}%]+/gu, ' ').trim();
 const sentences = value => String(value || '').split(/\n|(?<=[.!?])\s+/).map(x => x.trim()).filter(Boolean);
+import { outcomeAttributionIssues } from './outcomeAttribution.js';
 import { resumeSectionKind } from './resumeOrganization.js';
 import {normalizeClaimNumbers,quantityFacts,sameQuantity,polarityIssues,assuranceIssues} from './claimFacts.js';
 export {normalizeClaimNumbers} from './claimFacts.js';
@@ -152,6 +153,7 @@ export function candidateClaimIssues(proposed,sources=[],context={}) {
    if(years&&!matches.some(f=>new RegExp(`\\b${number}\\s*(?:\\+\\s*)?years?\\b`,'i').test(normalizeClaimNumbers(f.text))))issues.push('The cited evidence does not establish the claimed years of experience.');
    if(matches.every(f=>/\b(?:team|store|department|company|program)\b/i.test(f.text)&&/\b(?:participated|helped|contributed|supported|team.s|store.s)\b/i.test(f.text))&&/\bI\s+(?:(?:personally|independently|directly|single.hand(?:ed)?ly)\s+)?(?:reduced|increased|improved|delivered|achieved|saved|cut|grew)\b/i.test(sentence))issues.push('Keep this result attributed to the team or programme and preserve the candidate’s contribution.');
   }
+  issues.push(...outcomeAttributionIssues(sentence, facts.filter(f=>!namedEmployer||!f.employer||normalize(f.employer)===normalize(namedEmployer)||normalize(f.text).includes(normalize(namedEmployer))).map(f=>f.text)));
   issues.push(...polarityIssues(sentence,relevant.map(f=>f.text)),...assuranceIssues(sentence,relevant.map(f=>f.text)));
   if(leadershipClaim.test(activeLeadership(sentence))&&!/\b(?:assist|assisted|support|supported|observe|observed|help|helped)\b.*\b(?:led|managed|supervised|lead|manage|supervise)\b/i.test(sentence)){
    const established=relevant.some(f=>f.contribution==='leadership');

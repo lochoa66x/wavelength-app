@@ -59,7 +59,8 @@ test("training and guidance cannot become responsibility for configuration", () 
 test("projected results remain projected without rejecting a separately realized metric", () => {
   const source = "The project reduced implementation time by 60% and projected sales-cycle improvements of 40%.";
   assert.equal(claimMeaningIssues("Improved sales cycles by 40%.", [source]).length, 1);
-  assert.deepEqual(claimMeaningIssues("Reduced implementation time by 60%.", [source]), []);
+  assert.deepEqual(claimMeaningIssues("The project reduced implementation time by 60%.", [source]), []);
+  assert.ok(claimMeaningIssues("Reduced implementation time by 60%.", [source]).some(issue => /outcome attribution/.test(issue)), "a realized project result still does not establish candidate ownership");
   assert.deepEqual(claimMeaningIssues("Projected sales-cycle improvements of 40%.", [source]), []);
 });
 

@@ -136,6 +136,7 @@ function historyEntryAssociationSupported(experience, baseResume) {
   return false;
 }
 
+import { sourceProjectEntries } from '../../src/sourceProjectEvidence.js';
 const EMPLOYMENT_ROLE_HINT_PATTERN = /\b(?:architect|consultant|designer|manager|director|engineer|developer|analyst|administrator|coordinator|specialist|lead|supervisor|officer|advisor|adviser|technician|representative|associate|intern|president|principal|owner|founder)\b/i;
 const EMPLOYMENT_DATE_RANGE_PATTERN = /\b(?:(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\.?\s+)?(?:19|20)\d{2}\s*(?:-|–|—|to)\s*(?:(?:(?:Jan(?:uary)?|Feb(?:ruary)?|Mar(?:ch)?|Apr(?:il)?|May|Jun(?:e)?|Jul(?:y)?|Aug(?:ust)?|Sep(?:tember)?|Oct(?:ober)?|Nov(?:ember)?|Dec(?:ember)?)\.?\s+)?(?:19|20)\d{2}|present|current)\b/i;
 const EMPLOYMENT_SINGLE_YEAR_PATTERN = /\b(?:19|20)\d{2}\b\s*$/i;
@@ -153,6 +154,7 @@ export function sourceHistoryEntries(baseResume) {
     .map((line) => line.replace(/^[\s•*-]+/, "").replace(/\s+/g, " ").trim())
     .filter(Boolean);
   const entries = [];
+  const projectHeaders = new Set(sourceProjectEntries(baseResume).map(project => project.headerIndex));
   const grouped = new Map();
   const employerHeadings = new Set();
   let employer = null;
@@ -189,6 +191,7 @@ export function sourceHistoryEntries(baseResume) {
     if (grouped.has(index)) { entries.push(grouped.get(index)); continue; }
     if (employerHeadings.has(index)) continue;
     const line = lines[index];
+    if (projectHeaders.has(index)) continue;
     if (/^(?:led|managed|owned|supported|prepared|provided|participated|contributed|delivered|designed|developed|configured|tested|integrated|oversaw|supervised|coordinated)\b/i.test(line)) continue;
     const rangeMatch = line.match(EMPLOYMENT_DATE_RANGE_PATTERN);
     const singleYearMatch = rangeMatch ? null : line.match(EMPLOYMENT_SINGLE_YEAR_PATTERN);

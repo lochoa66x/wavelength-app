@@ -1,0 +1,47 @@
+✔ observed outcomes cannot acquire personal or implied candidate causality (15.1687ms)
+✔ neutral results, explicit achievements and literal trade tasks remain valid (2.4032ms)
+✔ C02 source project is not an employment entry; real jobs and source boundaries survive (6.0283ms)
+✔ clear job titles and short unfamiliar engagements do not become projects (0.3417ms)
+✔ C02: captured factual defect is blocked by the shared contract (38.5195ms)
+✔ R07: captured factual defect is blocked by the shared contract (9.6087ms)
+✔ indirect causality and qualitative outcomes keep the source actor (0.92ms)
+✔ ownership from another employer cannot authorize the observed outcome (0.4174ms)
+✔ source project recovery restores the result instead of accepting empty or stripped evidence (3.5725ms)
+✔ project classification preserves single-year jobs, company-first rows and dates (0.416ms)
+✖ an employer with a project-like name cannot turn its employees into projects (1.0663ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 10
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 513.758
+
+✖ failing tests:
+
+test at tests\factualStabilization.test.js:89:1
+✖ an employer with a project-like name cannot turn its employees into projects (1.0663ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + []
+  - [
+  -   'Accounts Clerk',
+  -   'Luthier'
+  - ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/Luis/Documents/Codex/gigscapes-v7/tests/factualStabilization.test.js:91:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [],
+    expected: [ 'Accounts Clerk', 'Luthier' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

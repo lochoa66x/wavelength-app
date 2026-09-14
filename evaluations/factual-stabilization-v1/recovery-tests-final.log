@@ -1,0 +1,54 @@
+✔ observed outcomes cannot acquire personal or implied candidate causality (15.6632ms)
+✔ neutral results, explicit achievements and literal trade tasks remain valid (2.3955ms)
+✔ C02 source project is not an employment entry; real jobs and source boundaries survive (6.5822ms)
+✔ clear job titles and short unfamiliar engagements do not become projects (0.3517ms)
+✔ C02: captured factual defect is blocked by the shared contract (40.3496ms)
+✔ R07: captured factual defect is blocked by the shared contract (10.0485ms)
+✔ indirect causality and qualitative outcomes keep the source actor (0.8794ms)
+✔ ownership from another employer cannot authorize the observed outcome (0.428ms)
+✔ source project recovery restores the result instead of accepting empty or stripped evidence (4.3297ms)
+✔ project classification preserves single-year jobs, company-first rows and dates (0.4945ms)
+✔ an employer with a project-like name cannot turn its employees into projects (0.2792ms)
+[tailor:request] started {"source":"reviewed_custom_job","resumeSize":"short","postingSize":"short","requestBudgetMs":285000,"requirementCount":5,"analysisMaxTokens":5200,"correlationId":"tailor-6fed53a7-9a0c-4ae2-8b36-845b72a06bd3"}
+[tailor:evidence_analysis] AI request started {"tool":"return_tailoring_analysis","timeoutMs":95000,"maxTokens":5200,"reasoningEffort":"low","correlationId":"tailor-6fed53a7-9a0c-4ae2-8b36-845b72a06bd3"}
+[tailor:evidence_analysis] AI request completed {"tool":"return_tailoring_analysis","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":1,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-6fed53a7-9a0c-4ae2-8b36-845b72a06bd3"}
+[tailor:resume_draft] AI request started {"tool":"return_tailored_resume","timeoutMs":105000,"maxTokens":5200,"reasoningEffort":null,"correlationId":"tailor-6fed53a7-9a0c-4ae2-8b36-845b72a06bd3"}
+[tailor:resume_draft] AI request completed {"tool":"return_tailored_resume","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-6fed53a7-9a0c-4ae2-8b36-845b72a06bd3"}
+[tailor:validation] draft checked {"correlationId":"tailor-6fed53a7-9a0c-4ae2-8b36-845b72a06bd3","attempt":1,"status":"review","issueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:editorial] {"status":"not_tested_here","reason":null,"applied":false}
+[tailor:request] completed {"durationMs":171,"repairApplied":true,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":1,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":2,"contract_issues":1,"requirement_consistency":0,"writing":0}}
+[tailor:request] started {"source":"reviewed_custom_job","resumeSize":"short","postingSize":"short","requestBudgetMs":285000,"requirementCount":4,"analysisMaxTokens":5200,"correlationId":"tailor-5ad79747-86ed-4945-9858-b73cf952bb8e"}
+[tailor:evidence_analysis] AI request started {"tool":"return_tailoring_analysis","timeoutMs":95000,"maxTokens":5200,"reasoningEffort":"low","correlationId":"tailor-5ad79747-86ed-4945-9858-b73cf952bb8e"}
+[tailor:evidence_analysis] AI request completed {"tool":"return_tailoring_analysis","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-5ad79747-86ed-4945-9858-b73cf952bb8e"}
+[tailor:resume_draft] AI request started {"tool":"return_tailored_resume","timeoutMs":105000,"maxTokens":5200,"reasoningEffort":null,"correlationId":"tailor-5ad79747-86ed-4945-9858-b73cf952bb8e"}
+[tailor:resume_draft] AI request completed {"tool":"return_tailored_resume","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-5ad79747-86ed-4945-9858-b73cf952bb8e"}
+[tailor:validation] draft checked {"correlationId":"tailor-5ad79747-86ed-4945-9858-b73cf952bb8e","attempt":1,"status":"ready","issueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:editorial] {"status":"not_tested_here","reason":null,"applied":false}
+[tailor:request] completed {"durationMs":48,"repairApplied":true,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":1,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":1,"requirement_consistency":0,"writing":0}}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":2,"regenerated":false,"firstDraftIntegrityPass":false,"repairApplied":true,"wordCount":44,"writingIssueCount":0,"durationMs":10}
+✔ C02: normal résumé handler repairs preserved provider output without a rebuild or lost result (178.5762ms)
+✔ R07: normal résumé handler repairs preserved provider output without a rebuild or lost result (51.8604ms)
+✔ cover-letter generation restores outcome evidence; editing and export reject the ownership upgrade (27.9367ms)
+✔ a later repair cannot become successful by deleting the protected outcome or paragraph (0.4976ms)
+✔ shared and qualitative outcome repairs also preserve their source evidence (0.4964ms)
+[tailor:request] started {"source":"reviewed_custom_job","resumeSize":"short","postingSize":"short","requestBudgetMs":285000,"requirementCount":4,"analysisMaxTokens":5200,"correlationId":"tailor-8eac345b-bbad-4f45-bc98-c9bf06bf1a55"}
+[tailor:evidence_analysis] AI request started {"tool":"return_tailoring_analysis","timeoutMs":95000,"maxTokens":5200,"reasoningEffort":"low","correlationId":"tailor-8eac345b-bbad-4f45-bc98-c9bf06bf1a55"}
+[tailor:evidence_analysis] AI request completed {"tool":"return_tailoring_analysis","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-8eac345b-bbad-4f45-bc98-c9bf06bf1a55"}
+[tailor:resume_draft] AI request started {"tool":"return_trades_resume","timeoutMs":105000,"maxTokens":5200,"reasoningEffort":null,"correlationId":"tailor-8eac345b-bbad-4f45-bc98-c9bf06bf1a55"}
+[tailor:resume_draft] AI request completed {"tool":"return_trades_resume","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-8eac345b-bbad-4f45-bc98-c9bf06bf1a55"}
+✔ R06: source project recovery retains the example without borrowing the following job (8.2469ms)
+✔ R08: source project recovery retains the example without borrowing the following job (2.3635ms)
+✔ source repair removes only a duplicate statement and preserves a distinct condition (0.3896ms)
+[tailor:validation] draft checked {"correlationId":"tailor-8eac345b-bbad-4f45-bc98-c9bf06bf1a55","attempt":1,"status":"ready","issueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:editorial] {"status":"not_tested_here","reason":null,"applied":false}
+[tailor:request] completed {"durationMs":156,"repairApplied":true,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":1,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+✔ trades generation schema and normal handler preserve an explicit project through validation (158.8574ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1337.842

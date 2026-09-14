@@ -1,0 +1,34 @@
+
+> wavelength-app@1.0.0 build
+> vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 2482 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                               2.88 kB │ gzip:   1.05 kB
+dist/assets/pdf.worker.min-CLrFZWeq.mjs   1,312.45 kB
+dist/assets/PrivacyPage-BEOFvVjJ.css          2.54 kB │ gzip:   0.99 kB
+dist/assets/LandingPage-CHm362Ug.css         31.70 kB │ gzip:   6.42 kB
+dist/assets/pdf.worker.min-FyRH-AZg.js        0.07 kB │ gzip:   0.09 kB
+dist/assets/resumeSyncConfig-Bd8Umq6s.js      0.97 kB │ gzip:   0.72 kB
+dist/assets/pdfFonts-3DSCudQH.js              1.68 kB │ gzip:   0.93 kB
+dist/assets/privacyConfig-BWu4YzQk.js         1.75 kB │ gzip:   1.04 kB
+dist/assets/coverLetterPdf-fwru5eVu.js        3.15 kB │ gzip:   1.57 kB
+dist/assets/coverLetterDocx-I7ANPaSx.js       3.20 kB │ gzip:   1.45 kB
+dist/assets/resumeDocx-CnWehnuO.js            6.79 kB │ gzip:   2.82 kB
+dist/assets/resumePdf-CjlujHmn.js            11.82 kB │ gzip:   4.70 kB
+dist/assets/PrivacyPage-sHQJz4T-.js          12.63 kB │ gzip:   4.33 kB
+dist/assets/purify.es-BnINGy_Y.js            28.93 kB │ gzip:  11.14 kB
+dist/assets/LandingPage-CjcrH3S_.js          33.39 kB │ gzip:   9.73 kB
+dist/assets/landingIntents-pUCf6z8S.js      130.91 kB │ gzip:  39.83 kB
+dist/assets/index.es-BU2bygCN.js            150.85 kB │ gzip:  51.62 kB
+dist/assets/html2canvas.esm-CBrSDip1.js     201.42 kB │ gzip:  48.03 kB
+dist/assets/App-DPDqLqtK.js                 380.36 kB │ gzip: 110.49 kB
+dist/assets/jspdf.es.min-DBW8akYS.js        390.43 kB │ gzip: 128.77 kB
+dist/assets/index-BmpJy8SR.js               411.05 kB │ gzip: 119.21 kB
+dist/assets/index-L4-Hi2uT.js               429.61 kB │ gzip: 126.63 kB
+dist/assets/index-DS2R4RSz.js               496.64 kB │ gzip: 130.31 kB
+dist/assets/pdf-aGDrFUlY.js                 535.18 kB │ gzip: 162.31 kB
+✓ built in 7.70s

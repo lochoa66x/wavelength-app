@@ -1,0 +1,63 @@
+✔ employment inventory recognizes common inline, parenthesized, and multiline headers (8.1018ms)
+✔ missing intermediate Deloitte role blocks integrity even with accurate included roles (35.1907ms)
+✔ omitted degree and certification are detected separately from training (0.8062ms)
+✔ similar accomplishments in different positions do not erase one role's content (2.5774ms)
+✔ training and guidance cannot become responsibility for configuration (5.2413ms)
+✔ projected results remain projected without rejecting a separately realized metric (5.9474ms)
+✔ project achievements cannot establish PMP or SAP Activate certification (1.1384ms)
+✔ PMO reporting is only partial support for compound delivery ownership (0.4741ms)
+✔ historical provenance cannot borrow leadership from another engagement (0.9177ms)
+✔ a multi-source bullet shows a synthesis and cannot restore a fragment (0.7596ms)
+✔ legacy unscoped change cannot overwrite a user edit or restore unrelated text (0.1841ms)
+✔ candidate level survives submission and API validation without a compulsory example (1.6714ms)
+✔ central responsibilities stay visible even when all formal qualifications match (1.0127ms)
+✔ internal wording in a legacy letter is preserved for review but cannot be exported (8.0767ms)
+✔ recipient block omits job location conflicts while the target retains the reviewed data (17.9027ms)
+✔ a safe paragraph edit survives plan export authorization (3.3036ms)
+✔ a capability-level change marks an older letter as needing refresh (1.3272ms)
+✔ unrelated degree evidence cannot support budget ownership (0.1803ms)
+✔ training consolidation preserves different providers and dates (1.2018ms)
+✔ a capability selection that echoes certification wording does not establish the credential (7.0263ms)
+✔ internal generation terminology in a resume summary is a blocking claim issue (1.1407ms)
+✔ observed outcomes cannot acquire personal or implied candidate causality (15.3597ms)
+✔ neutral results, explicit achievements and literal trade tasks remain valid (2.3923ms)
+✔ C02 source project is not an employment entry; real jobs and source boundaries survive (6.1526ms)
+✔ clear job titles and short unfamiliar engagements do not become projects (0.3563ms)
+✔ C02: captured factual defect is blocked by the shared contract (40.613ms)
+✔ R07: captured factual defect is blocked by the shared contract (10.2691ms)
+✔ indirect causality and qualitative outcomes keep the source actor (0.8652ms)
+✔ ownership from another employer cannot authorize the observed outcome (0.4202ms)
+✔ source project recovery restores the result instead of accepting empty or stripped evidence (4.0531ms)
+✔ project classification preserves single-year jobs, company-first rows and dates (0.4922ms)
+✔ an employer with a project-like name cannot turn its employees into projects (0.2564ms)
+[tailor:request] started {"source":"reviewed_custom_job","resumeSize":"short","postingSize":"short","requestBudgetMs":285000,"requirementCount":5,"analysisMaxTokens":5200,"correlationId":"tailor-4bbccdd5-748a-4b29-b5f0-8067ea4f79d3"}
+[tailor:evidence_analysis] AI request started {"tool":"return_tailoring_analysis","timeoutMs":95000,"maxTokens":5200,"reasoningEffort":"low","correlationId":"tailor-4bbccdd5-748a-4b29-b5f0-8067ea4f79d3"}
+[tailor:evidence_analysis] AI request completed {"tool":"return_tailoring_analysis","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-4bbccdd5-748a-4b29-b5f0-8067ea4f79d3"}
+[tailor:resume_draft] AI request started {"tool":"return_tailored_resume","timeoutMs":105000,"maxTokens":5200,"reasoningEffort":null,"correlationId":"tailor-4bbccdd5-748a-4b29-b5f0-8067ea4f79d3"}
+[tailor:resume_draft] AI request completed {"tool":"return_tailored_resume","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-4bbccdd5-748a-4b29-b5f0-8067ea4f79d3"}
+[tailor:validation] draft checked {"correlationId":"tailor-4bbccdd5-748a-4b29-b5f0-8067ea4f79d3","attempt":1,"status":"review","issueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:editorial] {"status":"not_tested_here","reason":null,"applied":false}
+[tailor:request] completed {"durationMs":167,"repairApplied":true,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":1,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":2,"contract_issues":1,"requirement_consistency":0,"writing":0}}
+[tailor:request] started {"source":"reviewed_custom_job","resumeSize":"short","postingSize":"short","requestBudgetMs":285000,"requirementCount":4,"analysisMaxTokens":5200,"correlationId":"tailor-5ab30f6e-82c9-4508-a786-416e61527d09"}
+[tailor:evidence_analysis] AI request started {"tool":"return_tailoring_analysis","timeoutMs":95000,"maxTokens":5200,"reasoningEffort":"low","correlationId":"tailor-5ab30f6e-82c9-4508-a786-416e61527d09"}
+[tailor:evidence_analysis] AI request completed {"tool":"return_tailoring_analysis","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":1,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-5ab30f6e-82c9-4508-a786-416e61527d09"}
+[tailor:resume_draft] AI request started {"tool":"return_tailored_resume","timeoutMs":105000,"maxTokens":5200,"reasoningEffort":null,"correlationId":"tailor-5ab30f6e-82c9-4508-a786-416e61527d09"}
+[tailor:resume_draft] AI request completed {"tool":"return_tailored_resume","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-5ab30f6e-82c9-4508-a786-416e61527d09"}
+[tailor:validation] draft checked {"correlationId":"tailor-5ab30f6e-82c9-4508-a786-416e61527d09","attempt":1,"status":"ready","issueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:editorial] {"status":"not_tested_here","reason":null,"applied":false}
+[tailor:request] completed {"durationMs":48,"repairApplied":true,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":1,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":1,"requirement_consistency":0,"writing":0}}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":2,"regenerated":false,"firstDraftIntegrityPass":false,"repairApplied":true,"wordCount":44,"writingIssueCount":0,"durationMs":9}
+✔ C02: normal résumé handler repairs preserved provider output without a rebuild or lost result (174.7301ms)
+✔ R07: normal résumé handler repairs preserved provider output without a rebuild or lost result (51.6596ms)
+✔ cover-letter generation restores outcome evidence; editing and export reject the ownership upgrade (26.0909ms)
+✔ a later repair cannot become successful by deleting the protected outcome or paragraph (0.4892ms)
+✔ shared and qualitative outcome repairs also preserve their source evidence (0.6537ms)
+ℹ tests 37
+ℹ suites 0
+ℹ pass 37
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1421.8397

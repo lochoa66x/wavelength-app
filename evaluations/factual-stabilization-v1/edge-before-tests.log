@@ -1,0 +1,59 @@
+✔ observed outcomes cannot acquire personal or implied candidate causality (15.3957ms)
+✔ neutral results, explicit achievements and literal trade tasks remain valid (2.4597ms)
+✔ C02 source project is not an employment entry; real jobs and source boundaries survive (6.2714ms)
+✔ clear job titles and short unfamiliar engagements do not become projects (0.4275ms)
+✔ C02: captured factual defect is blocked by the shared contract (39.165ms)
+✔ R07: captured factual defect is blocked by the shared contract (9.9365ms)
+✖ indirect causality and qualitative outcomes keep the source actor (0.8343ms)
+✖ ownership from another employer cannot authorize the observed outcome (3.4171ms)
+✔ source project recovery restores the result instead of accepting empty or stripped evidence (3.7098ms)
+✔ project classification preserves single-year jobs, company-first rows and dates (0.454ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 8
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 514.3709
+
+✖ failing tests:
+
+test at tests\factualStabilization.test.js:60:1
+✖ indirect causality and qualitative outcomes keep the source actor (0.8343ms)
+  AssertionError [ERR_ASSERTION]: The revised checklist reduced unresolved exceptions from nine to two.
+      at TestContext.<anonymous> (file:///C:/Users/Luis/Documents/Codex/gigscapes-v7/tests/factualStabilization.test.js:62:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests\factualStabilization.test.js:66:1
+✖ ownership from another employer cannot authorize the observed outcome (3.4171ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(candidateClaimIssues('At Birch, I reduced unresolved exceptions from nine to two.',corpus.split('\n'),{candidateCorpus:corpus}).length)
+  
+      at TestContext.<anonymous> (file:///C:/Users/Luis/Documents/Codex/gigscapes-v7/tests/factualStabilization.test.js:68:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

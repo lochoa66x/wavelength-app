@@ -1,0 +1,121 @@
+✖ observed outcomes cannot acquire personal or implied candidate causality (9.7818ms)
+✖ neutral results, explicit achievements and literal trade tasks remain valid (6.0216ms)
+✖ C02 source project is not an employment entry; real jobs and source boundaries survive (3.5469ms)
+✔ clear job titles and short unfamiliar engagements do not become projects (0.4198ms)
+✖ C02: captured factual defect is blocked by the shared contract (5.0783ms)
+✖ R07: captured factual defect is blocked by the shared contract (2.4711ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 1
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 450.4967
+
+✖ failing tests:
+
+test at tests\factualStabilization.test.js:16:1
+✖ observed outcomes cannot acquire personal or implied candidate causality (9.7818ms)
+  AssertionError [ERR_ASSERTION]: Reduced unresolved exceptions from nine to two over the next three reviews.
+      at TestContext.<anonymous> (file:///C:/Users/Luis/Documents/Codex/gigscapes-v7/tests/factualStabilization.test.js:24:11)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests\factualStabilization.test.js:26:1
+✖ neutral results, explicit achievements and literal trade tasks remain valid (6.0216ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(problems('I reduced unresolved exceptions from nine to two.','The team reduced unresolved exceptions from nine to two.').length)
+  
+      at TestContext.<anonymous> (file:///C:/Users/Luis/Documents/Codex/gigscapes-v7/tests/factualStabilization.test.js:34:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at tests\factualStabilization.test.js:37:1
+✖ C02 source project is not an employment entry; real jobs and source boundaries survive (3.5469ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      'Accounting Assistant',
+  +   'Month-end Improvement',
+      'Accounts Payable Clerk'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/Luis/Documents/Codex/gigscapes-v7/tests/factualStabilization.test.js:39:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'Accounting Assistant', 'Month-end Improvement', 'Accounts Payable Clerk' ],
+    expected: [ 'Accounting Assistant', 'Accounts Payable Clerk' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests\factualStabilization.test.js:53:31
+✖ C02: captured factual defect is blocked by the shared contract (5.0783ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///C:/Users/Luis/Documents/Codex/gigscapes-v7/tests/factualStabilization.test.js:55:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\factualStabilization.test.js:53:31
+✖ R07: captured factual defect is blocked by the shared contract (2.4711ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///C:/Users/Luis/Documents/Codex/gigscapes-v7/tests/factualStabilization.test.js:55:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

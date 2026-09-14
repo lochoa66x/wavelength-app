@@ -9,6 +9,7 @@ import { validateCandidateEvidence, formatCandidateEvidence } from "./_lib/candi
 import { applyPrivateResponseHeaders } from "./_lib/privateResponse.js";
 import { containsSelfDisqualifyingCoverLetterLanguage } from "../src/coverLetterLanguage.js";
 import { reviewCoverLetterWriting, mergeCoverLetterParagraphRepair } from "../src/coverLetterWriting.js";
+import { protectAttributedOutcomes, restoreProtectedOutcomes, retainsProtectedOutcomes } from './_lib/outcomeSourceRepair.js';
 import { validateApplicationDocument, mergeCoverLetterReplacement, DOCUMENT_CONTRACT_VERSION } from '../src/applicationDocumentContract.js';
 import { contentReviewTool, reviewApplicationContent } from './_lib/contentEditorialReview.js';
 import { resumeProfessionalLinks } from '../src/resumeIdentity.js';
@@ -352,6 +353,16 @@ RULES
       let writing = reviewCoverLetterWriting(validation.letter.paragraphs, length, writingOptions);
       let repairApplied = false;
       await capture('first_draft', { raw, document: validation.letter, issues: validation.issues, writing: writing.issues, candidateCatalog, postingCatalog });
+      const protectedOutcomes = protectAttributedOutcomes(validation.letter);
+      if (protectedOutcomes.length) {
+        const restored = validateLetter(restoreProtectedOutcomes(validation.letter, protectedOutcomes), validationContext);
+        await capture('source_repair', { document: restored.letter, issues: restored.issues });
+        if (!restored.issues.length) {
+          validation = restored;
+          writing = reviewCoverLetterWriting(validation.letter.paragraphs, length, writingOptions);
+          repairApplied = true;
+        }
+      }
       if (validation.issues.length || writing.issues.length) {
         const ids = new Set(validation.letter.paragraphs.map((p) => p.id));
         const integrityIds = validation.issues.map((issue) => issue.split(":")[0]);
@@ -362,7 +373,8 @@ RULES
         try {
           const revised = await callAI({ ...providerOptions, prompt: repairPrompt, timeoutMs: initialIntegrityPass ? 35_000 : 55_000, maxTokens: targeted ? Math.min(3_000, affected.length * 650 + 350) : 3_000 });
           const merged = regenerateParagraph ? revised : targeted ? mergeCoverLetterParagraphRepair(validation.letter, revised, affected) : revised;
-          const candidate = merged ? validateLetter(merged, validationContext) : null;
+          const protectedRevision = merged ? restoreProtectedOutcomes(merged, protectedOutcomes) : null;
+          const candidate = protectedRevision && retainsProtectedOutcomes(protectedRevision, protectedOutcomes) ? validateLetter(protectedRevision, validationContext) : null;
           const revisedWriting = candidate ? reviewCoverLetterWriting(candidate.letter.paragraphs, length, writingOptions) : null;
           await capture('repair', { raw: revised, merged, issues: candidate?.issues || ['Invalid paragraph replacement'], writing: revisedWriting?.issues || [] });
           if (candidate && !candidate.issues.length && (!initialIntegrityPass || revisedWriting.issues.length < writing.issues.length)) {
@@ -396,7 +408,7 @@ RULES
             const checked = validateLetter({ ...document, length }, validationContext);
             const advice = reviewCoverLetterWriting(checked.letter.paragraphs, length, writingOptions);
             await capture('editorial_validation', { document: checked.letter, issues: checked.issues, writing: advice.issues });
-            return { valid: !checked.issues.length && advice.issues.length <= writing.issues.length, document: checked.letter, validation: checked };
+            return { valid: !checked.issues.length && retainsProtectedOutcomes(checked.letter, protectedOutcomes) && advice.issues.length <= writing.issues.length, document: checked.letter, validation: checked };
           },
         });
         if (editorial.applied) { validation = editorial.validation; writing = reviewCoverLetterWriting(validation.letter.paragraphs, length, writingOptions); }

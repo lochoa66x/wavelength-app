@@ -1,0 +1,18 @@
+✔ observed outcomes cannot acquire personal or implied candidate causality (15.3603ms)
+✔ neutral results, explicit achievements and literal trade tasks remain valid (2.417ms)
+✔ C02 source project is not an employment entry; real jobs and source boundaries survive (6.058ms)
+✔ clear job titles and short unfamiliar engagements do not become projects (0.3439ms)
+✔ C02: captured factual defect is blocked by the shared contract (39.151ms)
+✔ R07: captured factual defect is blocked by the shared contract (9.9728ms)
+✔ indirect causality and qualitative outcomes keep the source actor (0.8997ms)
+✔ ownership from another employer cannot authorize the observed outcome (0.4205ms)
+✔ source project recovery restores the result instead of accepting empty or stripped evidence (3.8335ms)
+✔ project classification preserves single-year jobs, company-first rows and dates (0.4194ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 504.1049
