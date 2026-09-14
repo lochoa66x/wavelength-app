@@ -29,5 +29,59 @@
     "Teal": "sign-in required; no generated output",
     "Rezi": "sign-in required; no generated output"
   },
-  "runtimeClosure": "pending deployment verification"
+  "runtimeClosure": {
+    "verifiedAt": "2026-09-14T01:11:23.925Z",
+    "deploymentId": "dpl_FYy1UMoKpKYinxWJCnaHYAh2yY61",
+    "revision": "51b543b108479873f0d2c0992366ea7e41b4ee22",
+    "checks": [
+      {
+        "route": "/",
+        "method": "GET",
+        "status": 200,
+        "expected": 200,
+        "passed": true,
+        "cacheControl": "public, max-age=0, must-revalidate"
+      },
+      {
+        "route": "/app",
+        "method": "GET",
+        "status": 200,
+        "expected": 200,
+        "passed": true,
+        "cacheControl": "public, max-age=0, must-revalidate"
+      },
+      {
+        "route": "/privacy",
+        "method": "GET",
+        "status": 200,
+        "expected": 200,
+        "passed": true,
+        "cacheControl": "public, max-age=0, must-revalidate"
+      },
+      {
+        "route": "/api/comparison",
+        "method": "POST",
+        "status": 404,
+        "expected": 404,
+        "passed": true,
+        "cacheControl": "public, max-age=0, must-revalidate"
+      },
+      {
+        "route": "/api/tailor",
+        "method": "POST",
+        "status": 401,
+        "expected": 401,
+        "passed": true,
+        "cacheControl": "no-store, max-age=0"
+      },
+      {
+        "route": "/api/cover-letter",
+        "method": "POST",
+        "status": 401,
+        "expected": 401,
+        "passed": true,
+        "cacheControl": "no-store, max-age=0"
+      }
+    ]
+  }
 }
