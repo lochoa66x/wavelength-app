@@ -1,0 +1,959 @@
+{
+  "kind": "deterministic replay of unchanged captured documents; no model requests",
+  "rows": [
+    {
+      "caseId": "C01",
+      "arm": "pipeline",
+      "sourceHash": "ec1f2ab812a47739df71b858001f6dbfc429e6833e791a88375941d8d9a514a8",
+      "unchangedDocumentHash": "7027f29599d0453a49c167d6dad5340d05168b8644082688fdd07740e0bcda8f",
+      "checks": [
+        {
+          "field": "contract_issues",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "provenance_issues",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "unsupported_positioning",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "missing_history",
+          "before": [],
+          "after": []
+        }
+      ],
+      "history": [
+        {
+          "role": "Solution Architect",
+          "company": "Example Systems Canada",
+          "dates": "2022 - 2026"
+        },
+        {
+          "role": "Senior Consultant",
+          "company": "Example Banking Partners",
+          "dates": "2015 - 2022"
+        }
+      ],
+      "letterClaims": [
+        {
+          "paragraph": "p1",
+          "text": "At Example Systems Canada, I led a four-person master-data team through UAT, mock cutover, and defect triage for a public-sector SAP S/4HANA rollout.",
+          "issues": []
+        },
+        {
+          "paragraph": "p2",
+          "text": "During the 2025 Mock Cutover Reconciliation project, duplicate customer records blocked a mock load. I grouped the exceptions by source system, assigned owners, and agreed retest criteria with business data stewards; the next mock load cleared those recorded exceptions.",
+          "issues": []
+        },
+        {
+          "paragraph": "p3",
+          "text": "I also integrated SAP S/4HANA with SAP MDG and coordinated interface testing with the integration team.",
+          "issues": []
+        },
+        {
+          "paragraph": "p4",
+          "text": "I welcome the opportunity to discuss this experience with Example C01 Services.",
+          "issues": []
+        }
+      ]
+    },
+    {
+      "caseId": "C01",
+      "arm": "confirmed_pipeline",
+      "sourceHash": "ec1f2ab812a47739df71b858001f6dbfc429e6833e791a88375941d8d9a514a8",
+      "unchangedDocumentHash": "2d78d23cd5c3329f1288137d3ad66f88d34e7745e7352e3af642b2da78617be0",
+      "checks": [
+        {
+          "field": "contract_issues",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "provenance_issues",
+          "before": [
+            {
+              "id": "experience-0-bullet-2",
+              "experience_index": 0,
+              "bullet_index": 2,
+              "original": "",
+              "proposed": "Grouped duplicate-customer-record exceptions by source system during a mock load, assigned owners, and agreed retest criteria with business data stewards; the next mock load cleared the recorded exceptions.",
+              "issue_type": "incomplete_citation",
+              "unsupported_strengthening": null,
+              "restorable_original": false,
+              "meaning_issues": [],
+              "uncovered_terms": [
+                "grouped",
+                "duplicate",
+                "customer",
+                "record",
+                "exceptions",
+                "source",
+                "during",
+                "mock",
+                "load",
+                "assigned",
+                "owners",
+                "agreed"
+              ],
+              "evidence_citations": []
+            }
+          ],
+          "after": [
+            {
+              "id": "experience-0-bullet-2",
+              "experience_index": 0,
+              "bullet_index": 2,
+              "original": "",
+              "proposed": "Grouped duplicate-customer-record exceptions by source system during a mock load, assigned owners, and agreed retest criteria with business data stewards; the next mock load cleared the recorded exceptions.",
+              "issue_type": "incomplete_citation",
+              "unsupported_strengthening": null,
+              "restorable_original": false,
+              "meaning_issues": [],
+              "uncovered_terms": [
+                "grouped",
+                "duplicate",
+                "customer",
+                "record",
+                "exceptions",
+                "source",
+                "during",
+                "mock",
+                "load",
+                "assigned",
+                "owners",
+                "agreed"
+              ],
+              "evidence_citations": []
+            }
+          ]
+        },
+        {
+          "field": "unsupported_positioning",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "missing_history",
+          "before": [],
+          "after": []
+        }
+      ],
+      "history": [
+        {
+          "role": "Solution Architect",
+          "company": "Example Systems Canada",
+          "dates": "2022 - 2026"
+        },
+        {
+          "role": "Senior Consultant",
+          "company": "Example Banking Partners",
+          "dates": "2015 - 2022"
+        }
+      ],
+      "letterClaims": [
+        {
+          "paragraph": "p1",
+          "text": "At Example Systems Canada, I led a four-person master-data team through UAT, mock cutover, and defect triage for a public-sector SAP S/4HANA rollout. This work combined team coordination with migration testing across key pre-cutover activities.",
+          "issues": []
+        },
+        {
+          "paragraph": "p2",
+          "text": "I also integrated SAP S/4HANA with SAP MDG and coordinated interface testing with the integration team. During a 2025 mock cutover reconciliation, duplicate customer records blocked a mock load; I grouped exceptions by source system, assigned owners, and agreed retest criteria with business data stewards. The next mock load cleared those recorded exceptions.",
+          "issues": []
+        },
+        {
+          "paragraph": "p3",
+          "text": "I welcome the opportunity to discuss this experience with Example C01 Services.",
+          "issues": []
+        }
+      ]
+    },
+    {
+      "caseId": "C02",
+      "arm": "pipeline",
+      "sourceHash": "ab893a128b97dd70bd5c473793aa2175263f73ee97ade02ccb4bb2f8308a04bb",
+      "unchangedDocumentHash": "481c28d0734d4689adadca49d0a97cb137bbe1bd42934e7eaa9f4bd9bc8e0184",
+      "checks": [
+        {
+          "field": "contract_issues",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "provenance_issues",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "unsupported_positioning",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "missing_history",
+          "before": [],
+          "after": []
+        }
+      ],
+      "history": [
+        {
+          "role": "Accounting Assistant",
+          "company": "Example Parts Distribution",
+          "dates": "2021 - 2026"
+        },
+        {
+          "role": "Month-end Improvement",
+          "company": "Example Parts Distribution",
+          "dates": "2025"
+        },
+        {
+          "role": "Accounts Payable Clerk",
+          "company": "Example Office Supply",
+          "dates": "2019 - 2021"
+        }
+      ],
+      "letterClaims": [
+        {
+          "paragraph": "p1",
+          "text": "In my Accounting Assistant role at Example Parts Distribution, I prepared bank reconciliations for six operating accounts and submitted reconciling items to the controller before month-end review.",
+          "issues": []
+        },
+        {
+          "paragraph": "p2",
+          "text": "During a 2025 month-end improvement project, I found duplicate bank-feed entries behind recurring reconciliation differences. I documented the import steps and tested a revised checklist with the controller; unresolved differences fell from 18 to 5 across the next three monthly reviews, and the controller approved final adjustments.",
+          "issues": []
+        },
+        {
+          "paragraph": "p3",
+          "text": "I also matched supplier invoices to purchase orders in QuickBooks and maintained the fixed-asset additions register. My accounting diploma provides the educational foundation for this work.",
+          "issues": []
+        },
+        {
+          "paragraph": "p4",
+          "text": "I welcome the opportunity to discuss my experience with your team.",
+          "issues": []
+        }
+      ]
+    },
+    {
+      "caseId": "C02",
+      "arm": "confirmed_pipeline",
+      "sourceHash": "ab893a128b97dd70bd5c473793aa2175263f73ee97ade02ccb4bb2f8308a04bb",
+      "unchangedDocumentHash": "cd22c1c520b223885a2b8cf8c9c6ffa649761998127633736a2f93c9f717cd39",
+      "checks": [
+        {
+          "field": "contract_issues",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "provenance_issues",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "unsupported_positioning",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "missing_history",
+          "before": [],
+          "after": []
+        }
+      ],
+      "history": [
+        {
+          "role": "Accounting Assistant",
+          "company": "Example Parts Distribution",
+          "dates": "2021 - 2026"
+        },
+        {
+          "role": "Month-end Improvement",
+          "company": "Example Parts Distribution",
+          "dates": "2025"
+        },
+        {
+          "role": "Accounts Payable Clerk",
+          "company": "Example Office Supply",
+          "dates": "2019 - 2021"
+        }
+      ],
+      "letterClaims": [
+        {
+          "paragraph": "p1",
+          "text": "At Example Parts Distribution, I prepared bank reconciliations for six operating accounts and submitted reconciling items to the controller before month-end review. I also matched supplier invoices to purchase orders in QuickBooks and maintained the fixed-asset additions register.",
+          "issues": []
+        },
+        {
+          "paragraph": "p2",
+          "text": "In a 2025 month-end improvement project, I found duplicate bank-feed entries behind recurring reconciliation differences, documented the import steps, and tested a revised checklist with the controller. Unresolved differences fell from 18 to 5 across the next three monthly reviews, and the controller approved final adjustments.",
+          "issues": []
+        },
+        {
+          "paragraph": "p3",
+          "text": "I would welcome the opportunity to discuss my experience with your team.",
+          "issues": []
+        }
+      ]
+    },
+    {
+      "caseId": "C03",
+      "arm": "pipeline",
+      "sourceHash": "12d191aac4a3836b64b9ea09ce5f4a86dff9b09505d3186b1e18bbd75b683ee8",
+      "unchangedDocumentHash": "9d774c55a93f47c1a03b5bce1b385cb7da94a7505b5737a7d25ab95853cf8b96",
+      "checks": [
+        {
+          "field": "contract_issues",
+          "before": [
+            {
+              "code": "profile_claim",
+              "message": "The verified sources do not establish leadership or ownership of this work."
+            },
+            {
+              "code": "profile_claim",
+              "message": "The cited evidence does not establish every required credential with the stated current status."
+            }
+          ],
+          "after": []
+        },
+        {
+          "field": "provenance_issues",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "unsupported_positioning",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "missing_history",
+          "before": [],
+          "after": []
+        }
+      ],
+      "history": [
+        {
+          "role": "Plumbing Apprentice",
+          "company": "Example Home Plumbing",
+          "dates": "2023 - 2026"
+        },
+        {
+          "role": "Warehouse Associate",
+          "company": "Example Building Supply",
+          "dates": "2021 - 2023"
+        }
+      ],
+      "letterClaims": [
+        {
+          "paragraph": "p1",
+          "text": "In my Plumbing Apprentice role at Example Home Plumbing, I assisted a licensed plumber with residential water-line repairs, fixture replacement, and drain clearing.",
+          "issues": []
+        },
+        {
+          "paragraph": "p2",
+          "text": "I measured and cut copper and PEX pipe from the supervising plumber’s marked layout, prepared joints, and recorded materials on work orders. During a supervised pressure check, I located a recurring under-sink leak by drying the fittings and checking each joint in sequence; the plumber approved and completed the connection repair.",
+          "issues": []
+        },
+        {
+          "paragraph": "p3",
+          "text": "I welcome the opportunity to discuss my residential plumbing support experience with Example C03 Services.",
+          "issues": []
+        }
+      ]
+    },
+    {
+      "caseId": "C03",
+      "arm": "confirmed_pipeline",
+      "sourceHash": "12d191aac4a3836b64b9ea09ce5f4a86dff9b09505d3186b1e18bbd75b683ee8",
+      "unchangedDocumentHash": "47f6b851e1fab23e8ca15046e0be980b63fa81022a5b51d34c12f2f33d76f7a8",
+      "checks": [
+        {
+          "field": "contract_issues",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "provenance_issues",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "unsupported_positioning",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "missing_history",
+          "before": [],
+          "after": []
+        }
+      ],
+      "history": [
+        {
+          "role": "Plumbing Apprentice",
+          "company": "Example Home Plumbing",
+          "dates": "2023 - 2026"
+        },
+        {
+          "role": "Warehouse Associate",
+          "company": "Example Building Supply",
+          "dates": "2021 - 2023"
+        }
+      ],
+      "letterClaims": [
+        {
+          "paragraph": "p1",
+          "text": "At Example Home Plumbing, I assisted a licensed plumber with residential water-line repairs, fixture replacement, and drain clearing. During a supervised pressure check, I located a recurring under-sink leak by drying the fittings and checking each joint in sequence; the plumber approved and completed the connection repair.",
+          "issues": []
+        },
+        {
+          "paragraph": "p2",
+          "text": "I measured and cut copper and PEX pipe from the supervising plumber's marked layout, prepared joints, and recorded materials on work orders. I also picked plumbing fittings against order lists and checked part sizes before loading at Example Building Supply.",
+          "issues": []
+        },
+        {
+          "paragraph": "p3",
+          "text": "I welcome the opportunity to discuss my residential plumbing experience and work under licensed supervision.",
+          "issues": []
+        }
+      ]
+    },
+    {
+      "caseId": "C04",
+      "arm": "pipeline",
+      "sourceHash": "8cc7a355c09555b0bac5d5d0729bda56644fe697b4b41702a7c85eecaaf587d7",
+      "unchangedDocumentHash": "6e24c37141f10c1abf3f55917cea1ccc0ae54b6bc0e5726cfe064e1246a62797",
+      "checks": [
+        {
+          "field": "contract_issues",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "provenance_issues",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "unsupported_positioning",
+          "before": [
+            {
+              "title": "Front Desk Supervisor | Registration Coordination",
+              "phrase": "transition"
+            }
+          ],
+          "after": []
+        },
+        {
+          "field": "missing_history",
+          "before": [],
+          "after": []
+        }
+      ],
+      "history": [
+        {
+          "role": "Front Desk Supervisor",
+          "company": "Example Community Recreation",
+          "dates": "2020 - 2026"
+        },
+        {
+          "role": "Retail Assistant",
+          "company": "Example Outdoor Shop",
+          "dates": "2018 - 2020"
+        }
+      ],
+      "letterClaims": [
+        {
+          "paragraph": "p1",
+          "text": "At Example Community Recreation, I coordinated the move from paper waivers to online registration. I mapped missing fields with the programme manager, wrote a desk checklist, and coached reception staff through the first registration week.",
+          "issues": []
+        },
+        {
+          "paragraph": "p2",
+          "text": "I also kept a daily exceptions sheet for families unable to complete online forms and arranged callbacks with the programme lead. The team resolved 32 outstanding registrations during that week. In my front desk role, I handled membership questions and maintained registration records.",
+          "issues": []
+        },
+        {
+          "paragraph": "p3",
+          "text": "I welcome the opportunity to discuss how I can support clear, well-coordinated client onboarding at Example C04 Services.",
+          "issues": []
+        }
+      ]
+    },
+    {
+      "caseId": "C04",
+      "arm": "confirmed_pipeline",
+      "sourceHash": "8cc7a355c09555b0bac5d5d0729bda56644fe697b4b41702a7c85eecaaf587d7",
+      "unchangedDocumentHash": "f5b8ad2becb9ca1a6df12debdf78ee4f6d2607afb22e94044ffb0c125e0396fe",
+      "checks": [
+        {
+          "field": "contract_issues",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "provenance_issues",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "unsupported_positioning",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "missing_history",
+          "before": [],
+          "after": []
+        }
+      ],
+      "history": [
+        {
+          "role": "Front Desk Supervisor",
+          "company": "Example Community Recreation",
+          "dates": "2020 - 2026"
+        },
+        {
+          "role": "Retail Assistant",
+          "company": "Example Outdoor Shop",
+          "dates": "2018 - 2020"
+        }
+      ],
+      "letterClaims": [
+        {
+          "paragraph": "opening",
+          "text": "At Example Community Recreation, I coordinated the move from paper waivers to online registration. I mapped missing fields with the programme manager, wrote a desk checklist, and coached reception staff through the first registration week.",
+          "issues": []
+        },
+        {
+          "paragraph": "evidence",
+          "text": "I also maintained registration records while handling membership questions. For families unable to complete online forms, I kept a daily exceptions sheet and arranged callbacks with the programme lead; the team resolved 32 outstanding registrations during that week.",
+          "issues": []
+        },
+        {
+          "paragraph": "closing",
+          "text": "I welcome the opportunity to discuss my application.",
+          "issues": []
+        }
+      ]
+    },
+    {
+      "caseId": "C05",
+      "arm": "pipeline",
+      "sourceHash": "2f5495c5cae1b085a42a6469d2b54df23b9da0f97ca68f62328cdfa08a2dafb5",
+      "unchangedDocumentHash": "c3fbc5057a2c9bc614689084bdeb92c9f3d5023e5203874e3115816e7202c21b",
+      "checks": [
+        {
+          "field": "contract_issues",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "provenance_issues",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "unsupported_positioning",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "missing_history",
+          "before": [],
+          "after": []
+        }
+      ],
+      "history": [
+        {
+          "role": "Retail Assistant",
+          "company": "Example Corner Market",
+          "dates": "2023 - 2026"
+        }
+      ],
+      "letterClaims": [
+        {
+          "paragraph": "p1",
+          "text": "In a three-student Transit Delay Dashboard course project, I cleaned a public transit dataset in Python and identified duplicate journey identifiers before joining route tables. I built the team’s Power BI view comparing median delay by route and weekday, excluding cancelled trips and stating that limitation beside the chart. I also presented the cleaning decisions to the class.",
+          "issues": []
+        },
+        {
+          "paragraph": "p2",
+          "text": "As a Retail Assistant at Example Corner Market, I checked shelf prices against the till file and reported discrepancies to the shift manager. This work required comparing operational information and communicating identified issues clearly.",
+          "issues": []
+        },
+        {
+          "paragraph": "p3",
+          "text": "I welcome the opportunity to discuss my application with Example C05 Services.",
+          "issues": []
+        }
+      ]
+    },
+    {
+      "caseId": "C05",
+      "arm": "confirmed_pipeline",
+      "sourceHash": "2f5495c5cae1b085a42a6469d2b54df23b9da0f97ca68f62328cdfa08a2dafb5",
+      "unchangedDocumentHash": "a461500cca88cb08764c0912af9fef60244e1205eb586302bdf7be7869328526",
+      "checks": [
+        {
+          "field": "contract_issues",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "provenance_issues",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "unsupported_positioning",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "missing_history",
+          "before": [],
+          "after": []
+        }
+      ],
+      "history": [
+        {
+          "role": "Retail Assistant",
+          "company": "Example Corner Market",
+          "dates": "2023 - 2026"
+        }
+      ],
+      "letterClaims": [
+        {
+          "paragraph": "p1",
+          "text": "In the Transit Delay Dashboard course project at Example Technical College, I cleaned a public transit dataset in Python and identified duplicate journey identifiers before joining route tables. I built the team’s Power BI view of median delay by route and weekday, excluding cancelled trips and stating that limitation beside the chart. I also presented the cleaning decisions to the class.",
+          "issues": []
+        },
+        {
+          "paragraph": "p2",
+          "text": "At Example Corner Market, I checked shelf prices against the till file and reported discrepancies to the shift manager. This work required comparing operational information and communicating identified issues clearly.",
+          "issues": []
+        },
+        {
+          "paragraph": "p3",
+          "text": "I welcome the opportunity to discuss my application.",
+          "issues": []
+        }
+      ]
+    },
+    {
+      "caseId": "C06",
+      "arm": "pipeline",
+      "sourceHash": "38a733c7bf816c80dd1ce048dd1be9e0b8fdb6fdf1ef6d1fc020fef419f0dcdb",
+      "unchangedDocumentHash": "1a78df65e9be9e882318d9a2d5d57f6ae9f58f1ff9b10075ddabadfe1ced4007",
+      "checks": [
+        {
+          "field": "contract_issues",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "provenance_issues",
+          "before": [
+            {
+              "id": "experience-0-bullet-0",
+              "experience_index": 0,
+              "bullet_index": 0,
+              "original": "Edited residential interiors in Lightroom from photographers' files and colour-reference notes.",
+              "proposed": "Match colour across adjoining rooms with mixed window and ceiling light, using a photographer's reference frame and local white-balance masks for the Riverside Apartment Series; the photographer accepted the set after one review round.",
+              "issue_type": "meaning_changed",
+              "unsupported_strengthening": null,
+              "restorable_original": true,
+              "meaning_issues": [
+                "A number or duration is not supported by this claim’s cited candidate evidence.",
+                "The verified sources do not establish use of this tool or resource. Cite the relevant experience before adding it."
+              ],
+              "uncovered_terms": [
+                "match",
+                "adjoining",
+                "rooms",
+                "mixed",
+                "window",
+                "ceiling",
+                "light",
+                "photographer",
+                "frame",
+                "local",
+                "white",
+                "balance"
+              ],
+              "evidence_citations": [
+                {
+                  "source": "base_resume",
+                  "section": "base resume",
+                  "line_index": 4,
+                  "excerpt": "Edited residential interiors in Lightroom from photographers' files and colour-reference notes."
+                }
+              ]
+            },
+            {
+              "id": "experience-1-bullet-0",
+              "experience_index": 1,
+              "bullet_index": 0,
+              "original": "",
+              "proposed": "Labelled memory cards, prepared equipment and organised contact sheets.",
+              "issue_type": "incomplete_citation",
+              "unsupported_strengthening": null,
+              "restorable_original": false,
+              "meaning_issues": [],
+              "uncovered_terms": [
+                "labelled",
+                "memory",
+                "cards",
+                "equipment",
+                "organised",
+                "contact",
+                "sheets"
+              ],
+              "evidence_citations": []
+            }
+          ],
+          "after": [
+            {
+              "id": "experience-0-bullet-0",
+              "experience_index": 0,
+              "bullet_index": 0,
+              "original": "Edited residential interiors in Lightroom from photographers' files and colour-reference notes.",
+              "proposed": "Match colour across adjoining rooms with mixed window and ceiling light, using a photographer's reference frame and local white-balance masks for the Riverside Apartment Series; the photographer accepted the set after one review round.",
+              "issue_type": "meaning_changed",
+              "unsupported_strengthening": null,
+              "restorable_original": true,
+              "meaning_issues": [
+                "A number or duration is not supported by this claim’s cited candidate evidence.",
+                "The verified sources do not establish use of this tool or resource. Cite the relevant experience before adding it."
+              ],
+              "uncovered_terms": [
+                "match",
+                "adjoining",
+                "rooms",
+                "mixed",
+                "window",
+                "ceiling",
+                "light",
+                "photographer",
+                "frame",
+                "local",
+                "white",
+                "balance"
+              ],
+              "evidence_citations": [
+                {
+                  "source": "base_resume",
+                  "section": "base resume",
+                  "line_index": 4,
+                  "excerpt": "Edited residential interiors in Lightroom from photographers' files and colour-reference notes."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "field": "unsupported_positioning",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "missing_history",
+          "before": [],
+          "after": []
+        }
+      ],
+      "history": [
+        {
+          "role": "Freelance Photo Editor",
+          "company": "Self-employed",
+          "dates": "2022 - 2026"
+        },
+        {
+          "role": "Event Photo Assistant",
+          "company": "Example Studio",
+          "dates": "2020 - 2022"
+        }
+      ],
+      "letterClaims": [
+        {
+          "paragraph": "p1",
+          "text": "In the 2025 Riverside Apartment Series for Example Interior Photographer, I matched colour across adjoining rooms with mixed window and ceiling light. I used the photographer’s reference frame and local white-balance masks, and the photographer accepted the set after one review round.",
+          "issues": []
+        },
+        {
+          "paragraph": "p2",
+          "text": "As a self-employed freelance photo editor, I have edited residential interiors in Lightroom from photographers’ files and colour-reference notes. I corrected white balance and vertical alignment without removing permanent room features, then delivered named image sets in the requested dimensions and checked them against the photographer’s shot list.",
+          "issues": []
+        },
+        {
+          "paragraph": "p3",
+          "text": "I welcome the opportunity to discuss my interior-editing work and portfolio.",
+          "issues": []
+        }
+      ]
+    },
+    {
+      "caseId": "C06",
+      "arm": "confirmed_pipeline",
+      "sourceHash": "38a733c7bf816c80dd1ce048dd1be9e0b8fdb6fdf1ef6d1fc020fef419f0dcdb",
+      "unchangedDocumentHash": "8a76554319a61f9865d851f8ac4c61f2e1d464342cbff072a664b2232da1ace7",
+      "checks": [
+        {
+          "field": "contract_issues",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "provenance_issues",
+          "before": [
+            {
+              "id": "experience-0-bullet-0",
+              "experience_index": 0,
+              "bullet_index": 0,
+              "original": "Edited residential interiors in Lightroom from photographers' files and colour-reference notes.",
+              "proposed": "Match colour across adjoining rooms with mixed window and ceiling light for the Riverside Apartment Series, using a reference frame and local white-balance masks; the photographer accepted the set after one review round.",
+              "issue_type": "meaning_changed",
+              "unsupported_strengthening": null,
+              "restorable_original": true,
+              "meaning_issues": [
+                "A number or duration is not supported by this claim’s cited candidate evidence.",
+                "The verified sources do not establish use of this tool or resource. Cite the relevant experience before adding it."
+              ],
+              "uncovered_terms": [
+                "match",
+                "adjoining",
+                "rooms",
+                "mixed",
+                "window",
+                "ceiling",
+                "light",
+                "riverside",
+                "apartment",
+                "series",
+                "frame",
+                "local"
+              ],
+              "evidence_citations": [
+                {
+                  "source": "base_resume",
+                  "section": "base resume",
+                  "line_index": 4,
+                  "excerpt": "Edited residential interiors in Lightroom from photographers' files and colour-reference notes."
+                }
+              ]
+            },
+            {
+              "id": "experience-1-bullet-0",
+              "experience_index": 1,
+              "bullet_index": 0,
+              "original": "",
+              "proposed": "Organized contact sheets, labelled memory cards, and prepared equipment for event photography work.",
+              "issue_type": "incomplete_citation",
+              "unsupported_strengthening": null,
+              "restorable_original": false,
+              "meaning_issues": [],
+              "uncovered_terms": [
+                "organized",
+                "contact",
+                "sheets",
+                "labelled",
+                "memory",
+                "cards",
+                "equipment",
+                "event",
+                "photography"
+              ],
+              "evidence_citations": []
+            }
+          ],
+          "after": [
+            {
+              "id": "experience-0-bullet-0",
+              "experience_index": 0,
+              "bullet_index": 0,
+              "original": "Edited residential interiors in Lightroom from photographers' files and colour-reference notes.",
+              "proposed": "Match colour across adjoining rooms with mixed window and ceiling light for the Riverside Apartment Series, using a reference frame and local white-balance masks; the photographer accepted the set after one review round.",
+              "issue_type": "meaning_changed",
+              "unsupported_strengthening": null,
+              "restorable_original": true,
+              "meaning_issues": [
+                "A number or duration is not supported by this claim’s cited candidate evidence.",
+                "The verified sources do not establish use of this tool or resource. Cite the relevant experience before adding it."
+              ],
+              "uncovered_terms": [
+                "match",
+                "adjoining",
+                "rooms",
+                "mixed",
+                "window",
+                "ceiling",
+                "light",
+                "riverside",
+                "apartment",
+                "series",
+                "frame",
+                "local"
+              ],
+              "evidence_citations": [
+                {
+                  "source": "base_resume",
+                  "section": "base resume",
+                  "line_index": 4,
+                  "excerpt": "Edited residential interiors in Lightroom from photographers' files and colour-reference notes."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "field": "unsupported_positioning",
+          "before": [],
+          "after": []
+        },
+        {
+          "field": "missing_history",
+          "before": [],
+          "after": []
+        }
+      ],
+      "history": [
+        {
+          "role": "Freelance Photo Editor",
+          "company": "Self-employed",
+          "dates": "2022 - 2026"
+        },
+        {
+          "role": "Event Photo Assistant",
+          "company": "Example Studio",
+          "dates": "2020 - 2022"
+        }
+      ],
+      "letterClaims": [
+        {
+          "paragraph": "opening",
+          "text": "I matched colour across adjoining rooms with mixed window and ceiling light for the Riverside Apartment Series, using the photographer’s reference frame and local white-balance masks. The photographer accepted the set after one review round.",
+          "issues": []
+        },
+        {
+          "paragraph": "evidence",
+          "text": "As a self-employed freelance photo editor, I edited residential interiors in Lightroom from photographers’ files and colour-reference notes. I corrected white balance and vertical alignment without removing permanent room features, then delivered named image sets in the requested dimensions and checked them against the photographer’s shot list.",
+          "issues": []
+        },
+        {
+          "paragraph": "closing",
+          "text": "My interior-editing portfolio is available at https://example.com/sofia-interiors. I welcome the opportunity to discuss this work.",
+          "issues": []
+        }
+      ]
+    }
+  ]
+}

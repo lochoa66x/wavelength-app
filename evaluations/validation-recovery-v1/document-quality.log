@@ -1,0 +1,37 @@
+
+> wavelength-app@1.0.0 verify:document-quality
+> node scripts/verifyDocumentQuality.mjs
+
+{
+  "output": "C:\\Users\\Luis\\Documents\\Codex\\gigscapes-v7\\tmp\\document-quality\\",
+  "results": [
+    {
+      "style": "bold",
+      "kind": "resume",
+      "pages": 2,
+      "expectedContent": "preserved",
+      "selectableText": true
+    },
+    {
+      "style": "bold",
+      "kind": "letter",
+      "pages": 1,
+      "expectedContent": "preserved",
+      "selectableText": true
+    },
+    {
+      "style": "ats",
+      "kind": "resume",
+      "pages": 2,
+      "expectedContent": "preserved",
+      "selectableText": true
+    },
+    {
+      "style": "ats",
+      "kind": "letter",
+      "pages": 1,
+      "expectedContent": "preserved",
+      "selectableText": true
+    }
+  ]
+}

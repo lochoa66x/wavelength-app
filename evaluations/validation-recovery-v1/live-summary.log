@@ -1,0 +1,322 @@
+[
+  {
+    "caseId": "C01",
+    "kind": "letter",
+    "http": 200,
+    "firstIssues": 0,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 17
+  },
+  {
+    "caseId": "C01",
+    "kind": "resume",
+    "http": 200,
+    "firstIssues": 1,
+    "repairs": 1,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 29
+  },
+  {
+    "caseId": "C02",
+    "kind": "letter",
+    "http": 200,
+    "firstIssues": 0,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 12
+  },
+  {
+    "caseId": "C02",
+    "kind": "resume",
+    "http": 200,
+    "firstIssues": 0,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 22
+  },
+  {
+    "caseId": "C03",
+    "kind": "letter",
+    "http": 200,
+    "firstIssues": 0,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 12
+  },
+  {
+    "caseId": "C03",
+    "kind": "resume",
+    "http": 200,
+    "firstIssues": 0,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 20
+  },
+  {
+    "caseId": "C04",
+    "kind": "letter",
+    "http": 200,
+    "firstIssues": 0,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 11
+  },
+  {
+    "caseId": "C04",
+    "kind": "resume",
+    "http": 200,
+    "firstIssues": 0,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 21
+  },
+  {
+    "caseId": "C05",
+    "kind": "letter",
+    "http": 200,
+    "firstIssues": 0,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 23
+  },
+  {
+    "caseId": "C05",
+    "kind": "resume",
+    "http": 200,
+    "firstIssues": 0,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 24
+  },
+  {
+    "caseId": "C06",
+    "kind": "letter",
+    "http": 200,
+    "firstIssues": 0,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 10
+  },
+  {
+    "caseId": "C06",
+    "kind": "resume",
+    "http": 200,
+    "firstIssues": 0,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 15
+  },
+  {
+    "caseId": "R01",
+    "kind": "letter",
+    "http": 200,
+    "firstIssues": 1,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 17
+  },
+  {
+    "caseId": "R01",
+    "kind": "resume",
+    "http": 200,
+    "firstIssues": 0,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 18
+  },
+  {
+    "caseId": "R02",
+    "kind": "letter",
+    "http": 200,
+    "firstIssues": 0,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 12
+  },
+  {
+    "caseId": "R02",
+    "kind": "resume",
+    "http": 200,
+    "firstIssues": 1,
+    "repairs": 1,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 28
+  },
+  {
+    "caseId": "R03",
+    "kind": "letter",
+    "http": 200,
+    "firstIssues": 1,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 17
+  },
+  {
+    "caseId": "R03",
+    "kind": "resume",
+    "http": 200,
+    "firstIssues": 1,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 15
+  },
+  {
+    "caseId": "R04",
+    "kind": "letter",
+    "http": 200,
+    "firstIssues": 0,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 9
+  },
+  {
+    "caseId": "R04",
+    "kind": "resume",
+    "http": 200,
+    "firstIssues": 0,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 18
+  },
+  {
+    "caseId": "R05",
+    "kind": "letter",
+    "http": 200,
+    "firstIssues": 1,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 16
+  },
+  {
+    "caseId": "R05",
+    "kind": "resume",
+    "http": 200,
+    "firstIssues": 1,
+    "repairs": 1,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 21
+  },
+  {
+    "caseId": "R06",
+    "kind": "letter",
+    "http": 200,
+    "firstIssues": 0,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 11
+  },
+  {
+    "caseId": "R06",
+    "kind": "resume",
+    "http": 422,
+    "firstIssues": 2,
+    "repairs": 2,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 32
+  },
+  {
+    "caseId": "R07",
+    "kind": "letter",
+    "http": 200,
+    "firstIssues": 1,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 16
+  },
+  {
+    "caseId": "R07",
+    "kind": "resume",
+    "http": 200,
+    "firstIssues": 0,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 16
+  },
+  {
+    "caseId": "R08",
+    "kind": "letter",
+    "http": 200,
+    "firstIssues": 0,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 15
+  },
+  {
+    "caseId": "R08",
+    "kind": "resume",
+    "http": 422,
+    "firstIssues": 2,
+    "repairs": 2,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 24
+  },
+  {
+    "caseId": "R09",
+    "kind": "letter",
+    "http": 200,
+    "firstIssues": 0,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 14
+  },
+  {
+    "caseId": "R09",
+    "kind": "resume",
+    "http": 200,
+    "firstIssues": 0,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 13
+  },
+  {
+    "caseId": "R10",
+    "kind": "letter",
+    "http": 200,
+    "firstIssues": 0,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 15
+  },
+  {
+    "caseId": "R10",
+    "kind": "resume",
+    "http": 200,
+    "firstIssues": 0,
+    "repairs": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "seconds": 20
+  }
+]

@@ -9,7 +9,7 @@ import { createCoverLetterPdfBlob } from './coverLetterPdf.js';
 
 export async function recoveryDownload(results) {
  const zip=new JSZip(), report=[];
- for(const fixture of recoveryCases) {
+ for(const fixture of recoveryCases.filter(c=>results.some(r=>r.caseId===c.id))) {
   const r=results.find(r=>r.caseId===fixture.id&&r.kind==='resume');
   const l=results.find(r=>r.caseId===fixture.id&&r.kind==='letter');
   const context={baseResume:fixture.resume,item:fixture.job,resumeData:r?.delivered?.resume,atsReview:r?.delivered?.ats_review};
@@ -33,7 +33,7 @@ export async function recoveryDownload(results) {
  }
  zip.file('export-report.json',JSON.stringify(report,null,2));
  const url=URL.createObjectURL(await zip.generateAsync({type:'blob'}));
- const anchor=document.createElement('a');anchor.href=url;anchor.download='gigscapes-validation-recovery-documents.zip';anchor.click();
+ const anchor=document.createElement('a');anchor.href=url;anchor.download='gigscapes-validation-recovery-retest-documents.zip';anchor.click();
  setTimeout(()=>URL.revokeObjectURL(url),1000);
  return report;
 }

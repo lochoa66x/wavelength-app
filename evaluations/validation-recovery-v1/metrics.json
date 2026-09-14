@@ -1,0 +1,860 @@
+[
+  {
+    "caseId": "C01",
+    "kind": "letter",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 17069,
+    "calls": 2,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 0,
+    "firstIssues": [],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "issues": [],
+    "letterValidation": {
+      "contractVersion": 8,
+      "firstDraftIntegrityPass": true,
+      "repairApplied": false,
+      "writingIssueCount": 0,
+      "editorialStatus": "rejected_review",
+      "editorialApplied": false,
+      "editorialReviewNeeded": true
+    }
+  },
+  {
+    "caseId": "C01",
+    "kind": "resume",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 29102,
+    "calls": 4,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 1,
+    "firstIssues": [],
+    "repairDrafts": 1,
+    "fallback": false,
+    "emptyRoles": [],
+    "status": "ready",
+    "writing": {
+      "status": "pass",
+      "score": 100,
+      "issue_count": 0
+    },
+    "profile": "SAP solution architect with public-sector SAP S/4HANA rollout experience and a focus on master-data testing and mock cutover.",
+    "issues": []
+  },
+  {
+    "caseId": "C02",
+    "kind": "letter",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 11765,
+    "calls": 2,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 0,
+    "firstIssues": [],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "issues": [],
+    "letterValidation": {
+      "contractVersion": 8,
+      "firstDraftIntegrityPass": true,
+      "repairApplied": false,
+      "writingIssueCount": 0,
+      "editorialStatus": "kept",
+      "editorialApplied": false,
+      "editorialReviewNeeded": false
+    }
+  },
+  {
+    "caseId": "C02",
+    "kind": "resume",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 22053,
+    "calls": 3,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 0,
+    "firstIssues": [],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "status": "review",
+    "writing": {
+      "status": "review",
+      "score": 96,
+      "issue_count": 1
+    },
+    "profile": "Accounting assistant with an Accounting diploma and experience supporting bank reconciliations and fixed-asset additions records.",
+    "issues": []
+  },
+  {
+    "caseId": "C03",
+    "kind": "letter",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 11710,
+    "calls": 2,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 0,
+    "firstIssues": [],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "issues": [],
+    "letterValidation": {
+      "contractVersion": 8,
+      "firstDraftIntegrityPass": true,
+      "repairApplied": false,
+      "writingIssueCount": 0,
+      "editorialStatus": "rejected_validation",
+      "editorialApplied": false,
+      "editorialReviewNeeded": true
+    }
+  },
+  {
+    "caseId": "C03",
+    "kind": "resume",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 20134,
+    "calls": 3,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 0,
+    "firstIssues": [],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "status": "ready",
+    "writing": {
+      "status": "pass",
+      "score": 100,
+      "issue_count": 0
+    },
+    "profile": "Plumbing Apprentice with residential experience assisting a licensed plumber and a Plumbing Techniques certificate.",
+    "issues": []
+  },
+  {
+    "caseId": "C04",
+    "kind": "letter",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 11425,
+    "calls": 2,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 0,
+    "firstIssues": [],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "issues": [],
+    "letterValidation": {
+      "contractVersion": 8,
+      "firstDraftIntegrityPass": true,
+      "repairApplied": false,
+      "writingIssueCount": 0,
+      "editorialStatus": "revised",
+      "editorialApplied": true,
+      "editorialReviewNeeded": false
+    }
+  },
+  {
+    "caseId": "C04",
+    "kind": "resume",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 21366,
+    "calls": 3,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 0,
+    "firstIssues": [],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "status": "ready",
+    "writing": {
+      "status": "pass",
+      "score": 100,
+      "issue_count": 0
+    },
+    "profile": "Front desk supervisor with experience supporting online registration transitions through process documentation and staff coaching.",
+    "issues": []
+  },
+  {
+    "caseId": "C05",
+    "kind": "letter",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 23205,
+    "calls": 2,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 0,
+    "firstIssues": [],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "issues": [],
+    "letterValidation": {
+      "contractVersion": 8,
+      "firstDraftIntegrityPass": true,
+      "repairApplied": false,
+      "writingIssueCount": 0,
+      "editorialStatus": "revised",
+      "editorialApplied": true,
+      "editorialReviewNeeded": false
+    }
+  },
+  {
+    "caseId": "C05",
+    "kind": "resume",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 23583,
+    "calls": 3,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 0,
+    "firstIssues": [],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "status": "ready",
+    "writing": {
+      "status": "pass",
+      "score": 100,
+      "issue_count": 0
+    },
+    "profile": "Retail assistant with a Data Analytics diploma and coursework in public transit data analysis, including a Power BI dashboard.",
+    "issues": []
+  },
+  {
+    "caseId": "C06",
+    "kind": "letter",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 9712,
+    "calls": 2,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 0,
+    "firstIssues": [],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "issues": [],
+    "letterValidation": {
+      "contractVersion": 8,
+      "firstDraftIntegrityPass": true,
+      "repairApplied": false,
+      "writingIssueCount": 0,
+      "editorialStatus": "kept",
+      "editorialApplied": false,
+      "editorialReviewNeeded": false
+    }
+  },
+  {
+    "caseId": "C06",
+    "kind": "resume",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 14605,
+    "calls": 3,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 0,
+    "firstIssues": [],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "status": "ready",
+    "writing": {
+      "status": "pass",
+      "score": 100,
+      "issue_count": 0
+    },
+    "profile": "Freelance photo editor with residential-interior Lightroom experience, including colour matching across mixed window and ceiling light.",
+    "issues": []
+  },
+  {
+    "caseId": "R01",
+    "kind": "letter",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 16918,
+    "calls": 3,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 1,
+    "firstIssues": [
+      "transfers: The verified sources do not establish use of this tool or resource. Cite the relevant experience before adding it."
+    ],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "issues": [],
+    "letterValidation": {
+      "contractVersion": 8,
+      "firstDraftIntegrityPass": false,
+      "repairApplied": true,
+      "writingIssueCount": 0,
+      "editorialStatus": "revised",
+      "editorialApplied": true,
+      "editorialReviewNeeded": false
+    }
+  },
+  {
+    "caseId": "R01",
+    "kind": "resume",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 18188,
+    "calls": 3,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 0,
+    "firstIssues": [],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "status": "ready",
+    "writing": {
+      "status": "pass",
+      "score": 100,
+      "issue_count": 0
+    },
+    "profile": "Cellar Technician with practical brewery experience and a Brewing Operations certificate.",
+    "issues": []
+  },
+  {
+    "caseId": "R02",
+    "kind": "letter",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 11786,
+    "calls": 2,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 0,
+    "firstIssues": [],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "issues": [],
+    "letterValidation": {
+      "contractVersion": 8,
+      "firstDraftIntegrityPass": true,
+      "repairApplied": false,
+      "writingIssueCount": 0,
+      "editorialStatus": "kept",
+      "editorialApplied": false,
+      "editorialReviewNeeded": false
+    }
+  },
+  {
+    "caseId": "R02",
+    "kind": "resume",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 28287,
+    "calls": 4,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 1,
+    "firstIssues": [],
+    "repairDrafts": 1,
+    "fallback": false,
+    "emptyRoles": [],
+    "status": "ready",
+    "writing": {
+      "status": "pass",
+      "score": 100,
+      "issue_count": 0
+    },
+    "profile": "Current Floral Designer with a Floral Design certificate, focused on bouquet construction and stem preparation.",
+    "issues": []
+  },
+  {
+    "caseId": "R03",
+    "kind": "letter",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 16893,
+    "calls": 3,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 1,
+    "firstIssues": [
+      "p1: The proposed action contradicts an explicit negative statement in its cited evidence."
+    ],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "issues": [],
+    "letterValidation": {
+      "contractVersion": 8,
+      "firstDraftIntegrityPass": false,
+      "repairApplied": true,
+      "writingIssueCount": 0,
+      "editorialStatus": "rejected_validation",
+      "editorialApplied": false,
+      "editorialReviewNeeded": true
+    }
+  },
+  {
+    "caseId": "R03",
+    "kind": "resume",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 14981,
+    "calls": 3,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 1,
+    "firstIssues": [],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "status": "ready",
+    "writing": {
+      "status": "pass",
+      "score": 100,
+      "issue_count": 0
+    },
+    "profile": "Pet Groomer with current salon experience and a Pet Grooming certificate; introduced a coat-condition sketch approved after a one-week staff trial.",
+    "issues": []
+  },
+  {
+    "caseId": "R04",
+    "kind": "letter",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 8715,
+    "calls": 2,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 0,
+    "firstIssues": [],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "issues": [],
+    "letterValidation": {
+      "contractVersion": 8,
+      "firstDraftIntegrityPass": true,
+      "repairApplied": false,
+      "writingIssueCount": 0,
+      "editorialStatus": "kept",
+      "editorialApplied": false,
+      "editorialReviewNeeded": false
+    }
+  },
+  {
+    "caseId": "R04",
+    "kind": "resume",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 17538,
+    "calls": 3,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 0,
+    "firstIssues": [],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "status": "ready",
+    "writing": {
+      "status": "pass",
+      "score": 100,
+      "issue_count": 0
+    },
+    "profile": "Freelance audio editor with an Audio Production diploma, specializing in dialogue editing and spoken-word audio cleanup in Reaper.",
+    "issues": []
+  },
+  {
+    "caseId": "R05",
+    "kind": "letter",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 15702,
+    "calls": 3,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 1,
+    "firstIssues": [
+      "evidence: The cited evidence does not establish this relocation claim."
+    ],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "issues": [],
+    "letterValidation": {
+      "contractVersion": 8,
+      "firstDraftIntegrityPass": false,
+      "repairApplied": true,
+      "writingIssueCount": 0,
+      "editorialStatus": "kept",
+      "editorialApplied": false,
+      "editorialReviewNeeded": false
+    }
+  },
+  {
+    "caseId": "R05",
+    "kind": "resume",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 21157,
+    "calls": 4,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 1,
+    "firstIssues": [],
+    "repairDrafts": 1,
+    "fallback": false,
+    "emptyRoles": [],
+    "status": "ready",
+    "writing": {
+      "status": "pass",
+      "score": 100,
+      "issue_count": 0
+    },
+    "profile": "Museum collections assistant with a Museum Studies diploma and experience in collection documentation and object handling.",
+    "issues": []
+  },
+  {
+    "caseId": "R06",
+    "kind": "letter",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 10581,
+    "calls": 2,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 0,
+    "firstIssues": [],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "issues": [],
+    "letterValidation": {
+      "contractVersion": 8,
+      "firstDraftIntegrityPass": true,
+      "repairApplied": false,
+      "writingIssueCount": 0,
+      "editorialStatus": "kept",
+      "editorialApplied": false,
+      "editorialReviewNeeded": false
+    }
+  },
+  {
+    "caseId": "R06",
+    "kind": "resume",
+    "httpStatus": 422,
+    "available": false,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 32240,
+    "calls": 4,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 2,
+    "firstIssues": [
+      {
+        "code": "profile_claim",
+        "message": "The cited evidence does not establish every required credential with the stated current status."
+      }
+    ],
+    "repairDrafts": 2,
+    "fallback": false,
+    "emptyRoles": [],
+    "status": "blocked",
+    "writing": {
+      "status": "pass",
+      "score": 100,
+      "issue_count": 0
+    },
+    "issues": [
+      {
+        "code": "profile_claim",
+        "message": "The cited evidence does not establish every required credential with the stated current status."
+      }
+    ]
+  },
+  {
+    "caseId": "R07",
+    "kind": "letter",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 16462,
+    "calls": 3,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 1,
+    "firstIssues": [
+      "p3: A number or duration is not supported by this claim’s cited candidate evidence."
+    ],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "issues": [],
+    "letterValidation": {
+      "contractVersion": 8,
+      "firstDraftIntegrityPass": false,
+      "repairApplied": true,
+      "writingIssueCount": 0,
+      "editorialStatus": "kept",
+      "editorialApplied": false,
+      "editorialReviewNeeded": false
+    }
+  },
+  {
+    "caseId": "R07",
+    "kind": "resume",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 16178,
+    "calls": 3,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 0,
+    "firstIssues": [],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "status": "ready",
+    "writing": {
+      "status": "pass",
+      "score": 100,
+      "issue_count": 0
+    },
+    "profile": "Hotel night auditor with shift-close reconciliation experience and a Hospitality Operations diploma.",
+    "issues": []
+  },
+  {
+    "caseId": "R08",
+    "kind": "letter",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 15312,
+    "calls": 2,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 0,
+    "firstIssues": [],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "issues": [],
+    "letterValidation": {
+      "contractVersion": 8,
+      "firstDraftIntegrityPass": true,
+      "repairApplied": false,
+      "writingIssueCount": 0,
+      "editorialStatus": "rejected_review",
+      "editorialApplied": false,
+      "editorialReviewNeeded": true
+    }
+  },
+  {
+    "caseId": "R08",
+    "kind": "resume",
+    "httpStatus": 422,
+    "available": false,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 24364,
+    "calls": 4,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 2,
+    "firstIssues": [
+      {
+        "code": "profile_claim",
+        "message": "The cited evidence does not establish every required credential with the stated current status."
+      }
+    ],
+    "repairDrafts": 2,
+    "fallback": false,
+    "emptyRoles": [],
+    "status": "blocked",
+    "writing": {
+      "status": "pass",
+      "score": 100,
+      "issue_count": 0
+    },
+    "issues": [
+      {
+        "code": "profile_claim",
+        "message": "The verified sources do not establish leadership or ownership of this work."
+      }
+    ]
+  },
+  {
+    "caseId": "R09",
+    "kind": "letter",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 13912,
+    "calls": 2,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 0,
+    "firstIssues": [],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "issues": [],
+    "letterValidation": {
+      "contractVersion": 8,
+      "firstDraftIntegrityPass": true,
+      "repairApplied": false,
+      "writingIssueCount": 0,
+      "editorialStatus": "revised",
+      "editorialApplied": true,
+      "editorialReviewNeeded": false
+    }
+  },
+  {
+    "caseId": "R09",
+    "kind": "resume",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 12634,
+    "calls": 3,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 0,
+    "firstIssues": [],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "status": "ready",
+    "writing": {
+      "status": "pass",
+      "score": 100,
+      "issue_count": 0
+    },
+    "profile": "Library Assistant with current visitor-facing library experience and a Library and Information Technician diploma, supporting accurate circulation and catalogue records.",
+    "issues": []
+  },
+  {
+    "caseId": "R10",
+    "kind": "letter",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 15002,
+    "calls": 2,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 0,
+    "firstIssues": [],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "issues": [],
+    "letterValidation": {
+      "contractVersion": 8,
+      "firstDraftIntegrityPass": true,
+      "repairApplied": false,
+      "writingIssueCount": 0,
+      "editorialStatus": "revised",
+      "editorialApplied": true,
+      "editorialReviewNeeded": false
+    }
+  },
+  {
+    "caseId": "R10",
+    "kind": "resume",
+    "httpStatus": 200,
+    "available": true,
+    "revision": "aa82c363750e87464e02b854c5f425ba1d4fcef6",
+    "durationMs": 19636,
+    "calls": 3,
+    "models": [
+      "gpt-5.6-terra"
+    ],
+    "firstIssueCount": 0,
+    "firstIssues": [],
+    "repairDrafts": 0,
+    "fallback": false,
+    "emptyRoles": [],
+    "status": "ready",
+    "writing": {
+      "status": "pass",
+      "score": 100,
+      "issue_count": 0
+    },
+    "profile": "Catalogue Assistant with a Digital Commerce diploma and a focus on product attributes, spreadsheet checks, and supplier records.",
+    "issues": []
+  }
+]

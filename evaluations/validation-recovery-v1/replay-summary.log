@@ -1,0 +1,314 @@
+[
+  {
+    "caseId": "C01",
+    "arm": "pipeline",
+    "checks": [
+      {
+        "field": "contract_issues",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "provenance_issues",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "unsupported_positioning",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "missing_history",
+        "before": 0,
+        "after": 0
+      }
+    ]
+  },
+  {
+    "caseId": "C01",
+    "arm": "confirmed_pipeline",
+    "checks": [
+      {
+        "field": "contract_issues",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "provenance_issues",
+        "before": 1,
+        "after": 1
+      },
+      {
+        "field": "unsupported_positioning",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "missing_history",
+        "before": 0,
+        "after": 0
+      }
+    ]
+  },
+  {
+    "caseId": "C02",
+    "arm": "pipeline",
+    "checks": [
+      {
+        "field": "contract_issues",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "provenance_issues",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "unsupported_positioning",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "missing_history",
+        "before": 0,
+        "after": 0
+      }
+    ]
+  },
+  {
+    "caseId": "C02",
+    "arm": "confirmed_pipeline",
+    "checks": [
+      {
+        "field": "contract_issues",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "provenance_issues",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "unsupported_positioning",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "missing_history",
+        "before": 0,
+        "after": 0
+      }
+    ]
+  },
+  {
+    "caseId": "C03",
+    "arm": "pipeline",
+    "checks": [
+      {
+        "field": "contract_issues",
+        "before": 2,
+        "after": 0
+      },
+      {
+        "field": "provenance_issues",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "unsupported_positioning",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "missing_history",
+        "before": 0,
+        "after": 0
+      }
+    ]
+  },
+  {
+    "caseId": "C03",
+    "arm": "confirmed_pipeline",
+    "checks": [
+      {
+        "field": "contract_issues",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "provenance_issues",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "unsupported_positioning",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "missing_history",
+        "before": 0,
+        "after": 0
+      }
+    ]
+  },
+  {
+    "caseId": "C04",
+    "arm": "pipeline",
+    "checks": [
+      {
+        "field": "contract_issues",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "provenance_issues",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "unsupported_positioning",
+        "before": 1,
+        "after": 0
+      },
+      {
+        "field": "missing_history",
+        "before": 0,
+        "after": 0
+      }
+    ]
+  },
+  {
+    "caseId": "C04",
+    "arm": "confirmed_pipeline",
+    "checks": [
+      {
+        "field": "contract_issues",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "provenance_issues",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "unsupported_positioning",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "missing_history",
+        "before": 0,
+        "after": 0
+      }
+    ]
+  },
+  {
+    "caseId": "C05",
+    "arm": "pipeline",
+    "checks": [
+      {
+        "field": "contract_issues",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "provenance_issues",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "unsupported_positioning",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "missing_history",
+        "before": 0,
+        "after": 0
+      }
+    ]
+  },
+  {
+    "caseId": "C05",
+    "arm": "confirmed_pipeline",
+    "checks": [
+      {
+        "field": "contract_issues",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "provenance_issues",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "unsupported_positioning",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "missing_history",
+        "before": 0,
+        "after": 0
+      }
+    ]
+  },
+  {
+    "caseId": "C06",
+    "arm": "pipeline",
+    "checks": [
+      {
+        "field": "contract_issues",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "provenance_issues",
+        "before": 2,
+        "after": 1
+      },
+      {
+        "field": "unsupported_positioning",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "missing_history",
+        "before": 0,
+        "after": 0
+      }
+    ]
+  },
+  {
+    "caseId": "C06",
+    "arm": "confirmed_pipeline",
+    "checks": [
+      {
+        "field": "contract_issues",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "provenance_issues",
+        "before": 2,
+        "after": 1
+      },
+      {
+        "field": "unsupported_positioning",
+        "before": 0,
+        "after": 0
+      },
+      {
+        "field": "missing_history",
+        "before": 0,
+        "after": 0
+      }
+    ]
+  }
+]

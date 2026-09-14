@@ -42,7 +42,7 @@ export function createRecoveryHandler({ authenticate = authenticateSupabaseReque
       return res.status(403).json({ error: 'Comparison runner closed or access unavailable' });
     }
     const { caseId, arm, kind } = req.body || {};
-    const fixture = comparisonCases.find(c => c.id === caseId);
+    const fixture = comparisonCases.find(c => c.id === caseId && ['R06','R08'].includes(caseId));
     if (!fixture || arm !== 'pipeline' || !['resume', 'letter'].includes(kind)
       || Object.keys(req.body).some(key => !['caseId', 'arm', 'kind', 'capability'].includes(key))) {
       return res.status(400).json({ error: 'Only frozen comparison cells are accepted' });
@@ -50,7 +50,7 @@ export function createRecoveryHandler({ authenticate = authenticateSupabaseReque
     const calls = [];
     const traced = traceFetch(fetchImpl, calls);
     const start = now();
-    const result = { version: 1, experiment: 'validation-recovery-v1', caseId, arm: 'recovery_pipeline', kind, attempt: 1,
+    const result = { version: 1, experiment: 'validation-recovery-v1', caseId, arm: 'recovery_pipeline', kind, attempt: 2, round: 'targeted_fix_retest',
       startedAt: new Date(start).toISOString(), sourceHash: hash(JSON.stringify(fixture)),
       deploymentRevision: process.env.VERCEL_GIT_COMMIT_SHA || null, calls };
     try {

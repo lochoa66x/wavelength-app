@@ -1,0 +1,18 @@
+Samira Cole
+Catalogue Assistant
+r10@example.com | Hamilton, Ontario
+Catalogue Assistant in home goods retail, supporting product-listing accuracy through supplier-sheet updates, unit checks, and merchandising coordination.
+EXPERIENCE
+Catalogue Assistant | Example Home Goods Retailer | 2023 - Present
+• Updates product attributes from supplier sheets and checks units before approved listings are published.
+• Records image filenames and sends missing specifications to the merchandising lead.
+Order Desk Assistant | Example Earlier Workplace | 2020 - 2023
+• Matched customer order numbers to dispatch records and recorded delivery enquiries.
+PROJECTS
+Product Import Review | Example Home Goods Retailer | 2025
+• Found mixed centimetre and millimetre units in a supplier import, separated the affected rows, and checked corrected dimensions with the merchandising lead before upload.
+• Reviewed 80 listings; the merchandising lead approved publication.
+SKILLS
+Product attributes | spreadsheet checks | supplier records
+EDUCATION
+Digital Commerce diploma | Example Business College | 2022

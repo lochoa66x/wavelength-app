@@ -1,0 +1,9 @@
+Dear Hiring Team,
+
+In a three-student Transit Delay Dashboard course project, I cleaned a public transit dataset in Python and identified duplicate journey identifiers before joining the route tables. I built the team’s Power BI view comparing median delay by route and weekday; the report excluded cancelled trips and stated that limitation beside the chart. I presented the cleaning decisions to the class. The dashboard was coursework and was not deployed by a transit agency.
+
+At Example Corner Market, I checked shelf prices against the till file and reported discrepancies to the shift manager.
+
+I welcome the opportunity to discuss my work and application.
+
+Sincerely,

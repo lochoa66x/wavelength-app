@@ -1,0 +1,9 @@
+Dear Hiring Team,
+
+In my freelance audio editing work, I edit interview recordings in Reaper, removing false starts while preserving the speaker’s meaning. I also match loudness to the producer’s supplied delivery specification and check final exports with headphones.
+
+For Harbour Voices Episode, I separated a hum from the speech with a narrow filter and compared the result against the unprocessed recording. The producer approved the edit after one review round.
+
+I welcome the opportunity to discuss my work.
+
+Sincerely,

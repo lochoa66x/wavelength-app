@@ -1,0 +1,58 @@
+
+> wavelength-app@1.0.0 verify:exports
+> node scripts/verifyResumeExports.mjs
+
+{
+  "status": "passed",
+  "root": "C:\\Users\\Luis\\Documents\\Codex\\gigscapes-v7\\",
+  "outputDir": null,
+  "files": 48,
+  "templates": 16,
+  "pdfPages": 29,
+  "pdfTextItems": 827,
+  "manifestParity": true,
+  "verifiedFinalGate": true,
+  "staleReadyFlagBlocked": true,
+  "realisticTwoPageTemplates": [
+    "technical-software-v1",
+    "admin-customer-operations-v1",
+    "skilled-trades-field-services-v1",
+    "marketing-communications-v1",
+    "creative-design-v1"
+  ],
+  "realisticOnePageFixtures": [
+    "apprentice-skilled-trades-field-services-v1",
+    "marketing-transition-marketing-communications-v1",
+    "creative-adjacent-creative-design-v1"
+  ],
+  "presentationVariants": [
+    {
+      "designId": "essential-ats-v1",
+      "paletteId": "gigscapes-orange-v1",
+      "densityId": "comfortable-v1",
+      "headerAlignment": "center",
+      "lengthPreference": "auto"
+    },
+    {
+      "designId": "modern-signal-v1",
+      "paletteId": "forest-v1",
+      "densityId": "compact-v1",
+      "headerAlignment": "left",
+      "lengthPreference": "one-page"
+    },
+    {
+      "designId": "classic-ledger-v1",
+      "paletteId": "slate-blue-v1",
+      "densityId": "comfortable-v1",
+      "headerAlignment": "center",
+      "lengthPreference": "two-pages"
+    },
+    {
+      "designId": "bold-impact-v1",
+      "paletteId": "monochrome-v1",
+      "densityId": "compact-v1",
+      "headerAlignment": "style-default",
+      "lengthPreference": "auto"
+    }
+  ]
+}

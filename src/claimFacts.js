@@ -79,7 +79,7 @@ const assuranceKinds = [
   ['background check', /\b(?:background|criminal record|police)\s+(?:check|screening|clearance)\b/i],
   ['availability', /\b(?:I (?:am|will be|can be) available|available (?:every|on|for|immediately)|can start|start immediately|start date)\b/i],
   ['work eligibility', /\b(?:authorized|eligible) to work\b/i],
-  ['relocation', /\brelocat(?:e|ing|ion)\b/i],
+  ['relocation', /\b(?:(?:willing|available|ready|able|prepared|open)\s+to\s+relocate|relocation\s+(?:assistance|support|required|available)|(?:I|we)\s+(?:will|can|would)\s+relocate(?=\s+(?:to|for)\b|[.!?]|$))\b/i],
   ['guarantee', /\b(?:guarantee(?:d|s)?|promise(?:d|s)?)\b/i],
   ['referral', /\b(?:referred|referral|recommended)\s+by\b/i, true],
   ['motivation', /\b(?:dream|passion(?:ate)?|thrilled|excited)\b/i, true],

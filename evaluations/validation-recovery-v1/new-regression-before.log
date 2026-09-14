@@ -1,0 +1,37 @@
+✔ C02: captured project-year paragraph retains its date and passes claim checks (12.9609ms)
+✔ C06: captured project-year paragraph retains its date and passes claim checks (5.3101ms)
+✔ calendar years cannot authorize counts, durations or another employer/project (1.8051ms)
+✔ captured apprentice profile distinguishes a held certificate and supervised work (6.7767ms)
+✔ employment after a selected project has its own evidence and survives fallback (41.9123ms)
+✔ project sections recover explicit new jobs, never project titles or courses (0.6979ms)
+✔ operational transition is accepted while career-change positioning remains flagged (8.3871ms)
+✔ shared résumé contract rejects empty role content without relying on parser success (0.1837ms)
+✖ comma-separated active supervision cannot use the adjective exception (0.6735ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 8
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 516.7567
+
+✖ failing tests:
+
+test at tests\validationRecovery.test.js:81:1
+✖ comma-separated active supervision cannot use the adjective exception (0.6735ms)
+  AssertionError [ERR_ASSERTION]: I measured pipe, and supervised pressure checks.
+      at TestContext.<anonymous> (file:///C:/Users/Luis/Documents/Codex/gigscapes-v7/tests/validationRecovery.test.js:82:130)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

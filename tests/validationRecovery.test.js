@@ -77,3 +77,25 @@ test('shared résumé contract rejects empty role content without relying on par
  document.experience[0].bullets=['Prepared equipment for the photographer.'];
  assert.equal(validateApplicationDocument({kind:'resume',document}).valid,true);
 });
+
+test('comma-separated active supervision cannot use the adjective exception',()=>{
+ for(const text of ['I measured pipe, and supervised pressure checks.','Measured pipe, and supervised pressure checks.']) assert.ok(issues(text,['Measured pipe against the marked layout.']).length,text);
+ assert.deepEqual(issues('I supervised pressure checks.',['Supervised pressure checks.']),[]);
+});
+
+test('credential name and current status do not borrow the surrounding professional identity',()=>{
+ const refs=['Machining Techniques certificate | Example Trades College | 2022','CNC Operator | Example Precision Workshop | 2023 - Present','Forklift authorization expired in 2024.'];
+ for(const profile of ['CNC operator with a Machining Techniques certificate and experience loading approved programs.','CNC operator with a Machining Techniques certificate and current workshop experience.','Current CNC operator with a Machining Techniques certificate.']) assert.deepEqual(issues(profile,refs),[],profile);
+ for(const profile of ['CNC operator with a current Machining Techniques certificate.','CNC operator with a Forklift authorization.','CNC operator with a Machining Techniques certificate and a First Aid certificate.']) assert.ok(issues(profile,refs).length,profile);
+});
+
+test('ground-worker profiles retain the supervisor as actor and the named qualification',()=>{
+ const refs=['Ground Worker | Example Tree Care Crew | 2023 - Present','Landscape Operations certificate | Example Trades College | 2022','Prepared ropes and ground equipment from the crew leader’s checklist and maintained the marked exclusion zone.','Fed brush into the chipper under the crew leader’s direction after checking the approach was clear.'];
+ for(const text of ['Ground worker supporting a tree-care crew, with Landscape Operations certificate training and experience following crew leader direction.','Ground worker supporting a tree-care crew with crew-leader-directed ground preparation.','Ground worker preparing ropes and ground equipment from crew leader checklists and working under supervised procedures.']) assert.deepEqual(issues(text,refs),[],text);
+ for(const text of ['I directed the ground preparation.','I supervised the crew leader.']) assert.ok(issues(text,refs).length,text);
+});
+test('moving equipment is separate from a candidate relocation commitment',()=>{
+ const refs=['Moved the ground staging area after approval.'];
+ assert.deepEqual(issues('Relocated the ground staging area after approval.',refs),[]);
+ for(const text of ['I am willing to relocate.','I can relocate to Calgary for this role.']) assert.ok(issues(text,refs).length,text);
+});

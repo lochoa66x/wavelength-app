@@ -1,0 +1,15 @@
+
+> wavelength-app@1.0.0 verify:cover-letters
+> node scripts/verifyCoverLetterExports.mjs
+
+{
+  "coverLetters": 2,
+  "docxFiles": 2,
+  "pdfFiles": 2,
+  "pdfPages": 2,
+  "selectableTextTokens": 380,
+  "finalGate": "passed",
+  "preliminaryGate": "passed",
+  "staleAuthorization": "covered-by-unit-test",
+  "artifactsKept": false
+}

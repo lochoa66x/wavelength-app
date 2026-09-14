@@ -2,6 +2,7 @@
 // An exact citation establishes a source, not unrestricted permission to rewrite it.
 const normalize = value => String(value || '').normalize('NFKC').toLowerCase().replace(/[’‘]/g, "'").replace(/[^\p{L}\p{N}%]+/gu, ' ').trim();
 const sentences = value => String(value || '').split(/\n|(?<=[.!?])\s+/).map(x => x.trim()).filter(Boolean);
+import { resumeSectionKind } from './resumeOrganization.js';
 import {normalizeClaimNumbers,quantityFacts,sameQuantity,polarityIssues,assuranceIssues} from './claimFacts.js';
 export {normalizeClaimNumbers} from './claimFacts.js';
 const quantities = value => [...normalizeClaimNumbers(value).matchAll(/\b\d+(?:[,.]\d+)*(?:\s*%|\+)?/g)].map(m => m[0].replace(/[\s,]/g, ''));
@@ -9,12 +10,15 @@ const words = value => normalize(value).split(' ').filter(x => x.length > 3 && !
 const leadership = /\b(?:led|lead|leads|leading|owned|own|owns|managed|manage|manages|directed|direct|oversaw|oversee|supervised|supervise|accountable for|responsible for)\b/i;
 const leadershipClaim = /\b(?:led|owned|managed|directed|oversaw|supervised|accountable for|responsible for)\b|\b(?:I (?:also |currently )?|and )(?:lead|own|manage|direct|oversee|supervise)\b/i;
 const support = /\b(?:observed|assisted|supported|participated|helped|knowledge of|familiarity with|under supervision|under .*supervision|supervised (?:clinical )?(?:placements?|training|practice|sessions?))\b/i;
-const activeLeadership = text => String(text)
- .replace(/\b(?:(?:was|were|been|being)\s+supervised\b|supervised\s+(?:clinical\s+)?(?:placements?|training|practice|sessions?)\b)/gi,'')
- // An adjective modifying work is not a claim that the candidate supervised it.
- .replace(/\b(?:with|including|through|during|of|in)\s+(?:(?:a|an|the)\s+)?supervised\b/gi,'')
- .replace(/\band\s+supervised\s+(?=[^.!?]*\b(?:experience|skills)\b)/gi,'')
- .replace(/(?<=[,;]\s*(?:and\s+)?)supervised\s+(?=(?:leak|pressure|safety|quality)\s+checks?\b)/gi,'');
+const activeLeadership = value => {
+ const text=String(value)
+  .replace(/\b(?:crew[- ]leader|supervisor|manager|instructor)[- ](?:directed|supervised)\b/gi,'')
+  .replace(/\b(?:(?:was|were|been|being)\s+supervised\b|supervised\s+(?:clinical\s+)?(?:placements?|training|practice|sessions?)\b)/gi,'')
+  .replace(/\b(?:with|including|through|during|under|of|in)\s+(?:(?:a|an|the)\s+)?supervised\b/gi,'');
+ // An active sentence/bullet retains its supervision assertion.
+ const nounProfile=/\b(?:experience|skills|knowledge|background)\b/i.test(text) && !/\b(?:I|we)\b/i.test(text);
+ return nounProfile ? text.replace(/(?<=[,;]\s*(?:and\s+)?)supervised\s+(?=(?:leak|pressure|safety|quality)\s+checks?\b)/gi,'') : text;
+};
 const credentialMarker = /\b(?:certificat(?:e|ion)|certified|credential|licen[cs]e|authori[sz]ation|registered|registration|PMP|CPA)\b/i;
 const credentialNames = [
  ['cpa', /\bCPA\b/i], ['pmp', /\bPMP\b/i], ['sap activate', /\bSAP Activate\b/i],
@@ -63,6 +67,18 @@ function credentialClauses(text) {
  return String(text).split(/;(?!\s*(?:expired|active|current|valid|not held|in progress|pending|revoked|suspended|lapsed)\b)\s*|\n|(?<=[.!?])\s+|\s+(?:and|but)\s+(?=(?:(?:I\s+)?(?:am|hold|have|studying|pursuing|current|active|expired|my)\b|[^.;\n]{1,75}\b(?:certificate|certification|licen[cs]e|registration)\b))/i);
 }
 
+function credentialProseParts(value) {
+ return String(value).split(/\s+(?:and|&)\s+|,\s*/i).filter(part=>credentialMarker.test(part)||credentialNames.some(([,pattern])=>pattern.test(part))).map(part=>{
+  const firstMarker=/\b(?:certificat(?:e|ion)|licen[cs]e|authori[sz]ation|registration)\b/i.exec(part);
+  if(firstMarker){const end=firstMarker.index+firstMarker[0].length;if(!/^\s+(?:in|of|for|from|issued by)\b/i.test(part.slice(end)))part=part.slice(0,end);}
+  const introduced=part.replace(/^.*\b(?:with|hold|holds|have|has|earned|obtained|holding)\s+(?:(?:a|an|the)\s+)?/i,'');
+  const marker=/\b(?:certificat(?:e|ion)|licen[cs]e|authori[sz]ation|registration)\b/i.exec(introduced);
+  if(!marker)return introduced;
+  const end=marker.index+marker[0].length,tail=introduced.slice(end);
+  return /^\s+(?:in|of|for|from|issued by)\b/i.test(tail)?introduced:introduced.slice(0,end);
+ });
+}
+
 export function credentialEvidenceIssues(requirement, evidence, {prose=false}={}) {
  if(!credentialMarker.test(requirement))return [];
  const alternatives=String(requirement).split(/\s+(?:or|and\/or)\s+/i);
@@ -70,8 +86,11 @@ export function credentialEvidenceIssues(requirement, evidence, {prose=false}={}
  // Split separate credentials, but retain a status suffix following a semicolon.
  const clauses=credentialClauses(evidenceText);
  const matches=alternatives.some(alternative=>{
-  const keys=credentialKeys(alternative,{prose});
-  return keys.length>0&&keys.every(key=>clauses.some(clause=>credentialClauseMatches(key,clause)&&credentialMarker.test(clause)&&['held','current'].includes(credentialStatus(clause))&&(!/\b(?:current|active|valid)\b/i.test(alternative)||credentialStatus(clause)==='current')));
+  const requested=prose?credentialProseParts(alternative):[alternative];
+  return requested.length>0 && requested.every(part=>{
+   const keys=credentialKeys(part,{prose});
+   return keys.length>0&&keys.every(key=>clauses.some(clause=>credentialClauseMatches(key,clause)&&credentialMarker.test(clause)&&['held','current'].includes(credentialStatus(clause))&&(!/\b(?:current|active|valid)\b/i.test(part)||credentialStatus(clause)==='current')));
+  });
  });
  return matches?[]:['The cited evidence does not establish every required credential with the stated current status.'];
 }
@@ -88,10 +107,12 @@ function contextForExcerpt(excerpt, corpus) {
 }
 
 export function candidateEvidenceFacts(sources=[], {candidateCorpus=''}={}) {
+ const sectionByExcerpt=new Map();let section='';
+ for(const line of String(candidateCorpus).split(/\r?\n/)){section=resumeSectionKind(line)||section;sectionByExcerpt.set(normalize(line),section);}
  return sources.flatMap(source=>{
   const excerpt=typeof source==='string'?source:source?.excerpt||'';
   const employer=(typeof source==='object'&&source.employer)||contextForExcerpt(excerpt,candidateCorpus);
-  return sentences(excerpt).map(text=>({text,employer,quantities:quantities(text),measures:quantityFacts(text),contribution:support.test(text)?'support':leadership.test(activeLeadership(text))?'leadership':'execution',credentialStatus:credentialStatus(text)}));
+  return sentences(excerpt).map(text=>({text,employer,quantities:quantities(text),measures:quantityFacts(text),contribution:sectionByExcerpt.get(normalize(excerpt))==='skills'?'support':support.test(text)?'support':leadership.test(activeLeadership(text))?'leadership':'execution',credentialStatus:credentialStatus(text)}));
  });
 }
 
