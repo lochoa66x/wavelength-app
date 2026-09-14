@@ -1,0 +1,404 @@
+{
+  "version": 1,
+  "experiment": "comparative-v1",
+  "caseId": "C06",
+  "arm": "simple",
+  "kind": "resume",
+  "attempt": 1,
+  "startedAt": "2026-09-14T00:42:35.470Z",
+  "sourceHash": "699a2e8ede082f8c539263e8a3263c44feee588dae0adb3e6d028032ac88e687",
+  "deploymentRevision": "698f9a97ec60f5d7df55e8fa7a914b3a9eff0c17",
+  "calls": [
+    {
+      "sequence": 1,
+      "startedAt": "2026-09-14T00:42:35.470Z",
+      "request": {
+        "model": "gpt-5.6-terra",
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "input": "Write an employer-facing résumé tailored to this job. Use only candidate facts from the source. Preserve contribution level, shared results, dates, credential status and academic/project context. Do not turn job requirements into candidate history. Choose the strongest relevant evidence, retain useful concrete detail, and write clear natural professional English. Use a short professional profile that synthesizes the candidate’s focus rather than repeating the experience bullets. Keep relevant projects and qualifications.\n\nJOB\n{\"title\":\"Freelance Interior Photo Editor\",\"company\":\"Example C06 Services\",\"location\":\"Hamilton, Ontario\",\"type\":\"Full-time\",\"category\":\"design\",\"description\":\"We need a Freelance Interior Photo Editor to carry out the responsibilities listed below. Submit a résumé and cover letter describing relevant work.\",\"responsibilities\":[\"Match colour across interior image sets with mixed lighting\",\"Preserve property features and meet delivery specifications\",\"Provide an interior-editing portfolio\"],\"required_qualifications\":[\"Lightroom interior editing experience\",\"Portfolio demonstrating consistent colour\"],\"preferred_qualifications\":[],\"source\":\"candidate_reviewed\"}\n\nCANDIDATE SOURCE\nSofia Adeyemi\nc06@example.com | Hamilton, Ontario\nFreelance Photo Editor | Self-employed | 2022 - 2026\nEdited residential interiors in Lightroom from photographers' files and colour-reference notes.\nCorrected white balance and vertical alignment without removing permanent room features.\nDelivered named image sets with the requested dimensions and checked them against the photographer's shot list.\nSelected Project\nRiverside Apartment Series | Example Interior Photographer | 2025\nMatched colour across adjoining rooms with mixed window and ceiling light, using the photographer's reference frame and local white-balance masks. The photographer accepted the set after one review round.\nEvent Photo Assistant | Example Studio | 2020 - 2022\nLabelled memory cards, prepared equipment and organised contact sheets.\nPortfolio\nhttps://example.com/sofia-interiors\nSkills\nLightroom; white balance; perspective corrections; export checks",
+        "reasoning": {
+          "effort": "low"
+        },
+        "max_output_tokens": 6000,
+        "store": false,
+        "parallel_tool_calls": false,
+        "tools": [
+          {
+            "type": "function",
+            "name": "return_document",
+            "description": "Return the application document.",
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "headline": {
+                  "type": "string"
+                },
+                "profile": {
+                  "type": "string"
+                },
+                "skills": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "experience": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "role": {
+                        "type": "string"
+                      },
+                      "organization": {
+                        "type": "string"
+                      },
+                      "dates": {
+                        "type": "string"
+                      },
+                      "bullets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "role",
+                      "organization",
+                      "dates",
+                      "bullets"
+                    ]
+                  }
+                },
+                "projects": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "context": {
+                        "type": "string"
+                      },
+                      "bullets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "context",
+                      "bullets"
+                    ]
+                  }
+                },
+                "education": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "training": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "links": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "name",
+                "headline",
+                "profile",
+                "skills",
+                "experience",
+                "projects",
+                "education",
+                "training",
+                "links"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        }
+      },
+      "status": 200,
+      "response": {
+        "id": "resp_00847d9d96a9b70d016aa742fb880087d28ee4a275c60b981f",
+        "object": "response",
+        "created_at": 1789346555,
+        "status": "completed",
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1789346558,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "max_output_tokens": 6000,
+        "max_tool_calls": null,
+        "model": "gpt-5.6-terra",
+        "moderation": null,
+        "output": [
+          {
+            "id": "fc_00847d9d96a9b70d016aa742fbf4c087d29bf17b621dcf100f",
+            "type": "function_call",
+            "status": "completed",
+            "arguments": "{\"name\":\"Sofia Adeyemi\",\"headline\":\"Freelance Interior Photo Editor\",\"profile\":\"Freelance photo editor with residential-interior Lightroom experience, focused on consistent colour across mixed-lighting image sets, accurate white balance and perspective corrections, and delivery-ready exports. Works from photographers’ files, colour references and shot lists while preserving permanent property features.\",\"skills\":[\"Lightroom\",\"Interior photo editing\",\"White balance correction\",\"Colour matching across image sets\",\"Perspective and vertical alignment corrections\",\"Export and delivery checks\"],\"experience\":[{\"role\":\"Freelance Photo Editor\",\"organization\":\"Self-employed\",\"dates\":\"2022–2026\",\"bullets\":[\"Edited residential interior photographs in Lightroom using photographers’ source files and colour-reference notes.\",\"Corrected white balance and vertical alignment while preserving permanent room features.\",\"Delivered named image sets in requested dimensions and checked completed exports against photographers’ shot lists.\"]},{\"role\":\"Event Photo Assistant\",\"organization\":\"Example Studio\",\"dates\":\"2020–2022\",\"bullets\":[\"Labelled memory cards, prepared equipment and organised contact sheets.\"]}],\"projects\":[{\"name\":\"Riverside Apartment Series\",\"context\":\"Example Interior Photographer | 2025\",\"bullets\":[\"Matched colour across adjoining rooms with mixed window and ceiling lighting using the photographer’s reference frame and local white-balance masks.\",\"The photographer accepted the completed set after one review round.\"]}],\"education\":[],\"training\":[],\"links\":[\"Portfolio: https://example.com/sofia-interiors\",\"Hamilton, Ontario | c06@example.com\"]}",
+            "call_id": "call_aOsUpHU0LaujbjcF2fJbIqNs",
+            "name": "return_document"
+          }
+        ],
+        "parallel_tool_calls": false,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "low",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "text"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        },
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [
+          {
+            "type": "function",
+            "description": "Return the application document.",
+            "name": "return_document",
+            "output_schema": null,
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "headline": {
+                  "type": "string"
+                },
+                "profile": {
+                  "type": "string"
+                },
+                "skills": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "experience": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "role": {
+                        "type": "string"
+                      },
+                      "organization": {
+                        "type": "string"
+                      },
+                      "dates": {
+                        "type": "string"
+                      },
+                      "bullets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "role",
+                      "organization",
+                      "dates",
+                      "bullets"
+                    ]
+                  }
+                },
+                "projects": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "context": {
+                        "type": "string"
+                      },
+                      "bullets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "context",
+                      "bullets"
+                    ]
+                  }
+                },
+                "education": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "training": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "links": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "name",
+                "headline",
+                "profile",
+                "skills",
+                "experience",
+                "projects",
+                "education",
+                "training",
+                "links"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 592,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 320,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 912
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "durationMs": 2862
+    }
+  ],
+  "httpStatus": 200,
+  "delivered": {
+    "name": "Sofia Adeyemi",
+    "headline": "Freelance Interior Photo Editor",
+    "profile": "Freelance photo editor with residential-interior Lightroom experience, focused on consistent colour across mixed-lighting image sets, accurate white balance and perspective corrections, and delivery-ready exports. Works from photographers’ files, colour references and shot lists while preserving permanent property features.",
+    "skills": [
+      "Lightroom",
+      "Interior photo editing",
+      "White balance correction",
+      "Colour matching across image sets",
+      "Perspective and vertical alignment corrections",
+      "Export and delivery checks"
+    ],
+    "experience": [
+      {
+        "role": "Freelance Photo Editor",
+        "organization": "Self-employed",
+        "dates": "2022–2026",
+        "bullets": [
+          "Edited residential interior photographs in Lightroom using photographers’ source files and colour-reference notes.",
+          "Corrected white balance and vertical alignment while preserving permanent room features.",
+          "Delivered named image sets in requested dimensions and checked completed exports against photographers’ shot lists."
+        ]
+      },
+      {
+        "role": "Event Photo Assistant",
+        "organization": "Example Studio",
+        "dates": "2020–2022",
+        "bullets": [
+          "Labelled memory cards, prepared equipment and organised contact sheets."
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "Riverside Apartment Series",
+        "context": "Example Interior Photographer | 2025",
+        "bullets": [
+          "Matched colour across adjoining rooms with mixed window and ceiling lighting using the photographer’s reference frame and local white-balance masks.",
+          "The photographer accepted the completed set after one review round."
+        ]
+      }
+    ],
+    "education": [],
+    "training": [],
+    "links": [
+      "Portfolio: https://example.com/sofia-interiors",
+      "Hamilton, Ontario | c06@example.com"
+    ]
+  },
+  "completedAt": "2026-09-14T00:42:38.333Z",
+  "durationMs": 2863
+}

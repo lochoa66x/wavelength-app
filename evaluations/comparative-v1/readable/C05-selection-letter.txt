@@ -1,0 +1,10 @@
+Dear Hiring Team,
+
+I am applying for the Junior Data Analyst role at Example C05 Services. My 2026 Data Analytics diploma coursework at Example Technical College has included Python, SQL joins, Power BI and data-quality checks, with practical experience documenting decisions and limitations in analysis.
+
+In a three-student Transit Delay Dashboard course project, I cleaned a public transit dataset in Python and identified duplicate journey identifiers before joining route tables. I built the team’s Power BI view comparing median delay by route and weekday. To make the result clear to users, the report excluded cancelled trips and stated that limitation beside the chart. I also presented the team’s cleaning decisions to the class. This was coursework and the dashboard was not deployed by a transit agency.
+
+Alongside this project work, as a Retail Assistant at Example Corner Market from 2023 to 2026, I checked shelf prices against the till file and reported discrepancies to the shift manager. I would welcome the opportunity to apply my project-based data cleaning, reporting and communication experience at Example C05 Services.
+
+Sincerely,
+Theo Park

@@ -1,0 +1,19 @@
+Theo Park
+Junior Data Analyst
+Entry-level data analytics diploma graduate with academic project experience cleaning operational-style transit data in Python, using SQL joins, and building Power BI reporting that documents analytical limitations. Brings retail experience checking price data and escalating discrepancies clearly.
+EXPERIENCE
+Retail Assistant | Example Corner Market | 2023 - 2026
+• Checked shelf prices against the till file and reported discrepancies to the shift manager.
+PROJECTS
+Transit Delay Dashboard | Three-student academic course project, Example Technical College | 2026
+• Cleaned a public transit dataset in Python and identified duplicate journey identifiers before joining route tables.
+• Built the team’s Power BI view comparing median delay by route and weekday.
+• Excluded cancelled trips from the report and stated this limitation beside the chart.
+• Presented cleaning decisions to the class.
+• Coursework dashboard was not deployed by a transit agency.
+SKILLS
+Python (pandas) | SQL joins | Power BI | Data-quality checks | Dataset cleaning | Documentation of limitations
+EDUCATION
+Data Analytics diploma | Example Technical College | 2026
+LINKS
+c05@example.com | Hamilton, Ontario

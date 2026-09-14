@@ -1,0 +1,205 @@
+{
+  "version": 1,
+  "experiment": "comparative-v1",
+  "caseId": "C01",
+  "arm": "simple",
+  "kind": "letter",
+  "attempt": 1,
+  "startedAt": "2026-09-14T00:38:12.719Z",
+  "sourceHash": "31f17464581ba030a5089f15468d1246e7ebcdbc1b736111787069b8a45361b1",
+  "deploymentRevision": "698f9a97ec60f5d7df55e8fa7a914b3a9eff0c17",
+  "calls": [
+    {
+      "sequence": 1,
+      "startedAt": "2026-09-14T00:38:12.719Z",
+      "request": {
+        "model": "gpt-5.6-terra",
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "input": "Write an employer-facing cover letter tailored to this job. Use only candidate facts from the source. Preserve contribution level, shared results, dates, credential status and academic/project context. Do not turn job requirements into candidate history. Choose the strongest relevant evidence, retain useful concrete detail, and write clear natural professional English. Make a focused case through one or two relevant examples rather than reciting the résumé. Avoid generic praise and invented motivation. Use 2–4 paragraphs, at most 320 words, a salutation and signoff.\n\nJOB\n{\"title\":\"SAP Migration Workstream Lead\",\"company\":\"Example C01 Services\",\"location\":\"Hamilton, Ontario\",\"type\":\"Full-time\",\"category\":\"tech\",\"description\":\"We need a SAP Migration Workstream Lead to carry out the responsibilities listed below. Submit a résumé and cover letter describing relevant work.\",\"responsibilities\":[\"Lead a master-data migration workstream through testing and cutover\",\"Coordinate business data owners and interface teams\",\"Report risks to the project manager\"],\"required_qualifications\":[\"SAP S/4HANA delivery experience\",\"Team coordination and migration testing experience\"],\"preferred_qualifications\":[],\"source\":\"candidate_reviewed\"}\n\nCANDIDATE SOURCE\nElena Cruz\nc01@example.com | Hamilton, Ontario\nSolution Architect | Example Systems Canada | 2022 - 2026\nLed a four-person master-data team through UAT, mock cutover and defect triage for a public-sector SAP S/4HANA rollout.\nIntegrated SAP S/4HANA with SAP MDG and coordinated interface testing with the integration team.\nThe project manager owned budget, staffing approvals and steering reporting.\nSenior Consultant | Example Banking Partners | 2015 - 2022\nPrepared SAP banking functional designs and coordinated testing with business users.\nSelected Project\nMock Cutover Reconciliation | Example Systems Canada | 2025\nWhen duplicate customer records blocked a mock load, grouped the exceptions by source system, assigned owners and agreed retest criteria with business data stewards; the next mock load cleared those recorded exceptions.\nEducation\nBachelor of Business Administration | Example College | 2014\nSkills\nSAP S/4HANA; SAP MDG; UAT; defect triage; master-data reconciliation",
+        "reasoning": {
+          "effort": "low"
+        },
+        "max_output_tokens": 6000,
+        "store": false,
+        "parallel_tool_calls": false,
+        "tools": [
+          {
+            "type": "function",
+            "name": "return_document",
+            "description": "Return the application document.",
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "salutation": {
+                  "type": "string"
+                },
+                "paragraphs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "signoff": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "salutation",
+                "paragraphs",
+                "signoff"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        }
+      },
+      "status": 200,
+      "response": {
+        "id": "resp_07ecfbfac781b6d6016aa741f5758087d29208038270e1fc47",
+        "object": "response",
+        "created_at": 1789346293,
+        "status": "completed",
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1789346296,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "max_output_tokens": 6000,
+        "max_tool_calls": null,
+        "model": "gpt-5.6-terra",
+        "moderation": null,
+        "output": [
+          {
+            "id": "rs_07ecfbfac781b6d6016aa741f5f13c87d2952d0984ca872120",
+            "type": "reasoning",
+            "content": [],
+            "encrypted_content": "gAAAAABqp0H4IN9V4EZOMLbgrzhGyPQqyMfo70laCZQpR-nt2ykT2-eC3iTDVF2f1W_UognvkvikmgJENUUS6SLxrgMc6a8DCo9DLYWkfEHAcBT2NfpNXC5CCWl7nRo3gWCRFhvr5_jvbzik57toFVdN2yCSBjd0LkciBUj40iwHxZSB-6-5OA9C54dalIS7VTUzfq2kXdnOTSCwycvGGXmRWJxEFBIvcjYcNv0j0BEzsEWYYO9seIPeMdjgaJD7k-t-pbK4l6-JTli8Pl1plKx2uAXTqigOEEsWBRAiDZH3egiToc5I6BExGkMl5bYjGdQZSXNJkJwRjrvMny1RcEFkWY6UelwMqg2niTFOLmWqtpbcN4_o3yeRsG_Af3cr9RdNsJm8DxqT-zsaPpHbYN11t3GQh3xlCO593C-gw9W52Wk2bCEkK9tUbWVdNY7kY2Wx4pV4ebzM10y5xvZYV0tTYsFa8n5V48NfD2kqq-vYUxMLuo_81Kkop2c5BH40zZ2827q9UEAhPsagTUmuhjx6jodgmbDU-kjMp7gHIVu2xk7PyPDCcnBUGhuYwZuOZvGOXqTvKbXu-qMApw8grBNK0U1-QEyyvXE0G5MDl2noYCL5dQC7UcWqbW1n-LNGSx_vflPGt1sdpJYdBxIOyMIbXLAknFhUHPKM8EgeCpx3La_x28FqNX33aDvaJpob5gVA6bs3MN91FsN8zhcoyYxzJZImf2aYyZQ4GM0OsMLzXfz6tXYYCiNRg2Ox7BiCFBTW5vT-48OC8MBctkUGQ2WMtmJnN6ktq1ER4BzPLFxulOlR2nLAon8CuI7uJaQ16jqZ6dX5f5VUOt2EsuFHBsT3QHYN2BvbCEZyGkUBXJc3FtziGsDnoW61R3mw66ZPm7iL7n6JvV9si2P3JY_Lt3DEvbmbk9_TqD12tBegChDZM4DXm2VP7jEKd89-xbyxdTTZ3qryWAju0zXh6BWqGNo3vz5_N0Gzx3KjhuVVCzcm_zJJEgv01_dggubc_lxo87y8PnAjf7b1oJ5yLStOs5ewD6NMfTM0UgXM-L6bBNlK4PzuAFV58fA2z6QmU4z5Np0_rDnplPaSytd2nVP2dw70pnm9W0Ktti1h8UXYTMUumoMfFHs24AUgrYSTpKV1jixvM0xWngbz-E72a1pvim9cw642IhjcOBP2EGmHM5E36j-YftJ1fm3vXh8gnlWZInMiRB9pTzpr3JtCP1L_Fisnwy_uWDhoxPAx5h6NppEI9d8WWFU0zcM06fF_16e_2BL1pVca-MoQ-Gv820U4bXdyMrgJVni1XqU7v0VilBGMTGqglUopYWvwhbZALI29APipiSXrptgilW2uYeCQL8AugXGkEcJe4Q_Q1ExP3NbGG0Eid147auiJGPMwev5rMkrqGfJus5Ih27kNjZ5FWFvrmFjYRL2QTvIsx25CAe3Ew2iBiIgLrgROXSwLRU1Sc480HPuH5ExNT_9IpsGWDg-DMIdFpMsuQhbwp-A9BvXFa5XYu0j89s-W_b3yRFXRvEJzIGu8AlvZ",
+            "summary": []
+          },
+          {
+            "id": "fc_07ecfbfac781b6d6016aa741f6cd8487d2b1deb1ad3636948f",
+            "type": "function_call",
+            "status": "completed",
+            "arguments": "{\"salutation\":\"Dear Hiring Team,\",\"paragraphs\":[\"I am applying for the SAP Migration Workstream Lead role at Example C01 Services. As a Solution Architect with Example Systems Canada from 2022 to 2026, I led a four-person master-data team through UAT, mock cutover, and defect triage for a public-sector SAP S/4HANA rollout. I also integrated SAP S/4HANA with SAP MDG and coordinated interface testing with the integration team.\",\"During a 2025 mock-cutover reconciliation project, duplicate customer records blocked a mock load. I grouped the exceptions by source system, assigned owners, and agreed retest criteria with business data stewards. The next mock load cleared those recorded exceptions. This work combined master-data reconciliation, coordination with data owners, and structured testing follow-through relevant to migration testing and cutover activities.\",\"Earlier, as a Senior Consultant at Example Banking Partners from 2015 to 2022, I prepared SAP banking functional designs and coordinated testing with business users. I would bring this SAP S/4HANA delivery, master-data, interface-testing, and UAT experience to the workstream lead role.\"],\"signoff\":\"Sincerely,\\nElena Cruz\"}",
+            "call_id": "call_xEN00c3Y2CEahGUWCaTgukQf",
+            "name": "return_document"
+          }
+        ],
+        "parallel_tool_calls": false,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "low",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "text"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        },
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [
+          {
+            "type": "function",
+            "description": "Return the application document.",
+            "name": "return_document",
+            "output_schema": null,
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "salutation": {
+                  "type": "string"
+                },
+                "paragraphs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "signoff": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "salutation",
+                "paragraphs",
+                "signoff"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 593,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 328,
+          "output_tokens_details": {
+            "reasoning_tokens": 64
+          },
+          "total_tokens": 921
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "durationMs": 3949
+    }
+  ],
+  "httpStatus": 200,
+  "delivered": {
+    "salutation": "Dear Hiring Team,",
+    "paragraphs": [
+      "I am applying for the SAP Migration Workstream Lead role at Example C01 Services. As a Solution Architect with Example Systems Canada from 2022 to 2026, I led a four-person master-data team through UAT, mock cutover, and defect triage for a public-sector SAP S/4HANA rollout. I also integrated SAP S/4HANA with SAP MDG and coordinated interface testing with the integration team.",
+      "During a 2025 mock-cutover reconciliation project, duplicate customer records blocked a mock load. I grouped the exceptions by source system, assigned owners, and agreed retest criteria with business data stewards. The next mock load cleared those recorded exceptions. This work combined master-data reconciliation, coordination with data owners, and structured testing follow-through relevant to migration testing and cutover activities.",
+      "Earlier, as a Senior Consultant at Example Banking Partners from 2015 to 2022, I prepared SAP banking functional designs and coordinated testing with business users. I would bring this SAP S/4HANA delivery, master-data, interface-testing, and UAT experience to the workstream lead role."
+    ],
+    "signoff": "Sincerely,\nElena Cruz"
+  },
+  "completedAt": "2026-09-14T00:38:16.668Z",
+  "durationMs": 3949
+}

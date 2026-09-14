@@ -1,0 +1,10 @@
+Dear Hiring Team,
+
+I am applying for the Junior Data Analyst position at Example C05 Services. I completed a Data Analytics diploma at Example Technical College in 2026, with training in Python pandas, SQL joins, Power BI, and data-quality checks.
+
+In a three-student 2026 course project, I helped develop a Transit Delay Dashboard using public transit data. I cleaned the dataset in Python, identified duplicate journey identifiers before joining route tables, and built the team’s Power BI view comparing median delay by route and weekday. To make the analysis transparent, the report excluded cancelled trips and stated that limitation beside the chart. I also presented the team’s cleaning decisions to the class. This was coursework and was not deployed by a transit agency.
+
+My retail experience has also required careful checking of operational information: at Example Corner Market, I checked shelf prices against the till file and reported discrepancies to the shift manager. I would bring the same attention to data quality and clear communication to your team.
+
+Sincerely,
+Theo Park

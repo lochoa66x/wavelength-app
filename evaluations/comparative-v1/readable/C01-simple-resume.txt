@@ -1,0 +1,20 @@
+Elena Cruz
+SAP S/4HANA Master-Data Migration & Testing Lead
+SAP solution architect with SAP S/4HANA and SAP MDG delivery experience, focused on master-data testing, mock cutover readiness, defect triage, and reconciliation. Has led a four-person master-data team and coordinated testing with integration teams, business users, and business data stewards.
+EXPERIENCE
+Solution Architect | Example Systems Canada | 2022 - 2026
+• Led a four-person master-data team through UAT, mock cutover, and defect triage for a public-sector SAP S/4HANA rollout.
+• Integrated SAP S/4HANA with SAP MDG and coordinated interface testing with the integration team.
+• Supported master-data migration readiness activities; the project manager owned budget, staffing approvals, and steering reporting.
+Senior Consultant | Example Banking Partners | 2015 - 2022
+• Prepared SAP banking functional designs and coordinated testing with business users.
+PROJECTS
+Mock Cutover Reconciliation | Example Systems Canada | 2025
+• Addressed duplicate customer records that blocked a mock load by grouping exceptions by source system, assigning owners, and agreeing retest criteria with business data stewards.
+• The next mock load cleared the recorded exceptions.
+SKILLS
+SAP S/4HANA | SAP MDG | Master-data reconciliation | UAT | Mock cutover | Defect triage | Interface testing | Functional design
+EDUCATION
+Bachelor of Business Administration | Example College | 2014
+LINKS
+c01@example.com | Hamilton, Ontario

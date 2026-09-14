@@ -1,0 +1,717 @@
+[
+  {
+    "caseId": "C01",
+    "arm": "pipeline",
+    "kind": "resume",
+    "status": 200,
+    "firstDraftIssues": [],
+    "initialIntegrityIssueCount": 0,
+    "initialPositioningIssues": [],
+    "firstProfile": "Solution Architect with public-sector SAP S/4HANA rollout experience, specializing in master-data testing, mock cutover, and SAP MDG integration.",
+    "deliveredProfile": "SAP solution architect with public-sector SAP S/4HANA rollout and banking functional-design experience, focused on master data and testing.",
+    "repairDrafts": 0,
+    "sourceRepair": false,
+    "editorialValidation": true,
+    "fallback": false,
+    "postingStatus": "partial",
+    "exportReadiness": {
+      "status": "preliminary",
+      "application_ready": false,
+      "blockers": [
+        "posting_readiness",
+        "candidate_fit"
+      ],
+      "consistency": "Screen preview, copied text, DOCX, and ATS-safe PDF use the same validated tailored résumé data."
+    },
+    "emptyRoles": [],
+    "yearReproductions": []
+  },
+  {
+    "caseId": "C01",
+    "arm": "pipeline",
+    "kind": "letter",
+    "status": 200,
+    "firstDraftIssues": [
+      "p2: A number or duration is not supported by this claim’s cited candidate evidence."
+    ],
+    "initialIntegrityIssueCount": 1,
+    "initialPositioningIssues": [],
+    "firstProfile": null,
+    "deliveredProfile": null,
+    "repairDrafts": 0,
+    "sourceRepair": false,
+    "editorialValidation": false,
+    "fallback": false,
+    "postingStatus": null,
+    "exportReadiness": null,
+    "emptyRoles": [],
+    "yearReproductions": [
+      {
+        "proposed": "During the 2025 Mock Cutover Reconciliation project, duplicate customer records blocked a mock load. I grouped the exceptions by source system, assigned owners, and agreed retest criteria with business data stewards; the next mock load cleared those recorded exceptions.",
+        "exactSources": [
+          "Mock Cutover Reconciliation | Example Systems Canada | 2025",
+          "When duplicate customer records blocked a mock load, grouped the exceptions by source system, assigned owners and agreed retest criteria with business data stewards; the next mock load cleared those recorded exceptions."
+        ],
+        "parsedQuantities": [
+          {
+            "number": "2025",
+            "unit": "project",
+            "business": false,
+            "rate": ""
+          }
+        ],
+        "reproducedIssues": [
+          "A number or duration is not supported by this claim’s cited candidate evidence."
+        ]
+      }
+    ]
+  },
+  {
+    "caseId": "C02",
+    "arm": "pipeline",
+    "kind": "resume",
+    "status": 200,
+    "firstDraftIssues": [],
+    "initialIntegrityIssueCount": 0,
+    "initialPositioningIssues": [],
+    "firstProfile": "Accounting Assistant with accounting diploma education and experience preparing bank reconciliations, maintaining fixed-asset additions records, and supporting month-end review.",
+    "deliveredProfile": "Accounting Assistant with an accounting diploma and parts-distribution experience, focused on bank reconciliations and fixed-asset records.",
+    "repairDrafts": 0,
+    "sourceRepair": false,
+    "editorialValidation": true,
+    "fallback": false,
+    "postingStatus": "partial",
+    "exportReadiness": {
+      "status": "preliminary",
+      "application_ready": false,
+      "blockers": [
+        "posting_readiness",
+        "candidate_fit"
+      ],
+      "consistency": "Screen preview, copied text, DOCX, and ATS-safe PDF use the same validated tailored résumé data."
+    },
+    "emptyRoles": [],
+    "yearReproductions": []
+  },
+  {
+    "caseId": "C02",
+    "arm": "pipeline",
+    "kind": "letter",
+    "status": 422,
+    "firstDraftIssues": [
+      "p2: A number or duration is not supported by this claim’s cited candidate evidence."
+    ],
+    "initialIntegrityIssueCount": 1,
+    "initialPositioningIssues": [],
+    "firstProfile": null,
+    "deliveredProfile": null,
+    "repairDrafts": 0,
+    "sourceRepair": false,
+    "editorialValidation": false,
+    "fallback": false,
+    "postingStatus": null,
+    "exportReadiness": null,
+    "emptyRoles": [],
+    "yearReproductions": [
+      {
+        "proposed": "During a 2025 month-end improvement project, I found duplicate bank-feed entries behind recurring reconciliation differences. I documented the import steps and tested a revised checklist with the controller; unresolved differences fell from 18 to 5 across the next three monthly reviews, and the controller approved final adjustments.",
+        "exactSources": [
+          "Month-end Improvement | Example Parts Distribution | 2025",
+          "Found duplicate bank-feed entries behind recurring reconciliation differences, documented the import steps and tested the revised checklist with the controller. Unresolved differences fell from 18 to 5 across the next three monthly reviews; the controller approved final adjustments."
+        ],
+        "parsedQuantities": [
+          {
+            "number": "2025",
+            "unit": "project",
+            "business": false,
+            "rate": ""
+          },
+          {
+            "number": "18",
+            "unit": "",
+            "business": false,
+            "rate": ""
+          },
+          {
+            "number": "5",
+            "unit": "",
+            "business": false,
+            "rate": ""
+          },
+          {
+            "number": "3",
+            "unit": "review",
+            "business": false,
+            "rate": ""
+          }
+        ],
+        "reproducedIssues": [
+          "A number or duration is not supported by this claim’s cited candidate evidence."
+        ]
+      }
+    ]
+  },
+  {
+    "caseId": "C03",
+    "arm": "pipeline",
+    "kind": "resume",
+    "status": 200,
+    "firstDraftIssues": [
+      {
+        "code": "profile_claim",
+        "message": "The verified sources do not establish leadership or ownership of this work."
+      },
+      {
+        "code": "profile_claim",
+        "message": "The cited evidence does not establish every required credential with the stated current status."
+      }
+    ],
+    "initialIntegrityIssueCount": 2,
+    "initialPositioningIssues": [],
+    "firstProfile": "Plumbing Techniques certificate holder with residential plumbing experience assisting a licensed plumber with water-line repairs, fixture replacement, drain clearing, and supervised leak checks.",
+    "deliveredProfile": "Plumbing apprentice with residential experience under licensed supervision and a Plumbing Techniques certificate.",
+    "repairDrafts": 1,
+    "sourceRepair": false,
+    "editorialValidation": true,
+    "fallback": false,
+    "postingStatus": "partial",
+    "exportReadiness": {
+      "status": "preliminary",
+      "application_ready": false,
+      "blockers": [
+        "posting_readiness",
+        "candidate_fit"
+      ],
+      "consistency": "Screen preview, copied text, DOCX, and ATS-safe PDF use the same validated tailored résumé data."
+    },
+    "emptyRoles": [],
+    "yearReproductions": []
+  },
+  {
+    "caseId": "C03",
+    "arm": "pipeline",
+    "kind": "letter",
+    "status": 200,
+    "firstDraftIssues": [],
+    "initialIntegrityIssueCount": 0,
+    "initialPositioningIssues": [],
+    "firstProfile": null,
+    "deliveredProfile": null,
+    "repairDrafts": 0,
+    "sourceRepair": false,
+    "editorialValidation": false,
+    "fallback": false,
+    "postingStatus": null,
+    "exportReadiness": null,
+    "emptyRoles": [],
+    "yearReproductions": []
+  },
+  {
+    "caseId": "C04",
+    "arm": "pipeline",
+    "kind": "resume",
+    "status": 200,
+    "firstDraftIssues": [],
+    "initialIntegrityIssueCount": 1,
+    "initialPositioningIssues": [
+      {
+        "title": "Front Desk Supervisor | Registration Coordination",
+        "phrase": "transition"
+      }
+    ],
+    "firstProfile": "Front desk supervisor with community recreation experience coordinating reception operations, registration records, and an online-registration transition.",
+    "deliveredProfile": "Front desk supervisor with reception experience supporting memberships and registration records, backed by a business administration diploma.",
+    "repairDrafts": 1,
+    "sourceRepair": false,
+    "editorialValidation": true,
+    "fallback": false,
+    "postingStatus": "partial",
+    "exportReadiness": {
+      "status": "preliminary",
+      "application_ready": false,
+      "blockers": [
+        "posting_readiness",
+        "candidate_fit"
+      ],
+      "consistency": "Screen preview, copied text, DOCX, and ATS-safe PDF use the same validated tailored résumé data."
+    },
+    "emptyRoles": [],
+    "yearReproductions": []
+  },
+  {
+    "caseId": "C04",
+    "arm": "pipeline",
+    "kind": "letter",
+    "status": 200,
+    "firstDraftIssues": [],
+    "initialIntegrityIssueCount": 0,
+    "initialPositioningIssues": [],
+    "firstProfile": null,
+    "deliveredProfile": null,
+    "repairDrafts": 0,
+    "sourceRepair": false,
+    "editorialValidation": true,
+    "fallback": false,
+    "postingStatus": null,
+    "exportReadiness": null,
+    "emptyRoles": [],
+    "yearReproductions": []
+  },
+  {
+    "caseId": "C05",
+    "arm": "pipeline",
+    "kind": "resume",
+    "status": 200,
+    "firstDraftIssues": [],
+    "initialIntegrityIssueCount": 0,
+    "initialPositioningIssues": [],
+    "firstProfile": "Retail assistant with a Data Analytics diploma and coursework experience using Python and Power BI to clean public transit data, document a reporting limitation, and present cleaning decisions.",
+    "deliveredProfile": "Retail assistant with a Data Analytics diploma and three-student coursework experience analyzing public transit data in Python and Power BI.",
+    "repairDrafts": 0,
+    "sourceRepair": false,
+    "editorialValidation": true,
+    "fallback": false,
+    "postingStatus": "partial",
+    "exportReadiness": {
+      "status": "preliminary",
+      "application_ready": false,
+      "blockers": [
+        "posting_readiness",
+        "candidate_fit"
+      ],
+      "consistency": "Screen preview, copied text, DOCX, and ATS-safe PDF use the same validated tailored résumé data."
+    },
+    "emptyRoles": [],
+    "yearReproductions": []
+  },
+  {
+    "caseId": "C05",
+    "arm": "pipeline",
+    "kind": "letter",
+    "status": 200,
+    "firstDraftIssues": [],
+    "initialIntegrityIssueCount": 0,
+    "initialPositioningIssues": [],
+    "firstProfile": null,
+    "deliveredProfile": null,
+    "repairDrafts": 0,
+    "sourceRepair": false,
+    "editorialValidation": true,
+    "fallback": false,
+    "postingStatus": null,
+    "exportReadiness": null,
+    "emptyRoles": [],
+    "yearReproductions": []
+  },
+  {
+    "caseId": "C06",
+    "arm": "pipeline",
+    "kind": "resume",
+    "status": 200,
+    "firstDraftIssues": [],
+    "initialIntegrityIssueCount": 2,
+    "initialPositioningIssues": [],
+    "firstProfile": "Freelance photo editor with residential interior work in Lightroom, including colour matching across rooms with mixed window and ceiling light.",
+    "deliveredProfile": "Freelance photo editor with experience editing residential interiors in Lightroom from photographers’ files and colour-reference notes.",
+    "repairDrafts": 2,
+    "sourceRepair": true,
+    "editorialValidation": false,
+    "fallback": true,
+    "postingStatus": "partial",
+    "exportReadiness": {
+      "status": "preliminary",
+      "application_ready": false,
+      "blockers": [
+        "posting_readiness",
+        "candidate_fit"
+      ],
+      "consistency": "Screen preview, copied text, DOCX, and ATS-safe PDF use the same validated tailored résumé data."
+    },
+    "emptyRoles": [
+      {
+        "role": "Event Photo Assistant",
+        "company": "Example Studio",
+        "dates": "2020 – 2022"
+      }
+    ],
+    "yearReproductions": []
+  },
+  {
+    "caseId": "C06",
+    "arm": "pipeline",
+    "kind": "letter",
+    "status": 422,
+    "firstDraftIssues": [
+      "p1: A number or duration is not supported by this claim’s cited candidate evidence.",
+      "p3: Factual claims in a closing need candidate evidence citations too."
+    ],
+    "initialIntegrityIssueCount": 2,
+    "initialPositioningIssues": [],
+    "firstProfile": null,
+    "deliveredProfile": null,
+    "repairDrafts": 0,
+    "sourceRepair": false,
+    "editorialValidation": false,
+    "fallback": false,
+    "postingStatus": null,
+    "exportReadiness": null,
+    "emptyRoles": [],
+    "yearReproductions": [
+      {
+        "proposed": "In the 2025 Riverside Apartment Series for Example Interior Photographer, I matched colour across adjoining rooms with mixed window and ceiling light. I used the photographer’s reference frame and local white-balance masks, and the photographer accepted the set after one review round.",
+        "exactSources": [
+          "Riverside Apartment Series | Example Interior Photographer | 2025",
+          "Matched colour across adjoining rooms with mixed window and ceiling light, using the photographer's reference frame and local white-balance masks. The photographer accepted the set after one review round."
+        ],
+        "parsedQuantities": [
+          {
+            "number": "2025",
+            "unit": "sery",
+            "business": false,
+            "rate": ""
+          },
+          {
+            "number": "1",
+            "unit": "round",
+            "business": false,
+            "rate": ""
+          }
+        ],
+        "reproducedIssues": [
+          "A number or duration is not supported by this claim’s cited candidate evidence."
+        ]
+      }
+    ]
+  },
+  {
+    "caseId": "C01",
+    "arm": "confirmed_pipeline",
+    "kind": "resume",
+    "status": 200,
+    "firstDraftIssues": [],
+    "initialIntegrityIssueCount": 1,
+    "initialPositioningIssues": [],
+    "firstProfile": "SAP S/4HANA solution architect with public-sector rollout experience leading master-data testing activities and coordinating SAP MDG interface testing.",
+    "deliveredProfile": "SAP solution architect with public-sector SAP S/4HANA rollout experience, including master-data team leadership through UAT and mock cutover.",
+    "repairDrafts": 1,
+    "sourceRepair": false,
+    "editorialValidation": false,
+    "fallback": false,
+    "postingStatus": "complete",
+    "exportReadiness": {
+      "status": "ready",
+      "application_ready": true,
+      "blockers": [],
+      "consistency": "Screen preview, copied text, DOCX, and ATS-safe PDF use the same validated tailored résumé data."
+    },
+    "emptyRoles": [],
+    "yearReproductions": []
+  },
+  {
+    "caseId": "C01",
+    "arm": "confirmed_pipeline",
+    "kind": "letter",
+    "status": 200,
+    "firstDraftIssues": [
+      "p2: A number or duration is not supported by this claim’s cited candidate evidence."
+    ],
+    "initialIntegrityIssueCount": 1,
+    "initialPositioningIssues": [],
+    "firstProfile": null,
+    "deliveredProfile": null,
+    "repairDrafts": 0,
+    "sourceRepair": false,
+    "editorialValidation": false,
+    "fallback": false,
+    "postingStatus": null,
+    "exportReadiness": null,
+    "emptyRoles": [],
+    "yearReproductions": [
+      {
+        "proposed": "I also integrated SAP S/4HANA with SAP MDG and coordinated interface testing with the integration team. During a 2025 mock cutover reconciliation, duplicate customer records blocked a mock load; I grouped exceptions by source system, assigned owners, and agreed retest criteria with business data stewards. The next mock load cleared those recorded exceptions.",
+        "exactSources": [
+          "Integrated SAP S/4HANA with SAP MDG and coordinated interface testing with the integration team.",
+          "Mock Cutover Reconciliation | Example Systems Canada | 2025",
+          "When duplicate customer records blocked a mock load, grouped the exceptions by source system, assigned owners and agreed retest criteria with business data stewards; the next mock load cleared those recorded exceptions."
+        ],
+        "parsedQuantities": [
+          {
+            "number": "4",
+            "unit": "",
+            "business": false,
+            "rate": ""
+          },
+          {
+            "number": "2025",
+            "unit": "reconciliation",
+            "business": false,
+            "rate": ""
+          }
+        ],
+        "reproducedIssues": [
+          "A number or duration is not supported by this claim’s cited candidate evidence."
+        ]
+      }
+    ]
+  },
+  {
+    "caseId": "C02",
+    "arm": "confirmed_pipeline",
+    "kind": "resume",
+    "status": 200,
+    "firstDraftIssues": [],
+    "initialIntegrityIssueCount": 0,
+    "initialPositioningIssues": [],
+    "firstProfile": "Accounting assistant with an accounting diploma and experience supporting reconciliation and fixed-asset addition records in a distribution setting.",
+    "deliveredProfile": "Accounting assistant with an accounting diploma and experience supporting reconciliation and fixed-asset addition records in a distribution setting.",
+    "repairDrafts": 0,
+    "sourceRepair": false,
+    "editorialValidation": false,
+    "fallback": false,
+    "postingStatus": "complete",
+    "exportReadiness": {
+      "status": "ready",
+      "application_ready": true,
+      "blockers": [],
+      "consistency": "Screen preview, copied text, DOCX, and ATS-safe PDF use the same validated tailored résumé data."
+    },
+    "emptyRoles": [],
+    "yearReproductions": []
+  },
+  {
+    "caseId": "C02",
+    "arm": "confirmed_pipeline",
+    "kind": "letter",
+    "status": 422,
+    "firstDraftIssues": [
+      "p2: A number or duration is not supported by this claim’s cited candidate evidence."
+    ],
+    "initialIntegrityIssueCount": 1,
+    "initialPositioningIssues": [],
+    "firstProfile": null,
+    "deliveredProfile": null,
+    "repairDrafts": 0,
+    "sourceRepair": false,
+    "editorialValidation": false,
+    "fallback": false,
+    "postingStatus": null,
+    "exportReadiness": null,
+    "emptyRoles": [],
+    "yearReproductions": [
+      {
+        "proposed": "In a 2025 month-end improvement project, I found duplicate bank-feed entries behind recurring reconciliation differences, documented the import steps, and tested a revised checklist with the controller. Unresolved differences fell from 18 to 5 across the next three monthly reviews, and the controller approved final adjustments.",
+        "exactSources": [
+          "Month-end Improvement | Example Parts Distribution | 2025",
+          "Found duplicate bank-feed entries behind recurring reconciliation differences, documented the import steps and tested the revised checklist with the controller. Unresolved differences fell from 18 to 5 across the next three monthly reviews; the controller approved final adjustments."
+        ],
+        "parsedQuantities": [
+          {
+            "number": "2025",
+            "unit": "project",
+            "business": false,
+            "rate": ""
+          },
+          {
+            "number": "18",
+            "unit": "",
+            "business": false,
+            "rate": ""
+          },
+          {
+            "number": "5",
+            "unit": "",
+            "business": false,
+            "rate": ""
+          },
+          {
+            "number": "3",
+            "unit": "review",
+            "business": false,
+            "rate": ""
+          }
+        ],
+        "reproducedIssues": [
+          "A number or duration is not supported by this claim’s cited candidate evidence."
+        ]
+      }
+    ]
+  },
+  {
+    "caseId": "C03",
+    "arm": "confirmed_pipeline",
+    "kind": "resume",
+    "status": 200,
+    "firstDraftIssues": [],
+    "initialIntegrityIssueCount": 0,
+    "initialPositioningIssues": [],
+    "firstProfile": "Plumbing apprentice with residential field experience supporting a licensed plumber and a Plumbing Techniques certificate; experienced preparing copper and PEX from marked layouts.",
+    "deliveredProfile": "Plumbing apprentice with residential field experience supporting a licensed plumber and a Plumbing Techniques certificate.",
+    "repairDrafts": 0,
+    "sourceRepair": false,
+    "editorialValidation": true,
+    "fallback": false,
+    "postingStatus": "complete",
+    "exportReadiness": {
+      "status": "ready",
+      "application_ready": true,
+      "blockers": [],
+      "consistency": "Screen preview, copied text, DOCX, and ATS-safe PDF use the same validated tailored résumé data."
+    },
+    "emptyRoles": [],
+    "yearReproductions": []
+  },
+  {
+    "caseId": "C03",
+    "arm": "confirmed_pipeline",
+    "kind": "letter",
+    "status": 200,
+    "firstDraftIssues": [],
+    "initialIntegrityIssueCount": 0,
+    "initialPositioningIssues": [],
+    "firstProfile": null,
+    "deliveredProfile": null,
+    "repairDrafts": 0,
+    "sourceRepair": false,
+    "editorialValidation": false,
+    "fallback": false,
+    "postingStatus": null,
+    "exportReadiness": null,
+    "emptyRoles": [],
+    "yearReproductions": []
+  },
+  {
+    "caseId": "C04",
+    "arm": "confirmed_pipeline",
+    "kind": "resume",
+    "status": 200,
+    "firstDraftIssues": [],
+    "initialIntegrityIssueCount": 0,
+    "initialPositioningIssues": [],
+    "firstProfile": "Front desk supervisor in a community recreation setting with experience supporting online registration processes, maintaining records, and coordinating follow-up on incomplete forms.",
+    "deliveredProfile": "Front desk supervisor with customer-facing registration coordination experience.",
+    "repairDrafts": 0,
+    "sourceRepair": false,
+    "editorialValidation": true,
+    "fallback": false,
+    "postingStatus": "complete",
+    "exportReadiness": {
+      "status": "ready",
+      "application_ready": true,
+      "blockers": [],
+      "consistency": "Screen preview, copied text, DOCX, and ATS-safe PDF use the same validated tailored résumé data."
+    },
+    "emptyRoles": [],
+    "yearReproductions": []
+  },
+  {
+    "caseId": "C04",
+    "arm": "confirmed_pipeline",
+    "kind": "letter",
+    "status": 200,
+    "firstDraftIssues": [],
+    "initialIntegrityIssueCount": 0,
+    "initialPositioningIssues": [],
+    "firstProfile": null,
+    "deliveredProfile": null,
+    "repairDrafts": 0,
+    "sourceRepair": false,
+    "editorialValidation": false,
+    "fallback": false,
+    "postingStatus": null,
+    "exportReadiness": null,
+    "emptyRoles": [],
+    "yearReproductions": []
+  },
+  {
+    "caseId": "C05",
+    "arm": "confirmed_pipeline",
+    "kind": "resume",
+    "status": 200,
+    "firstDraftIssues": [],
+    "initialIntegrityIssueCount": 0,
+    "initialPositioningIssues": [],
+    "firstProfile": "Retail assistant with experience checking price data against till files and a Data Analytics diploma, including Python data cleaning and Power BI reporting in a three-student course project.",
+    "deliveredProfile": "Retail assistant with a Data Analytics diploma and public-transit analysis coursework using Python and Power BI in a three-student project.",
+    "repairDrafts": 0,
+    "sourceRepair": false,
+    "editorialValidation": true,
+    "fallback": false,
+    "postingStatus": "complete",
+    "exportReadiness": {
+      "status": "ready",
+      "application_ready": true,
+      "blockers": [],
+      "consistency": "Screen preview, copied text, DOCX, and ATS-safe PDF use the same validated tailored résumé data."
+    },
+    "emptyRoles": [],
+    "yearReproductions": []
+  },
+  {
+    "caseId": "C05",
+    "arm": "confirmed_pipeline",
+    "kind": "letter",
+    "status": 200,
+    "firstDraftIssues": [],
+    "initialIntegrityIssueCount": 0,
+    "initialPositioningIssues": [],
+    "firstProfile": null,
+    "deliveredProfile": null,
+    "repairDrafts": 0,
+    "sourceRepair": false,
+    "editorialValidation": true,
+    "fallback": false,
+    "postingStatus": null,
+    "exportReadiness": null,
+    "emptyRoles": [],
+    "yearReproductions": []
+  },
+  {
+    "caseId": "C06",
+    "arm": "confirmed_pipeline",
+    "kind": "resume",
+    "status": 200,
+    "firstDraftIssues": [],
+    "initialIntegrityIssueCount": 2,
+    "initialPositioningIssues": [],
+    "firstProfile": "Freelance photo editor specializing in residential interiors, using Lightroom and photographer-supplied colour references to prepare accurate image sets.",
+    "deliveredProfile": "Freelance photo editor with residential interior editing experience in Lightroom, including colour-reference work and mixed-light room sets.",
+    "repairDrafts": 2,
+    "sourceRepair": true,
+    "editorialValidation": false,
+    "fallback": true,
+    "postingStatus": "complete",
+    "exportReadiness": {
+      "status": "ready",
+      "application_ready": true,
+      "blockers": [],
+      "consistency": "Screen preview, copied text, DOCX, and ATS-safe PDF use the same validated tailored résumé data."
+    },
+    "emptyRoles": [
+      {
+        "role": "Event Photo Assistant",
+        "company": "Example Studio",
+        "dates": "2020 – 2022"
+      }
+    ],
+    "yearReproductions": []
+  },
+  {
+    "caseId": "C06",
+    "arm": "confirmed_pipeline",
+    "kind": "letter",
+    "status": 200,
+    "firstDraftIssues": [],
+    "initialIntegrityIssueCount": 0,
+    "initialPositioningIssues": [],
+    "firstProfile": null,
+    "deliveredProfile": null,
+    "repairDrafts": 0,
+    "sourceRepair": false,
+    "editorialValidation": false,
+    "fallback": false,
+    "postingStatus": null,
+    "exportReadiness": null,
+    "emptyRoles": [],
+    "yearReproductions": []
+  }
+]

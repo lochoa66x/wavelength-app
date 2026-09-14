@@ -1,0 +1,205 @@
+{
+  "version": 1,
+  "experiment": "comparative-v1",
+  "caseId": "C02",
+  "arm": "reasoning",
+  "kind": "letter",
+  "attempt": 1,
+  "startedAt": "2026-09-14T00:38:45.515Z",
+  "sourceHash": "dd5368f92ee26955d6104de08616aa44ebb488ab5a3372287ae39a53078455c5",
+  "deploymentRevision": "698f9a97ec60f5d7df55e8fa7a914b3a9eff0c17",
+  "calls": [
+    {
+      "sequence": 1,
+      "startedAt": "2026-09-14T00:38:45.515Z",
+      "request": {
+        "model": "gpt-5.6-terra",
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "input": "Write an employer-facing cover letter tailored to this job. Use only candidate facts from the source. Preserve contribution level, shared results, dates, credential status and academic/project context. Do not turn job requirements into candidate history. Choose the strongest relevant evidence, retain useful concrete detail, and write clear natural professional English. Make a focused case through one or two relevant examples rather than reciting the résumé. Avoid generic praise and invented motivation. Use 2–4 paragraphs, at most 320 words, a salutation and signoff.\n\nJOB\n{\"title\":\"Staff Accountant\",\"company\":\"Example C02 Services\",\"location\":\"Hamilton, Ontario\",\"type\":\"Full-time\",\"category\":\"finance\",\"description\":\"We need a Staff Accountant to carry out the responsibilities listed below. Submit a résumé and cover letter describing relevant work.\",\"responsibilities\":[\"Prepare bank reconciliations and month-end schedules\",\"Investigate reconciling differences and document corrections\",\"Maintain fixed-asset records\"],\"required_qualifications\":[\"Accounting education\",\"Hands-on reconciliation and spreadsheet experience\"],\"preferred_qualifications\":[],\"source\":\"candidate_reviewed\"}\n\nCANDIDATE SOURCE\nAmir Chen\nc02@example.com | Hamilton, Ontario\nAccounting Assistant | Example Parts Distribution | 2021 - 2026\nPrepared bank reconciliations for six operating accounts and submitted reconciling items to the controller before month-end review.\nMatched supplier invoices to purchase orders in QuickBooks and maintained the fixed-asset additions register.\nMonth-end Improvement | Example Parts Distribution | 2025\nFound duplicate bank-feed entries behind recurring reconciliation differences, documented the import steps and tested the revised checklist with the controller. Unresolved differences fell from 18 to 5 across the next three monthly reviews; the controller approved final adjustments.\nAccounts Payable Clerk | Example Office Supply | 2019 - 2021\nChecked invoice coding and followed up missing supplier approvals.\nEducation\nAccounting diploma | Example Business College | 2019\nTraining\nCPA preparatory courses in progress; no CPA designation held.\nSkills\nQuickBooks; Excel pivot tables; bank reconciliations; accounts payable",
+        "reasoning": {
+          "effort": "high"
+        },
+        "max_output_tokens": 6000,
+        "store": false,
+        "parallel_tool_calls": false,
+        "tools": [
+          {
+            "type": "function",
+            "name": "return_document",
+            "description": "Return the application document.",
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "salutation": {
+                  "type": "string"
+                },
+                "paragraphs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "signoff": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "salutation",
+                "paragraphs",
+                "signoff"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        }
+      },
+      "status": 200,
+      "response": {
+        "id": "resp_003afbdf50705616016aa74215930887d299d77276f474d96a",
+        "object": "response",
+        "created_at": 1789346325,
+        "status": "completed",
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1789346328,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "max_output_tokens": 6000,
+        "max_tool_calls": null,
+        "model": "gpt-5.6-terra",
+        "moderation": null,
+        "output": [
+          {
+            "id": "rs_003afbdf50705616016aa74216216887d288703164baafad90",
+            "type": "reasoning",
+            "content": [],
+            "encrypted_content": "gAAAAABqp0IYwTKNPaT6njW0XhVh1M_dmaApw3TFrJTLEFvMQwLHTBx-op3PfInH5YMo5PN2r2UEU4pqXmv_ePxBmvp7Onwg7VyPdHb5rdNISpN5cBrZbRVp-BCD-6EZPi0zV6izma6yrOlBpODwZXY1-kYYra4w7X7o2oLNF0t3SpzmgIGLjwdCrZd0eEl2yPgYl8bdm28fhpEf3PRwyrcXOZLqg16Uo43VYWpGdnmNPIZCrD61zjq0Wu5YZdQfdvJEMvC0bRanDWjMO2WiuvWXjI7D5J92Ih9pidzUmeOONDkOp5-cpnWwHeoUL4195XoXHw28Uu4vE3X0sr_rYu3_YReCgqeTIVitpQeWB9z44OrF4TMFdtqFjSq_eY8jD82K9pQUtEfjkbcZ1_0wlpDdvjQgujo9ubofpjGrrHWP_bIV_o571OCvRRTM9qUcH0g4i-OCgNFxYPNHazJ8CLRn641kUzxi7v386QI-31APPz9tvTEdz92BhGUg2qt3VLrMW6qKlUimA9Ni7pKO3CUdKqB5ot32D7y7Zvfag4CAQDsfgI9N7uEE3i-VKwubPbCShObHiVDd6EkTppJYOAsYkbkWyK2mmkComRq9uqfCEpYjErul5tKzhDfNoXr3sU4o9YCFQkbXMu00YePOyTvJGp2RYSXPCICubrOa41Ptdvs_sBekfdxbDHH5Lckdp6UPc7lwIdx0FZkI2_PAHZiWNTfNZtiEqS-_XawGHdz3whIGUI7ljM2zG0st90tzLIsN0UA2dYDeCELjmTr9Y28Sm_Y4dGOAcED5pCyJhRfpz73s9XaOrVqS9rXI216-zy8tgo6ZYMgcctowuEKHjyxh8Brhgh2KPenA4bObZvF1MGk6FeZZQcawU217JZv70I3neu0XAS62ov_O3dq1TrdaS0cPiGnW9kAGiIuqj6LUTTe30HeWVZjxdCeE7T29OboYmYIbeDr6Wi-UkLOb8XPFQwUzvi9r1ouHqfpZVvSMy4RzhKJollfHsOnAUf2yaeOU__kYTBKDp7ggRZclNe5iGijcemhoCXCTTr43A6VW-1iEeWIJB_yPrTQSuXp34jUmFnkznbLfmFK9H34aDs4OGnISjkT2i-TRRIiuVZjvNEPFaYX8QJBH0Vyp8W1wPf9ycJrEKPhbBhM4vBKERQNo0WY4Sh9Aj5Jmc0YBqgicDTe7JeQ9fmy_G_empFEQHM43Ve5nIMDvQmklBhYRK3If5rndV8Dn9gVEO4-GWreEmB2hl48HYJ_jdPpK07S0WH7RFv7UHgRVNYMzY2CikSxALL-Ul3-UfUW7cQ2o9b7MxzD4e4zAv46MalEPsYmotnluU_pyQyIpWU3HjIUcDryJeGUD61ZLFF5-HtvRrLb0d1wEvYcR5I3C0PDfM2Ro7fbdzLk-SeDN6vP5182H26mDXwyqeLL-yk5h2wUqIcre3dfk2qOHgAk3dUjFUaGCtiLcuodoM5a6S9BOgVbO-MFwI_vLMCwzNCr5LzXtjE8C4sT26m2mJmkZkeURntuDbeW15fOpcQ4ntVljYtZY4zCLf6EocKCucLqQxdzVP10hjHYLZjRwrtNOWGS7k__q9C1x_y3u5Jn2",
+            "summary": []
+          },
+          {
+            "id": "fc_003afbdf50705616016aa74217361887d28087bc0f1dc11cca",
+            "type": "function_call",
+            "status": "completed",
+            "arguments": "{\"salutation\":\"Dear Hiring Manager,\",\"paragraphs\":[\"I am applying for the Staff Accountant position with Example C02 Services. As an Accounting Assistant at Example Parts Distribution from 2021 to 2026, I prepared bank reconciliations for six operating accounts and submitted reconciling items to the controller before month-end review. I also matched supplier invoices to purchase orders in QuickBooks and maintained the fixed-asset additions register. My accounting diploma was completed in 2019, and I am currently taking CPA preparatory courses; I do not hold a CPA designation.\",\"In a 2025 month-end improvement effort at Example Parts Distribution, I identified duplicate bank-feed entries underlying recurring reconciliation differences. I documented the import steps and tested a revised checklist with the controller. Across the following three monthly reviews, unresolved differences declined from 18 to 5, and the controller approved the final adjustments. This work paired reconciliation investigation with clear documentation and spreadsheet-based review.\",\"I would welcome the opportunity to bring my bank-reconciliation, fixed-asset register, QuickBooks, and Excel pivot-table experience to Example C02 Services’ month-end work.\"],\"signoff\":\"Sincerely,\\nAmir Chen\"}",
+            "call_id": "call_lY071Q6lDgWjivFBpIDDf8dy",
+            "name": "return_document"
+          }
+        ],
+        "parallel_tool_calls": false,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "high",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "text"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        },
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [
+          {
+            "type": "function",
+            "description": "Return the application document.",
+            "name": "return_document",
+            "output_schema": null,
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "salutation": {
+                  "type": "string"
+                },
+                "paragraphs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "signoff": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "salutation",
+                "paragraphs",
+                "signoff"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 567,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 326,
+          "output_tokens_details": {
+            "reasoning_tokens": 72
+          },
+          "total_tokens": 893
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "durationMs": 3439
+    }
+  ],
+  "httpStatus": 200,
+  "delivered": {
+    "salutation": "Dear Hiring Manager,",
+    "paragraphs": [
+      "I am applying for the Staff Accountant position with Example C02 Services. As an Accounting Assistant at Example Parts Distribution from 2021 to 2026, I prepared bank reconciliations for six operating accounts and submitted reconciling items to the controller before month-end review. I also matched supplier invoices to purchase orders in QuickBooks and maintained the fixed-asset additions register. My accounting diploma was completed in 2019, and I am currently taking CPA preparatory courses; I do not hold a CPA designation.",
+      "In a 2025 month-end improvement effort at Example Parts Distribution, I identified duplicate bank-feed entries underlying recurring reconciliation differences. I documented the import steps and tested a revised checklist with the controller. Across the following three monthly reviews, unresolved differences declined from 18 to 5, and the controller approved the final adjustments. This work paired reconciliation investigation with clear documentation and spreadsheet-based review.",
+      "I would welcome the opportunity to bring my bank-reconciliation, fixed-asset register, QuickBooks, and Excel pivot-table experience to Example C02 Services’ month-end work."
+    ],
+    "signoff": "Sincerely,\nAmir Chen"
+  },
+  "completedAt": "2026-09-14T00:38:48.954Z",
+  "durationMs": 3439
+}

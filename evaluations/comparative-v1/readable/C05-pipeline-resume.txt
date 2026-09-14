@@ -1,0 +1,16 @@
+Theo Park
+Retail Assistant with Data Analytics Project Experience
+c05@example.com | Hamilton, Ontario
+Retail assistant with a Data Analytics diploma and three-student coursework experience analyzing public transit data in Python and Power BI.
+EXPERIENCE
+Retail Assistant | Example Corner Market | 2023 – 2026
+• Checked shelf prices against the till file and reported discrepancies to the shift manager.
+PROJECTS
+Transit Delay Dashboard | Three-student course project, Example Technical College | 2026
+• Cleaned a public transit dataset in Python and identified duplicate journey identifiers before joining the route tables.
+• Built the team's Power BI view comparing median delay by route and weekday; excluded cancelled trips and stated that limitation beside the chart.
+• Presented cleaning decisions to the class; the coursework dashboard was not deployed by a transit agency.
+SKILLS
+Power BI | Python pandas | SQL joins | data-quality checks
+EDUCATION
+Data Analytics diploma | Example Technical College | 2026

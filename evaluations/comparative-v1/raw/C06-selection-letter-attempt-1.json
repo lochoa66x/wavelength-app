@@ -1,0 +1,198 @@
+{
+  "version": 1,
+  "experiment": "comparative-v1",
+  "caseId": "C06",
+  "arm": "selection",
+  "kind": "letter",
+  "attempt": 1,
+  "startedAt": "2026-09-14T00:42:54.083Z",
+  "sourceHash": "699a2e8ede082f8c539263e8a3263c44feee588dae0adb3e6d028032ac88e687",
+  "deploymentRevision": "698f9a97ec60f5d7df55e8fa7a914b3a9eff0c17",
+  "calls": [
+    {
+      "sequence": 1,
+      "startedAt": "2026-09-14T00:42:54.083Z",
+      "request": {
+        "model": "gpt-5.6-terra",
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "input": "Write an employer-facing cover letter tailored to this job. Use only candidate facts from the source. Preserve contribution level, shared results, dates, credential status and academic/project context. Do not turn job requirements into candidate history. Choose the strongest relevant evidence, retain useful concrete detail, and write clear natural professional English. Make a focused case through one or two relevant examples rather than reciting the résumé. Avoid generic praise and invented motivation. Use 2–4 paragraphs, at most 320 words, a salutation and signoff.\n\nJOB\n{\"title\":\"Freelance Interior Photo Editor\",\"company\":\"Example C06 Services\",\"location\":\"Hamilton, Ontario\",\"type\":\"Full-time\",\"category\":\"design\",\"description\":\"We need a Freelance Interior Photo Editor to carry out the responsibilities listed below. Submit a résumé and cover letter describing relevant work.\",\"responsibilities\":[\"Match colour across interior image sets with mixed lighting\",\"Preserve property features and meet delivery specifications\",\"Provide an interior-editing portfolio\"],\"required_qualifications\":[\"Lightroom interior editing experience\",\"Portfolio demonstrating consistent colour\"],\"preferred_qualifications\":[],\"source\":\"candidate_reviewed\"}\n\nCANDIDATE SOURCE\nSofia Adeyemi\nc06@example.com | Hamilton, Ontario\nFreelance Photo Editor | Self-employed | 2022 - 2026\nEdited residential interiors in Lightroom from photographers' files and colour-reference notes.\nCorrected white balance and vertical alignment without removing permanent room features.\nDelivered named image sets with the requested dimensions and checked them against the photographer's shot list.\nSelected Project\nRiverside Apartment Series | Example Interior Photographer | 2025\nMatched colour across adjoining rooms with mixed window and ceiling light, using the photographer's reference frame and local white-balance masks. The photographer accepted the set after one review round.\nEvent Photo Assistant | Example Studio | 2020 - 2022\nLabelled memory cards, prepared equipment and organised contact sheets.\nPortfolio\nhttps://example.com/sofia-interiors\nSkills\nLightroom; white balance; perspective corrections; export checks\n\nEDITOR-SELECTED SOURCE EXCERPTS TO PRIORITIZE (the full source still applies)\nMatched colour across adjoining rooms with mixed window and ceiling light, using the photographer's reference frame and local white-balance masks. The photographer accepted the set after one review round.\nDelivered named image sets with the requested dimensions and checked them against the photographer's shot list.",
+        "reasoning": {
+          "effort": "low"
+        },
+        "max_output_tokens": 6000,
+        "store": false,
+        "parallel_tool_calls": false,
+        "tools": [
+          {
+            "type": "function",
+            "name": "return_document",
+            "description": "Return the application document.",
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "salutation": {
+                  "type": "string"
+                },
+                "paragraphs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "signoff": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "salutation",
+                "paragraphs",
+                "signoff"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        }
+      },
+      "status": 200,
+      "response": {
+        "id": "resp_02cb7b3d04c3062b016aa7430e229087d2bf0d586d987cbd5a",
+        "object": "response",
+        "created_at": 1789346574,
+        "status": "completed",
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1789346576,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "max_output_tokens": 6000,
+        "max_tool_calls": null,
+        "model": "gpt-5.6-terra",
+        "moderation": null,
+        "output": [
+          {
+            "id": "fc_02cb7b3d04c3062b016aa7430e94f487d2a39e38dfdfcbe0ff",
+            "type": "function_call",
+            "status": "completed",
+            "arguments": "{\"salutation\":\"Dear Hiring Team,\",\"paragraphs\":[\"I am applying for the Freelance Interior Photo Editor position with Example C06 Services. As a self-employed Freelance Photo Editor since 2022, I have edited residential interiors in Lightroom from photographers’ files and colour-reference notes. My portfolio is available at https://example.com/sofia-interiors.\",\"For the 2025 Riverside Apartment Series for Example Interior Photographer, I matched colour across adjoining rooms affected by mixed window and ceiling light. Using the photographer’s reference frame and local white-balance masks, I produced a consistent set that the photographer accepted after one review round. This work required maintaining the appearance of the spaces while addressing varied lighting between rooms.\",\"In my freelance work, I also correct white balance and vertical alignment without removing permanent room features. I deliver named image sets in the requested dimensions and check them against the photographer’s shot list, supporting accurate, specification-ready delivery.\"],\"signoff\":\"Sincerely,\\nSofia Adeyemi\"}",
+            "call_id": "call_aTzwyW8k7BK3i7g6eoA2Yu0x",
+            "name": "return_document"
+          }
+        ],
+        "parallel_tool_calls": false,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "low",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "text"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        },
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [
+          {
+            "type": "function",
+            "description": "Return the application document.",
+            "name": "return_document",
+            "output_schema": null,
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "salutation": {
+                  "type": "string"
+                },
+                "paragraphs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "signoff": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "salutation",
+                "paragraphs",
+                "signoff"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 632,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 215,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 847
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "durationMs": 2342
+    }
+  ],
+  "httpStatus": 200,
+  "delivered": {
+    "salutation": "Dear Hiring Team,",
+    "paragraphs": [
+      "I am applying for the Freelance Interior Photo Editor position with Example C06 Services. As a self-employed Freelance Photo Editor since 2022, I have edited residential interiors in Lightroom from photographers’ files and colour-reference notes. My portfolio is available at https://example.com/sofia-interiors.",
+      "For the 2025 Riverside Apartment Series for Example Interior Photographer, I matched colour across adjoining rooms affected by mixed window and ceiling light. Using the photographer’s reference frame and local white-balance masks, I produced a consistent set that the photographer accepted after one review round. This work required maintaining the appearance of the spaces while addressing varied lighting between rooms.",
+      "In my freelance work, I also correct white balance and vertical alignment without removing permanent room features. I deliver named image sets in the requested dimensions and check them against the photographer’s shot list, supporting accurate, specification-ready delivery."
+    ],
+    "signoff": "Sincerely,\nSofia Adeyemi"
+  },
+  "completedAt": "2026-09-14T00:42:56.425Z",
+  "durationMs": 2342
+}

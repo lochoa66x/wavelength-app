@@ -1,0 +1,418 @@
+{
+  "version": 1,
+  "experiment": "comparative-v1",
+  "caseId": "C02",
+  "arm": "simple",
+  "kind": "resume",
+  "attempt": 1,
+  "startedAt": "2026-09-14T00:38:33.023Z",
+  "sourceHash": "dd5368f92ee26955d6104de08616aa44ebb488ab5a3372287ae39a53078455c5",
+  "deploymentRevision": "698f9a97ec60f5d7df55e8fa7a914b3a9eff0c17",
+  "calls": [
+    {
+      "sequence": 1,
+      "startedAt": "2026-09-14T00:38:33.023Z",
+      "request": {
+        "model": "gpt-5.6-terra",
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "input": "Write an employer-facing résumé tailored to this job. Use only candidate facts from the source. Preserve contribution level, shared results, dates, credential status and academic/project context. Do not turn job requirements into candidate history. Choose the strongest relevant evidence, retain useful concrete detail, and write clear natural professional English. Use a short professional profile that synthesizes the candidate’s focus rather than repeating the experience bullets. Keep relevant projects and qualifications.\n\nJOB\n{\"title\":\"Staff Accountant\",\"company\":\"Example C02 Services\",\"location\":\"Hamilton, Ontario\",\"type\":\"Full-time\",\"category\":\"finance\",\"description\":\"We need a Staff Accountant to carry out the responsibilities listed below. Submit a résumé and cover letter describing relevant work.\",\"responsibilities\":[\"Prepare bank reconciliations and month-end schedules\",\"Investigate reconciling differences and document corrections\",\"Maintain fixed-asset records\"],\"required_qualifications\":[\"Accounting education\",\"Hands-on reconciliation and spreadsheet experience\"],\"preferred_qualifications\":[],\"source\":\"candidate_reviewed\"}\n\nCANDIDATE SOURCE\nAmir Chen\nc02@example.com | Hamilton, Ontario\nAccounting Assistant | Example Parts Distribution | 2021 - 2026\nPrepared bank reconciliations for six operating accounts and submitted reconciling items to the controller before month-end review.\nMatched supplier invoices to purchase orders in QuickBooks and maintained the fixed-asset additions register.\nMonth-end Improvement | Example Parts Distribution | 2025\nFound duplicate bank-feed entries behind recurring reconciliation differences, documented the import steps and tested the revised checklist with the controller. Unresolved differences fell from 18 to 5 across the next three monthly reviews; the controller approved final adjustments.\nAccounts Payable Clerk | Example Office Supply | 2019 - 2021\nChecked invoice coding and followed up missing supplier approvals.\nEducation\nAccounting diploma | Example Business College | 2019\nTraining\nCPA preparatory courses in progress; no CPA designation held.\nSkills\nQuickBooks; Excel pivot tables; bank reconciliations; accounts payable",
+        "reasoning": {
+          "effort": "low"
+        },
+        "max_output_tokens": 6000,
+        "store": false,
+        "parallel_tool_calls": false,
+        "tools": [
+          {
+            "type": "function",
+            "name": "return_document",
+            "description": "Return the application document.",
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "headline": {
+                  "type": "string"
+                },
+                "profile": {
+                  "type": "string"
+                },
+                "skills": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "experience": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "role": {
+                        "type": "string"
+                      },
+                      "organization": {
+                        "type": "string"
+                      },
+                      "dates": {
+                        "type": "string"
+                      },
+                      "bullets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "role",
+                      "organization",
+                      "dates",
+                      "bullets"
+                    ]
+                  }
+                },
+                "projects": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "context": {
+                        "type": "string"
+                      },
+                      "bullets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "context",
+                      "bullets"
+                    ]
+                  }
+                },
+                "education": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "training": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "links": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "name",
+                "headline",
+                "profile",
+                "skills",
+                "experience",
+                "projects",
+                "education",
+                "training",
+                "links"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        }
+      },
+      "status": 200,
+      "response": {
+        "id": "resp_0aa3e7e876ddc26d016aa74209161087d29763a4954135133c",
+        "object": "response",
+        "created_at": 1789346313,
+        "status": "completed",
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1789346316,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "max_output_tokens": 6000,
+        "max_tool_calls": null,
+        "model": "gpt-5.6-terra",
+        "moderation": null,
+        "output": [
+          {
+            "id": "rs_0aa3e7e876ddc26d016aa74209885487d2babfd136c6e9bec4",
+            "type": "reasoning",
+            "content": [],
+            "encrypted_content": "gAAAAABqp0IMLyQnflmi2VP7-RlSsfSh7XgIRPO1ep9n6TKxD-4Bi7hyewcII6Mh_8N4al8tGjcCb-d2RqWz9rJukpvDqudJwJB73MO8KYeGIYnRxfRNyhdMPxvGeYaPWTHn78V5dwkwgpPKgr2qeoHDeYU1JKQOqDqOIm0j7SjKoqTBtlcpozt9VW2E2FRcd0TyIvCerS6ly1Lj6XhROL3cJVmzgB9ddNKzebZJAZzuM3RjnJquOWksAOGipxSEsIu0YSZnn7ghTpupC7lHdPpXTc8eEOaYe2ZnrzDvcZvPR0KV-e_KeK5yYo-3wHSoCtH6BVc8SBTZGwJTuGBfFqWer7diVHJy9wDQpRrarFg23IB9cq2tWeeokn-6m4Ka8KKWUugSPfoCu935sYWNGqcH1QHNLviPPXTXGAphcZYxDhTaD2hg0eAVoVgk17X0LAlT-WT9joTxvzoUlCHa_wqHtQxbmSLqPc_KEe_0bCJ2IXGpSc5hgeX1QTXMHMwuWyF_D1csyxCAHy6KqC9aqE_u-CruEAvjBzoZoxD82K5foCptiGGWRo8uQMGYynHXhqux2ga-QuGnY2YTzVwNHm0foqNnAcRJwrdM4kYn9EbSB7US8_806SaDho1BL6rl90hWpAdyfe4zIY8zXeab_EX1RH0G28xJNHTQEdx2bWLUEJjEZZZxoPTOBFJi74OAiiJlbVoHBDscjnhzZOjBym5lo9OuOy7TiBsga909_MEhLsU_DmyGVjzenqxEd7qoLZRb0KGUQ36KMFbyAH3tMtCgqObaa8KsqdWZW4Eywm8h8k57jPKrfCuljGy0OOZ6a9r0m95s3hPLBDArkUdnH23BWql5b2hsVQtcS_wrEdAPzCVWvCmj_7dAp0E6STJIKfOldiqURm-eHP-NfUw6vErOacyvfyGYXv1mo4dt31u1tA0oC_Hqr9pTu-I-n6DJmjH-bxXrjrRKbWx_1v0l-_dp_XPt-ZIyQVf_ocOSquCLuPsLZdbIctd6vGwPtx2SZRkhhyTRii_rIdFpjCLuhWdGBkU5LF2uJglaWNXIFEbf5DoU6p1L3u1Ukhvu3zX4fyyNq6LT-8eieM9bU_WpaFei9vKvp9P_rm-5ZiLrVFmU8kv06yphc4qpmfiSnubS6c3WBCqHZm9nJJZtgk4--ke9b3M_FJzGB3eQhnRIDMQAFhp9dCHSLEVR-jO-6tOTElG0Gc9_P7tgFMXZsHSZNyW859QWk4ZJy4VOLV-i96W-csVPhwunKTwdrf7X-lE6bXXygb4qBK-iYF9kfQLKQ9d5OWm1bUWbAYCqPMZqX5agRSiZP1R0KfMpvCDH-Y2r7SO_yaJGK7nfZyCyDI9CSfYmExjqWLl-JQ==",
+            "summary": []
+          },
+          {
+            "id": "fc_0aa3e7e876ddc26d016aa7420a159c87d2a7dbcf936bd751b6",
+            "type": "function_call",
+            "status": "completed",
+            "arguments": "{\"name\":\"Amir Chen\",\"headline\":\"Staff Accountant Candidate | Bank Reconciliations, Fixed-Asset Records & Month-End Support\",\"profile\":\"Accounting professional with an Accounting diploma and experience supporting bank reconciliations, accounts payable processes, fixed-asset additions records, and month-end review activities. Brings hands-on QuickBooks and Excel pivot-table experience, including investigation and documentation of recurring reconciliation differences.\",\"skills\":[\"Bank reconciliations\",\"Reconciliation difference investigation\",\"Month-end support\",\"Fixed-asset additions registers\",\"QuickBooks\",\"Excel pivot tables\",\"Accounts payable\",\"Invoice-to-purchase-order matching\",\"Invoice coding review\"],\"experience\":[{\"role\":\"Accounting Assistant\",\"organization\":\"Example Parts Distribution\",\"dates\":\"2021 - 2026\",\"bullets\":[\"Prepared bank reconciliations for six operating accounts and submitted reconciling items to the controller before month-end review.\",\"Matched supplier invoices to purchase orders in QuickBooks.\",\"Maintained the fixed-asset additions register.\"]},{\"role\":\"Accounts Payable Clerk\",\"organization\":\"Example Office Supply\",\"dates\":\"2019 - 2021\",\"bullets\":[\"Checked invoice coding and followed up on missing supplier approvals.\"]}],\"projects\":[{\"name\":\"Month-end Improvement\",\"context\":\"Example Parts Distribution | 2025\",\"bullets\":[\"Identified duplicate bank-feed entries underlying recurring reconciliation differences.\",\"Documented the import steps and tested a revised checklist with the controller.\",\"Unresolved differences fell from 18 to 5 across the next three monthly reviews; the controller approved final adjustments.\"]}],\"education\":[\"Accounting Diploma | Example Business College | 2019\"],\"training\":[\"CPA preparatory courses in progress; no CPA designation held.\"],\"links\":[\"c02@example.com | Hamilton, Ontario\"]}",
+            "call_id": "call_DtxCLEOFE1ZRaAk634gcid3g",
+            "name": "return_document"
+          }
+        ],
+        "parallel_tool_calls": false,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "low",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "text"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        },
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [
+          {
+            "type": "function",
+            "description": "Return the application document.",
+            "name": "return_document",
+            "output_schema": null,
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "headline": {
+                  "type": "string"
+                },
+                "profile": {
+                  "type": "string"
+                },
+                "skills": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "experience": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "role": {
+                        "type": "string"
+                      },
+                      "organization": {
+                        "type": "string"
+                      },
+                      "dates": {
+                        "type": "string"
+                      },
+                      "bullets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "role",
+                      "organization",
+                      "dates",
+                      "bullets"
+                    ]
+                  }
+                },
+                "projects": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "context": {
+                        "type": "string"
+                      },
+                      "bullets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "context",
+                      "bullets"
+                    ]
+                  }
+                },
+                "education": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "training": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "links": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "name",
+                "headline",
+                "profile",
+                "skills",
+                "experience",
+                "projects",
+                "education",
+                "training",
+                "links"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 600,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 400,
+          "output_tokens_details": {
+            "reasoning_tokens": 37
+          },
+          "total_tokens": 1000
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "durationMs": 3569
+    }
+  ],
+  "httpStatus": 200,
+  "delivered": {
+    "name": "Amir Chen",
+    "headline": "Staff Accountant Candidate | Bank Reconciliations, Fixed-Asset Records & Month-End Support",
+    "profile": "Accounting professional with an Accounting diploma and experience supporting bank reconciliations, accounts payable processes, fixed-asset additions records, and month-end review activities. Brings hands-on QuickBooks and Excel pivot-table experience, including investigation and documentation of recurring reconciliation differences.",
+    "skills": [
+      "Bank reconciliations",
+      "Reconciliation difference investigation",
+      "Month-end support",
+      "Fixed-asset additions registers",
+      "QuickBooks",
+      "Excel pivot tables",
+      "Accounts payable",
+      "Invoice-to-purchase-order matching",
+      "Invoice coding review"
+    ],
+    "experience": [
+      {
+        "role": "Accounting Assistant",
+        "organization": "Example Parts Distribution",
+        "dates": "2021 - 2026",
+        "bullets": [
+          "Prepared bank reconciliations for six operating accounts and submitted reconciling items to the controller before month-end review.",
+          "Matched supplier invoices to purchase orders in QuickBooks.",
+          "Maintained the fixed-asset additions register."
+        ]
+      },
+      {
+        "role": "Accounts Payable Clerk",
+        "organization": "Example Office Supply",
+        "dates": "2019 - 2021",
+        "bullets": [
+          "Checked invoice coding and followed up on missing supplier approvals."
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "Month-end Improvement",
+        "context": "Example Parts Distribution | 2025",
+        "bullets": [
+          "Identified duplicate bank-feed entries underlying recurring reconciliation differences.",
+          "Documented the import steps and tested a revised checklist with the controller.",
+          "Unresolved differences fell from 18 to 5 across the next three monthly reviews; the controller approved final adjustments."
+        ]
+      }
+    ],
+    "education": [
+      "Accounting Diploma | Example Business College | 2019"
+    ],
+    "training": [
+      "CPA preparatory courses in progress; no CPA designation held."
+    ],
+    "links": [
+      "c02@example.com | Hamilton, Ontario"
+    ]
+  },
+  "completedAt": "2026-09-14T00:38:36.592Z",
+  "durationMs": 3569
+}

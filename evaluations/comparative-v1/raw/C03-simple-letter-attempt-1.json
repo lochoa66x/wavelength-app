@@ -1,0 +1,205 @@
+{
+  "version": 1,
+  "experiment": "comparative-v1",
+  "caseId": "C03",
+  "arm": "simple",
+  "kind": "letter",
+  "attempt": 1,
+  "startedAt": "2026-09-14T00:40:24.946Z",
+  "sourceHash": "d9ccfd2df5b8f9024b2f237b00926bda906f765d5870873c9034edaabcc56fde",
+  "deploymentRevision": "698f9a97ec60f5d7df55e8fa7a914b3a9eff0c17",
+  "calls": [
+    {
+      "sequence": 1,
+      "startedAt": "2026-09-14T00:40:24.946Z",
+      "request": {
+        "model": "gpt-5.6-terra",
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "input": "Write an employer-facing cover letter tailored to this job. Use only candidate facts from the source. Preserve contribution level, shared results, dates, credential status and academic/project context. Do not turn job requirements into candidate history. Choose the strongest relevant evidence, retain useful concrete detail, and write clear natural professional English. Make a focused case through one or two relevant examples rather than reciting the résumé. Avoid generic praise and invented motivation. Use 2–4 paragraphs, at most 320 words, a salutation and signoff.\n\nJOB\n{\"title\":\"Plumbing Apprentice\",\"company\":\"Example C03 Services\",\"location\":\"Hamilton, Ontario\",\"type\":\"Full-time\",\"category\":\"trades\",\"description\":\"We need a Plumbing Apprentice to carry out the responsibilities listed below. Submit a résumé and cover letter describing relevant work.\",\"responsibilities\":[\"Assist licensed plumbers with residential repairs\",\"Prepare pipe and fittings from marked layouts\",\"Record work and materials\"],\"required_qualifications\":[\"Plumbing workshop or field experience\",\"Ability to work under licensed supervision\"],\"preferred_qualifications\":[],\"source\":\"candidate_reviewed\"}\n\nCANDIDATE SOURCE\nRiley Morgan\nc03@example.com | Hamilton, Ontario\nPlumbing Apprentice | Example Home Plumbing | 2023 - 2026\nAssisted a licensed plumber with residential water-line repairs, fixture replacement and drain clearing.\nMeasured and cut copper and PEX pipe from the supervising plumber's marked layout, prepared joints and recorded materials on work orders.\nLocated a recurring under-sink leak during a supervised pressure check by drying the fittings and checking each joint in sequence; the plumber approved and completed the connection repair.\nWarehouse Associate | Example Building Supply | 2021 - 2023\nPicked plumbing fittings against order lists and checked part sizes before loading.\nEducation\nPlumbing Techniques certificate | Example Trades College | 2023\nTraining\nWorking at Heights certificate expired in 2025.\nSkills\nCopper and PEX preparation; fixture assistance; material records; supervised leak checks",
+        "reasoning": {
+          "effort": "low"
+        },
+        "max_output_tokens": 6000,
+        "store": false,
+        "parallel_tool_calls": false,
+        "tools": [
+          {
+            "type": "function",
+            "name": "return_document",
+            "description": "Return the application document.",
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "salutation": {
+                  "type": "string"
+                },
+                "paragraphs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "signoff": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "salutation",
+                "paragraphs",
+                "signoff"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        }
+      },
+      "status": 200,
+      "response": {
+        "id": "resp_088f8739f804038b016aa7427900a087d2b0a2326acf4771ee",
+        "object": "response",
+        "created_at": 1789346425,
+        "status": "completed",
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1789346427,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "max_output_tokens": 6000,
+        "max_tool_calls": null,
+        "model": "gpt-5.6-terra",
+        "moderation": null,
+        "output": [
+          {
+            "id": "rs_088f8739f804038b016aa74279659487d2867855fc4cc9cfa1",
+            "type": "reasoning",
+            "content": [],
+            "encrypted_content": "gAAAAABqp0J7eznmPYS_Hgfqv2dNkBkwIUbA5n4Qwn0-qVxYujykdku9NaRFXhynMuPM5wiZf5ILUl-kmCWKCsD7JdVrur3q6RkdXJ2-RaxxK3YN4PnHVjnYPNByZjWrFlgqpsQNQ4gfldkSovhD--XfYQgNptDfY_WT6Xdx0dCF2tb61E2RYS0ztyJopiyZjbhWK6LIC6wDVIJaWnMrYsmJC5jCmXsLgstLJEub3Jt-_zmuInzfWKMSMlWfAwvDdFmM7UPdA5qebchpMHkHtH_Z9lZd3Q-flGFhalJngHhZolYYwo3PXTjccjMQNrQBYmejvcYssxGzaXNYiEgg5gStDDz2JigtE39XdO63Q58nsq6ofnl_3WH_z7ct-o6uN1WaaDz8ebHBg7pdoQOTkLmYMyFBI121uo2lspg0cNLnNu-s2RgD7oT8MlN5K74fJnKOeBYpAcHYsfoG4MlmLg0oq6GtQFb4o9eRcDacnfK0et0VKfnRGh22LOWJr9rgOy8hr5zc5yl1yvqMfSTc-x0uyGFmJeTcHosOQWfWcL9ebkW6tj7C_UEToqCAeEtCN2-4z8tos-Mwn95yAbvuihOtQPzk3jh5iLs0-Jc0yibfeBwGsAIMJBLHbSqk5MkdpoJFgKJXVIBoyXJlgASoSiFG0LpXns_7p73b1ua3ZVXTUuMj6G0apkcgEg7-C6H4C9qxxdp_sZAoFyXIi6bOmvOtWd8r3uC2BGsjD2lRqAWq-YXLNhSTNvKve58BBnOkWPoXK3941Q-GDhS-DsxLjgKMJmvzyQAW4t4tnkaDe2uO6qjXW-wFa6O4ziL_kQxv2thR7Mua09t4FPB9THHt9x095CnwHEdIFZ4PTEwZkGrBvUZpM0UyJqeMh3_BYioxRcf2uK-vssnji6ivdz5G9_O1X4G1NqJdvqIoT9zcB7YWNXw8tZjdzhXNh6Hg1fg-2YWbcnvDyW8q5R6m1x3lzojw8tZ7DJn3hrKqc3SusKUfNuKBqCpsgkMSLQbNdvXB0E-eELFWLDzmwjpZk-z7ZIJg-blCDmyNPWOST0_ry6m_Y6NkY_eSwOUS63VZd18UAucHEHYRfp-xDCTzo6YTn1iFftTzzZ-oorrJzzI86Pshdc0NA2leWMFgUNzOQedJvr8q8zRgcvdvVOxRr-Grf0jb7laoc8yD9Wdylykzds62yIgRGMVemiBnOHZTYVTBsD2W2DPRaDXjmGx_EjqxcDknFADIkikyW2boLD91Ma40fUFjN7UNk4BOoqz63LZTmffoTUSkCBXyMWOxdvNiiLzYZvvNivgvp-lL8vsv4CFjqr_hK2C76jYSk76dwUo_LyOk17kthKXvI9DPIBsyL8AaLU717MRQROqa2IVjVbtX2NtEz6udUN6EVeUbxFYEOGtC1UaqbkH3",
+            "summary": []
+          },
+          {
+            "id": "fc_088f8739f804038b016aa74279e54887d2a746fd23273403a0",
+            "type": "function_call",
+            "status": "completed",
+            "arguments": "{\"salutation\":\"Dear Hiring Team,\",\"paragraphs\":[\"I am applying for the Plumbing Apprentice position with Example C03 Services in Hamilton. From 2023 to 2026, I have worked as a Plumbing Apprentice with Example Home Plumbing, assisting a licensed plumber with residential water-line repairs, fixture replacement, and drain clearing. I also hold a Plumbing Techniques certificate from Example Trades College (2023).\",\"In this supervised work, I measured and cut copper and PEX pipe from the supervising plumber’s marked layouts, prepared joints, and recorded materials on work orders. During a supervised pressure check, I located a recurring under-sink leak by drying the fittings and checking each joint in sequence; the plumber approved and completed the connection repair. This experience has strengthened my careful approach to residential repair work and working under licensed supervision.\",\"Earlier, as a Warehouse Associate at Example Building Supply from 2021 to 2023, I picked plumbing fittings against order lists and checked part sizes before loading. I would bring this familiarity with fittings, along with experience preparing pipe and maintaining material records, to the apprentice role at Example C03 Services.\"],\"signoff\":\"Sincerely,\\nRiley Morgan\"}",
+            "call_id": "call_sZQ1FOfgRlPYZNIjNEn1zXEu",
+            "name": "return_document"
+          }
+        ],
+        "parallel_tool_calls": false,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "low",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "text"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        },
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [
+          {
+            "type": "function",
+            "description": "Return the application document.",
+            "name": "return_document",
+            "output_schema": null,
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "salutation": {
+                  "type": "string"
+                },
+                "paragraphs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "signoff": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "salutation",
+                "paragraphs",
+                "signoff"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 545,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 303,
+          "output_tokens_details": {
+            "reasoning_tokens": 50
+          },
+          "total_tokens": 848
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "durationMs": 2774
+    }
+  ],
+  "httpStatus": 200,
+  "delivered": {
+    "salutation": "Dear Hiring Team,",
+    "paragraphs": [
+      "I am applying for the Plumbing Apprentice position with Example C03 Services in Hamilton. From 2023 to 2026, I have worked as a Plumbing Apprentice with Example Home Plumbing, assisting a licensed plumber with residential water-line repairs, fixture replacement, and drain clearing. I also hold a Plumbing Techniques certificate from Example Trades College (2023).",
+      "In this supervised work, I measured and cut copper and PEX pipe from the supervising plumber’s marked layouts, prepared joints, and recorded materials on work orders. During a supervised pressure check, I located a recurring under-sink leak by drying the fittings and checking each joint in sequence; the plumber approved and completed the connection repair. This experience has strengthened my careful approach to residential repair work and working under licensed supervision.",
+      "Earlier, as a Warehouse Associate at Example Building Supply from 2021 to 2023, I picked plumbing fittings against order lists and checked part sizes before loading. I would bring this familiarity with fittings, along with experience preparing pipe and maintaining material records, to the apprentice role at Example C03 Services."
+    ],
+    "signoff": "Sincerely,\nRiley Morgan"
+  },
+  "completedAt": "2026-09-14T00:40:27.721Z",
+  "durationMs": 2775
+}

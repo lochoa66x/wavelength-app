@@ -1,0 +1,205 @@
+{
+  "version": 1,
+  "experiment": "comparative-v1",
+  "caseId": "C06",
+  "arm": "reasoning",
+  "kind": "letter",
+  "attempt": 1,
+  "startedAt": "2026-09-14T00:42:46.112Z",
+  "sourceHash": "699a2e8ede082f8c539263e8a3263c44feee588dae0adb3e6d028032ac88e687",
+  "deploymentRevision": "698f9a97ec60f5d7df55e8fa7a914b3a9eff0c17",
+  "calls": [
+    {
+      "sequence": 1,
+      "startedAt": "2026-09-14T00:42:46.113Z",
+      "request": {
+        "model": "gpt-5.6-terra",
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "input": "Write an employer-facing cover letter tailored to this job. Use only candidate facts from the source. Preserve contribution level, shared results, dates, credential status and academic/project context. Do not turn job requirements into candidate history. Choose the strongest relevant evidence, retain useful concrete detail, and write clear natural professional English. Make a focused case through one or two relevant examples rather than reciting the résumé. Avoid generic praise and invented motivation. Use 2–4 paragraphs, at most 320 words, a salutation and signoff.\n\nJOB\n{\"title\":\"Freelance Interior Photo Editor\",\"company\":\"Example C06 Services\",\"location\":\"Hamilton, Ontario\",\"type\":\"Full-time\",\"category\":\"design\",\"description\":\"We need a Freelance Interior Photo Editor to carry out the responsibilities listed below. Submit a résumé and cover letter describing relevant work.\",\"responsibilities\":[\"Match colour across interior image sets with mixed lighting\",\"Preserve property features and meet delivery specifications\",\"Provide an interior-editing portfolio\"],\"required_qualifications\":[\"Lightroom interior editing experience\",\"Portfolio demonstrating consistent colour\"],\"preferred_qualifications\":[],\"source\":\"candidate_reviewed\"}\n\nCANDIDATE SOURCE\nSofia Adeyemi\nc06@example.com | Hamilton, Ontario\nFreelance Photo Editor | Self-employed | 2022 - 2026\nEdited residential interiors in Lightroom from photographers' files and colour-reference notes.\nCorrected white balance and vertical alignment without removing permanent room features.\nDelivered named image sets with the requested dimensions and checked them against the photographer's shot list.\nSelected Project\nRiverside Apartment Series | Example Interior Photographer | 2025\nMatched colour across adjoining rooms with mixed window and ceiling light, using the photographer's reference frame and local white-balance masks. The photographer accepted the set after one review round.\nEvent Photo Assistant | Example Studio | 2020 - 2022\nLabelled memory cards, prepared equipment and organised contact sheets.\nPortfolio\nhttps://example.com/sofia-interiors\nSkills\nLightroom; white balance; perspective corrections; export checks",
+        "reasoning": {
+          "effort": "high"
+        },
+        "max_output_tokens": 6000,
+        "store": false,
+        "parallel_tool_calls": false,
+        "tools": [
+          {
+            "type": "function",
+            "name": "return_document",
+            "description": "Return the application document.",
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "salutation": {
+                  "type": "string"
+                },
+                "paragraphs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "signoff": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "salutation",
+                "paragraphs",
+                "signoff"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        }
+      },
+      "status": 200,
+      "response": {
+        "id": "resp_02e8ee793b93475c016aa743062a9487d28bc973f500e2c341",
+        "object": "response",
+        "created_at": 1789346566,
+        "status": "completed",
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1789346569,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "max_output_tokens": 6000,
+        "max_tool_calls": null,
+        "model": "gpt-5.6-terra",
+        "moderation": null,
+        "output": [
+          {
+            "id": "rs_02e8ee793b93475c016aa7430689cc87d2b220acffe89b97ac",
+            "type": "reasoning",
+            "content": [],
+            "encrypted_content": "gAAAAABqp0MJjuFB507PwehlEHH4n2Y6SFV_q_mWlwXfLC4-a-RCpzlqVlaWXtzE5rJXrGeJAzcYTHL0oEKMKUf53u6jleaWzNyIRgA2ics615dcY6HsOxsTcCeOvag4xXt2qBvz3vqKpojVqr0owa9yZUmitQGUd57ST18yVUlcqWJxl3fwgiV7BpnSVHAr1G-kaTtIcNiSusfZz0JkwzxbmXeU1RY-qlo54lc7Jyf9O7hNl6GjTm9sbJPeLXBmSOKt3G1vErl40LdSU3FoYj1W02_HDDVdkY2LcDegy49D4-raaqKkeXOhR0gJ-woxvy0DvFSTfvDHvnd6_lpPF-HR5RoHPU1_dMuGbNbhaD274t8VD9r9GiS1NDhZqRKuczi3ORHkFjaYOY8oP-o2x3-wLwYzPCzWHKfU41WSEL4iuOR-nFna3tclGUElN2eQ11eE_YPufQlaw0bnyM0miH6JQNkyR1iuN4KTdNNoCu0ZPpMZteYa8woG_J6PI93tnDWvJAVPkAB2k1RJiumGt5mMsHy7jdiusMJWhwXe4MDZkHPRzvJbiJ9Re_Z8fTve2HABrXGVwoIqowCfdx3VylRPf_uW9FfgT72_AGpPTsuffaIMbjTEO2cuQ7clmJ38x3Uvsw8nAhyuT5F7IP0HQzaGApvxpJHe9_e_b96iOxlgPBA8R8gE-tyq-l9Eroz5qXyUrhXkDcgXu5vOAj6o2T-Br4FfxTWA0maGl7xKAn7pMAgrcmFqvoDySI7pClcTbhQuG2yryyj8Y40zGmCRMde-qkeWT3NiXxC1TZFonvIJJdpN6noZlXUiCEVVa6pOso0Ff0RNPs1-hL4ge7c4vXmastQyTs99O9EFoY63KlrwwQf7q7RLUa2ylSJHtBiqH53HcveGbB3Nr0UBWY6UstyunUZj0ZKBBkzsSRy35EWtw63aC70hV-plmnRjtRs8TZkIQ1hfVYnPqAomAdqqJLEzlPFAe1WE1yKh_TTb13DcT9aMXfXJsyKh4DJ_LvjMxKeehnFCK3jbp_BUuQc1uoO5EE37hYi0kU-WTiXYHm0rUjlrV3BIe341fiEs0ihTtOUKuGVsuOLhN3Rff2Jj_qyvK7ZyHyOxE50JoKgdJi9mjjM2xzIPr2btMPhhQ3cKRYKpcINAEAEWLVGvAaF71OrFWN3cR6LHhGcJuNopibAJ4v1Z6VUPCqUn5qyFHCrfmrEzGTma3We-kFW7vf1qfH55YsZ1vsyStXqOLdbQAP-D0bxdcUF8avEirpUGwvdIqKIZpin5oJLgNAdwYap3b5QIdy6j3clCvue2DVZMhe79UQgvvjQIxQBk0wTDACu1ZWoP8ztO0NxcdQtiQjSojv3vFzyUcdvC--tmBS8SzjTGFOZOBqtaPyRzcz5ijqHFtvP5KshjSV-QXMwULhsIKEExqU7UMuWFqA==",
+            "summary": []
+          },
+          {
+            "id": "fc_02e8ee793b93475c016aa7430710dc87d2acdec817abf37c29",
+            "type": "function_call",
+            "status": "completed",
+            "arguments": "{\"salutation\":\"Dear Hiring Team,\",\"paragraphs\":[\"I am applying for the Freelance Interior Photo Editor role at Example C06 Services. Since 2022, I have worked as a self-employed Freelance Photo Editor in Hamilton, editing residential interiors in Lightroom from photographers’ files and colour-reference notes. My work includes correcting white balance and vertical alignment while preserving permanent room features, then delivering named image sets in the requested dimensions and checking them against the photographer’s shot list.\",\"For the 2025 Riverside Apartment Series for Example Interior Photographer, I matched colour across adjoining rooms with mixed window and ceiling light. Using the photographer’s reference frame and local white-balance masks, I produced a consistent set that the photographer accepted after one review round. This project reflects my approach to retaining property details while making careful colour adjustments across an interior series.\",\"My portfolio is available at https://example.com/sofia-interiors. It includes interior-editing work demonstrating Lightroom-based white-balance, perspective-correction and export-checking skills.\"],\"signoff\":\"Sincerely,\\nSofia Adeyemi\"}",
+            "call_id": "call_8PqYzOLWnTtIHsEZrMSHuSLW",
+            "name": "return_document"
+          }
+        ],
+        "parallel_tool_calls": false,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "high",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "text"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        },
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [
+          {
+            "type": "function",
+            "description": "Return the application document.",
+            "name": "return_document",
+            "output_schema": null,
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "salutation": {
+                  "type": "string"
+                },
+                "paragraphs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "signoff": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "salutation",
+                "paragraphs",
+                "signoff"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 559,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 275,
+          "output_tokens_details": {
+            "reasoning_tokens": 41
+          },
+          "total_tokens": 834
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "durationMs": 3034
+    }
+  ],
+  "httpStatus": 200,
+  "delivered": {
+    "salutation": "Dear Hiring Team,",
+    "paragraphs": [
+      "I am applying for the Freelance Interior Photo Editor role at Example C06 Services. Since 2022, I have worked as a self-employed Freelance Photo Editor in Hamilton, editing residential interiors in Lightroom from photographers’ files and colour-reference notes. My work includes correcting white balance and vertical alignment while preserving permanent room features, then delivering named image sets in the requested dimensions and checking them against the photographer’s shot list.",
+      "For the 2025 Riverside Apartment Series for Example Interior Photographer, I matched colour across adjoining rooms with mixed window and ceiling light. Using the photographer’s reference frame and local white-balance masks, I produced a consistent set that the photographer accepted after one review round. This project reflects my approach to retaining property details while making careful colour adjustments across an interior series.",
+      "My portfolio is available at https://example.com/sofia-interiors. It includes interior-editing work demonstrating Lightroom-based white-balance, perspective-correction and export-checking skills."
+    ],
+    "signoff": "Sincerely,\nSofia Adeyemi"
+  },
+  "completedAt": "2026-09-14T00:42:49.147Z",
+  "durationMs": 3035
+}

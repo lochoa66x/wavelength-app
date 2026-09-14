@@ -1,0 +1,10 @@
+Dear Hiring Team,
+
+I am applying for the SAP Migration Workstream Lead role at Example C01 Services. As a Solution Architect with Example Systems Canada from 2022 to 2026, I led a four-person master-data team through UAT, mock cutover, and defect triage for a public-sector SAP S/4HANA rollout. I also integrated SAP S/4HANA with SAP MDG and coordinated interface testing with the integration team.
+
+During a 2025 mock-cutover reconciliation project, duplicate customer records blocked a mock load. I grouped the exceptions by source system, assigned owners, and agreed retest criteria with business data stewards. The next mock load cleared those recorded exceptions. This work combined master-data reconciliation, coordination with data owners, and structured testing follow-through relevant to migration testing and cutover activities.
+
+Earlier, as a Senior Consultant at Example Banking Partners from 2015 to 2022, I prepared SAP banking functional designs and coordinated testing with business users. I would bring this SAP S/4HANA delivery, master-data, interface-testing, and UAT experience to the workstream lead role.
+
+Sincerely,
+Elena Cruz

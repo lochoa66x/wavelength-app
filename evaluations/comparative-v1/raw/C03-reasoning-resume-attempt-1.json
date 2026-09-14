@@ -1,0 +1,405 @@
+{
+  "version": 1,
+  "experiment": "comparative-v1",
+  "caseId": "C03",
+  "arm": "reasoning",
+  "kind": "resume",
+  "attempt": 1,
+  "startedAt": "2026-09-14T00:39:25.008Z",
+  "sourceHash": "d9ccfd2df5b8f9024b2f237b00926bda906f765d5870873c9034edaabcc56fde",
+  "deploymentRevision": "698f9a97ec60f5d7df55e8fa7a914b3a9eff0c17",
+  "calls": [
+    {
+      "sequence": 1,
+      "startedAt": "2026-09-14T00:39:25.008Z",
+      "request": {
+        "model": "gpt-5.6-terra",
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "input": "Write an employer-facing résumé tailored to this job. Use only candidate facts from the source. Preserve contribution level, shared results, dates, credential status and academic/project context. Do not turn job requirements into candidate history. Choose the strongest relevant evidence, retain useful concrete detail, and write clear natural professional English. Use a short professional profile that synthesizes the candidate’s focus rather than repeating the experience bullets. Keep relevant projects and qualifications.\n\nJOB\n{\"title\":\"Plumbing Apprentice\",\"company\":\"Example C03 Services\",\"location\":\"Hamilton, Ontario\",\"type\":\"Full-time\",\"category\":\"trades\",\"description\":\"We need a Plumbing Apprentice to carry out the responsibilities listed below. Submit a résumé and cover letter describing relevant work.\",\"responsibilities\":[\"Assist licensed plumbers with residential repairs\",\"Prepare pipe and fittings from marked layouts\",\"Record work and materials\"],\"required_qualifications\":[\"Plumbing workshop or field experience\",\"Ability to work under licensed supervision\"],\"preferred_qualifications\":[],\"source\":\"candidate_reviewed\"}\n\nCANDIDATE SOURCE\nRiley Morgan\nc03@example.com | Hamilton, Ontario\nPlumbing Apprentice | Example Home Plumbing | 2023 - 2026\nAssisted a licensed plumber with residential water-line repairs, fixture replacement and drain clearing.\nMeasured and cut copper and PEX pipe from the supervising plumber's marked layout, prepared joints and recorded materials on work orders.\nLocated a recurring under-sink leak during a supervised pressure check by drying the fittings and checking each joint in sequence; the plumber approved and completed the connection repair.\nWarehouse Associate | Example Building Supply | 2021 - 2023\nPicked plumbing fittings against order lists and checked part sizes before loading.\nEducation\nPlumbing Techniques certificate | Example Trades College | 2023\nTraining\nWorking at Heights certificate expired in 2025.\nSkills\nCopper and PEX preparation; fixture assistance; material records; supervised leak checks",
+        "reasoning": {
+          "effort": "high"
+        },
+        "max_output_tokens": 6000,
+        "store": false,
+        "parallel_tool_calls": false,
+        "tools": [
+          {
+            "type": "function",
+            "name": "return_document",
+            "description": "Return the application document.",
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "headline": {
+                  "type": "string"
+                },
+                "profile": {
+                  "type": "string"
+                },
+                "skills": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "experience": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "role": {
+                        "type": "string"
+                      },
+                      "organization": {
+                        "type": "string"
+                      },
+                      "dates": {
+                        "type": "string"
+                      },
+                      "bullets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "role",
+                      "organization",
+                      "dates",
+                      "bullets"
+                    ]
+                  }
+                },
+                "projects": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "context": {
+                        "type": "string"
+                      },
+                      "bullets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "context",
+                      "bullets"
+                    ]
+                  }
+                },
+                "education": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "training": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "links": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "name",
+                "headline",
+                "profile",
+                "skills",
+                "experience",
+                "projects",
+                "education",
+                "training",
+                "links"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        }
+      },
+      "status": 200,
+      "response": {
+        "id": "resp_0368965ab16d59d0016aa7423d7e4087d2963bf64457afc47c",
+        "object": "response",
+        "created_at": 1789346365,
+        "status": "completed",
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1789346373,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "max_output_tokens": 6000,
+        "max_tool_calls": null,
+        "model": "gpt-5.6-terra",
+        "moderation": null,
+        "output": [
+          {
+            "id": "rs_0368965ab16d59d0016aa7423e473487d2b56b6a3995c1dbe4",
+            "type": "reasoning",
+            "content": [],
+            "encrypted_content": "gAAAAABqp0JFd3WGplVRJmQAWTvpQ8HbxaBd8gmY7v_hi7xlF7al54LJxPY9Ty6SWL3FLZHlbuXf6s9hxHM7U7KqMDC0lj99pPEm4yT0ZDybyDBW_Hfc7cOj9A0IbT3wQj-XxU-qaSbx7JQROySQlPsNrS9iI7qqcW9g53lsh8NigihMYomHnp6bjd69kBcBNy8vVrzZGBfLbrQgwT7HolkHCaccviruplnt-ymrKjJoQ6K4ka8rONe4-cvhb3GF2wfIlpvfrsdAmEbyto98fGVZNBTd4O93HjLwrqM6AcxfZypG83dD3QSDwrPuo4V-Ug3zUk3rn_KuOLoB2skDcQed5eClPi7DXEREsyeC_g6WMrbdkp8YuQkE-J8BEKZumDgy7iC8x3X_t05tTbXVZy_IrqiSj74kQthtVMYjxYnt6JvRO03BOIFlauyLGMaGW2_E-k5VlhKHxeiCZtvZ4t-ionhXH_61mptfo2hFrs3XPCtrwUgWomaKp4Mm9JF5dC4eSxy-JlYBX1j2j3eKdR06-s0NDNs2WmPjrVnXKgX0ul0mZbw1y4CmCvvruBgaG5V7Atyy4qdUNuR_td60hgIUxuXrKAq1onYscUUi25JvvYtXJkuakDPzJptRGzHJTWW18_pTBAf0HwN1fPHPZ5F4khST41epY7JW3B8JlgqvZHWnrodKEwGZ7hK8evs8ds9Z-5HUTKez5Z4mbrBqOKP5I4aDEjdeJyhd6Mamgff7wIg1_qatdrQ1EusdsYLIty64YmVleNs8_Deu2UIiJH6G8rUR9MrkZ_terUjEqbSBX6D6c7_h-QkzuvhpMNWM42MvJpVQxgoHl2-nJHxZfbYxNOgcP7nH0KxPWNpWuxj4Hcxd1RHeILHBP06yN-gQ7dh7VQGNFOg6lrQ1jUfkpk4ynRjVeBVOfp1ecQu-ySs9cibJxPqTAbIzJ9V0niOwBlCMYZ8N6RLg2rKKz3fkXwmU0MvbX-N_MgN8U7NVEElvPWnDgAvVnqfvnikASeZlciBqZ3lb_Ze655cpCscOsQ0U5kEkpbX6kijvskbVNrpoI1g_R-1U0ChCJbUhJiiuownYAwHVZuBHZJOC256ibucpwqnqmnNCCRiiJ2zW02Kx3ULPJP2Iiy9sF4rzaxby-A-y6OI0THSoDWjyoH1Lnic7NOrkSXvveROSGWvOpwUeaAb2U1KPV02h1leJXMbsSIWdjnDd4l4s2GbuqPSl7d7S5lp2ntJRLYC1mb5vg_mghRPV_bzO72Zu-aJSJoI-uZ2Mnra7MSJax9daFe0ZiJ9Bw5tGBkeJvump8QmlrInhjlaYvT8tmGTQ_YO36Xn-evIbj4-cjl6aV3ARHAZ77IgpwxJyL4e85xCyyzOtFXIoWjZaNusFAVVUc3vn6TRUAuA8AzWYy0Vy8DVYAGNxMiPHnMIPhp_6H7X8CNbGxgqs014FHMlyuytq04iJefXC8gbMeM19jnaI9GgEZkDVGLPBHKi2cZGP5lycIK-aRNMj723sIZH2mdpABZl4ULQ1T1zfQ4ZfjwZRhFmQ0kbQpEF9byolp7XVA2Z5o6S9dNHnSszjI7gG07GH_F3Y94VWZ4kzLldTDQem",
+            "summary": []
+          },
+          {
+            "id": "fc_0368965ab16d59d0016aa7423f6adc87d2a2603ae658b87005",
+            "type": "function_call",
+            "status": "completed",
+            "arguments": "{\"name\":\"Riley Morgan\",\"headline\":\"Plumbing Apprentice\",\"profile\":\"Plumbing apprentice with residential service experience supporting a licensed plumber on water-line repairs, fixture replacement, drain clearing, pipe preparation and material documentation. Holds a Plumbing Techniques certificate and brings building-supply experience checking plumbing fitting sizes against order lists.\",\"skills\":[\"Copper and PEX pipe preparation\",\"Residential fixture assistance\",\"Material records and work orders\",\"Supervised leak checks\",\"Plumbing fitting identification and size checks\"],\"experience\":[{\"role\":\"Plumbing Apprentice\",\"organization\":\"Example Home Plumbing\",\"dates\":\"2023 - 2026\",\"bullets\":[\"Assisted a licensed plumber with residential water-line repairs, fixture replacement and drain clearing.\",\"Measured and cut copper and PEX pipe from the supervising plumber’s marked layout; prepared joints and recorded materials on work orders.\",\"During a supervised pressure check, located a recurring under-sink leak by drying fittings and checking each joint in sequence; the plumber approved and completed the connection repair.\"]},{\"role\":\"Warehouse Associate\",\"organization\":\"Example Building Supply\",\"dates\":\"2021 - 2023\",\"bullets\":[\"Picked plumbing fittings against order lists and checked part sizes before loading.\"]}],\"projects\":[],\"education\":[\"Plumbing Techniques certificate | Example Trades College | 2023\"],\"training\":[\"Working at Heights certificate — expired in 2025\"],\"links\":[\"Hamilton, Ontario\",\"c03@example.com\"]}",
+            "call_id": "call_dlB3l6G4TmS7XwnTcvPx03AG",
+            "name": "return_document"
+          }
+        ],
+        "parallel_tool_calls": false,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "high",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "text"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        },
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [
+          {
+            "type": "function",
+            "description": "Return the application document.",
+            "name": "return_document",
+            "output_schema": null,
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "headline": {
+                  "type": "string"
+                },
+                "profile": {
+                  "type": "string"
+                },
+                "skills": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "experience": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "role": {
+                        "type": "string"
+                      },
+                      "organization": {
+                        "type": "string"
+                      },
+                      "dates": {
+                        "type": "string"
+                      },
+                      "bullets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "role",
+                      "organization",
+                      "dates",
+                      "bullets"
+                    ]
+                  }
+                },
+                "projects": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "context": {
+                        "type": "string"
+                      },
+                      "bullets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "context",
+                      "bullets"
+                    ]
+                  }
+                },
+                "education": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "training": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "links": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "name",
+                "headline",
+                "profile",
+                "skills",
+                "experience",
+                "projects",
+                "education",
+                "training",
+                "links"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 578,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 358,
+          "output_tokens_details": {
+            "reasoning_tokens": 61
+          },
+          "total_tokens": 936
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "durationMs": 8212
+    }
+  ],
+  "httpStatus": 200,
+  "delivered": {
+    "name": "Riley Morgan",
+    "headline": "Plumbing Apprentice",
+    "profile": "Plumbing apprentice with residential service experience supporting a licensed plumber on water-line repairs, fixture replacement, drain clearing, pipe preparation and material documentation. Holds a Plumbing Techniques certificate and brings building-supply experience checking plumbing fitting sizes against order lists.",
+    "skills": [
+      "Copper and PEX pipe preparation",
+      "Residential fixture assistance",
+      "Material records and work orders",
+      "Supervised leak checks",
+      "Plumbing fitting identification and size checks"
+    ],
+    "experience": [
+      {
+        "role": "Plumbing Apprentice",
+        "organization": "Example Home Plumbing",
+        "dates": "2023 - 2026",
+        "bullets": [
+          "Assisted a licensed plumber with residential water-line repairs, fixture replacement and drain clearing.",
+          "Measured and cut copper and PEX pipe from the supervising plumber’s marked layout; prepared joints and recorded materials on work orders.",
+          "During a supervised pressure check, located a recurring under-sink leak by drying fittings and checking each joint in sequence; the plumber approved and completed the connection repair."
+        ]
+      },
+      {
+        "role": "Warehouse Associate",
+        "organization": "Example Building Supply",
+        "dates": "2021 - 2023",
+        "bullets": [
+          "Picked plumbing fittings against order lists and checked part sizes before loading."
+        ]
+      }
+    ],
+    "projects": [],
+    "education": [
+      "Plumbing Techniques certificate | Example Trades College | 2023"
+    ],
+    "training": [
+      "Working at Heights certificate — expired in 2025"
+    ],
+    "links": [
+      "Hamilton, Ontario",
+      "c03@example.com"
+    ]
+  },
+  "completedAt": "2026-09-14T00:39:33.221Z",
+  "durationMs": 8213
+}

@@ -1,0 +1,205 @@
+{
+  "version": 1,
+  "experiment": "comparative-v1",
+  "caseId": "C04",
+  "arm": "reasoning",
+  "kind": "letter",
+  "attempt": 1,
+  "startedAt": "2026-09-14T00:41:31.124Z",
+  "sourceHash": "454364089742df50b20536d31118f0ce385ea19b20914a29a9a4180d6c12bdd1",
+  "deploymentRevision": "698f9a97ec60f5d7df55e8fa7a914b3a9eff0c17",
+  "calls": [
+    {
+      "sequence": 1,
+      "startedAt": "2026-09-14T00:41:31.124Z",
+      "request": {
+        "model": "gpt-5.6-terra",
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "input": "Write an employer-facing cover letter tailored to this job. Use only candidate facts from the source. Preserve contribution level, shared results, dates, credential status and academic/project context. Do not turn job requirements into candidate history. Choose the strongest relevant evidence, retain useful concrete detail, and write clear natural professional English. Make a focused case through one or two relevant examples rather than reciting the résumé. Avoid generic praise and invented motivation. Use 2–4 paragraphs, at most 320 words, a salutation and signoff.\n\nJOB\n{\"title\":\"Client Onboarding Coordinator\",\"company\":\"Example C04 Services\",\"location\":\"Hamilton, Ontario\",\"type\":\"Full-time\",\"category\":\"admin\",\"description\":\"We need a Client Onboarding Coordinator to carry out the responsibilities listed below. Submit a résumé and cover letter describing relevant work.\",\"responsibilities\":[\"Guide new business clients through account setup\",\"Track incomplete onboarding information and coordinate follow-up\",\"Maintain clear handover notes for account managers\"],\"required_qualifications\":[\"Customer coordination experience\",\"Accurate records and clear written instructions\"],\"preferred_qualifications\":[],\"source\":\"candidate_reviewed\"}\n\nCANDIDATE SOURCE\nNadia Brooks\nc04@example.com | Hamilton, Ontario\nFront Desk Supervisor | Example Community Recreation | 2020 - 2026\nScheduled a five-person reception team, handled membership questions and maintained registration records.\nCoordinated the move from paper waivers to online registration: mapped missing fields with the programme manager, wrote a desk checklist and coached reception staff through the first registration week.\nKept a daily exceptions sheet for families unable to complete online forms and arranged a callback with the programme lead; the team resolved 32 outstanding registrations during that week.\nRetail Assistant | Example Outdoor Shop | 2018 - 2020\nExplained product options and processed returns within store policy.\nEducation\nBusiness Administration diploma | Example City College | 2018\nSkills\nScheduling; registration records; Excel; customer callbacks; staff coaching",
+        "reasoning": {
+          "effort": "high"
+        },
+        "max_output_tokens": 6000,
+        "store": false,
+        "parallel_tool_calls": false,
+        "tools": [
+          {
+            "type": "function",
+            "name": "return_document",
+            "description": "Return the application document.",
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "salutation": {
+                  "type": "string"
+                },
+                "paragraphs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "signoff": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "salutation",
+                "paragraphs",
+                "signoff"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        }
+      },
+      "status": 200,
+      "response": {
+        "id": "resp_060842accc1a48ca016aa742bb2f0487d2afff1995fa5bc90c",
+        "object": "response",
+        "created_at": 1789346491,
+        "status": "completed",
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1789346495,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "max_output_tokens": 6000,
+        "max_tool_calls": null,
+        "model": "gpt-5.6-terra",
+        "moderation": null,
+        "output": [
+          {
+            "id": "rs_060842accc1a48ca016aa742bbb82087d2b02f8ff7d113bb4a",
+            "type": "reasoning",
+            "content": [],
+            "encrypted_content": "gAAAAABqp0K_Xhy0dAKF1HDZp-95ACTue5aozDjM8g7ZiesVgoE-5iCBI1E5VkIHuxCE2mDZ0XZPzEhsGYAj5ohUSDtrQemYcNaWc-bJW0OUUDN5VzD89NWSfrpqoKKfqoLwdJIkF-8JZz4e3iO6w7GHWzbJb0XcjYUf6O1m7HNxiw4NXYBRyfnrQ1nXEZ02nrP2tP-s94IAbYAxwuGvQX4qN_3a8tD_iEIWR2QxztCYzPTlR9LKFcxf71dUrN9K-ggTDqVs1ZfQi6H4PmNinKJNqqsDPbEhncYgTyCgovqs5gRECEHqEfPOISb42-JI0ZqDrmLz_rkj1UzNOvXbc79mPytaDY-Aw5iV8YuxYu1qXfCVqgZOjzfWMQXm2k_8R4QaCGfClhABF3bpTcS6Rzm6tJWpZfLJHyb9xQvtESrnw0oQWPEiiiWgrZBrqRiaWrue5jGxLG3NPdz3RX9xGsMXeANR9IWeiW2U_M2F283zDgIhqia5EhFQeVxhve2-dzhUL1cQLAMN04Dbp_qZm8xmcDsNRXHbcIqL2wpZaS35LmxJ3ZlO2Kv3Njx8cL6hRDfMEy11qE8DtjHvO8ZGH6ZvRYEXj6fj9M5c8XKU_XzpKMVS5RCGi-8x3lEAUDX6As9oOIMbir0z_7psK2TUF1kZy-6GuDDJMHfQO4ubJAzcBM_lr2H-gOPgHzOId7GCAgho5HkCrdNw1Llk2tXBEfeAL2ywhYNpOLz0P0yVqEvixsYaOHHZ-6rzArefsJxZOiUyWCDHhRb9mIVxjTncWutBjy4fYQk1GFSMSe8BljdK0dnZkHlcdIoR_CHevsngZOI3umh_UWOokvfei66V_vPf_wo2zAVuy0TENgtuIPfHHiegM7xxg67CH2MhnuGbVWNHUyCad_GsjS-NUSTqVL6TKialqhc_drI-WYHeZQ_cE6Fqsvc_vZQJy_MYxpwIM1hKwAp1QyOaj09KMm1pfdbTEnKHDLFoANFXsKv5LpQjw-7idW6_2VFGqbh73ieH85bvkckErklA2HgvfXzf1A2zzuXwU2qDY-XV4mYLo1PhAUDBmOhF2KApaOo63hyRkC0q4DZX8R2YE9jvqEXTeynMMo3Ketn20FILpLrObbxjoF3XLyBg4FHmnC8Xba_ClUFMzD2GRoS0UpLvts-_1Qq4s9Vag0ng3SpYaP116BH_d4QMUhwgcOWU8BL2rOJ3hHKO1Q1rIghYoMh7Z_VX0QkTp06FXSAKfQ7FjIGcqCyh7_hiuWNdqj52MZ8gGpOd8gY0j0we8YSyefp0XRpVvjK7iosLPlYRSPA0mUD4T531ZX8F8NfujvBc49Gx4fukZ-KLKe0wROpUcSJh9XwNXvHPAMmprSu6T913UR3swTRiykK4YNOkJf0cuB9pu9MJPGJE5Z-fcn6q8B5I2ZrgJ_nBvjXNNE5-JItl8lvPK4f_aMOFanqURlTYASpa1q9_TrrdWBaSxX8DtvEHaW8YDA16Vyk4fEtp_U__ntLZQ_VRZo3FrdX0cSURnzBJFZWcnytwRGV-YmwIjCZ5FtpCS9suAO-jRT9B7Nrq1T9v19FRZ4zSKzrdvxayvKJsdDCi4lUD_sBDmgbLC6FRy17oUGqxfNkEibFMvMAkwcFZWlZqITSrt209cTjx92tIsAG_NnOGWl7H-jdDve375qSTdBmHtqURAnpH5G6VvI03d_TFqvWaoQCpsNMcImLTHgO7vfcspyXt8rn5N73pPp_OPLBFLPSgQslfisIgPTMSYvlc_u7IWIb06dp47ZTte_-IWdkVBn8QaJtUI3r7kycT5FBMmaOyVs4vQyYPHxwkH2VW7cch0N8YlBVdq6LZaH4wtuv4Btw2e5eY9KQ6hDlrlCyvAxzJTU7qmPm4Rs6If-5_-vfneooa6kOx_WQRX06oDfn9tzZOOylKZ8lNRFQij0ZwmY3tgkuJQfthJUzUEidehdGtY4-OS-8=",
+            "summary": []
+          },
+          {
+            "id": "fc_060842accc1a48ca016aa742bd433087d2bd8a3140877ae2ca",
+            "type": "function_call",
+            "status": "completed",
+            "arguments": "{\"salutation\":\"Dear Hiring Team,\",\"paragraphs\":[\"I am applying for the Client Onboarding Coordinator role at Example C04 Services. As Front Desk Supervisor at Example Community Recreation from 2020 to 2026, I scheduled a five-person reception team, handled membership questions, and maintained registration records. This work required coordinating customer questions and keeping registration information accessible and accurate.\",\"During the move from paper waivers to online registration, I worked with the programme manager to map missing fields, wrote a desk checklist, and coached reception staff through the first registration week. I also maintained a daily exceptions sheet for families unable to complete online forms and arranged callbacks with the programme lead. The team resolved 32 outstanding registrations during that week. This experience is directly relevant to tracking incomplete information, coordinating follow-up, and providing clear written guidance during a registration process.\",\"I would bring experience with registration records, customer callbacks, scheduling, Excel, and staff coaching, along with a Business Administration diploma from Example City College (2018).\"],\"signoff\":\"Sincerely,\\nNadia Brooks\"}",
+            "call_id": "call_QlLHxvUWoH9raQbhr8pkuxU6",
+            "name": "return_document"
+          }
+        ],
+        "parallel_tool_calls": false,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "high",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "text"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        },
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [
+          {
+            "type": "function",
+            "description": "Return the application document.",
+            "name": "return_document",
+            "output_schema": null,
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "salutation": {
+                  "type": "string"
+                },
+                "paragraphs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "signoff": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "salutation",
+                "paragraphs",
+                "signoff"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 542,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 343,
+          "output_tokens_details": {
+            "reasoning_tokens": 112
+          },
+          "total_tokens": 885
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "durationMs": 4507
+    }
+  ],
+  "httpStatus": 200,
+  "delivered": {
+    "salutation": "Dear Hiring Team,",
+    "paragraphs": [
+      "I am applying for the Client Onboarding Coordinator role at Example C04 Services. As Front Desk Supervisor at Example Community Recreation from 2020 to 2026, I scheduled a five-person reception team, handled membership questions, and maintained registration records. This work required coordinating customer questions and keeping registration information accessible and accurate.",
+      "During the move from paper waivers to online registration, I worked with the programme manager to map missing fields, wrote a desk checklist, and coached reception staff through the first registration week. I also maintained a daily exceptions sheet for families unable to complete online forms and arranged callbacks with the programme lead. The team resolved 32 outstanding registrations during that week. This experience is directly relevant to tracking incomplete information, coordinating follow-up, and providing clear written guidance during a registration process.",
+      "I would bring experience with registration records, customer callbacks, scheduling, Excel, and staff coaching, along with a Business Administration diploma from Example City College (2018)."
+    ],
+    "signoff": "Sincerely,\nNadia Brooks"
+  },
+  "completedAt": "2026-09-14T00:41:35.632Z",
+  "durationMs": 4508
+}

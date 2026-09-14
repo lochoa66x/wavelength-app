@@ -1,0 +1,363 @@
+{
+  "summary": [
+    {
+      "arm": "pipeline",
+      "delivered": 10,
+      "planned": 12,
+      "resumeMedian": 15.5,
+      "letterMedian": 17,
+      "evidenceFail": 0,
+      "evidenceReview": 0,
+      "acceptedPairs": 4,
+      "medianSeconds": 17.2285,
+      "providerCalls": 34,
+      "inputTokens": 158817,
+      "outputTokens": 20236,
+      "reasoningTokens": 5324
+    },
+    {
+      "arm": "simple",
+      "delivered": 12,
+      "planned": 12,
+      "resumeMedian": 15,
+      "letterMedian": 14,
+      "evidenceFail": 0,
+      "evidenceReview": 2,
+      "acceptedPairs": 1,
+      "medianSeconds": 3.37,
+      "providerCalls": 12,
+      "inputTokens": 6864,
+      "outputTokens": 4101,
+      "reasoningTokens": 588
+    },
+    {
+      "arm": "reasoning",
+      "delivered": 12,
+      "planned": 12,
+      "resumeMedian": 16,
+      "letterMedian": 14,
+      "evidenceFail": 1,
+      "evidenceReview": 2,
+      "acceptedPairs": 1,
+      "medianSeconds": 3.6595,
+      "providerCalls": 12,
+      "inputTokens": 6864,
+      "outputTokens": 4270,
+      "reasoningTokens": 803
+    },
+    {
+      "arm": "selection",
+      "delivered": 12,
+      "planned": 12,
+      "resumeMedian": 15.5,
+      "letterMedian": 16.5,
+      "evidenceFail": 1,
+      "evidenceReview": 1,
+      "acceptedPairs": 1,
+      "medianSeconds": 3.4295,
+      "providerCalls": 12,
+      "inputTokens": 7840,
+      "outputTokens": 3775,
+      "reasoningTokens": 334
+    },
+    {
+      "arm": "confirmed_pipeline",
+      "delivered": 11,
+      "planned": 12,
+      "resumeMedian": 14.5,
+      "letterMedian": 17,
+      "evidenceFail": 0,
+      "evidenceReview": 1,
+      "acceptedPairs": 2,
+      "medianSeconds": 14.777,
+      "providerCalls": 33,
+      "inputTokens": 148349,
+      "outputTokens": 20209,
+      "reasoningTokens": 5761
+    }
+  ],
+  "paired": [
+    {
+      "arm": "reasoning",
+      "kind": "resume",
+      "comparisons": [
+        {
+          "caseId": "C01",
+          "delta": -1,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C02",
+          "delta": 1,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C03",
+          "delta": 1,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C04",
+          "delta": 0,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C05",
+          "delta": 0,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C06",
+          "delta": 0,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        }
+      ],
+      "wins": 2,
+      "ties": 3,
+      "losses": 1,
+      "unavailable": 0,
+      "gainsAtLeastTwo": 0
+    },
+    {
+      "arm": "reasoning",
+      "kind": "letter",
+      "comparisons": [
+        {
+          "caseId": "C01",
+          "delta": 0,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C02",
+          "delta": 0,
+          "baseGate": "pass",
+          "otherGate": "review"
+        },
+        {
+          "caseId": "C03",
+          "delta": 0,
+          "baseGate": "pass",
+          "otherGate": "review"
+        },
+        {
+          "caseId": "C04",
+          "delta": 0,
+          "baseGate": "review",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C05",
+          "delta": 1,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C06",
+          "delta": 0,
+          "baseGate": "review",
+          "otherGate": "fail"
+        }
+      ],
+      "wins": 1,
+      "ties": 5,
+      "losses": 0,
+      "unavailable": 0,
+      "gainsAtLeastTwo": 0
+    },
+    {
+      "arm": "selection",
+      "kind": "resume",
+      "comparisons": [
+        {
+          "caseId": "C01",
+          "delta": -1,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C02",
+          "delta": 0,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C03",
+          "delta": 1,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C04",
+          "delta": 0,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C05",
+          "delta": 0,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C06",
+          "delta": 0,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        }
+      ],
+      "wins": 1,
+      "ties": 4,
+      "losses": 1,
+      "unavailable": 0,
+      "gainsAtLeastTwo": 0
+    },
+    {
+      "arm": "selection",
+      "kind": "letter",
+      "comparisons": [
+        {
+          "caseId": "C01",
+          "delta": 0,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C02",
+          "delta": 2,
+          "baseGate": "pass",
+          "otherGate": "fail"
+        },
+        {
+          "caseId": "C03",
+          "delta": 0,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C04",
+          "delta": 3,
+          "baseGate": "review",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C05",
+          "delta": 1,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C06",
+          "delta": 0,
+          "baseGate": "review",
+          "otherGate": "review"
+        }
+      ],
+      "wins": 3,
+      "ties": 3,
+      "losses": 0,
+      "unavailable": 0,
+      "gainsAtLeastTwo": 2
+    },
+    {
+      "arm": "confirmed_pipeline",
+      "kind": "resume",
+      "comparisons": [
+        {
+          "caseId": "C01",
+          "delta": 0,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C02",
+          "delta": 0,
+          "baseGate": "pass",
+          "otherGate": "review"
+        },
+        {
+          "caseId": "C03",
+          "delta": 1,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C04",
+          "delta": 1,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C05",
+          "delta": -2,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C06",
+          "delta": -3,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        }
+      ],
+      "wins": 2,
+      "ties": 2,
+      "losses": 2,
+      "unavailable": 0,
+      "gainsAtLeastTwo": 0
+    },
+    {
+      "arm": "confirmed_pipeline",
+      "kind": "letter",
+      "comparisons": [
+        {
+          "caseId": "C01",
+          "delta": 3,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C02",
+          "delta": null,
+          "baseGate": "pass",
+          "otherGate": "unavailable"
+        },
+        {
+          "caseId": "C03",
+          "delta": 3,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C04",
+          "delta": 3,
+          "baseGate": "review",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C05",
+          "delta": 2,
+          "baseGate": "pass",
+          "otherGate": "pass"
+        },
+        {
+          "caseId": "C06",
+          "delta": 0,
+          "baseGate": "review",
+          "otherGate": "pass"
+        }
+      ],
+      "wins": 4,
+      "ties": 1,
+      "losses": 0,
+      "unavailable": 1,
+      "gainsAtLeastTwo": 4
+    }
+  ]
+}

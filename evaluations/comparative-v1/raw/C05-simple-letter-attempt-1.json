@@ -1,0 +1,205 @@
+{
+  "version": 1,
+  "experiment": "comparative-v1",
+  "caseId": "C05",
+  "arm": "simple",
+  "kind": "letter",
+  "attempt": 1,
+  "startedAt": "2026-09-14T00:42:14.545Z",
+  "sourceHash": "3a1cc342c9f60841d38086fe5f0f955d5f2c167e703be9706d6f9565727cb64a",
+  "deploymentRevision": "698f9a97ec60f5d7df55e8fa7a914b3a9eff0c17",
+  "calls": [
+    {
+      "sequence": 1,
+      "startedAt": "2026-09-14T00:42:14.545Z",
+      "request": {
+        "model": "gpt-5.6-terra",
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "input": "Write an employer-facing cover letter tailored to this job. Use only candidate facts from the source. Preserve contribution level, shared results, dates, credential status and academic/project context. Do not turn job requirements into candidate history. Choose the strongest relevant evidence, retain useful concrete detail, and write clear natural professional English. Make a focused case through one or two relevant examples rather than reciting the résumé. Avoid generic praise and invented motivation. Use 2–4 paragraphs, at most 320 words, a salutation and signoff.\n\nJOB\n{\"title\":\"Junior Data Analyst\",\"company\":\"Example C05 Services\",\"location\":\"Hamilton, Ontario\",\"type\":\"Full-time\",\"category\":\"tech\",\"description\":\"We need a Junior Data Analyst to carry out the responsibilities listed below. Submit a résumé and cover letter describing relevant work.\",\"responsibilities\":[\"Clean operational datasets and document limitations\",\"Build clear Power BI reports\",\"Explain analysis decisions to colleagues\"],\"required_qualifications\":[\"Training or project experience with SQL and Python\",\"Power BI familiarity\"],\"preferred_qualifications\":[],\"source\":\"candidate_reviewed\"}\n\nCANDIDATE SOURCE\nTheo Park\nc05@example.com | Hamilton, Ontario\nRetail Assistant | Example Corner Market | 2023 - 2026\nChecked shelf prices against the till file and reported discrepancies to the shift manager.\nEducation\nData Analytics diploma | Example Technical College | 2026\nAcademic Project\nTransit Delay Dashboard | Example Technical College | 2026\nIn a three-student course project, cleaned a public transit dataset in Python and identified duplicate journey identifiers before joining the route tables.\nBuilt the team's Power BI view comparing median delay by route and weekday; the report excluded cancelled trips and stated that limitation beside the chart.\nPresented the cleaning decisions to the class. The dashboard was coursework and was not deployed by a transit agency.\nSkills\nPython pandas; SQL joins; Power BI; data-quality checks",
+        "reasoning": {
+          "effort": "low"
+        },
+        "max_output_tokens": 6000,
+        "store": false,
+        "parallel_tool_calls": false,
+        "tools": [
+          {
+            "type": "function",
+            "name": "return_document",
+            "description": "Return the application document.",
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "salutation": {
+                  "type": "string"
+                },
+                "paragraphs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "signoff": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "salutation",
+                "paragraphs",
+                "signoff"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        }
+      },
+      "status": 200,
+      "response": {
+        "id": "resp_0b3bd2589f837ea2016aa742e69c8887d283a22949736e7bee",
+        "object": "response",
+        "created_at": 1789346534,
+        "status": "completed",
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1789346538,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "max_output_tokens": 6000,
+        "max_tool_calls": null,
+        "model": "gpt-5.6-terra",
+        "moderation": null,
+        "output": [
+          {
+            "id": "rs_0b3bd2589f837ea2016aa742e7078887d2bd44e35edc8fbcb5",
+            "type": "reasoning",
+            "content": [],
+            "encrypted_content": "gAAAAABqp0LqHfndBZZgd040P25siyJxj1PEzUiRczA43LBANfiOOGp74fw4opz4Z_PcWZcRm571dkpGoJXwtKkDHM6HxLiVmPpw8HyD_VetT1MfV8xtDIHkAQkYxySJ_lYZ2PemzSdiVNnMOqMqlR1yMOGOFK5jHEhexWl0m6WAJweNghslWfYo0GAT7jz_Gmt6i768Z-eGH3BuPDcQBq1fwAAbP_spg2G88bsrvjCZYNTia6QSeIu-bonFWABLllcLyUF3qJ2PcTB6NhWwzxlPffDDjRflAaZjTKg8JRAVS6E6YbIHzIs_ombozclvdyLrftQb0s-cdTlygpFK6wGiXO82vQSczAUYCZp8tgQnZxfm3A8NZMLzT4yETwClo-3qHjy-PgNy0dMl3tsGbR-YfBKit27BsHo4QhlHAo2V2fZPwaOTzB3JHaWFt2ACPn648t5NWITTFaUvpLlJFgcnQcqQfmcdw0ThaYNlhzWwjEXdIdSt_uR2ZLyavjY9MMUVq6kQzdtTmo3bL4PvH1Or7jW78q902ufuq2Urv_2tBXuIU7xpeOJsV4AlW1nPvfc-Q4ARZy4OYpF7r1_TUnbUyHn3-BBhARS3XIzk45K9DndqsGY1YmoPM5GZdOooYyVynSZyp_Fbv8E2VfjtTBla-xR-qBhurgLkpu3hB3gN11UtPqwx7veltECVvDX9v6y3Z3x2ROHQfsS1aLmyjlusq0cVbgNF92NM4GDmIlHuCABwd8eZLS0lqwg1wukOvue4iHF5HxCVzIG3G5PzaiU45jAkG9BsGOc_yKDUgZiDPLjq5qw9flgl5NGsl-DugXB8zXS6zzRo3Kq92VY0w3v-A06clLeNs7dt1r5zJo3rf9hZbLON7bqXhdMelIcDOnZrvHlIqhBScCVr-_HX83zShqCaxTBwc4ZL24rE1L3F8j4q-UhNaKxIucOAkatF1XfkcSPKGdQvDyj5fyb1VzBkVVEhK9lqE9zGW8NhSrbOuMuMQhXspMv4PhX2NSink3i2vKIacALWptZoB2aUig_h7IPKqKEQFFngf9iOY50vqonS-609kf8zqrEKn8RRrRI0kIYFyuDNhUiRwRm8nY2VcTs7n0Cj5Z2f54nhtP1zaf93x0DogTAk6JlD9FNm-AChpeMINvXC4RYgum1XwLMKaoI6E0HN_1QVisJP0sU0RMaJNEx_Lbm50uGFnLBiCE2aZ-_T-GNP3il09DTZGgXR3e36hMQ3UoejReDj5FnyDlt2NPUotuBc7GRI4sFUSHmEF8BFepbOSo-BbKqI7CzLBy1oQuQdpF1Sm5bqyWTIoSbhQmSfwH_MMPbc8M5VrPZlAfm64OXmO3vTHFKc1IWl0agZ_PiqWEnfJJXJOP_VysNmUtCbbrhZe24sIix3XHU_QSyxlt6cKj2ZXA_V2sQPbCUwwcXXuGwPy46z6yRzK1cCptCkWJqsQ-IUropUrWYY4PRn-eNbWKUAnX_Hos0ICHjGyLFoVyS4OdO038LC5kUVEi2em_o9L3cb2PwcL6AGfB0gj2B3P1kUtev7nEPNxOv3RQCrcGMKFhAf-bYiyZg9XgSZocydS_VpgUtSiq558mV3h8m18q_uAzgM_CZ7pXSobA8to_fczHiArMlBomwLpCPlcP6jgsN05gNfPu1XWdIwRB0pIapFJRfTc8iG2Cq4LGieB0rVEea4prbLyERy4ff6hhq4b0-L8jLXB35HuBb0R9JgJhV7zFxUXfRflDlAUdTfUuXYi2wjVn2EQAUAUB57ALo=",
+            "summary": []
+          },
+          {
+            "id": "fc_0b3bd2589f837ea2016aa742e83e8887d2933cac81af4750f0",
+            "type": "function_call",
+            "status": "completed",
+            "arguments": "{\"salutation\":\"Dear Hiring Manager,\",\"paragraphs\":[\"I am applying for the Junior Data Analyst position at Example C05 Services. My Data Analytics diploma studies at Example Technical College (2026) include Python pandas, SQL joins, Power BI, and data-quality checks. I also bring practical attention to record accuracy from my Retail Assistant role at Example Corner Market, where I checked shelf prices against the till file and reported discrepancies to the shift manager.\",\"In a three-student 2026 course project, I cleaned a public transit dataset in Python and identified duplicate journey identifiers before the team joined route tables. I built the team’s Power BI view comparing median delay by route and weekday. To make the analysis transparent, the report excluded cancelled trips and stated that limitation beside the chart. I then presented the cleaning decisions to the class. This was coursework and the dashboard was not deployed by a transit agency.\",\"This project gave me directly relevant experience documenting data limitations, building a clear Power BI report, and explaining analysis choices to colleagues. I would welcome the opportunity to apply this foundation to operational datasets at Example C05 Services.\"],\"signoff\":\"Sincerely,\\nTheo Park\"}",
+            "call_id": "call_alunVmhXsFC4njShADYPc3DF",
+            "name": "return_document"
+          }
+        ],
+        "parallel_tool_calls": false,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "low",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "text"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        },
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [
+          {
+            "type": "function",
+            "description": "Return the application document.",
+            "name": "return_document",
+            "output_schema": null,
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "salutation": {
+                  "type": "string"
+                },
+                "paragraphs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "signoff": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "salutation",
+                "paragraphs",
+                "signoff"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 527,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 348,
+          "output_tokens_details": {
+            "reasoning_tokens": 99
+          },
+          "total_tokens": 875
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "durationMs": 3720
+    }
+  ],
+  "httpStatus": 200,
+  "delivered": {
+    "salutation": "Dear Hiring Manager,",
+    "paragraphs": [
+      "I am applying for the Junior Data Analyst position at Example C05 Services. My Data Analytics diploma studies at Example Technical College (2026) include Python pandas, SQL joins, Power BI, and data-quality checks. I also bring practical attention to record accuracy from my Retail Assistant role at Example Corner Market, where I checked shelf prices against the till file and reported discrepancies to the shift manager.",
+      "In a three-student 2026 course project, I cleaned a public transit dataset in Python and identified duplicate journey identifiers before the team joined route tables. I built the team’s Power BI view comparing median delay by route and weekday. To make the analysis transparent, the report excluded cancelled trips and stated that limitation beside the chart. I then presented the cleaning decisions to the class. This was coursework and the dashboard was not deployed by a transit agency.",
+      "This project gave me directly relevant experience documenting data limitations, building a clear Power BI report, and explaining analysis choices to colleagues. I would welcome the opportunity to apply this foundation to operational datasets at Example C05 Services."
+    ],
+    "signoff": "Sincerely,\nTheo Park"
+  },
+  "completedAt": "2026-09-14T00:42:18.265Z",
+  "durationMs": 3720
+}

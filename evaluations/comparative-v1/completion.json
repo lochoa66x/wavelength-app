@@ -1,0 +1,33 @@
+{
+  "checkedAt": "2026-09-14T01:09:26.451Z",
+  "originalRequests": 48,
+  "confirmationRequests": 12,
+  "rawFiles": 60,
+  "upstreamCalls": 103,
+  "actualModels": [
+    "gpt-5.6-terra"
+  ],
+  "executionRevisions": [
+    "3c81d7fddd78f75c0cd3f7cbb4791713a11bf56e",
+    "698f9a97ec60f5d7df55e8fa7a914b3a9eff0c17"
+  ],
+  "baselineProductionLogicUnchanged": true,
+  "firstAttemptPromptHashes": "verified",
+  "rawArchiveContainsRealCandidateOrCapability": false,
+  "tests": {
+    "preExecution": 910,
+    "focusedAfterConfirmationChange": 7,
+    "failed": 0
+  },
+  "builds": [
+    "experiment",
+    "confirmation",
+    "cleanup"
+  ],
+  "humanRatings": "pending; download smoke test contained zero completed ratings",
+  "competitors": {
+    "Teal": "sign-in required; no generated output",
+    "Rezi": "sign-in required; no generated output"
+  },
+  "runtimeClosure": "pending deployment verification"
+}

@@ -1,0 +1,405 @@
+{
+  "version": 1,
+  "experiment": "comparative-v1",
+  "caseId": "C05",
+  "arm": "selection",
+  "kind": "resume",
+  "attempt": 1,
+  "startedAt": "2026-09-14T00:42:27.172Z",
+  "sourceHash": "3a1cc342c9f60841d38086fe5f0f955d5f2c167e703be9706d6f9565727cb64a",
+  "deploymentRevision": "698f9a97ec60f5d7df55e8fa7a914b3a9eff0c17",
+  "calls": [
+    {
+      "sequence": 1,
+      "startedAt": "2026-09-14T00:42:27.172Z",
+      "request": {
+        "model": "gpt-5.6-terra",
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "input": "Write an employer-facing résumé tailored to this job. Use only candidate facts from the source. Preserve contribution level, shared results, dates, credential status and academic/project context. Do not turn job requirements into candidate history. Choose the strongest relevant evidence, retain useful concrete detail, and write clear natural professional English. Use a short professional profile that synthesizes the candidate’s focus rather than repeating the experience bullets. Keep relevant projects and qualifications.\n\nJOB\n{\"title\":\"Junior Data Analyst\",\"company\":\"Example C05 Services\",\"location\":\"Hamilton, Ontario\",\"type\":\"Full-time\",\"category\":\"tech\",\"description\":\"We need a Junior Data Analyst to carry out the responsibilities listed below. Submit a résumé and cover letter describing relevant work.\",\"responsibilities\":[\"Clean operational datasets and document limitations\",\"Build clear Power BI reports\",\"Explain analysis decisions to colleagues\"],\"required_qualifications\":[\"Training or project experience with SQL and Python\",\"Power BI familiarity\"],\"preferred_qualifications\":[],\"source\":\"candidate_reviewed\"}\n\nCANDIDATE SOURCE\nTheo Park\nc05@example.com | Hamilton, Ontario\nRetail Assistant | Example Corner Market | 2023 - 2026\nChecked shelf prices against the till file and reported discrepancies to the shift manager.\nEducation\nData Analytics diploma | Example Technical College | 2026\nAcademic Project\nTransit Delay Dashboard | Example Technical College | 2026\nIn a three-student course project, cleaned a public transit dataset in Python and identified duplicate journey identifiers before joining the route tables.\nBuilt the team's Power BI view comparing median delay by route and weekday; the report excluded cancelled trips and stated that limitation beside the chart.\nPresented the cleaning decisions to the class. The dashboard was coursework and was not deployed by a transit agency.\nSkills\nPython pandas; SQL joins; Power BI; data-quality checks\n\nEDITOR-SELECTED SOURCE EXCERPTS TO PRIORITIZE (the full source still applies)\nIn a three-student course project, cleaned a public transit dataset in Python and identified duplicate journey identifiers before joining the route tables.\nBuilt the team's Power BI view comparing median delay by route and weekday; the report excluded cancelled trips and stated that limitation beside the chart.",
+        "reasoning": {
+          "effort": "low"
+        },
+        "max_output_tokens": 6000,
+        "store": false,
+        "parallel_tool_calls": false,
+        "tools": [
+          {
+            "type": "function",
+            "name": "return_document",
+            "description": "Return the application document.",
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "headline": {
+                  "type": "string"
+                },
+                "profile": {
+                  "type": "string"
+                },
+                "skills": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "experience": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "role": {
+                        "type": "string"
+                      },
+                      "organization": {
+                        "type": "string"
+                      },
+                      "dates": {
+                        "type": "string"
+                      },
+                      "bullets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "role",
+                      "organization",
+                      "dates",
+                      "bullets"
+                    ]
+                  }
+                },
+                "projects": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "context": {
+                        "type": "string"
+                      },
+                      "bullets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "context",
+                      "bullets"
+                    ]
+                  }
+                },
+                "education": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "training": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "links": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "name",
+                "headline",
+                "profile",
+                "skills",
+                "experience",
+                "projects",
+                "education",
+                "training",
+                "links"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        }
+      },
+      "status": 200,
+      "response": {
+        "id": "resp_0cbf0c035c621e12016aa742f33ecc87d2bc4960a61b2e174e",
+        "object": "response",
+        "created_at": 1789346547,
+        "status": "completed",
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1789346550,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "max_output_tokens": 6000,
+        "max_tool_calls": null,
+        "model": "gpt-5.6-terra",
+        "moderation": null,
+        "output": [
+          {
+            "id": "rs_0cbf0c035c621e12016aa742f3ae9087d28880308c9a091a1c",
+            "type": "reasoning",
+            "content": [],
+            "encrypted_content": "gAAAAABqp0L2ylNzsC_5KY2FaG5ZZvTnpzi7gQIw9tBGt-8ImCZXsU0CcNA3e2pyFXH2XYcZz9QkibePLRAJU12TFgNBdOUgRAEycA48jzi4cgvAmKUe5WfwQ_MdQOtXiyhM8UiSastl05RCPBdvrn-5TqgZLnV5l20t2u2FFYBlcisnNuByCBWDkPzVqIJ2Smml9ovJY2U4UAhVJuMesRAiiKFoHMBwAxPGsixJUxHZdXGcQXrJAs25bYTamasFYj_Mwf_UmPzukVNHgDT_3Phl8uIR1gqzEiGuDQFXtuyzOZtnbSdQjS5FAlxL_P2gWuiwb_h85BP6Vv9DJldPJDhNN3yuIoMQ-XrM4wR0M8Zm-a6wTw75RO43_nf21lVKtFQcmAIKD_Mfdn255QwOHYM7bw-ggr3-NYEazhT0yNeOGmSWWta_zqqdE1-Mb_SUqFPxzFEv1Nvk6sLXycg45xvbP4XkGfflfzwObnPTbAx3n4aGCqi57sOBq5iwiL17bvkwYj8Mwnpuw665GxC1o4QQIjc6xJHyFRfry9UTiOTt91idah11hxnuXp8-GK1dcnwuSwSl21JMb7XiV9K8fnuMJCh_AYh0Joy-2J9smTCAJjg0nEHWdbk9xrEMipfs2Uo_TI-54MpWTgD83ucundhJxj-odC-79OS4ovXL61NCdLhQ3UNQF61CM755l-lQwZlZT4k21THlHLw06VhYTrZZiSrBefuu6EIwgv3YPGlihjRlhIpC9IXjhs5KubUg1vE-opRAGn2Rp5u5fplE-kEvQEeZRSdj2nUhQWzy3_cbnD86Wx-YR59XAb696euikg1gx_kR3VcrIGTMORohMfEjrLmweij9x-uvOXQc5f92Yn5YqgMD_7gb-TVoohodRDdjiqttefbJ7wDOE2xmwMaG1SSXKDJvh_pVRPG31d8a9zC4XuKqgGTY4eV6Og0MBARHzcbS2sNygofXRMPnDhm4_zjvwk3lE_OC6Cv9oLbmeA1YAGy9ofYgw4PPW0p8A9CyOs7JwijwpkBKlMfDjnc1z6ZL8wmO3UN6JKusQoH6_xGMkZVpdTKUNHsJ9wdNIwNhnUard75gE4I4i_kkicGutCm8HIU1X72qvd06QTCWLCH8wBpMCbSp2Fjq-ih5MpMnScpDyiPBlF5cExdKbYK4ItfNkQ1-9py8wU4opNaCW3pIN5yF4O_tB2v-p0o-Afp0_8fm-bh8t4ETesT8F5OOs9s8fBVSJNNjSrejyQUdG8wm1cpv5gemyPOJVHSiglh8bYZBSw6VZbK7eqzSFN3DrHPwxzxc-CayEmz2g4Vwka6p_zRB6SKZTczl6J0jPVWw7UNdjlJYwSD06aibxrlRcEjrG6cVw_RelvCQkbI2Q_eUrx9-Gkg=",
+            "summary": []
+          },
+          {
+            "id": "fc_0cbf0c035c621e12016aa742f42c0087d299e055728d6a6fe6",
+            "type": "function_call",
+            "status": "completed",
+            "arguments": "{\"name\":\"Theo Park\",\"headline\":\"Junior Data Analyst\",\"profile\":\"Entry-level data analytics diploma graduate with academic project experience cleaning operational-style transit data in Python, using SQL joins, and building Power BI reporting that documents analytical limitations. Brings retail experience checking price data and escalating discrepancies clearly.\",\"skills\":[\"Python (pandas)\",\"SQL joins\",\"Power BI\",\"Data-quality checks\",\"Dataset cleaning\",\"Documentation of limitations\"],\"experience\":[{\"role\":\"Retail Assistant\",\"organization\":\"Example Corner Market\",\"dates\":\"2023 - 2026\",\"bullets\":[\"Checked shelf prices against the till file and reported discrepancies to the shift manager.\"]}],\"projects\":[{\"name\":\"Transit Delay Dashboard\",\"context\":\"Three-student academic course project, Example Technical College | 2026\",\"bullets\":[\"Cleaned a public transit dataset in Python and identified duplicate journey identifiers before joining route tables.\",\"Built the team’s Power BI view comparing median delay by route and weekday.\",\"Excluded cancelled trips from the report and stated this limitation beside the chart.\",\"Presented cleaning decisions to the class.\",\"Coursework dashboard was not deployed by a transit agency.\"]}],\"education\":[\"Data Analytics diploma | Example Technical College | 2026\"],\"training\":[],\"links\":[\"c05@example.com | Hamilton, Ontario\"]}",
+            "call_id": "call_XeYs4IqcqcTzVJQpaRsr0LMT",
+            "name": "return_document"
+          }
+        ],
+        "parallel_tool_calls": false,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "low",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "text"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        },
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [
+          {
+            "type": "function",
+            "description": "Return the application document.",
+            "name": "return_document",
+            "output_schema": null,
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "headline": {
+                  "type": "string"
+                },
+                "profile": {
+                  "type": "string"
+                },
+                "skills": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "experience": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "role": {
+                        "type": "string"
+                      },
+                      "organization": {
+                        "type": "string"
+                      },
+                      "dates": {
+                        "type": "string"
+                      },
+                      "bullets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "role",
+                      "organization",
+                      "dates",
+                      "bullets"
+                    ]
+                  }
+                },
+                "projects": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "context": {
+                        "type": "string"
+                      },
+                      "bullets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "context",
+                      "bullets"
+                    ]
+                  }
+                },
+                "education": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "training": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "links": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "name",
+                "headline",
+                "profile",
+                "skills",
+                "experience",
+                "projects",
+                "education",
+                "training",
+                "links"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 633,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 306,
+          "output_tokens_details": {
+            "reasoning_tokens": 36
+          },
+          "total_tokens": 939
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "durationMs": 3808
+    }
+  ],
+  "httpStatus": 200,
+  "delivered": {
+    "name": "Theo Park",
+    "headline": "Junior Data Analyst",
+    "profile": "Entry-level data analytics diploma graduate with academic project experience cleaning operational-style transit data in Python, using SQL joins, and building Power BI reporting that documents analytical limitations. Brings retail experience checking price data and escalating discrepancies clearly.",
+    "skills": [
+      "Python (pandas)",
+      "SQL joins",
+      "Power BI",
+      "Data-quality checks",
+      "Dataset cleaning",
+      "Documentation of limitations"
+    ],
+    "experience": [
+      {
+        "role": "Retail Assistant",
+        "organization": "Example Corner Market",
+        "dates": "2023 - 2026",
+        "bullets": [
+          "Checked shelf prices against the till file and reported discrepancies to the shift manager."
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "Transit Delay Dashboard",
+        "context": "Three-student academic course project, Example Technical College | 2026",
+        "bullets": [
+          "Cleaned a public transit dataset in Python and identified duplicate journey identifiers before joining route tables.",
+          "Built the team’s Power BI view comparing median delay by route and weekday.",
+          "Excluded cancelled trips from the report and stated this limitation beside the chart.",
+          "Presented cleaning decisions to the class.",
+          "Coursework dashboard was not deployed by a transit agency."
+        ]
+      }
+    ],
+    "education": [
+      "Data Analytics diploma | Example Technical College | 2026"
+    ],
+    "training": [],
+    "links": [
+      "c05@example.com | Hamilton, Ontario"
+    ]
+  },
+  "completedAt": "2026-09-14T00:42:30.980Z",
+  "durationMs": 3808
+}

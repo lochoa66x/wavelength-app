@@ -1,0 +1,1147 @@
+{
+  "captured": 60,
+  "originalPlanned": 48,
+  "confirmationPlanned": 12,
+  "metrics": [
+    {
+      "caseId": "C01",
+      "arm": "pipeline",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 21508,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 3,
+      "inputTokens": 14716,
+      "outputTokens": 2137,
+      "reasoningTokens": 451,
+      "repairApplied": true,
+      "words": 161,
+      "rawSha256": "68545ad7c4db917eac4c616990262de4158d693e06a2ba709d03ef0259196dc3"
+    },
+    {
+      "caseId": "C01",
+      "arm": "pipeline",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 17787,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 3,
+      "inputTokens": 9837,
+      "outputTokens": 1938,
+      "reasoningTokens": 752,
+      "repairApplied": true,
+      "words": 88,
+      "rawSha256": "1b9852c9dbeeeaa77ee9ba2eec46c8442747e7dc3cc6c1516abc8e0fad594f6e"
+    },
+    {
+      "caseId": "C01",
+      "arm": "simple",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 4307,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 626,
+      "outputTokens": 438,
+      "reasoningTokens": 69,
+      "repairApplied": null,
+      "words": 215,
+      "rawSha256": "f1c2a220f1c5fb5740496dfaafb3d152ac0ed1c9691eb24be2ef7584ad342fb4"
+    },
+    {
+      "caseId": "C01",
+      "arm": "simple",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 3949,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 593,
+      "outputTokens": 328,
+      "reasoningTokens": 64,
+      "repairApplied": null,
+      "words": 167,
+      "rawSha256": "f7af29cecff941f53444edf648a49628ec8e1d115c0024b33340845f6b4f9282"
+    },
+    {
+      "caseId": "C01",
+      "arm": "reasoning",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 3812,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 626,
+      "outputTokens": 440,
+      "reasoningTokens": 54,
+      "repairApplied": null,
+      "words": 226,
+      "rawSha256": "0dd3991b323462cd90c5c78cf8ba238449e2a7f8b3ad20b83b3b0ce76d4e228e"
+    },
+    {
+      "caseId": "C01",
+      "arm": "reasoning",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 3161,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 593,
+      "outputTokens": 338,
+      "reasoningTokens": 76,
+      "repairApplied": null,
+      "words": 160,
+      "rawSha256": "9cd391a67f8a590300e83602a2cc91339f7e14ae89f13532bfc09d858f2f3f33"
+    },
+    {
+      "caseId": "C01",
+      "arm": "selection",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 3491,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 714,
+      "outputTokens": 429,
+      "reasoningTokens": 52,
+      "repairApplied": null,
+      "words": 223,
+      "rawSha256": "efb059e6fe1b2150d2234c9c907730c1e854854a60bb905bc7d1db07a37e5c15"
+    },
+    {
+      "caseId": "C01",
+      "arm": "selection",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 2764,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 681,
+      "outputTokens": 294,
+      "reasoningTokens": 45,
+      "repairApplied": null,
+      "words": 158,
+      "rawSha256": "f73b9cebab51796ed4c40d2df37c57b9ec642226e67c5c5d83fe05a561b5233f"
+    },
+    {
+      "caseId": "C02",
+      "arm": "simple",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 3569,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 600,
+      "outputTokens": 400,
+      "reasoningTokens": 37,
+      "repairApplied": null,
+      "words": 219,
+      "rawSha256": "715424f6a7ee75dcac5de4f58acb9e707d426c932311b882f8e7ff943bcca184"
+    },
+    {
+      "caseId": "C02",
+      "arm": "simple",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 2892,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 567,
+      "outputTokens": 280,
+      "reasoningTokens": 26,
+      "repairApplied": null,
+      "words": 174,
+      "rawSha256": "f776107a2c07ee0f24f7d7ba547edca835d99b844ab3c3b96723d7eec501d813"
+    },
+    {
+      "caseId": "C02",
+      "arm": "reasoning",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 4189,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 600,
+      "outputTokens": 433,
+      "reasoningTokens": 99,
+      "repairApplied": null,
+      "words": 202,
+      "rawSha256": "a67c795c6b91f342076d816b409c12531f0e52cd26d69cec75a6b2f082fecdd9"
+    },
+    {
+      "caseId": "C02",
+      "arm": "reasoning",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 3439,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 567,
+      "outputTokens": 326,
+      "reasoningTokens": 72,
+      "repairApplied": null,
+      "words": 171,
+      "rawSha256": "432fc64309483e81e26431c2d81640ddfe963a348a17c2f36dae842bad36d26f"
+    },
+    {
+      "caseId": "C02",
+      "arm": "selection",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 3368,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 689,
+      "outputTokens": 401,
+      "reasoningTokens": 41,
+      "repairApplied": null,
+      "words": 220,
+      "rawSha256": "faa003d635cc31daa10fcfaa3b4840c5bb994b5349c2fdd5d4597816f0bc9696"
+    },
+    {
+      "caseId": "C02",
+      "arm": "selection",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 5654,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 656,
+      "outputTokens": 243,
+      "reasoningTokens": 0,
+      "repairApplied": null,
+      "words": 170,
+      "rawSha256": "6fb3e098e70bddcd932765dab96180ef7af0ca80039680c437763d347e95af33"
+    },
+    {
+      "caseId": "C02",
+      "arm": "pipeline",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 17034,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 3,
+      "inputTokens": 14402,
+      "outputTokens": 1792,
+      "reasoningTokens": 385,
+      "repairApplied": true,
+      "words": 179,
+      "rawSha256": "af085eab519f4941d69b2d19397d3b27011e0806a17d4332521be1d0e7d832e6"
+    },
+    {
+      "caseId": "C02",
+      "arm": "pipeline",
+      "kind": "letter",
+      "available": false,
+      "httpStatus": 422,
+      "error": null,
+      "durationMs": 6247,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 2,
+      "inputTokens": 6965,
+      "outputTokens": 656,
+      "reasoningTokens": 60,
+      "repairApplied": null,
+      "words": 2,
+      "rawSha256": "d9de794a5b70d4f11304de803fad3cbe372e843e478e720764c69b30ac4a9d19"
+    },
+    {
+      "caseId": "C03",
+      "arm": "reasoning",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 8213,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 578,
+      "outputTokens": 358,
+      "reasoningTokens": 61,
+      "repairApplied": null,
+      "words": 191,
+      "rawSha256": "04501572fd0b4192ec61c69eb4218bdc3650e5b7c5e7be19f4a22a375a0f18ad"
+    },
+    {
+      "caseId": "C03",
+      "arm": "reasoning",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 3507,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 545,
+      "outputTokens": 327,
+      "reasoningTokens": 73,
+      "repairApplied": null,
+      "words": 178,
+      "rawSha256": "8bde67c8d7b3f1b60bdf90b6c9e7614e768b4a76e58761c6bc7b02991cbe625a"
+    },
+    {
+      "caseId": "C03",
+      "arm": "selection",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 2764,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 655,
+      "outputTokens": 308,
+      "reasoningTokens": 0,
+      "repairApplied": null,
+      "words": 199,
+      "rawSha256": "4374b679bf143171f276012ce6befd0d155510b17d12eeda2e8c448dfa729cfe"
+    },
+    {
+      "caseId": "C03",
+      "arm": "selection",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 3869,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 622,
+      "outputTokens": 297,
+      "reasoningTokens": 40,
+      "repairApplied": null,
+      "words": 185,
+      "rawSha256": "d44332eafb4750addb81f72c141dddb8880aecc3a1c613e75747a92228b8f219"
+    },
+    {
+      "caseId": "C03",
+      "arm": "pipeline",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 23122,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 4,
+      "inputTokens": 23636,
+      "outputTokens": 2313,
+      "reasoningTokens": 703,
+      "repairApplied": true,
+      "words": 160,
+      "rawSha256": "725d1e67516ff662cce5476d8902ddce20b6e92930f6223962ee431d787e0ee3"
+    },
+    {
+      "caseId": "C03",
+      "arm": "pipeline",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 9825,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 2,
+      "inputTokens": 5703,
+      "outputTokens": 997,
+      "reasoningTokens": 148,
+      "repairApplied": false,
+      "words": 93,
+      "rawSha256": "94d54b3517f19d36ec2440f8e850f7978b5f521bba766f81be5f679859c94e17"
+    },
+    {
+      "caseId": "C03",
+      "arm": "simple",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 3463,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 578,
+      "outputTokens": 357,
+      "reasoningTokens": 52,
+      "repairApplied": null,
+      "words": 193,
+      "rawSha256": "c67677ba2ddd2e8ef9d9bd05f311b0662b79db1a87a3b2f723191200b2ab73f0"
+    },
+    {
+      "caseId": "C03",
+      "arm": "simple",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 2775,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 545,
+      "outputTokens": 303,
+      "reasoningTokens": 50,
+      "repairApplied": null,
+      "words": 181,
+      "rawSha256": "72403f0cec024d9f7639e65ae6242906aa3d82bc893cb6368f91ae1c838e1f58"
+    },
+    {
+      "caseId": "C04",
+      "arm": "selection",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 4056,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 663,
+      "outputTokens": 404,
+      "reasoningTokens": 26,
+      "repairApplied": null,
+      "words": 255,
+      "rawSha256": "c58a1d7fb0f989cd105971b05c90b90c6e4b15b775af83532c769742e16f5b0f"
+    },
+    {
+      "caseId": "C04",
+      "arm": "selection",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 2472,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 630,
+      "outputTokens": 223,
+      "reasoningTokens": 0,
+      "repairApplied": null,
+      "words": 161,
+      "rawSha256": "87e7e0c380216766709c6e10ff9fc1b40d55512a169a74a852c238ed8fde0a71"
+    },
+    {
+      "caseId": "C04",
+      "arm": "pipeline",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 24692,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 4,
+      "inputTokens": 23527,
+      "outputTokens": 2566,
+      "reasoningTokens": 747,
+      "repairApplied": true,
+      "words": 172,
+      "rawSha256": "b9b757c619d10b42a974d31334e1010ea7203b081ee333828fea3da5bd93ec21"
+    },
+    {
+      "caseId": "C04",
+      "arm": "pipeline",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 14300,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 2,
+      "inputTokens": 5724,
+      "outputTokens": 1488,
+      "reasoningTokens": 630,
+      "repairApplied": false,
+      "words": 86,
+      "rawSha256": "d52725c05c2ef510a29047031bb539b7955825e104b630956e9ac71055008ea6"
+    },
+    {
+      "caseId": "C04",
+      "arm": "simple",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 4510,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 575,
+      "outputTokens": 448,
+      "reasoningTokens": 65,
+      "repairApplied": null,
+      "words": 263,
+      "rawSha256": "82659a446bcf2975e6d04d217e3c6810745cc6b31b4a71b8c299688cee7b82f6"
+    },
+    {
+      "caseId": "C04",
+      "arm": "simple",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 3129,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 542,
+      "outputTokens": 287,
+      "reasoningTokens": 30,
+      "repairApplied": null,
+      "words": 185,
+      "rawSha256": "585236258baee7968511fdf743072681aefc6f66419a355706f20f7ecf7233e8"
+    },
+    {
+      "caseId": "C04",
+      "arm": "reasoning",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 4493,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 575,
+      "outputTokens": 482,
+      "reasoningTokens": 96,
+      "repairApplied": null,
+      "words": 267,
+      "rawSha256": "1da53bbea97783f2b4a129c1e1bad8925ca1be1e38b2e40b0a3adf3bbc54a66e"
+    },
+    {
+      "caseId": "C04",
+      "arm": "reasoning",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 4508,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 542,
+      "outputTokens": 343,
+      "reasoningTokens": 112,
+      "repairApplied": null,
+      "words": 164,
+      "rawSha256": "4057a3fc4be25bf6e47205756ebffe987feed2b583003911dc23690d801eba6a"
+    },
+    {
+      "caseId": "C05",
+      "arm": "pipeline",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 17423,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 3,
+      "inputTokens": 15168,
+      "outputTokens": 1978,
+      "reasoningTokens": 403,
+      "repairApplied": true,
+      "words": 153,
+      "rawSha256": "184acbe18ad210e1f1a308a8a7f882378c4066e5bb903023832154e67011b473"
+    },
+    {
+      "caseId": "C05",
+      "arm": "pipeline",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 14953,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 2,
+      "inputTokens": 5546,
+      "outputTokens": 1542,
+      "reasoningTokens": 612,
+      "repairApplied": false,
+      "words": 93,
+      "rawSha256": "5494d99e4242aa14b5c9720a1cfe83e28017c186c6c03cf3fdab74d8f13964f6"
+    },
+    {
+      "caseId": "C05",
+      "arm": "simple",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 3277,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 560,
+      "outputTokens": 349,
+      "reasoningTokens": 75,
+      "repairApplied": null,
+      "words": 179,
+      "rawSha256": "0c617a38fff49c5192da221b1ca6b9f6e1c5840e20e90ea1168f5b6172002a64"
+    },
+    {
+      "caseId": "C05",
+      "arm": "simple",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 3720,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 527,
+      "outputTokens": 348,
+      "reasoningTokens": 99,
+      "repairApplied": null,
+      "words": 188,
+      "rawSha256": "2fe78122918d5c4f56dbe70ef7bbe6c77f25377ae9f6dafb1f69151c082ab16e"
+    },
+    {
+      "caseId": "C05",
+      "arm": "reasoning",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 4261,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 560,
+      "outputTokens": 393,
+      "reasoningTokens": 119,
+      "repairApplied": null,
+      "words": 177,
+      "rawSha256": "9b16fe2adbc000a63fc28a4928dfb5fd767a52bfdf6ffa8f7cc512dd67e40432"
+    },
+    {
+      "caseId": "C05",
+      "arm": "reasoning",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 2810,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 527,
+      "outputTokens": 230,
+      "reasoningTokens": 0,
+      "repairApplied": null,
+      "words": 171,
+      "rawSha256": "a045f401db983101b89013c57bb271d8603a6cadaf69dc66fba3d3694b8aa493"
+    },
+    {
+      "caseId": "C05",
+      "arm": "selection",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 3808,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 633,
+      "outputTokens": 306,
+      "reasoningTokens": 36,
+      "repairApplied": null,
+      "words": 178,
+      "rawSha256": "41ec7bb0f93360cc1154243c4d69f8da49f724ddf4cb48b641af5c12754eefe1"
+    },
+    {
+      "caseId": "C05",
+      "arm": "selection",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 3302,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 600,
+      "outputTokens": 307,
+      "reasoningTokens": 64,
+      "repairApplied": null,
+      "words": 179,
+      "rawSha256": "ebd9189f3181e9b04307c1b54f29483779f20b8c7808d71a4ec7cb60e6b15dc4"
+    },
+    {
+      "caseId": "C06",
+      "arm": "simple",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 2863,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 592,
+      "outputTokens": 320,
+      "reasoningTokens": 0,
+      "repairApplied": null,
+      "words": 189,
+      "rawSha256": "509c080b0f235dfe3fb53706ee7e67477287bb189a84d9ba442a4c67e32c71bf"
+    },
+    {
+      "caseId": "C06",
+      "arm": "simple",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 2892,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 559,
+      "outputTokens": 243,
+      "reasoningTokens": 21,
+      "repairApplied": null,
+      "words": 153,
+      "rawSha256": "81cbda3ad93698c5c039256784dfff061a3f4e3b5a057e6bb6d0b3bf8285f1c8"
+    },
+    {
+      "caseId": "C06",
+      "arm": "reasoning",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 3064,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 592,
+      "outputTokens": 325,
+      "reasoningTokens": 0,
+      "repairApplied": null,
+      "words": 191,
+      "rawSha256": "d107d982d4982d696fab20da03bf6584aa34cbd7786eb4e416944b9be92d6873"
+    },
+    {
+      "caseId": "C06",
+      "arm": "reasoning",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 3035,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 559,
+      "outputTokens": 275,
+      "reasoningTokens": 41,
+      "repairApplied": null,
+      "words": 154,
+      "rawSha256": "6e60089d8adb91c0f3e08bdd57f640c177534f482cdf83b60a12bc3165b9c11e"
+    },
+    {
+      "caseId": "C06",
+      "arm": "selection",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 3694,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 665,
+      "outputTokens": 348,
+      "reasoningTokens": 30,
+      "repairApplied": null,
+      "words": 189,
+      "rawSha256": "e0f331c5d9663f6314c4fe7be5ff4d21d3573581bb5a4a3150a60a144066a5fd"
+    },
+    {
+      "caseId": "C06",
+      "arm": "selection",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 2342,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 1,
+      "inputTokens": 632,
+      "outputTokens": 215,
+      "reasoningTokens": 0,
+      "repairApplied": null,
+      "words": 145,
+      "rawSha256": "c05335719d8ae23d0944fe8c4fca7a164de650ee8db04b1e1e5705f4356e4b5e"
+    },
+    {
+      "caseId": "C06",
+      "arm": "pipeline",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 23625,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 4,
+      "inputTokens": 26744,
+      "outputTokens": 2162,
+      "reasoningTokens": 317,
+      "repairApplied": true,
+      "words": 153,
+      "rawSha256": "e4dc97bc5146aadb81cbdb6cb2806958094a989da03199ff780676916b139d8c"
+    },
+    {
+      "caseId": "C06",
+      "arm": "pipeline",
+      "kind": "letter",
+      "available": false,
+      "httpStatus": 422,
+      "error": null,
+      "durationMs": 6947,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 2,
+      "inputTokens": 6849,
+      "outputTokens": 667,
+      "reasoningTokens": 116,
+      "repairApplied": null,
+      "words": 2,
+      "rawSha256": "c6db48591882869073cb33d075ca99695644826da8e55330d5f97e9a6f81ecda"
+    },
+    {
+      "caseId": "C01",
+      "arm": "confirmed_pipeline",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 20307,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 4,
+      "inputTokens": 23078,
+      "outputTokens": 2303,
+      "reasoningTokens": 448,
+      "repairApplied": true,
+      "words": 175,
+      "rawSha256": "f61ab756978452404e189fb6d9e009618ca52907be5a1f23d86e37c474715378"
+    },
+    {
+      "caseId": "C01",
+      "arm": "confirmed_pipeline",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 16186,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 3,
+      "inputTokens": 9888,
+      "outputTokens": 1906,
+      "reasoningTokens": 572,
+      "repairApplied": true,
+      "words": 86,
+      "rawSha256": "2dd3b806d7b1af12bb30a586b57f349767e7ace2f1ff3fdc4782b77f1f7d0760"
+    },
+    {
+      "caseId": "C02",
+      "arm": "confirmed_pipeline",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 15002,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 3,
+      "inputTokens": 14367,
+      "outputTokens": 1534,
+      "reasoningTokens": 240,
+      "repairApplied": false,
+      "words": 188,
+      "rawSha256": "1a93974d6676b661272fd0d2584857ad4b646adf10760d6554cf5006bf446598"
+    },
+    {
+      "caseId": "C02",
+      "arm": "confirmed_pipeline",
+      "kind": "letter",
+      "available": false,
+      "httpStatus": 422,
+      "error": null,
+      "durationMs": 10118,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 2,
+      "inputTokens": 6883,
+      "outputTokens": 930,
+      "reasoningTokens": 406,
+      "repairApplied": null,
+      "words": 2,
+      "rawSha256": "3760f0ab6f540193bef3e408c4933f87a50279ed1b52a585891c6479dd0451e1"
+    },
+    {
+      "caseId": "C03",
+      "arm": "confirmed_pipeline",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 14552,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 3,
+      "inputTokens": 14730,
+      "outputTokens": 1373,
+      "reasoningTokens": 173,
+      "repairApplied": true,
+      "words": 161,
+      "rawSha256": "26aac0dbbbd79d799ac93fd9032e0b61415e35fca538cc4eb0f13d29f7426afc"
+    },
+    {
+      "caseId": "C03",
+      "arm": "confirmed_pipeline",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 11472,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 2,
+      "inputTokens": 5766,
+      "outputTokens": 1191,
+      "reasoningTokens": 397,
+      "repairApplied": false,
+      "words": 106,
+      "rawSha256": "46de82fae606d0da0686071e1f6904409f651278d808f72885f3f94e46b3b33b"
+    },
+    {
+      "caseId": "C04",
+      "arm": "confirmed_pipeline",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 34661,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 3,
+      "inputTokens": 14940,
+      "outputTokens": 2371,
+      "reasoningTokens": 870,
+      "repairApplied": true,
+      "words": 159,
+      "rawSha256": "65e7b2417e36e0c37b9a2c3313a1c781cd512aec96b4b5e6522f6c40c441d783"
+    },
+    {
+      "caseId": "C04",
+      "arm": "confirmed_pipeline",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 10393,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 2,
+      "inputTokens": 5707,
+      "outputTokens": 1153,
+      "reasoningTokens": 317,
+      "repairApplied": false,
+      "words": 85,
+      "rawSha256": "a4106b704c82687b5d7265c4ead1b59f1ee048f27407acad40f83584eb191aaf"
+    },
+    {
+      "caseId": "C05",
+      "arm": "confirmed_pipeline",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 24090,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 3,
+      "inputTokens": 14943,
+      "outputTokens": 2509,
+      "reasoningTokens": 963,
+      "repairApplied": true,
+      "words": 177,
+      "rawSha256": "69b1d0328e6637f8d2b22ec4c37638ab21337c257c7312a805d469425d064ac3"
+    },
+    {
+      "caseId": "C05",
+      "arm": "confirmed_pipeline",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 11737,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 2,
+      "inputTokens": 5557,
+      "outputTokens": 1205,
+      "reasoningTokens": 355,
+      "repairApplied": false,
+      "words": 73,
+      "rawSha256": "702eb187782752fccdfc85b581d93c97aab5e6a6ff51142e2998ca8c34a8d94d"
+    },
+    {
+      "caseId": "C06",
+      "arm": "confirmed_pipeline",
+      "kind": "resume",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 23588,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 4,
+      "inputTokens": 26676,
+      "outputTokens": 2458,
+      "reasoningTokens": 595,
+      "repairApplied": true,
+      "words": 142,
+      "rawSha256": "062956725cbdb15d965c656b828b2590bc0f1dc60b86a0796fa2a67b53a33e64"
+    },
+    {
+      "caseId": "C06",
+      "arm": "confirmed_pipeline",
+      "kind": "letter",
+      "available": true,
+      "httpStatus": 200,
+      "error": null,
+      "durationMs": 12397,
+      "models": [
+        "gpt-5.6-terra"
+      ],
+      "calls": 2,
+      "inputTokens": 5814,
+      "outputTokens": 1276,
+      "reasoningTokens": 425,
+      "repairApplied": false,
+      "words": 101,
+      "rawSha256": "4d6ea6861f4500dfa83f9ec7ce389cda419c20c18b757da31114a13e60ab6fde"
+    }
+  ]
+}

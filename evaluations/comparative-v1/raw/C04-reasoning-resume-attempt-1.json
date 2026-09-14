@@ -1,0 +1,416 @@
+{
+  "version": 1,
+  "experiment": "comparative-v1",
+  "caseId": "C04",
+  "arm": "reasoning",
+  "kind": "resume",
+  "attempt": 1,
+  "startedAt": "2026-09-14T00:41:26.008Z",
+  "sourceHash": "454364089742df50b20536d31118f0ce385ea19b20914a29a9a4180d6c12bdd1",
+  "deploymentRevision": "698f9a97ec60f5d7df55e8fa7a914b3a9eff0c17",
+  "calls": [
+    {
+      "sequence": 1,
+      "startedAt": "2026-09-14T00:41:26.008Z",
+      "request": {
+        "model": "gpt-5.6-terra",
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "input": "Write an employer-facing résumé tailored to this job. Use only candidate facts from the source. Preserve contribution level, shared results, dates, credential status and academic/project context. Do not turn job requirements into candidate history. Choose the strongest relevant evidence, retain useful concrete detail, and write clear natural professional English. Use a short professional profile that synthesizes the candidate’s focus rather than repeating the experience bullets. Keep relevant projects and qualifications.\n\nJOB\n{\"title\":\"Client Onboarding Coordinator\",\"company\":\"Example C04 Services\",\"location\":\"Hamilton, Ontario\",\"type\":\"Full-time\",\"category\":\"admin\",\"description\":\"We need a Client Onboarding Coordinator to carry out the responsibilities listed below. Submit a résumé and cover letter describing relevant work.\",\"responsibilities\":[\"Guide new business clients through account setup\",\"Track incomplete onboarding information and coordinate follow-up\",\"Maintain clear handover notes for account managers\"],\"required_qualifications\":[\"Customer coordination experience\",\"Accurate records and clear written instructions\"],\"preferred_qualifications\":[],\"source\":\"candidate_reviewed\"}\n\nCANDIDATE SOURCE\nNadia Brooks\nc04@example.com | Hamilton, Ontario\nFront Desk Supervisor | Example Community Recreation | 2020 - 2026\nScheduled a five-person reception team, handled membership questions and maintained registration records.\nCoordinated the move from paper waivers to online registration: mapped missing fields with the programme manager, wrote a desk checklist and coached reception staff through the first registration week.\nKept a daily exceptions sheet for families unable to complete online forms and arranged a callback with the programme lead; the team resolved 32 outstanding registrations during that week.\nRetail Assistant | Example Outdoor Shop | 2018 - 2020\nExplained product options and processed returns within store policy.\nEducation\nBusiness Administration diploma | Example City College | 2018\nSkills\nScheduling; registration records; Excel; customer callbacks; staff coaching",
+        "reasoning": {
+          "effort": "high"
+        },
+        "max_output_tokens": 6000,
+        "store": false,
+        "parallel_tool_calls": false,
+        "tools": [
+          {
+            "type": "function",
+            "name": "return_document",
+            "description": "Return the application document.",
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "headline": {
+                  "type": "string"
+                },
+                "profile": {
+                  "type": "string"
+                },
+                "skills": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "experience": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "role": {
+                        "type": "string"
+                      },
+                      "organization": {
+                        "type": "string"
+                      },
+                      "dates": {
+                        "type": "string"
+                      },
+                      "bullets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "role",
+                      "organization",
+                      "dates",
+                      "bullets"
+                    ]
+                  }
+                },
+                "projects": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "context": {
+                        "type": "string"
+                      },
+                      "bullets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "context",
+                      "bullets"
+                    ]
+                  }
+                },
+                "education": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "training": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "links": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "name",
+                "headline",
+                "profile",
+                "skills",
+                "experience",
+                "projects",
+                "education",
+                "training",
+                "links"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        }
+      },
+      "status": 200,
+      "response": {
+        "id": "resp_01961f9368c076a6016aa742b6124887d29631af17e5611f8e",
+        "object": "response",
+        "created_at": 1789346486,
+        "status": "completed",
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1789346490,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "max_output_tokens": 6000,
+        "max_tool_calls": null,
+        "model": "gpt-5.6-terra",
+        "moderation": null,
+        "output": [
+          {
+            "id": "rs_01961f9368c076a6016aa742b687a087d2853d6a006b618062",
+            "type": "reasoning",
+            "content": [],
+            "encrypted_content": "gAAAAABqp0K6XK-oGtUJVcsW98cm4wYeqt9mewqyDA0Ur6gEID6pWUzyKSlpZ75zLGVemdWeJCEWQ9K4pRbA0LEqup3ewByDPfst3kmQpKNvrurv_0PPeeYGdURoftK1dVDx33aV163YSCiru5ahMefRH28IrcdgT7HK4g7KRNBX1vWJSjOReJ70c_cOonltnUJYqopkXZJkZHCrXLm3yISJK38pJjODWWi8GHwNq89vTf-11InYSIRiRIdqrDh3yTaosvcxjvVeUoxJgvp-QAwV37gDe7blOgEzoS-UAfBfNgNL8LjL-rTt04ojwoTkxLUa43qsiHjCqTMgnypNgJnNYAueX3tmAYcj6c-1RKKAz1iq1BZ7L_V2RBoKuaWncAObR78ws8lSmoHj0i3gFtjDEAN6ckIMh_0v-ui5pR0GdWjnkBR5lvFgr_yV92aanCzw_xXXA74QxsU51OZpCu3KFeefeWEKnG5re4-WY25QhBX6M43_96L10egdFAUQwvnbAcvrmDl9myPrQzkO-Ds3Hh6vNSKAcD5fuOUBbGol_SuqWrDpQ4RqKrDWvFOBfu4IrN6P0ySXno24UxwujFhPEL3_G1-F_zXhsqz1NTr4DmZvBj9F6TQZa1XmCG74n8J54WwFv7T5nMcRpAZmMELBh69eaQP68nDdEus29Zmo-NBQdjkRpswrDEbQU07GStc5lTHOURDqlkqUrV5JRhW644xb8Sby1Quf9n5Hp5t-tCWCA7-vKHoUllmHsdF-8iEI_KtVz0s_Cs6gRK0XclrSgS_OM7q6H7rt3o7zc6NgD9BRWRinnDbN-hla1X58SVy4u_pQfOi8--jeYlagNnUyzxQRi3Tt5nD866H5psX0a90YuvTnp1C5BPhkqztUB7_aeJWg_ngZhY9Xxp_JxK0RE0059puaukINPpHXrlSKuoQ3NdZm0v4eSUl-AivlX005oh10gX-HS_BTAbmAvs-wJjHYfQxqk0TRtTKwRB9LvBlN9BwpoNpiv0ZKJ-00RMaysaFjokbJvt_gZ9TNKBG9k94anwgx7tRWdsxwpyMkh_uEfdGb3qnhAb8Y9hG1WTs5IB6zV_4I5S7sKgkXyv-eZ0lW95emhR08WXaSUXPrK_-GIOd0QAMk9etD21cLy4HG0d0ifpWObH2OhjE4BZ73-myXTK9O8nSQXzBPy5rSWN0MMN2tXi4pvPAw9YAfU79yh-OONsdaTcyaR4Itx7jPepLZdp914Hre5ks-_2B3_wYWeoTq5as6VV_3bh2YwSz74lgSlirPRbxeECfMmN4nVf2XqiouJBJFyyTVfhjLTW-x_Sj-1NHhORPmifV8PAPTWzzsc88C5UlgzSvflIwdDlpCsdHHlQYyPwyd2UE7LCb7CmUHL17EKL7sDxIbcpSWiCWma0qj7O-78mkPMTXgkiew2tI5yxAwxv7ToKiXuepL4RNrHKE3DqPucC3v-6Ey4hd8gSghQB0JWKgNRtTG7ik7CT5mke7eW4Wjlz5ceMbaWVXnMXfbeC4NSsS4rlcVLRIQhSse9ljhUhE8EhSalzz2BZmHlxnUrKlHyP_7dhc8uI_yvuRQROJuMWTjnfbg4owzEXF6OZ10Ez_uxxbLqdjN74wioobBRuYxjRXovk67sJ6PTxWSTqMnpV-2vvBUKUa6sfOzjZke-mU07ifKBps3mkdogVA98cGhHfM9q_4y87zLXk3vrX-1DArGeIcHl6QI76JbCKl4HuJCnx-Be_9GvOavKFW0Fw83RRYG3go6LXDskXBEbdzShxvWdUVcJxKxKV0S",
+            "summary": []
+          },
+          {
+            "id": "fc_01961f9368c076a6016aa742b7bb8c87d281518b53e5db1c4c",
+            "type": "function_call",
+            "status": "completed",
+            "arguments": "{\"name\":\"Nadia Brooks\",\"headline\":\"Client Onboarding Coordinator\",\"profile\":\"Customer coordination and front-desk operations professional with experience maintaining registration records, supporting customers through registration processes and coordinating follow-up on incomplete information. Brings clear written-process documentation, scheduling and staff-coaching experience, supported by a Business Administration diploma.\",\"skills\":[\"Customer coordination\",\"Registration records\",\"Follow-up coordination\",\"Written process checklists\",\"Handover and exception tracking\",\"Scheduling\",\"Excel\",\"Customer callbacks\",\"Staff coaching\"],\"experience\":[{\"role\":\"Front Desk Supervisor\",\"organization\":\"Example Community Recreation\",\"dates\":\"2020 - 2026\",\"bullets\":[\"Scheduled a five-person reception team, responded to membership questions and maintained registration records.\",\"Coordinated the transition from paper waivers to online registration by mapping missing fields with the programme manager, writing a desk checklist and coaching reception staff during the first registration week.\",\"Maintained a daily exceptions sheet for families unable to complete online forms and arranged callbacks with the programme lead; the team resolved 32 outstanding registrations that week.\"]},{\"role\":\"Retail Assistant\",\"organization\":\"Example Outdoor Shop\",\"dates\":\"2018 - 2020\",\"bullets\":[\"Explained product options and processed returns in accordance with store policy.\"]}],\"projects\":[{\"name\":\"Online Registration Transition\",\"context\":\"Example Community Recreation | Front Desk Supervisor\",\"bullets\":[\"Worked with the programme manager to map missing fields during the move from paper waivers to online registration.\",\"Created a desk checklist and coached reception staff through the first week of registration.\",\"Used a daily exceptions sheet to track families unable to complete online forms and coordinate callbacks with the programme lead; the team resolved 32 outstanding registrations during that week.\"]}],\"education\":[\"Business Administration diploma | Example City College | 2018\"],\"training\":[],\"links\":[\"Hamilton, Ontario | c04@example.com\"]}",
+            "call_id": "call_tNCKIgeE2ROPO4P5shRiXdWT",
+            "name": "return_document"
+          }
+        ],
+        "parallel_tool_calls": false,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "high",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "text"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        },
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [
+          {
+            "type": "function",
+            "description": "Return the application document.",
+            "name": "return_document",
+            "output_schema": null,
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "headline": {
+                  "type": "string"
+                },
+                "profile": {
+                  "type": "string"
+                },
+                "skills": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "experience": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "role": {
+                        "type": "string"
+                      },
+                      "organization": {
+                        "type": "string"
+                      },
+                      "dates": {
+                        "type": "string"
+                      },
+                      "bullets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "role",
+                      "organization",
+                      "dates",
+                      "bullets"
+                    ]
+                  }
+                },
+                "projects": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "context": {
+                        "type": "string"
+                      },
+                      "bullets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "context",
+                      "bullets"
+                    ]
+                  }
+                },
+                "education": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "training": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "links": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "name",
+                "headline",
+                "profile",
+                "skills",
+                "experience",
+                "projects",
+                "education",
+                "training",
+                "links"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 575,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 482,
+          "output_tokens_details": {
+            "reasoning_tokens": 96
+          },
+          "total_tokens": 1057
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "durationMs": 4493
+    }
+  ],
+  "httpStatus": 200,
+  "delivered": {
+    "name": "Nadia Brooks",
+    "headline": "Client Onboarding Coordinator",
+    "profile": "Customer coordination and front-desk operations professional with experience maintaining registration records, supporting customers through registration processes and coordinating follow-up on incomplete information. Brings clear written-process documentation, scheduling and staff-coaching experience, supported by a Business Administration diploma.",
+    "skills": [
+      "Customer coordination",
+      "Registration records",
+      "Follow-up coordination",
+      "Written process checklists",
+      "Handover and exception tracking",
+      "Scheduling",
+      "Excel",
+      "Customer callbacks",
+      "Staff coaching"
+    ],
+    "experience": [
+      {
+        "role": "Front Desk Supervisor",
+        "organization": "Example Community Recreation",
+        "dates": "2020 - 2026",
+        "bullets": [
+          "Scheduled a five-person reception team, responded to membership questions and maintained registration records.",
+          "Coordinated the transition from paper waivers to online registration by mapping missing fields with the programme manager, writing a desk checklist and coaching reception staff during the first registration week.",
+          "Maintained a daily exceptions sheet for families unable to complete online forms and arranged callbacks with the programme lead; the team resolved 32 outstanding registrations that week."
+        ]
+      },
+      {
+        "role": "Retail Assistant",
+        "organization": "Example Outdoor Shop",
+        "dates": "2018 - 2020",
+        "bullets": [
+          "Explained product options and processed returns in accordance with store policy."
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "Online Registration Transition",
+        "context": "Example Community Recreation | Front Desk Supervisor",
+        "bullets": [
+          "Worked with the programme manager to map missing fields during the move from paper waivers to online registration.",
+          "Created a desk checklist and coached reception staff through the first week of registration.",
+          "Used a daily exceptions sheet to track families unable to complete online forms and coordinate callbacks with the programme lead; the team resolved 32 outstanding registrations during that week."
+        ]
+      }
+    ],
+    "education": [
+      "Business Administration diploma | Example City College | 2018"
+    ],
+    "training": [],
+    "links": [
+      "Hamilton, Ontario | c04@example.com"
+    ]
+  },
+  "completedAt": "2026-09-14T00:41:30.501Z",
+  "durationMs": 4493
+}

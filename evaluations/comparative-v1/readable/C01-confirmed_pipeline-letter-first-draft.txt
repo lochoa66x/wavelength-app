@@ -1,0 +1,9 @@
+Dear Hiring Team,
+
+At Example Systems Canada, I led a four-person master-data team through UAT, mock cutover, and defect triage for a public-sector SAP S/4HANA rollout. This work combined team coordination with migration testing across key pre-cutover activities.
+
+I also integrated SAP S/4HANA with SAP MDG and coordinated interface testing with the integration team. During a 2025 mock cutover reconciliation, duplicate customer records blocked a mock load; I grouped exceptions by source system, assigned owners, and agreed retest criteria with business data stewards. The next mock load cleared those recorded exceptions.
+
+I welcome the opportunity to discuss this experience with Example C01 Services.
+
+Sincerely,

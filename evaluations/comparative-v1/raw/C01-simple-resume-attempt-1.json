@@ -1,0 +1,414 @@
+{
+  "version": 1,
+  "experiment": "comparative-v1",
+  "caseId": "C01",
+  "arm": "simple",
+  "kind": "resume",
+  "attempt": 1,
+  "startedAt": "2026-09-14T00:38:07.790Z",
+  "sourceHash": "31f17464581ba030a5089f15468d1246e7ebcdbc1b736111787069b8a45361b1",
+  "deploymentRevision": "698f9a97ec60f5d7df55e8fa7a914b3a9eff0c17",
+  "calls": [
+    {
+      "sequence": 1,
+      "startedAt": "2026-09-14T00:38:07.790Z",
+      "request": {
+        "model": "gpt-5.6-terra",
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "input": "Write an employer-facing résumé tailored to this job. Use only candidate facts from the source. Preserve contribution level, shared results, dates, credential status and academic/project context. Do not turn job requirements into candidate history. Choose the strongest relevant evidence, retain useful concrete detail, and write clear natural professional English. Use a short professional profile that synthesizes the candidate’s focus rather than repeating the experience bullets. Keep relevant projects and qualifications.\n\nJOB\n{\"title\":\"SAP Migration Workstream Lead\",\"company\":\"Example C01 Services\",\"location\":\"Hamilton, Ontario\",\"type\":\"Full-time\",\"category\":\"tech\",\"description\":\"We need a SAP Migration Workstream Lead to carry out the responsibilities listed below. Submit a résumé and cover letter describing relevant work.\",\"responsibilities\":[\"Lead a master-data migration workstream through testing and cutover\",\"Coordinate business data owners and interface teams\",\"Report risks to the project manager\"],\"required_qualifications\":[\"SAP S/4HANA delivery experience\",\"Team coordination and migration testing experience\"],\"preferred_qualifications\":[],\"source\":\"candidate_reviewed\"}\n\nCANDIDATE SOURCE\nElena Cruz\nc01@example.com | Hamilton, Ontario\nSolution Architect | Example Systems Canada | 2022 - 2026\nLed a four-person master-data team through UAT, mock cutover and defect triage for a public-sector SAP S/4HANA rollout.\nIntegrated SAP S/4HANA with SAP MDG and coordinated interface testing with the integration team.\nThe project manager owned budget, staffing approvals and steering reporting.\nSenior Consultant | Example Banking Partners | 2015 - 2022\nPrepared SAP banking functional designs and coordinated testing with business users.\nSelected Project\nMock Cutover Reconciliation | Example Systems Canada | 2025\nWhen duplicate customer records blocked a mock load, grouped the exceptions by source system, assigned owners and agreed retest criteria with business data stewards; the next mock load cleared those recorded exceptions.\nEducation\nBachelor of Business Administration | Example College | 2014\nSkills\nSAP S/4HANA; SAP MDG; UAT; defect triage; master-data reconciliation",
+        "reasoning": {
+          "effort": "low"
+        },
+        "max_output_tokens": 6000,
+        "store": false,
+        "parallel_tool_calls": false,
+        "tools": [
+          {
+            "type": "function",
+            "name": "return_document",
+            "description": "Return the application document.",
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "headline": {
+                  "type": "string"
+                },
+                "profile": {
+                  "type": "string"
+                },
+                "skills": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "experience": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "role": {
+                        "type": "string"
+                      },
+                      "organization": {
+                        "type": "string"
+                      },
+                      "dates": {
+                        "type": "string"
+                      },
+                      "bullets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "role",
+                      "organization",
+                      "dates",
+                      "bullets"
+                    ]
+                  }
+                },
+                "projects": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "context": {
+                        "type": "string"
+                      },
+                      "bullets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "context",
+                      "bullets"
+                    ]
+                  }
+                },
+                "education": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "training": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "links": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "name",
+                "headline",
+                "profile",
+                "skills",
+                "experience",
+                "projects",
+                "education",
+                "training",
+                "links"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        }
+      },
+      "status": 200,
+      "response": {
+        "id": "resp_0ef4b899cf05e7d2016aa741eff2bc87d2bcde91747e591814",
+        "object": "response",
+        "created_at": 1789346288,
+        "status": "completed",
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1789346292,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "max_output_tokens": 6000,
+        "max_tool_calls": null,
+        "model": "gpt-5.6-terra",
+        "moderation": null,
+        "output": [
+          {
+            "id": "rs_0ef4b899cf05e7d2016aa741f06f6c87d280df9bd3d6f18f93",
+            "type": "reasoning",
+            "content": [],
+            "encrypted_content": "gAAAAABqp0H0PAm1a3WC05Y6Ah3ARNNj-Hs7W0STCnjOGf03aqD6ulHU6PdNbakBaIZtX9UTwXFLxt3uTieBoa_xeUQZtB3CikscjzFhnQAJa8eaz0hjekpPZ1lpLluxzisx3JdtWR8KdL5HDuAtWoiap9XmP401_llbMf5bsnnbvdNgtV6bi2nwpISem6ux5m_c7Io6I3wRYZ3tTn_h-tIQYuugqxibjs_mlygFx8qKVSRtZDHmYK89HG_fe5klSJurIxcnRFvW6m-NdIv9LmZ8Lgf6jEvGgWZXOTzAgdUz5l_wrtAWlK2LM5TxSwo7iSMM_ZAc7piD4_KsaolSbLZJfXgsMmEBk9fsx2VOgDVXB5j_nPTqyWhj6UbEdygcup3I2sS_zYBa6gZgS99wlGE-YdhrXrAQKmRrravCqewIG1Sm71sfJMf2eZkSSCjjpDfUqgA0sGsgxEzSv0P0C4-wjL4XsVvuwAXOnCElB7XMhMyGY6YwV7PzxH0lMeX_tRD2pYdReAxYZqe3aH2CNFmsGU8xvVpb57vEhhIvE2Mm99s59vIfafEY4hEMXSnpc9DZXJLf-bkvauyIvtk45vdtDAx18iEq7pRBxbLcyLUwHARVtMD5UJNsDW-TIDcRs-uT2tmdOLuxAXWhw6F_7HGD4NlQ-GaJ8hXcWLHObN20JSJwbrJwyzNJ1SrPnqYY8vYaZuUnV6ph6pdQ4CSCbJkQnUV33BZu0mp07FmFZSTWp_MO4oBDj_d_P4Xac3r-RWtq_gq6KyCFn0BEdN0tdtlz_COv0dNFYeU2dCZyMExt4ChYK4A8lwVDGXcGGrWd2Lk5tdgH2Lj4EJ2O7LdzaBN9DLL7JqPZRwJUYrxTBgUI-6U2Zc3A-aMs34GSChEITanI-fjOU6UhFUAvVYSpHVbBIPZlI5ja3sSVjP-d1y8BVjCnyTUiMrc7cnvxtHt8bm47MUZphpGCEdcv-QxmZXJYRv2AqJvLmMUa5_weFv_Q-PNme2OifE4upmauKaYtCRSpZU-qieXmoqIGkvjPymiafmPvjJyRZ-d14dQKAm_-B82OfQ6_nNGKTBJrHt_ywb4ub6YBlBck-RzoXRKsK-JnxDnWjX2gzTm4zAUqd5tpfNzB2VTk8VUfSj3mTXa1p4aJzIYs0uMcNjiLhPxBYc4HrDScmaDpOeZy_z2k_g1srrt8K18bumUJLcKvapT_MuqtI-ebCE1rpPgmi6bDKl2ezkDTfZPtlBsK69HbUQuWjNppCtJQ48GdHYoerMhlOLhsveZ1w7u8hBdR6NvTYwxgf9AUebSPH4_5jlaNEtbhdLb-eFOxo3HAkfxlXfcnsfPDxyO2HFyc4EUktlvohf7qSbh0R7ieZGAPzXdKDf7a6UyH1JgJnrtepq9TF2_rsq7xA3RLeCXKu6AyrMCE6d0UlGotjTlN1F0B4_OYQannGFfUxPdodCdL1RiyjWY8UmLDzW0xGc8_clB_cb2DJ80MGpdiOitQP8uwMi_sViCWcXSLJYjn3WWHmcDDIADHNadlk1APxBbzIZ6qYolFHuNleYKq-Y2eCg2Ov7EouOc53RtZt7FScDJwitIr-WIUo4066fGjfGZn",
+            "summary": []
+          },
+          {
+            "id": "fc_0ef4b899cf05e7d2016aa741f1fdd487d2be7455fb7b0935fa",
+            "type": "function_call",
+            "status": "completed",
+            "arguments": "{\"name\":\"Elena Cruz\",\"headline\":\"SAP S/4HANA Master-Data Migration & Testing Lead\",\"profile\":\"SAP solution architect with SAP S/4HANA and SAP MDG delivery experience, focused on master-data testing, mock cutover readiness, defect triage, and reconciliation. Has led a four-person master-data team and coordinated testing with integration teams, business users, and business data stewards.\",\"skills\":[\"SAP S/4HANA\",\"SAP MDG\",\"Master-data reconciliation\",\"UAT\",\"Mock cutover\",\"Defect triage\",\"Interface testing\",\"Functional design\"],\"experience\":[{\"role\":\"Solution Architect\",\"organization\":\"Example Systems Canada\",\"dates\":\"2022 - 2026\",\"bullets\":[\"Led a four-person master-data team through UAT, mock cutover, and defect triage for a public-sector SAP S/4HANA rollout.\",\"Integrated SAP S/4HANA with SAP MDG and coordinated interface testing with the integration team.\",\"Supported master-data migration readiness activities; the project manager owned budget, staffing approvals, and steering reporting.\"]},{\"role\":\"Senior Consultant\",\"organization\":\"Example Banking Partners\",\"dates\":\"2015 - 2022\",\"bullets\":[\"Prepared SAP banking functional designs and coordinated testing with business users.\"]}],\"projects\":[{\"name\":\"Mock Cutover Reconciliation\",\"context\":\"Example Systems Canada | 2025\",\"bullets\":[\"Addressed duplicate customer records that blocked a mock load by grouping exceptions by source system, assigning owners, and agreeing retest criteria with business data stewards.\",\"The next mock load cleared the recorded exceptions.\"]}],\"education\":[\"Bachelor of Business Administration | Example College | 2014\"],\"training\":[],\"links\":[\"c01@example.com | Hamilton, Ontario\"]}",
+            "call_id": "call_c32yabd8peHqPvdz3FkVXkLS",
+            "name": "return_document"
+          }
+        ],
+        "parallel_tool_calls": false,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "low",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "text"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        },
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [
+          {
+            "type": "function",
+            "description": "Return the application document.",
+            "name": "return_document",
+            "output_schema": null,
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "headline": {
+                  "type": "string"
+                },
+                "profile": {
+                  "type": "string"
+                },
+                "skills": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "experience": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "role": {
+                        "type": "string"
+                      },
+                      "organization": {
+                        "type": "string"
+                      },
+                      "dates": {
+                        "type": "string"
+                      },
+                      "bullets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "role",
+                      "organization",
+                      "dates",
+                      "bullets"
+                    ]
+                  }
+                },
+                "projects": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                      "name": {
+                        "type": "string"
+                      },
+                      "context": {
+                        "type": "string"
+                      },
+                      "bullets": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "context",
+                      "bullets"
+                    ]
+                  }
+                },
+                "education": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "training": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "links": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                }
+              },
+              "required": [
+                "name",
+                "headline",
+                "profile",
+                "skills",
+                "experience",
+                "projects",
+                "education",
+                "training",
+                "links"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 626,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 438,
+          "output_tokens_details": {
+            "reasoning_tokens": 69
+          },
+          "total_tokens": 1064
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "durationMs": 4306
+    }
+  ],
+  "httpStatus": 200,
+  "delivered": {
+    "name": "Elena Cruz",
+    "headline": "SAP S/4HANA Master-Data Migration & Testing Lead",
+    "profile": "SAP solution architect with SAP S/4HANA and SAP MDG delivery experience, focused on master-data testing, mock cutover readiness, defect triage, and reconciliation. Has led a four-person master-data team and coordinated testing with integration teams, business users, and business data stewards.",
+    "skills": [
+      "SAP S/4HANA",
+      "SAP MDG",
+      "Master-data reconciliation",
+      "UAT",
+      "Mock cutover",
+      "Defect triage",
+      "Interface testing",
+      "Functional design"
+    ],
+    "experience": [
+      {
+        "role": "Solution Architect",
+        "organization": "Example Systems Canada",
+        "dates": "2022 - 2026",
+        "bullets": [
+          "Led a four-person master-data team through UAT, mock cutover, and defect triage for a public-sector SAP S/4HANA rollout.",
+          "Integrated SAP S/4HANA with SAP MDG and coordinated interface testing with the integration team.",
+          "Supported master-data migration readiness activities; the project manager owned budget, staffing approvals, and steering reporting."
+        ]
+      },
+      {
+        "role": "Senior Consultant",
+        "organization": "Example Banking Partners",
+        "dates": "2015 - 2022",
+        "bullets": [
+          "Prepared SAP banking functional designs and coordinated testing with business users."
+        ]
+      }
+    ],
+    "projects": [
+      {
+        "name": "Mock Cutover Reconciliation",
+        "context": "Example Systems Canada | 2025",
+        "bullets": [
+          "Addressed duplicate customer records that blocked a mock load by grouping exceptions by source system, assigning owners, and agreeing retest criteria with business data stewards.",
+          "The next mock load cleared the recorded exceptions."
+        ]
+      }
+    ],
+    "education": [
+      "Bachelor of Business Administration | Example College | 2014"
+    ],
+    "training": [],
+    "links": [
+      "c01@example.com | Hamilton, Ontario"
+    ]
+  },
+  "completedAt": "2026-09-14T00:38:12.097Z",
+  "durationMs": 4307
+}

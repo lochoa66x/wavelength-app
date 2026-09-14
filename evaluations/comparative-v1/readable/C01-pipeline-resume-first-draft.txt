@@ -1,0 +1,18 @@
+Elena Cruz
+SAP S/4HANA Solution Architect
+c01@example.com | Hamilton, Ontario
+Solution Architect with public-sector SAP S/4HANA rollout experience, specializing in master-data testing, mock cutover, and SAP MDG integration.
+EXPERIENCE
+Solution Architect | Example Systems Canada | 2022 - 2026
+• Led a four-person master-data team through UAT, mock cutover, and defect triage for a public-sector SAP S/4HANA rollout.
+• Integrated SAP S/4HANA with SAP MDG and coordinated interface testing with the integration team.
+Senior Consultant | Example Banking Partners | 2015 - 2022
+• Prepared SAP banking functional designs and coordinated testing with business users.
+PROJECTS
+Mock Cutover Reconciliation | Example Systems Canada | 2025
+• Grouped duplicate-customer-record exceptions by source system after they blocked a mock load.
+• Assigned owners and agreed retest criteria with business data stewards; the next mock load cleared those recorded exceptions.
+SKILLS
+SAP S/4HANA | SAP MDG | master-data reconciliation | UAT | defect triage
+EDUCATION
+Bachelor of Business Administration | Example College | 2014

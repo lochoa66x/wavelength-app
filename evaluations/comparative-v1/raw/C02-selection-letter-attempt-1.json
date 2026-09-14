@@ -1,0 +1,198 @@
+{
+  "version": 1,
+  "experiment": "comparative-v1",
+  "caseId": "C02",
+  "arm": "selection",
+  "kind": "letter",
+  "attempt": 1,
+  "startedAt": "2026-09-14T00:38:53.515Z",
+  "sourceHash": "dd5368f92ee26955d6104de08616aa44ebb488ab5a3372287ae39a53078455c5",
+  "deploymentRevision": "698f9a97ec60f5d7df55e8fa7a914b3a9eff0c17",
+  "calls": [
+    {
+      "sequence": 1,
+      "startedAt": "2026-09-14T00:38:53.516Z",
+      "request": {
+        "model": "gpt-5.6-terra",
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "input": "Write an employer-facing cover letter tailored to this job. Use only candidate facts from the source. Preserve contribution level, shared results, dates, credential status and academic/project context. Do not turn job requirements into candidate history. Choose the strongest relevant evidence, retain useful concrete detail, and write clear natural professional English. Make a focused case through one or two relevant examples rather than reciting the résumé. Avoid generic praise and invented motivation. Use 2–4 paragraphs, at most 320 words, a salutation and signoff.\n\nJOB\n{\"title\":\"Staff Accountant\",\"company\":\"Example C02 Services\",\"location\":\"Hamilton, Ontario\",\"type\":\"Full-time\",\"category\":\"finance\",\"description\":\"We need a Staff Accountant to carry out the responsibilities listed below. Submit a résumé and cover letter describing relevant work.\",\"responsibilities\":[\"Prepare bank reconciliations and month-end schedules\",\"Investigate reconciling differences and document corrections\",\"Maintain fixed-asset records\"],\"required_qualifications\":[\"Accounting education\",\"Hands-on reconciliation and spreadsheet experience\"],\"preferred_qualifications\":[],\"source\":\"candidate_reviewed\"}\n\nCANDIDATE SOURCE\nAmir Chen\nc02@example.com | Hamilton, Ontario\nAccounting Assistant | Example Parts Distribution | 2021 - 2026\nPrepared bank reconciliations for six operating accounts and submitted reconciling items to the controller before month-end review.\nMatched supplier invoices to purchase orders in QuickBooks and maintained the fixed-asset additions register.\nMonth-end Improvement | Example Parts Distribution | 2025\nFound duplicate bank-feed entries behind recurring reconciliation differences, documented the import steps and tested the revised checklist with the controller. Unresolved differences fell from 18 to 5 across the next three monthly reviews; the controller approved final adjustments.\nAccounts Payable Clerk | Example Office Supply | 2019 - 2021\nChecked invoice coding and followed up missing supplier approvals.\nEducation\nAccounting diploma | Example Business College | 2019\nTraining\nCPA preparatory courses in progress; no CPA designation held.\nSkills\nQuickBooks; Excel pivot tables; bank reconciliations; accounts payable\n\nEDITOR-SELECTED SOURCE EXCERPTS TO PRIORITIZE (the full source still applies)\nPrepared bank reconciliations for six operating accounts and submitted reconciling items to the controller before month-end review.\nFound duplicate bank-feed entries behind recurring reconciliation differences, documented the import steps and tested the revised checklist with the controller. Unresolved differences fell from 18 to 5 across the next three monthly reviews; the controller approved final adjustments.",
+        "reasoning": {
+          "effort": "low"
+        },
+        "max_output_tokens": 6000,
+        "store": false,
+        "parallel_tool_calls": false,
+        "tools": [
+          {
+            "type": "function",
+            "name": "return_document",
+            "description": "Return the application document.",
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "salutation": {
+                  "type": "string"
+                },
+                "paragraphs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "signoff": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "salutation",
+                "paragraphs",
+                "signoff"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        }
+      },
+      "status": 200,
+      "response": {
+        "id": "resp_01998afd543106ea016aa74220435087d28bea392504e9498a",
+        "object": "response",
+        "created_at": 1789346336,
+        "status": "completed",
+        "background": false,
+        "billing": {
+          "payer": "developer"
+        },
+        "completed_at": 1789346339,
+        "error": null,
+        "frequency_penalty": 0,
+        "incomplete_details": null,
+        "instructions": "You write accurate, useful application documents from supplied source material.",
+        "max_output_tokens": 6000,
+        "max_tool_calls": null,
+        "model": "gpt-5.6-terra",
+        "moderation": null,
+        "output": [
+          {
+            "id": "fc_01998afd543106ea016aa74220ae4887d29b8d8d6d8c0573ed",
+            "type": "function_call",
+            "status": "completed",
+            "arguments": "{\"salutation\":\"Dear Hiring Team,\",\"paragraphs\":[\"I am applying for the Staff Accountant position with Example C02 Services. In my current Accounting Assistant role at Example Parts Distribution, I prepare bank reconciliations for six operating accounts and submit reconciling items to the controller before month-end review. I also maintain the fixed-asset additions register and use QuickBooks and Excel, including pivot tables, in my accounting work.\",\"In 2025, I investigated recurring reconciliation differences and identified duplicate bank-feed entries as the cause. I documented the import steps and tested a revised checklist with the controller. Across the following three monthly reviews, unresolved differences decreased from 18 to 5, and the controller approved the final adjustments. This work reflects my experience investigating discrepancies, documenting corrections, and supporting a more reliable month-end process.\",\"I hold an Accounting diploma from Example Business College (2019) and am completing CPA preparatory courses; I do not hold a CPA designation. I would welcome the opportunity to bring my reconciliation, spreadsheet, and fixed-asset record experience to Example C02 Services.\"],\"signoff\":\"Sincerely,\\nAmir Chen\"}",
+            "call_id": "call_esEHA81AmJVLRJ5OvZlxnL50",
+            "name": "return_document"
+          }
+        ],
+        "parallel_tool_calls": false,
+        "presence_penalty": 0,
+        "previous_response_id": null,
+        "prompt_cache_key": null,
+        "prompt_cache_retention": "24h",
+        "reasoning": {
+          "context": "all_turns",
+          "effort": "low",
+          "mode": "standard",
+          "summary": null
+        },
+        "safety_identifier": null,
+        "service_tier": "default",
+        "store": false,
+        "temperature": 1,
+        "text": {
+          "format": {
+            "type": "text"
+          },
+          "verbosity": "medium"
+        },
+        "tool_choice": {
+          "type": "function",
+          "name": "return_document"
+        },
+        "tool_usage": {
+          "image_gen": {
+            "input_tokens": 0,
+            "input_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "output_tokens": 0,
+            "output_tokens_details": {
+              "image_tokens": 0,
+              "text_tokens": 0
+            },
+            "total_tokens": 0
+          },
+          "web_search": {
+            "num_requests": 0
+          }
+        },
+        "tools": [
+          {
+            "type": "function",
+            "description": "Return the application document.",
+            "name": "return_document",
+            "output_schema": null,
+            "parameters": {
+              "type": "object",
+              "additionalProperties": false,
+              "properties": {
+                "salutation": {
+                  "type": "string"
+                },
+                "paragraphs": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "signoff": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "salutation",
+                "paragraphs",
+                "signoff"
+              ]
+            },
+            "strict": true
+          }
+        ],
+        "top_logprobs": 0,
+        "top_p": 0.98,
+        "truncation": "disabled",
+        "usage": {
+          "input_tokens": 656,
+          "input_tokens_details": {
+            "cache_write_tokens": 0,
+            "cached_tokens": 0
+          },
+          "output_tokens": 243,
+          "output_tokens_details": {
+            "reasoning_tokens": 0
+          },
+          "total_tokens": 899
+        },
+        "user": null,
+        "metadata": {}
+      },
+      "durationMs": 5653
+    }
+  ],
+  "httpStatus": 200,
+  "delivered": {
+    "salutation": "Dear Hiring Team,",
+    "paragraphs": [
+      "I am applying for the Staff Accountant position with Example C02 Services. In my current Accounting Assistant role at Example Parts Distribution, I prepare bank reconciliations for six operating accounts and submit reconciling items to the controller before month-end review. I also maintain the fixed-asset additions register and use QuickBooks and Excel, including pivot tables, in my accounting work.",
+      "In 2025, I investigated recurring reconciliation differences and identified duplicate bank-feed entries as the cause. I documented the import steps and tested a revised checklist with the controller. Across the following three monthly reviews, unresolved differences decreased from 18 to 5, and the controller approved the final adjustments. This work reflects my experience investigating discrepancies, documenting corrections, and supporting a more reliable month-end process.",
+      "I hold an Accounting diploma from Example Business College (2019) and am completing CPA preparatory courses; I do not hold a CPA designation. I would welcome the opportunity to bring my reconciliation, spreadsheet, and fixed-asset record experience to Example C02 Services."
+    ],
+    "signoff": "Sincerely,\nAmir Chen"
+  },
+  "completedAt": "2026-09-14T00:38:59.169Z",
+  "durationMs": 5654
+}

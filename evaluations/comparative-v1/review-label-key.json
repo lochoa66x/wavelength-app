@@ -1,0 +1,74 @@
+{
+  "C01-resume": {
+    "A": "reasoning",
+    "B": "confirmed_pipeline",
+    "C": "selection",
+    "D": "simple"
+  },
+  "C01-letter": {
+    "A": "simple",
+    "B": "selection",
+    "C": "reasoning",
+    "D": "confirmed_pipeline"
+  },
+  "C02-resume": {
+    "A": "selection",
+    "B": "reasoning",
+    "C": "simple",
+    "D": "confirmed_pipeline"
+  },
+  "C02-letter": {
+    "A": "selection",
+    "B": "reasoning",
+    "C": "simple",
+    "D": "confirmed_pipeline"
+  },
+  "C03-resume": {
+    "A": "confirmed_pipeline",
+    "B": "reasoning",
+    "C": "simple",
+    "D": "selection"
+  },
+  "C03-letter": {
+    "A": "simple",
+    "B": "confirmed_pipeline",
+    "C": "reasoning",
+    "D": "selection"
+  },
+  "C04-resume": {
+    "A": "reasoning",
+    "B": "selection",
+    "C": "confirmed_pipeline",
+    "D": "simple"
+  },
+  "C04-letter": {
+    "A": "reasoning",
+    "B": "confirmed_pipeline",
+    "C": "simple",
+    "D": "selection"
+  },
+  "C05-resume": {
+    "A": "selection",
+    "B": "simple",
+    "C": "confirmed_pipeline",
+    "D": "reasoning"
+  },
+  "C05-letter": {
+    "A": "reasoning",
+    "B": "selection",
+    "C": "confirmed_pipeline",
+    "D": "simple"
+  },
+  "C06-resume": {
+    "A": "simple",
+    "B": "selection",
+    "C": "confirmed_pipeline",
+    "D": "reasoning"
+  },
+  "C06-letter": {
+    "A": "reasoning",
+    "B": "simple",
+    "C": "confirmed_pipeline",
+    "D": "selection"
+  }
+}
