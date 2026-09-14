@@ -23,9 +23,6 @@
     },
     "api/cron/jooble.js": {
       "maxDuration": 300
-    },
-    "api/validation-recovery.js": {
-      "maxDuration": 300
     }
   },
   "crons": [
@@ -39,25 +36,10 @@
     }
   ],
   "rewrites": [
-    {
-      "source": "/app",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/app/:path*",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/privacy",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/sign-in",
-      "destination": "/index.html"
-    },
-    {
-      "source": "/auth/callback",
-      "destination": "/index.html"
-    }
+    { "source": "/app", "destination": "/index.html" },
+    { "source": "/app/:path*", "destination": "/index.html" },
+    { "source": "/privacy", "destination": "/index.html" },
+    { "source": "/sign-in", "destination": "/index.html" },
+    { "source": "/auth/callback", "destination": "/index.html" }
   ]
 }

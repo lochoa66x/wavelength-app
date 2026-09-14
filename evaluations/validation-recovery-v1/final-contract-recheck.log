@@ -1,0 +1,242 @@
+[
+  {
+    "case": "C01",
+    "kind": "resume",
+    "attempt": 1,
+    "valid": true,
+    "integrity": "pass",
+    "issues": []
+  },
+  {
+    "case": "C01",
+    "kind": "letter",
+    "attempt": 1,
+    "valid": true,
+    "issues": []
+  },
+  {
+    "case": "C02",
+    "kind": "resume",
+    "attempt": 1,
+    "valid": true,
+    "integrity": "pass",
+    "issues": []
+  },
+  {
+    "case": "C02",
+    "kind": "letter",
+    "attempt": 1,
+    "valid": true,
+    "issues": []
+  },
+  {
+    "case": "C03",
+    "kind": "resume",
+    "attempt": 1,
+    "valid": true,
+    "integrity": "pass",
+    "issues": []
+  },
+  {
+    "case": "C03",
+    "kind": "letter",
+    "attempt": 1,
+    "valid": true,
+    "issues": []
+  },
+  {
+    "case": "C04",
+    "kind": "resume",
+    "attempt": 1,
+    "valid": true,
+    "integrity": "pass",
+    "issues": []
+  },
+  {
+    "case": "C04",
+    "kind": "letter",
+    "attempt": 1,
+    "valid": true,
+    "issues": []
+  },
+  {
+    "case": "C05",
+    "kind": "resume",
+    "attempt": 1,
+    "valid": true,
+    "integrity": "pass",
+    "issues": []
+  },
+  {
+    "case": "C05",
+    "kind": "letter",
+    "attempt": 1,
+    "valid": true,
+    "issues": []
+  },
+  {
+    "case": "C06",
+    "kind": "resume",
+    "attempt": 1,
+    "valid": true,
+    "integrity": "pass",
+    "issues": []
+  },
+  {
+    "case": "C06",
+    "kind": "letter",
+    "attempt": 1,
+    "valid": true,
+    "issues": []
+  },
+  {
+    "case": "R01",
+    "kind": "resume",
+    "attempt": 1,
+    "valid": true,
+    "integrity": "pass",
+    "issues": []
+  },
+  {
+    "case": "R01",
+    "kind": "letter",
+    "attempt": 1,
+    "valid": true,
+    "issues": []
+  },
+  {
+    "case": "R02",
+    "kind": "resume",
+    "attempt": 1,
+    "valid": true,
+    "integrity": "pass",
+    "issues": []
+  },
+  {
+    "case": "R02",
+    "kind": "letter",
+    "attempt": 1,
+    "valid": true,
+    "issues": []
+  },
+  {
+    "case": "R03",
+    "kind": "resume",
+    "attempt": 1,
+    "valid": true,
+    "integrity": "pass",
+    "issues": []
+  },
+  {
+    "case": "R03",
+    "kind": "letter",
+    "attempt": 1,
+    "valid": true,
+    "issues": []
+  },
+  {
+    "case": "R04",
+    "kind": "resume",
+    "attempt": 1,
+    "valid": true,
+    "integrity": "pass",
+    "issues": []
+  },
+  {
+    "case": "R04",
+    "kind": "letter",
+    "attempt": 1,
+    "valid": true,
+    "issues": []
+  },
+  {
+    "case": "R05",
+    "kind": "resume",
+    "attempt": 1,
+    "valid": true,
+    "integrity": "pass",
+    "issues": []
+  },
+  {
+    "case": "R05",
+    "kind": "letter",
+    "attempt": 1,
+    "valid": true,
+    "issues": []
+  },
+  {
+    "case": "R06",
+    "kind": "resume",
+    "attempt": 2,
+    "valid": true,
+    "integrity": "pass",
+    "issues": []
+  },
+  {
+    "case": "R06",
+    "kind": "letter",
+    "attempt": 2,
+    "valid": true,
+    "issues": []
+  },
+  {
+    "case": "R07",
+    "kind": "resume",
+    "attempt": 1,
+    "valid": true,
+    "integrity": "pass",
+    "issues": []
+  },
+  {
+    "case": "R07",
+    "kind": "letter",
+    "attempt": 1,
+    "valid": true,
+    "issues": []
+  },
+  {
+    "case": "R08",
+    "kind": "resume",
+    "attempt": 2,
+    "valid": true,
+    "integrity": "pass",
+    "issues": []
+  },
+  {
+    "case": "R08",
+    "kind": "letter",
+    "attempt": 2,
+    "valid": true,
+    "issues": []
+  },
+  {
+    "case": "R09",
+    "kind": "resume",
+    "attempt": 1,
+    "valid": true,
+    "integrity": "pass",
+    "issues": []
+  },
+  {
+    "case": "R09",
+    "kind": "letter",
+    "attempt": 1,
+    "valid": true,
+    "issues": []
+  },
+  {
+    "case": "R10",
+    "kind": "resume",
+    "attempt": 1,
+    "valid": true,
+    "integrity": "pass",
+    "issues": []
+  },
+  {
+    "case": "R10",
+    "kind": "letter",
+    "attempt": 1,
+    "valid": true,
+    "issues": []
+  }
+]

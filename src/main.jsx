@@ -11,7 +11,6 @@ import {
 import { APP_PATH, AUTH_CALLBACK_PATH, SIGN_IN_PATH } from "./authRoutes.js";
 import { sanitizeVercelAnalyticsEvent } from "./analytics.js";
 
-const ValidationRecovery = lazy(() => import('./ValidationRecovery.jsx'));
 const Gigscapes = lazy(() => import("./App.jsx"));
 const LandingPage = lazy(() => import("./landing/LandingPage.jsx"));
 const PrivacyPage = lazy(() => import("./privacy/PrivacyPage.jsx"));
@@ -37,7 +36,6 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       <AuthProvider>
         <Suspense fallback={<RouteFallback />}>
           <Routes>
-            <Route path="/app/validation-recovery" element={<ValidationRecovery />} />
             <Route path="/" element={<LandingPage />} />
             <Route path="/privacy" element={<PrivacyPage />} />
             {ProductTourCapture ? <Route path="/__product-tour-capture" element={<ProductTourCapture />} /> : null}

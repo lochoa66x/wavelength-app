@@ -1,0 +1,63 @@
+{
+  "experiment": "validation-recovery-v1",
+  "contractVersion": 9,
+  "initial": {
+    "requests": 32,
+    "delivered": 30,
+    "providerCalls": 89
+  },
+  "validationRetest": {
+    "requests": 4,
+    "delivered": 4,
+    "providerCalls": 11,
+    "contentDefects": [
+      "Selected projects missing in both resumes",
+      "Duplicate R08 experience bullet"
+    ]
+  },
+  "contentRetest": {
+    "revision": "7104ef305d0b4fa32be0510473f10aec96609807",
+    "requests": 4,
+    "delivered": 4,
+    "providerCalls": 12,
+    "projectsRetained": [
+      "R06",
+      "R08"
+    ],
+    "duplicateExperienceRemoved": true
+  },
+  "totalLiveRequests": 40,
+  "totalProviderCalls": 112,
+  "careers": 16,
+  "freshCareers": 10,
+  "tests": {
+    "pass": 929,
+    "fail": 0,
+    "skipped": 0
+  },
+  "latestRevalidatedDocuments": 32,
+  "exports": {
+    "docx": 32,
+    "pdf": 32,
+    "pages": 64,
+    "missingText": 0,
+    "outsidePage": 0,
+    "docxRenderer": "LibreOffice",
+    "nativeMicrosoftWord": false,
+    "visualContactSheetPages": 64,
+    "enlargedChecks": [
+      "R06 resume PDF",
+      "R08 resume DOCX"
+    ]
+  },
+  "independentHumanRatings": "pending",
+  "remaining": [
+    "Outcome actor/causality overattribution C02/R07",
+    "Single-year project classified as employment C02",
+    "Repeated skills/credentials",
+    "Uneven résumé tense",
+    "Weak graduate positioning",
+    "Formulaic and underdeveloped letters"
+  ],
+  "temporaryEntrypointsRemoved": true
+}
