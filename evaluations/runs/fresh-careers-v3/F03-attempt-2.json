@@ -1,0 +1,57 @@
+{
+  "caseId": "F03",
+  "attempt": 2,
+  "revision": "8082792aedb8468fc4a71bca125a83b6c45eef9d",
+  "status": "completed",
+  "startedAt": "2026-09-13T23:55:06.905Z",
+  "finishedAt": "2026-09-13T23:57:26.801Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F03-letter.docx",
+      "downloadName": "Celeste-Wong-Production-Baker-cover-letter (1).docx",
+      "sha256": "842c1c7c9404847be2ff9224d6d1eb351bc41fe82bcfd85678474d26df50e1bd"
+    },
+    {
+      "filename": "F03-letter.pdf",
+      "downloadName": "Celeste-Wong-Production-Baker-cover-letter (1).pdf",
+      "sha256": "e7c18d3a0f0f6a9c552b9bec6bbaa948709bdd871c3b64fa1f3f87fb62aa3289"
+    },
+    {
+      "filename": "F03-resume.docx",
+      "downloadName": "Celeste-Wong-Production-Baker-Sourdough-Bread.docx",
+      "sha256": "e4a4fb56823d913e2a5eb0d37b807a9e8e733413b20e4cedea083f7da1d1d8ec"
+    },
+    {
+      "filename": "F03-resume.pdf",
+      "downloadName": "Celeste-Wong-Production-Baker-Sourdough-Bread.pdf",
+      "sha256": "5ed746d686ddbc8d51f37271b471dccd7cf759205b94a7811668ac31051afd55"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "artifactDirectory": "tmp/useful-writing-v4-live-2026-09-13/targeted-contract6",
+  "documentScope": "resume-and-cover-letter",
+  "resumeFirstIntegrity": {
+    "status": "pass",
+    "issue_count": 0
+  },
+  "resumeFirstContractIssues": [],
+  "resumeDraftAttempts": 1,
+  "resumeEditorialStatus": {
+    "status": "revised",
+    "review_needed": false,
+    "issues": []
+  },
+  "letterFirstIntegrityPass": true,
+  "letterRepairApplied": false,
+  "letterEditorialStatus": "kept",
+  "rawReports": {
+    "resume": true,
+    "letter": true
+  },
+  "recordedAt": "2026-09-13T23:57:52.945Z",
+  "corpusHash": "274eeb27f925ac092a0635aa2b47873fa208c61f227068b81e83054cc7c6410a"
+}

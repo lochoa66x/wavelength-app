@@ -103,15 +103,19 @@ export function candidateClaimIssues(proposed,sources=[],context={}) {
   // Ignore the article "one" unless it modifies a measurable quantity.
   const requiredNumbers=numeric.filter(n=>n.number!=='1'||n.unit);
   const namedEmployer=sentence.match(/\b(?:At|at)\s+([\p{Lu}][\p{L}\p{N}&.'’-]*(?:\s+(?:(?:and|of|the)\s+)?[\p{Lu}][\p{L}\p{N}&.'’-]*)*)/u)?.[1]?.trim().replace(/[.]$/, '');
+  const calendarRanges=[...sentence.matchAll(/\b(?:from|between)\s+((?:19|20)\d{2})\s+(?:to|through|until|and)\s+((?:19|20)\d{2})\b/gi)];
   for(const measure of requiredNumbers){
    const number=measure.number;
    // A compound sentence can cite several facts. Select a measured fact by its
    // own unit/rate and employer, not the other clause's larger word overlap.
    // Percentages and untyped values retain lexical scope. An explicit calendar
    // year can belong to a separately cited project heading.
-   const calendarYear = !measure.unit && /^(?:19|20)\d{2}$/.test(measure.number) && new RegExp(`\\b(?:in|during|since|until|from)\\s+${measure.number}\\b`, 'i').test(sentence);
+   const calendarRange=calendarRanges.find(range=>range[1]===number||range[2]===number);
+   const calendarYear = !measure.unit && /^(?:19|20)\d{2}$/.test(measure.number) && (calendarRange || new RegExp(`\\b(?:in|during|since|until|from)\\s+${measure.number}\\b`, 'i').test(sentence));
    const numericFacts=(measure.unit && measure.unit!=='percent') || calendarYear ? scored : relevant;
-   const matches=numericFacts.filter(f=>(!namedEmployer || !f.employer || normalize(f.employer)===normalize(namedEmployer) || normalize(f.text).includes(normalize(namedEmployer))) && f.measures.some(source=>sameQuantity(measure,source)));
+   // Both endpoints must occur together in one cited fact; do not stitch a
+   // tenure from separate employers, projects or single-year milestones.
+   const matches=numericFacts.filter(f=>(!namedEmployer || !f.employer || normalize(f.employer)===normalize(namedEmployer) || normalize(f.text).includes(normalize(namedEmployer))) && f.measures.some(source=>sameQuantity(measure,source)) && (!calendarRange || new RegExp(`\\b${calendarRange[1]}\\s*(?:[-–—]|to|through|until|and)\\s*${calendarRange[2]}\\b`, 'i').test(f.text)));
    if(!matches.length){issues.push('A number or duration is not supported by this claim’s cited candidate evidence.');continue;}
    const shared = f => /\b(?:as part of|with|our|the)\s+(?:an?\s+)?(?:[a-z]+\s+)?(?:team|crew|assistant)\b|\bcombined(?: [a-z-]+){0,2} (?:total|output)\b/i.test(f.text);
    const sharedSubject = /\b(?:(?:an?|the|my|our)\s+)?(?:[a-z-]+\s+){0,3}(?:assistant|team|crew)\s+and\s+I\s+(?:have\s+)?(?:prepared|made|produced|created|completed|built|assembled|baked)\b|\bI\s+and\s+(?:an?|the|my|our)\s+(?:[a-z-]+\s+){0,3}(?:assistant|team|crew)\s+(?:have\s+)?(?:prepared|made|produced|created|completed|built|assembled|baked)\b/i.test(sentence);

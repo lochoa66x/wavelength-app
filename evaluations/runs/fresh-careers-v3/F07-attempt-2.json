@@ -1,0 +1,62 @@
+{
+  "caseId": "F07",
+  "attempt": 2,
+  "revision": "8082792aedb8468fc4a71bca125a83b6c45eef9d",
+  "status": "completed",
+  "startedAt": "2026-09-13T23:57:29.982Z",
+  "finishedAt": "2026-09-13T23:59:57.581Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F07-resume.docx",
+      "downloadName": "Rafael-Chen-Veterinary-Receptionist-Client-Service.docx",
+      "sha256": "a0e7fd8774ea913f2a8a5e59e3bf4795f7118637b12b90430dffb8c81b7a73c5"
+    },
+    {
+      "filename": "F07-resume.pdf",
+      "downloadName": "Rafael-Chen-Veterinary-Receptionist-Client-Service.pdf",
+      "sha256": "0476b22c3cdffdd8d05e40f7e8614b6bf28da9451f42da7de664f700f56cdf28"
+    },
+    {
+      "filename": "F07-letter.docx",
+      "downloadName": "Rafael-Chen-Veterinary-Receptionist-cover-letter (1).docx",
+      "sha256": "2699298c57478dfea43fdc934841149eb04bf23432338e4197d1785eaccd0094"
+    },
+    {
+      "filename": "F07-letter.pdf",
+      "downloadName": "Rafael-Chen-Veterinary-Receptionist-cover-letter (1).pdf",
+      "sha256": "6e0bda917513190fe84074636dd2af2556561ceb5e0cae0d7673a156481f4718"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "artifactDirectory": "tmp/useful-writing-v4-live-2026-09-13/targeted-contract6",
+  "documentScope": "resume-and-cover-letter",
+  "resumeFirstIntegrity": {
+    "status": "pass",
+    "issue_count": 0
+  },
+  "resumeFirstContractIssues": [],
+  "resumeDraftAttempts": 1,
+  "resumeEditorialStatus": {
+    "status": "rejected_validation",
+    "review_needed": true,
+    "issues": [
+      {
+        "code": "summary_task_list",
+        "advice": "Remove the list of activities introduced as experience. State the profession, work setting or distinctive background instead; leave what the candidate did in the experience bullets."
+      }
+    ]
+  },
+  "letterFirstIntegrityPass": true,
+  "letterRepairApplied": false,
+  "letterEditorialStatus": "revised",
+  "rawReports": {
+    "resume": true,
+    "letter": true
+  },
+  "recordedAt": "2026-09-14T00:00:23.721Z",
+  "corpusHash": "274eeb27f925ac092a0635aa2b47873fa208c61f227068b81e83054cc7c6410a"
+}

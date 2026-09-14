@@ -93,3 +93,17 @@ test('résumé profile cannot derive a spelled-out tenure from employment years'
  assert.equal(validateApplicationDocument({kind:'resume',document,candidateCorpus:corpus+'\nFive years of bicycle workshop experience.'}).valid,true);
  assert.equal(validateApplicationDocument({kind:'resume',document:{...document,profile:'Bicycle mechanic with commuter bicycle inspection experience.'},candidateCorpus:corpus}).valid,true);
 });
+
+test('captured mechanic letter retains both endpoints of a cited employment range',async()=>{
+ const {candidateClaimIssues}=await import('../src/candidateClaims.js');
+ const heading='Bicycle Mechanic | Example Commuter Cycles | 2021 - 2026';
+ const detail='Inspected commuter bicycles for brake wear, cable movement and wheel alignment before preparing a written repair estimate.';
+ const source=[heading,detail],context={candidateCorpus:source.join('\n')};
+ const claim='As a Bicycle Mechanic at Example Commuter Cycles from 2021 to 2026, I inspected commuter bicycles for brake wear, cable movement, and wheel alignment before preparing written repair estimates.';
+ for(const text of [claim,claim.replace('from 2021 to 2026','between 2021 and 2026')]) assert.deepEqual(candidateClaimIssues(text,source,context),[]);
+ for(const text of [claim.replace('2026','2027'),claim.replace('2021','2020'),claim.replace('from 2021 to 2026','with five years of experience')]) assert.ok(candidateClaimIssues(text,source,context).length,text);
+ const split=['Bicycle Mechanic | Example Commuter Cycles | 2021 - 2023',detail,'Bicycle Mechanic | Another Workshop | 2024 - 2026'];
+ assert.ok(candidateClaimIssues(claim,split,{candidateCorpus:split.join('\n')}).length,'separate employments cannot supply a combined range');
+ const wrong=['Bicycle Mechanic | Example Commuter Cycles | 2020 - 2022',detail,'Bicycle Mechanic | Another Workshop | 2021 - 2026'];
+ assert.ok(candidateClaimIssues(claim,wrong,{candidateCorpus:wrong.join('\n')}).length,'another employer cannot supply the range');
+});

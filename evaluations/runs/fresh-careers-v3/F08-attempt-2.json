@@ -1,0 +1,57 @@
+{
+  "caseId": "F08",
+  "attempt": 2,
+  "revision": "8082792aedb8468fc4a71bca125a83b6c45eef9d",
+  "status": "completed",
+  "startedAt": "2026-09-14T00:00:00.727Z",
+  "finishedAt": "2026-09-14T00:03:53.857Z",
+  "inputEdited": false,
+  "manualGenerationRetries": 0,
+  "providerRepair": "Built-in repair/editorial review may occur within a request. No manual retry within this attempt.",
+  "artifacts": [
+    {
+      "filename": "F08-resume.docx",
+      "downloadName": "Inez-Calder-Bicycle-Mechanic-Brake-Service.docx",
+      "sha256": "c7c92fcf9a830225f70f8b6d0f7d4a9aeaec60a8156a8a35cf9491aead58ad12"
+    },
+    {
+      "filename": "F08-resume.pdf",
+      "downloadName": "Inez-Calder-Bicycle-Mechanic-Brake-Service.pdf",
+      "sha256": "9648a11800cc4206eaa1ea605dae104a42aad5e94f079bdecc7fbd80484892e4"
+    },
+    {
+      "filename": "F08-letter.docx",
+      "downloadName": "Inez-Calder-Bicycle-Mechanic-cover-letter (1).docx",
+      "sha256": "eaf41ca933d59b4f6b1e4812a6e77e3e85f1748eff9be4f7008deac127e8deaa"
+    },
+    {
+      "filename": "F08-letter.pdf",
+      "downloadName": "Inez-Calder-Bicycle-Mechanic-cover-letter (1).pdf",
+      "sha256": "b6f91d58c3040cc1e020adbd4ed49d859f1971b0e2b3d5e50f7d2c0cc940099a"
+    }
+  ],
+  "letterCopyConfirmed": true,
+  "clipboardReadback": "Not independently read; success status and preview checked.",
+  "artifactDirectory": "tmp/useful-writing-v4-live-2026-09-13/targeted-contract6",
+  "documentScope": "resume-and-cover-letter",
+  "resumeFirstIntegrity": {
+    "status": "pass",
+    "issue_count": 0
+  },
+  "resumeFirstContractIssues": [],
+  "resumeDraftAttempts": 1,
+  "resumeEditorialStatus": {
+    "status": "revised",
+    "review_needed": false,
+    "issues": []
+  },
+  "letterFirstIntegrityPass": false,
+  "letterRepairApplied": true,
+  "letterEditorialStatus": "kept",
+  "rawReports": {
+    "resume": true,
+    "letter": true
+  },
+  "recordedAt": "2026-09-14T00:04:30.537Z",
+  "corpusHash": "274eeb27f925ac092a0635aa2b47873fa208c61f227068b81e83054cc7c6410a"
+}
