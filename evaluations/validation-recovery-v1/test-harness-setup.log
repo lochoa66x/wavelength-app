@@ -1,0 +1,25 @@
+file:///C:/Users/Luis/Documents/Codex/gigscapes-v7/tests/validationRecovery.test.js:10
+import { validateTailoredResumeSemantics } from '../api/_lib/tailoringEvidence.js';
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+SyntaxError: The requested module '../api/_lib/tailoringEvidence.js' does not provide an export named 'validateTailoredResumeSemantics'
+    at #asyncInstantiate (node:internal/modules/esm/module_job:327:21)
+    at async ModuleJob.run (node:internal/modules/esm/module_job:431:5)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)
+
+Node.js v24.19.0
+✖ tests\validationRecovery.test.js (431.3533ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 438.7022
+
+✖ failing tests:
+
+test at tests\validationRecovery.test.js:1:1
+✖ tests\validationRecovery.test.js (431.3533ms)
+  'test failed'

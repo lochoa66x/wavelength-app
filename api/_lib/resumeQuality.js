@@ -1,4 +1,5 @@
 import { organizeResumeSections, readResumeSections, resumeSectionKind } from "../../src/resumeOrganization.js";
+import { CAREER_POSITIONING_PATTERN } from '../../src/careerPositioning.js';
 
 const PLACEHOLDER_IDENTITY = /^(?:<\s*)?(?:unknown|unnamed|name unavailable|candidate|n\/?a|null|undefined)(?:\s*>)?$/i;
 
@@ -18,6 +19,7 @@ const EMPLOYER_FACING_GAP_PATTERNS = [
 ];
 
 function professionalPositioningText(value) {
+  if (!CAREER_POSITIONING_PATTERN.test(String(value || ""))) return String(value || "").replace(/\s+/g, " ").trim();
   return String(value || "")
     .replace(/\bcareer[ -](?:change|transition)\b/gi, "transferable-strengths positioning")
     .replace(/\btransition(?:al|ing)?\s+(?:into|to)\b/gi, "applying verified experience toward")
@@ -27,6 +29,7 @@ function professionalPositioningText(value) {
 }
 
 function professionalTitleText(value) {
+  if (!CAREER_POSITIONING_PATTERN.test(String(value || ""))) return String(value || "").trim();
   return professionalPositioningText(value)
     .replace(/\s*[|–—-]\s*[^|]{0,80}\b(?:transition|transferable-strengths positioning)\b.*$/i, "")
     .replace(/\btransition\b/gi, "")

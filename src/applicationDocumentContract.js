@@ -9,7 +9,7 @@ import { academicStatusIssues } from './academicClaims.js';
 // edits, saved-draft readiness and every exporter call the same entry point.
 // Provider citation resolution, source/identity hashes and authorization remain
 // boundary checks; passing this contract never replaces those protections.
-export const DOCUMENT_CONTRACT_VERSION = 7;
+export const DOCUMENT_CONTRACT_VERSION = 8;
 export const COVER_LETTER_PARAGRAPH_LIMIT = 2400;
 export const COVER_LETTER_PARAGRAPH_MIN = 20;
 const refs = (paragraph, camel, snake) => paragraph?.[camel] ?? paragraph?.[snake] ?? [];
@@ -67,6 +67,8 @@ export function validateApplicationDocument({ kind, document, candidateCorpus = 
     }
   } else if (kind === 'resume') {
     const content = document?.document || document || {};
+    for (const entry of content.experience || []) if (!(entry.bullets || []).some(bullet => typeof bullet === 'string' ? bullet.trim() : bullet?.text?.trim()))
+      add('empty_experience', `Restore supported work details for ${entry.role || entry.title || 'this role'} before exporting.`);
     if (candidateCorpus) for (const message of candidateClaimIssues(content.profile ?? content.summary ?? '', candidateCorpus.split(/\r?\n/), { candidateCorpus })) add('profile_claim', message);
     if (candidateCorpus) for (const value of strings({ profile: content.profile ?? content.summary, education: content.education }))
       for (const message of academicStatusIssues(value, [candidateCorpus])) add('academic_status', message);

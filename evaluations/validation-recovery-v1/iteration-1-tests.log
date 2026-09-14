@@ -1,0 +1,159 @@
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":4,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":106,"writingIssueCount":2,"durationMs":30}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":70,"writingIssueCount":1,"durationMs":2}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":85,"writingIssueCount":1,"durationMs":2}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":76,"writingIssueCount":1,"durationMs":2}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":4,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":95,"writingIssueCount":1,"durationMs":2}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":86,"writingIssueCount":1,"durationMs":2}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":74,"writingIssueCount":1,"durationMs":2}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":89,"writingIssueCount":1,"durationMs":2}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":78,"writingIssueCount":1,"durationMs":1}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":71,"writingIssueCount":1,"durationMs":2}
+✔ P01: truthful Senior Accountant letter passes API, readiness and export context (56.9738ms)
+✔ P02: truthful Bookkeeper letter passes API, readiness and export context (8.2336ms)
+✔ P02: unsupported consequential claim fails generation, edit and restored-draft export (7.7049ms)
+✔ P03: truthful Residential Service Plumber letter passes API, readiness and export context (7.7135ms)
+✔ P04: truthful Registered Plumbing Apprentice letter passes API, readiness and export context (7.9682ms)
+✔ P04: unsupported consequential claim fails generation, edit and restored-draft export (4.6271ms)
+✔ P05: truthful Finish Carpenter letter passes API, readiness and export context (8.6786ms)
+✔ P06: truthful Construction Labourer letter passes API, readiness and export context (6.4089ms)
+✔ P06: unsupported consequential claim fails generation, edit and restored-draft export (4.6104ms)
+✔ P07: truthful Warehouse Associate letter passes API, readiness and export context (6.1374ms)
+✔ P07: unsupported consequential claim fails generation, edit and restored-draft export (6.4105ms)
+✔ P08: truthful Customer Service Associate letter passes API, readiness and export context (6.5781ms)
+✔ P08: unsupported consequential claim fails generation, edit and restored-draft export (4.2632ms)
+✔ P09: truthful Graphic Designer letter passes API, readiness and export context (5.6053ms)
+✔ P10: truthful Administrative Assistant letter passes API, readiness and export context (6.0306ms)
+✔ borrowed job tenure rejects spelled-out and numeric requirements (2.1349ms)
+✔ metric attribution stays with its employer and its team (1.3251ms)
+✔ generic occupational credentials preserve state, AND/OR and level (0.3509ms)
+✔ observed pressure tests remain adjacent; actual leadership is accepted (0.4779ms)
+✔ paragraph limit rejects full raw input, preserves saved text and rejects oversized stored drafts (21.8928ms)
+✔ export authorization binds employer context (2.5391ms)
+✔ structured employment headers support cashier and new professions without crossing sections (13.744ms)
+✔ keyword coverage includes credentials, education and languages in the exported document (10.1484ms)
+✔ plain headings, front-loaded trade credentials, portfolios and volunteer paragraphs (5.4103ms)
+✔ letter-only fragment advice does not pad a concise complete letter (0.4431ms)
+✔ quantity units and mixed credential status remain attached to the specific fact (0.203ms)
+✔ paragraph length boundary is checked before whitespace normalization (1.3834ms)
+✔ relevant outcomes lead the role and an active accountant credential appears near the top (4.1082ms)
+✔ profession-neutral parsing retains recognized company-first employment headings (0.2385ms)
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["The verified sources do not establish leadership or ownership of this work.","The cited evidence does not establish every required credential with the stated current status."],"durationMs":3}
+[cover-letter] validation blocked {"issueCount":4,"issueTypes":["The verified sources do not establish leadership or ownership of this work.","Supervised or observed work cannot be presented as independent execution or certification.","The cited evidence does not establish every required credential with the stated current status.","The cited evidence does not establish leadership or ownership of this work. Keep the supported responsibility level or regenerate using relevant evidence."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["A number or duration is not supported by this claim’s cited candidate evidence.","The verified sources do not establish leadership or ownership of this work."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["The cited evidence does not establish every required credential with the stated current status."],"durationMs":3}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["The verified sources do not establish leadership or ownership of this work.","The cited evidence does not establish leadership or ownership of this work. Keep the supported responsibility level or regenerate using relevant evidence."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["A number or duration is not supported by this claim’s cited candidate evidence.","The verified sources do not establish leadership or ownership of this work."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["paragraph exceeds the 2400-character limit; shorten it without truncation","The complete letter exceeds the 320-word standard limit."],"durationMs":4}
+[cover-letter] editorial {"status":"kept","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":2,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":19,"writingIssueCount":0,"durationMs":7}
+✔ unlisted structured roles and unfamiliar action verbs restore only their own source facts (32.3154ms)
+✔ unclassified dated rows bound history even when they are not valid job headers (0.3713ms)
+✔ qualification sections never become employment when the course contains a role title (0.1929ms)
+✔ post-holdout regression: source history remains complete for F01 (1.5223ms)
+✔ post-holdout regression: source history remains complete for F02 (0.532ms)
+✔ post-holdout regression: source history remains complete for F03 (0.4583ms)
+✔ post-holdout regression: source history remains complete for F04 (0.9106ms)
+✔ post-holdout regression: source history remains complete for F05 (0.4877ms)
+✔ post-holdout regression: source history remains complete for F06 (0.5577ms)
+✔ post-holdout regression: source history remains complete for F07 (0.4566ms)
+✔ post-holdout regression: source history remains complete for F08 (0.4219ms)
+✔ post-holdout regression: source history remains complete for F09 (0.3716ms)
+✔ post-holdout regression: source history remains complete for F10 (0.4456ms)
+✔ one qualification has one section, with renewals and status preserved (0.8507ms)
+✔ a labelled portfolio on the next line survives, unrelated project URLs do not (0.3727ms)
+✔ current credential metadata passes and cannot confer status on a different expired credential (1.1802ms)
+✔ academic status cannot be inferred from the year or borrowed from another qualification (4.6873ms)
+✔ factual closing citations are required through the same letter contract (6.5663ms)
+✔ editorial review validates a useful revision and preserves all other résumé fields (1.9202ms)
+✔ shortening or self-awarded scores alone cannot authorize an editorial revision (0.1845ms)
+✔ editorial timeout or unsupported rewrite preserves the already checked original (0.6683ms)
+✔ letter editorial cannot change ids or purposes even with a favourable review (2.4896ms)
+✔ production letter handler invokes content review even when mechanical writing checks pass (8.015ms)
+✔ profile review can trade repeated bullet detail for context while preserving the experience section (0.3345ms)
+✔ full editorial revision may merge redundant evidence paragraphs but must keep opening and closing (0.9459ms)
+✔ editorial diagnostics distinguish unsupported quotation from inadequate content gain (0.3933ms)
+✔ a portfolio contact link is not repeated as a standalone profile label (0.2946ms)
+✔ an inline portfolio URL is owned by the header without deleting its professional context (0.5543ms)
+✔ editorial source ids resolve to exact server-owned excerpts before the unchanged validation gate (0.4561ms)
+✔ unknown or conflicting editorial source references cannot bypass the review (0.1787ms)
+✔ a valid editorial source id does not authorize an unsupported rewrite (0.3599ms)
+✔ a header-owned portfolio link is not an empty project or additional section (2.1391ms)
+✔ captured one-point editorial improvement reaches the validated document (32.5816ms)
+✔ redundancy removal can pass with unchanged scores but still needs the factual contract (2.7726ms)
+✔ small-edit exception cannot remove a distinct constraint, quantity, example, or closing (0.5187ms)
+✔ a kept high-self-score letter retains observable repetition advice (0.7469ms)
+✔ source-selection brief preserves employer boundaries, exact excerpts and references (0.8743ms)
+✔ empty or contact-only evidence does not manufacture an example (0.1479ms)
+✔ a distinct follow-up condition is retained by the writing advice (0.6658ms)
+✔ a rate stops before alongside rather than treating a colleague as the denominator (4.181ms)
+✔ résumé profile cannot derive a spelled-out tenure from employment years (33.5138ms)
+✔ captured mechanic letter retains both endpoints of a cited employment range (3.0979ms)
+✖ C02: captured project-year paragraph retains its date and passes claim checks (12.1382ms)
+✔ C06: captured project-year paragraph retains its date and passes claim checks (6.9763ms)
+✔ calendar years cannot authorize counts, durations or another employer/project (2.1974ms)
+✖ captured apprentice profile distinguishes a held certificate and supervised work (5.3371ms)
+✔ employment after a selected project has its own evidence and survives fallback (41.9473ms)
+✔ project sections recover explicit new jobs, never project titles or courses (0.6787ms)
+✔ operational transition is accepted while career-change positioning remains flagged (4.6719ms)
+✔ shared résumé contract rejects empty role content without relying on parser success (0.1708ms)
+ℹ tests 79
+ℹ suites 0
+ℹ pass 77
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1559.0782
+
+✖ failing tests:
+
+test at tests\validationRecovery.test.js:17:32
+✖ C02: captured project-year paragraph retains its date and passes claim checks (12.1382ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   'A number or duration is not supported by this claim’s cited candidate evidence.'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///C:/Users/Luis/Documents/Codex/gigscapes-v7/tests/validationRecovery.test.js:19:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'A number or duration is not supported by this claim’s cited candidate evidence.' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests\validationRecovery.test.js:32:1
+✖ captured apprentice profile distinguishes a held certificate and supervised work (5.3371ms)
+  AssertionError [ERR_ASSERTION]: I supervised a licensed plumbing crew.
+      at TestContext.<anonymous> (file:///C:/Users/Luis/Documents/Codex/gigscapes-v7/tests/validationRecovery.test.js:35:194)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

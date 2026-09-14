@@ -211,7 +211,12 @@ export function sourceHistoryEntries(baseResume) {
     const structuredRow = /\||\s[-–—]\s/.test(prefix) && parts.length >= 2
       && parts.slice(0, 2).every((part) => part.length >= 2 && part.length <= 110 && !/[.!?]$/.test(part))
       && !/\b(?:diploma|certificate|certification|degree|bachelor|master of|B\.?Sc|M\.?Sc|Ph\.?D)\b/i.test(parts[0]);
-    if (qualificationSection) continue;
+    // A project section can be interleaved with employment. Resume employment
+    // only at a distinct structured date-range row, never a dated project/course.
+    const resumesEmployment = sectionKind === "projects" && rangeMatch && structuredRow
+      && !parts.slice(0, 2).some(part => /\b(?:project|dashboard|series|course(?:work)?|workshop|study|capstone|prototype|portfolio|certificate|diploma)\b/i.test(part));
+    if (qualificationSection && !resumesEmployment) continue;
+    if (resumesEmployment) sectionKind = "experience";
     if (parts.length >= 2 && (EMPLOYMENT_ROLE_HINT_PATTERN.test(parts[0]) || (structuredRow && !EMPLOYMENT_ROLE_HINT_PATTERN.test(parts[1])))) {
       [role, company] = parts;
     } else if (parts.length >= 2 && EMPLOYMENT_ROLE_HINT_PATTERN.test(parts[1])) {

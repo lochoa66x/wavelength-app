@@ -1,6 +1,7 @@
+import { CAREER_POSITIONING_PATTERN } from './careerPositioning.js';
 const SELF_DISQUALIFYING_PATTERNS = Object.freeze([
   /\bcareer[ -](?:change|transition)\b/i,
-  /\btransition(?:al|ing)?\s+(?:into|to)\b/i,
+  CAREER_POSITIONING_PATTERN,
   /\bnew\s+(?:career|path|journey)\b/i,
   /\b(?:material|significant|major|critical)\s+(?:gap|limitation|shortcoming)\b/i,
   /\bmy\s+(?:gap|limitation|shortcoming)\b/i,

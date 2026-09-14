@@ -1,0 +1,1293 @@
+
+> wavelength-app@1.0.0 test
+> node --test
+
+✔ job brief normalization combines compatible employment details and clears the false gate (3.0626ms)
+✔ job brief normalization preserves a genuine full-time versus part-time conflict (0.4685ms)
+✔ DOCX export errors expose actionable categories without résumé content (1.3178ms)
+✔ design selector separates strategy from visual choice and stays network-free (4.406ms)
+✔ feed and bring-your-own-job flows share the canonical selector experience (1.3655ms)
+✔ browser preview is single-column semantic text with print-friendly markers (2.3268ms)
+✔ preliminary guidance stays outside the résumé while all export dependencies warm safely (1.5401ms)
+✔ save job produces action-specific sign-in context (1.4632ms)
+✔ tailor resume produces action-specific sign-in context (0.2232ms)
+✔ resume editing is an allowlisted private action (0.8008ms)
+✔ URL posting import is an allowlisted private action (0.2235ms)
+✔ screenshot posting upload is an allowlisted private action (0.1728ms)
+✔ pasted posting intake is an allowlisted private action (0.1694ms)
+✔ DOCX export uses a download-specific sign-in message (0.1763ms)
+✔ PDF export uses a download-specific sign-in message (0.193ms)
+✔ copying tailored text is gated (0.1936ms)
+✔ cover-letter generation and all private letter exports are gated (0.3688ms)
+✔ application workspace actions are centrally allowlisted (0.2863ms)
+✔ authenticated users continue immediately without a pending record (0.215ms)
+✔ pending actions are consumed once (0.3799ms)
+✔ expired pending actions are rejected and removed (0.2053ms)
+✔ unknown pending actions are rejected (0.1593ms)
+✔ unsafe and out-of-scope return paths are rejected (1.5367ms)
+✔ invalid listing identifiers are rejected (0.2267ms)
+✔ sensitive or unknown fields are never persisted (0.181ms)
+✔ a valid magic-link continuation restores only the safe instruction (0.4336ms)
+✔ an expired callback continuation falls back safely (0.2018ms)
+✔ callback continuation cannot loop after consumption (0.21ms)
+✔ new-tab magic links restore only non-sensitive allowlisted fields (0.7228ms)
+✔ tampered or expired callback instructions are ignored (0.3142ms)
+✔ analytics removes query strings and fragments (0.9484ms)
+✔ analytics suppresses auth callbacks and malformed events (0.1651ms)
+✔ guest can render the public /app route (0.7706ms)
+✔ public capabilities include search, filters, pagination, and provider links (0.17ms)
+✔ guest sessions never trigger private profile synchronization (0.1201ms)
+✔ private capabilities remain account-scoped (0.1602ms)
+✔ sign-out returns to public discovery (0.1282ms)
+✔ the app wordmark is a flat home link rather than an oversized glass pill (5.4966ms)
+✔ workspace source copy does not claim unconfigured feeds are live (1.3687ms)
+✔ job search exposes a visible and accessible in-progress state (1.227ms)
+✔ availability checks render successful and uncertain feedback outside tailoring (1.8162ms)
+✔ bring-your-own-posting copy describes an open posting rather than a job already obtained (1.2711ms)
+✔ the US selector and results surface are fail-closed behind the controlled pilot boundary (0.9793ms)
+✔ blocked source enrichment is presented as a calm preliminary-tailoring choice (0.9358ms)
+✔ ATS review uses one canonical readiness gate for significant evidence gaps (0.8321ms)
+✔ application workflows select only the documents the user requested (1.6197ms)
+✔ package readiness is derived independently for selected documents (0.2921ms)
+✔ document readiness distinguishes missing, generating, stale, preliminary, and ready (0.1516ms)
+✔ application identity distinguishes similar positions at different companies (0.4282ms)
+✔ application package state is hash-validated (0.4848ms)
+✔ application package metadata is account- and target-scoped (3.3916ms)
+✔ legacy cover-letter drafts appear as local application records without rewriting them (15.2826ms)
+✔ prototype registry is dormant by default and resolves disabled IDs to Essential (1.0222ms)
+✔ prototype package tokens contain presentation only and preserve content across families (16.0686ms)
+✔ Civic uses deterministic display and body fallbacks while Studio v2 exposes a safe fallback (3.0883ms)
+✔ presentation validation rejects tampered geometry without touching document facts (0.8905ms)
+✔ a majority of related evidence produces constructive match guidance instead of self-rejection (1.7671ms)
+✔ work authorization is an application question and does not reduce résumé fit (0.9777ms)
+✔ a limited core gap remains viable only when direct evidence outweighs it (0.2334ms)
+✔ mostly unsupported required capabilities still receive substantial-tailoring guidance (0.1965ms)
+✔ application intake exposes package, resume-only, and cover-letter-only choices (8.9876ms)
+✔ cover-letter-only performs evidence analysis without creating a hidden resume (2.4695ms)
+✔ resume results surface the application summary and cover-letter action before the long preview (1.8062ms)
+✔ legacy or stale cover-letter prose is hidden until it is regenerated (0.7875ms)
+✔ application package metadata stays browser-local and joins scoped deletion (1.2643ms)
+✔ captures the opener before dialog autofocus can replace it (0.7988ms)
+✔ restores the connected opener without scrolling (0.8607ms)
+✔ uses an explicit safe fallback when the original listing control disappeared (0.1925ms)
+✔ safeNextPath preserves internal app destinations (0.8ms)
+✔ safeNextPath rejects external and auth-loop destinations (0.1427ms)
+✔ buildAuthRedirectUrl uses the dedicated callback route (0.1692ms)
+✔ safeNextPath rejects same-origin paths outside the public app (0.6197ms)
+✔ valid callback state continues and invalid or expired state returns safely (0.6829ms)
+✔ magic-link UI submissions have a local cooldown (0.8853ms)
+✔ magic-link success and errors do not disclose account existence or internals (0.2686ms)
+✔ a signed-out browser is a normal public session when claims data is null (1.3504ms)
+✔ a verified claim restores only its matching stored session (0.218ms)
+✔ a claim and stored-session mismatch falls back to public browsing (0.1661ms)
+✔ candidate evidence is isolated by account and target posting (0.9088ms)
+✔ candidate evidence round trips without crossing accounts (1.3927ms)
+✔ reusable evidence is account-isolated and excludes application-only reminders (0.2754ms)
+✔ new reusable answers replace records for the same requirement note (0.1853ms)
+✔ only confirmed, non-declined Yes evidence can become reusable (0.1775ms)
+✔ legacy reusable storage is filtered before it can reach tailoring (0.1433ms)
+✔ request evidence prioritizes the current application and caps the payload (0.283ms)
+✔ unverified reusable evidence is excluded from request payloads (0.1489ms)
+✔ custom posting evidence uses a stable source identity with a field fallback (0.2296ms)
+✔ cover letter plan has a stable canonical hash and application-ready gate (50.0857ms)
+✔ cover letter plan can use exact identity parsed from the canonical résumé without a tailored résumé artifact (0.6005ms)
+✔ cover-letter presentation uses employer location, omits candidate city, and keeps one signoff (0.9273ms)
+✔ cover-letter authorization binds presentation without changing paragraph content or readiness (6.4087ms)
+✔ the same verified letter becomes preliminary when the resume assessment is preliminary (1.2297ms)
+✔ stale evidence and tampered content block cover-letter export (3.0828ms)
+✔ user edits reject invented numbers and risky personal claims (2.0678ms)
+✔ self-disqualifying edits and legacy drafts are blocked from export (1.789ms)
+✔ user edits cannot introduce a new unsupported capability (1.0633ms)
+✔ removing too many paragraphs recalculates and blocks readiness (1.0567ms)
+✔ cover-letter drafts are account- and target-scoped and reject stale sources (17.6478ms)
+✔ review loading rejects a locally corrupted letter while preserving a valid stale draft (0.6257ms)
+✔ multi-page screenshot intake batches six pages without dropping any (1.8601ms)
+✔ screenshot selection ignores duplicate files and enforces the visible limit (0.2632ms)
+✔ screenshot extraction merges repeated content and exposes source conflicts (1.4462ms)
+✔ paste or URL conflicts expose a resolvable source review instead of a hidden screenshot gate (5.2667ms)
+✔ screenshot merge combines compatible schedule and contract details without blocking (1.1996ms)
+✔ source conflict labels are human-readable (0.2004ms)
+✔ a pasted-text source invalidates an in-flight screenshot extraction (1.053ms)
+✔ a URL source after screenshots cannot inherit the screenshot review request (0.1705ms)
+✔ a newer request for the same source invalidates an older response (0.6783ms)
+✔ disposing a flow invalidates work that resolves after navigation (0.1591ms)
+✔ explicit cancellation aborts the active request and rejects its late response (0.1906ms)
+✔ the custom flow binds extraction and tailoring to the active source session (5.2569ms)
+✔ public-listing tailoring also exposes abortable cancel behavior (0.9193ms)
+✔ full-time and a six-month contract are combined rather than treated as conflicting (2.1928ms)
+✔ compatible source values reconcile even when the top-level type is unlabeled (0.3879ms)
+✔ contradictory schedules remain a blocking source conflict (0.8277ms)
+✔ contradictory engagement types and durations are not silently combined (0.2267ms)
+✔ unknown employment labels remain reviewable instead of being guessed (0.1757ms)
+✔ a proposal remains unconfirmed until the candidate approves it (0.9396ms)
+✔ editing converts the proposal back into an unconfirmed candidate statement (0.2669ms)
+✔ rejecting restores the candidate's original source words (0.1634ms)
+✔ the coach request contains no full resume or unrelated profile fields (1.4445ms)
+✔ evidence coach telemetry permits only coarse allowlisted properties (1.2665ms)
+✔ unknown outcomes are not emitted (0.1161ms)
+✔ Evidence Map exposes progressive disclosure, filters, and separate readiness axes (4.6973ms)
+✔ legacy candidate notes retain their answer state (0.8237ms)
+✔ not-sure answers stay local and unconfirmed yes answers are not submitted (0.883ms)
+✔ preview shows only literal candidate fields and responsibility level (0.2859ms)
+✔ normalization never confirms a positive answer implicitly (0.1393ms)
+✔ using complete answers is the single candidate action that prepares them for submission (0.469ms)
+✔ a selected capability needs no redundant free-text proof (0.2544ms)
+✔ evidence refinement is optional, compact, and has no redundant confirmation checkbox (0.2351ms)
+✔ export failures use safe actionable categories for every file format (1.4677ms)
+✔ stale résumé recovery preserves wording before an explicit refresh (0.2017ms)
+✔ stale cover-letter recovery explains browser-saved draft safety (0.6544ms)
+✔ export module loaders cache success and reset after a failed load (0.8889ms)
+✔ guest search preferences round trip locally (1.2063ms)
+✔ guest location filters round trip locally (0.6824ms)
+✔ guest workplace and work-type filters are allowlisted (0.1607ms)
+✔ guest preferences exclude private and unknown content (0.283ms)
+✔ malformed guest storage falls back to safe defaults (0.2162ms)
+✔ blocked guest storage does not prevent public discovery (0.277ms)
+✔ root renders the landing page while /app keeps the existing public product (1.0114ms)
+✔ landing and app are route-level lazy chunks (0.1135ms)
+✔ US discovery copy and regional provider links share the fail-closed public gate (0.1248ms)
+✔ warm glass stays an explicit landing-only visual preview (0.2402ms)
+✔ browse and all intake CTAs map to the real app and existing account actions (0.6354ms)
+✔ landing navigation state accepts only the three existing intake actions (0.2289ms)
+✔ invalid or structured router state cannot open a private workflow (0.1184ms)
+✔ the app consumes the landing intent through the centralized gate and clears history state (0.1528ms)
+✔ the landing gallery exposes all seven visual styles without presenting strategies as skins (0.231ms)
+✔ template examples are explicitly generic and contain no private fixture résumé (0.6527ms)
+✔ the selected résumé style has a readable sample and an accessible full-size preview (0.6894ms)
+✔ landing modules do not import export libraries or call private and AI endpoints (0.4683ms)
+✔ the landing page has one H1 and a logical section hierarchy (0.2514ms)
+✔ named landing groups use supported landmark or group roles (0.2428ms)
+✔ the mobile hero keeps the brand signal without letting the headline dominate (0.3439ms)
+✔ mobile navigation exposes modal state, focus containment, Escape, and restoration (0.5366ms)
+✔ all hash navigation targets exist in the landing source (0.3475ms)
+✔ footer links the implemented privacy route and avoids absent legal or social routes (0.2281ms)
+✔ metadata defines the production canonical, sharing image, robots, and truthful WebSite data (0.1463ms)
+✔ responsive CSS protects mobile width, touch targets, focus, reduced motion, and section rhythm (0.2405ms)
+✔ FAQ covers the required trust, pricing, storage, and product questions (0.3153ms)
+✔ the landing tour ships a poster plus H.264 and WebM versions of both cuts (1.5373ms)
+✔ the product tour is accessible, bandwidth-aware, and never forces audio (0.2928ms)
+✔ the complete guide states the trust boundaries and export formats (0.256ms)
+✔ the capture uses synthetic, non-SAP evidence and is excluded from production routing (0.2736ms)
+✔ tour analytics expose only allow-listed event and surface names (0.6719ms)
+✔ availability presentation distinguishes active, stale, uncertain, and closed (0.8695ms)
+✔ pre-tailoring checks run only for stale or uncertain listings (0.2893ms)
+✔ API availability data maps without exposing or replacing listing content (0.6502ms)
+✔ exposes the expanded job-and-gig taxonomy with legacy profile compatibility (1.5768ms)
+✔ routes management searches by function instead of treating every manager as admin (4.4683ms)
+✔ recognizes expanded skilled-trade and local-service searches (0.3825ms)
+✔ normalizes common technology aliases without losing meaningful punctuation (0.1256ms)
+✔ recognizes technologies and combined natural-language searches (1.3954ms)
+✔ matches requested technologies in titles or descriptions without leaking unrelated tech (3.0777ms)
+✔ public description snippets remain discovery-only matches below title matches (0.241ms)
+✔ discovery ordering uses relevance, then valid freshness, then stable id (9.4097ms)
+✔ discovery excludes stale and materially future-dated rows but retains unknown dates (0.2561ms)
+✔ treats SaaS as a cross-functional domain while respecting role context (0.4747ms)
+✔ corrects obvious source-category mistakes using strong title evidence (0.1978ms)
+✔ keeps ambiguous or cross-domain titles in a credible stored category (0.2075ms)
+✔ assigns category, subcategory, and confidence together (0.1459ms)
+✔ does not show a virtual assistant for a plumbing search (0.1551ms)
+✔ allows broad administration searches without leaking product management (0.1868ms)
+✔ updates stale categories in both supported match-reason formats (0.2364ms)
+✔ normalizes jobs and gigs as a separate work-arrangement dimension (0.3212ms)
+✔ tailored results stay attached to listing ids after filtering or reordering (0.9463ms)
+✔ a listing without a database id is rejected (0.3723ms)
+✔ canonical identity ignores allowlisted analytics parameters without changing outbound URLs (1.0284ms)
+✔ cross-source duplicates choose a deterministic direct representative and preserve attribution (2.1475ms)
+✔ later pages preserve an existing representative and distinct jobs remain distinct (0.5128ms)
+✔ identical multi-location postings collapse once and retain every location (9.0012ms)
+✔ same employer and title remain separate when the posting copy differs (0.3017ms)
+✔ legacy location preferences stay compatible (0.942ms)
+✔ only specific location modes become structured database filters (0.131ms)
+✔ legacy query fallback is limited to missing structured columns (0.2553ms)
+✔ location type is inferred from structured values, titles, and locations (0.4848ms)
+✔ Canadian province abbreviations and accents are normalized for matching (0.9873ms)
+✔ location mode filters remote, hybrid, and on-site listings (0.3016ms)
+✔ remote listings can be restricted by country, region, and city (0.2889ms)
+✔ location preference summaries are human-readable (0.3588ms)
+✔ one location search value round-trips to structured criteria (0.8139ms)
+✔ legacy location text upgrades into structured persisted criteria (0.2458ms)
+✔ province and state choices depend on the selected country (0.7492ms)
+✔ raw source locations are parsed into structured Canadian and US fields (0.185ms)
+✔ structured listing fields take precedence and produce a stable display label (0.2056ms)
+✔ source-aware inference recognizes We Work Remotely rows (0.104ms)
+✔ normalization produces a database-ready patch without discarding source text (0.1794ms)
+✔ location coverage diagnostics separate structured, parsed, inferred, and unresolved rows (0.2482ms)
+✔ public rows map snippets, source attribution, and valid freshness into discovery fields (7.3657ms)
+✔ invalid posting dates remain explicitly unknown (1.4422ms)
+✔ public listing audit reports bounded aggregates without echoing listing content (10.8759ms)
+✔ public listing audit handles an empty inventory deterministically (0.1824ms)
+✔ structured filters are applied before an inclusive database page range (2.3354ms)
+✔ anywhere without geography adds no structured database filters (0.1414ms)
+✔ city wildcard characters are escaped before ilike filtering (0.1424ms)
+✔ recognized technology terms filter at the database before pagination (2.223ms)
+✔ SAP search expands into common module and utilities vocabulary (1.6393ms)
+✔ server search expands broad IT and sanitizes unsafe PostgREST punctuation (1.3294ms)
+✔ pagination merges rows by stable identity and detects the next page (1.045ms)
+✔ legacy fallback is restricted to missing location columns (0.2761ms)
+✔ public-view fallback is restricted to a missing relation (0.1721ms)
+✔ availability fallback is restricted to missing lifecycle columns (0.2418ms)
+✔ query fingerprints reset pagination for search and geographic changes (0.2093ms)
+✔ initial search can auto-continue but remains bounded (0.1419ms)
+✔ tailoring panel ids are stable, unique, and safe for ARIA ID references (1.4232ms)
+✔ requesting the open listing collapses it while requesting another listing switches exactly once (0.1402ms)
+✔ a visible panel receives focus without an unnecessary scroll (0.8541ms)
+✔ an offscreen panel scrolls smoothly to the nearest visible position (0.2113ms)
+✔ reduced-motion users get an immediate scroll (0.1474ms)
+✔ the reveal scheduler works without requestAnimationFrame, focus, or scrolling APIs (0.2682ms)
+✔ the reveal scheduler uses and cleans up an animation frame when available (0.1633ms)
+✔ listing tailoring uses honest action copy and keeps generation explicit (0.8482ms)
+✔ listing tailoring controls expose and label the exact panel they toggle (0.3711ms)
+✔ signed-in and restored account actions reveal the selected listing panel (0.2454ms)
+✔ US market exposure is fail-closed unless the public flag is explicitly true (0.7377ms)
+✔ the dormant selector exposes only Canada and cannot issue an all-country query (0.6459ms)
+✔ the enabled pilot exposes only the supported Canada, US, and all-country choices (0.6412ms)
+✔ dormant exposure collapses saved US, empty, and unsupported criteria to Canada (0.2981ms)
+✔ dormant Canadian criteria and enabled US criteria preserve valid geography (0.1447ms)
+✔ market search analytics expose only an allow-listed market and outcome (1.4257ms)
+✔ a technology title match does not imply candidate fit before tailoring (1.9917ms)
+✔ evidence-based fit replaces search relevance after tailoring (0.1581ms)
+✔ an incomplete posting suppresses fit labels until the full posting is available (0.1206ms)
+✔ category browsing and non-title keyword matches use neutral labels (0.1266ms)
+✔ presentation prototypes are fail-closed unless explicitly enabled (0.6537ms)
+✔ privacy release configuration requires verified public facts (1.4142ms)
+✔ local deletion is allowlisted to the current account's private resume records (1.4336ms)
+✔ privacy notice is public, versioned, and covers the real processing boundaries (1.2478ms)
+✔ privacy notice supports direct production navigation (0.69ms)
+✔ just-in-time processing copy stays provider-neutral while the privacy notice names current subprocessors (0.1957ms)
+✔ private résumé payloads normalize and hash deterministically (2.1833ms)
+✔ oversized résumés are rejected without truncation or a vault request (0.3292ms)
+✔ multibyte payloads respect the database byte limit before a vault request (2.5024ms)
+✔ sync preferences are versioned, account-isolated, and fail closed (0.4868ms)
+✔ sync state never silently replaces divergent copies (0.4523ms)
+✔ remote reads reject another account and tampered payloads (0.3978ms)
+✔ vault errors distinguish unavailable schema and recoverable connectivity (0.4397ms)
+✔ thrown transport failures remain recoverable and never escape (1.0816ms)
+✔ insert and revision-bound update preserve the document ownership contract (0.5414ms)
+✔ a stale update returns the latest copy as an explicit conflict (0.4559ms)
+✔ delete is revision-bound and reports a late conflict without deleting local data (0.2226ms)
+✔ private document migration is explicit, own-user, and browser-deny-by-default (1.5997ms)
+✔ private document migration enforces revision and bounded schema contracts (0.2715ms)
+✔ release verification is read-only, aggregate-only, and covers every metadata gate (0.2987ms)
+✔ private processing acknowledgement is scoped and policy-versioned (2.2267ms)
+✔ quality sharing is off by default and malformed consent fails closed (0.9023ms)
+✔ explicit consent can be enabled and disabled (0.201ms)
+✔ blocked browser storage cannot accidentally enable sharing (0.1564ms)
+✔ disabled sharing performs no request (0.4587ms)
+✔ enabled sharing omits credentials and sends only the exact contract (0.8576ms)
+✔ strict validation rejects extra fields, nesting, arbitrary PII, and Unicode lookalikes (0.4971ms)
+✔ disabling consent immediately aborts an in-flight best-effort request (0.3407ms)
+✔ resume-derived transport strips all private source strings (11.5854ms)
+✔ DOCX text runs serialize approved structured text without object coercion (1.7162ms)
+✔ field-aware resume normalization is deterministic, cycle-safe, and metadata-safe (13.3082ms)
+✔ generated DOCX is a valid package with complete ordered visible text (103.4066ms)
+✔ DOCX keeps compact project paragraphs together when Word paginates (16.0731ms)
+✔ preliminary state stays outside both preliminary and final DOCX content (23.6566ms)
+✔ DOCX export rejects missing or placeholder identity (1.4431ms)
+✔ resume identity uses only exact header text (2.5926ms)
+✔ resume identity refuses headings and placeholders as names (0.3426ms)
+✔ résumé intake accepts only bounded DOCX, PDF, and image inputs (1.5048ms)
+✔ DOCX extraction returns normalized review text without saving a binary (0.3791ms)
+✔ text PDFs stay local and scanned PDFs are explicitly routed to OCR (0.9418ms)
+✔ import review copy makes replacement and explicit save boundaries clear (0.2628ms)
+✔ résumé intake analytics allow only coarse source and outcome dimensions (0.2775ms)
+✔ migration saves locally before clearing the cloud resume (1.3771ms)
+✔ failed cloud deletion keeps the local copy and returns a warning status (0.1972ms)
+✔ different local and cloud resumes are not overwritten or deleted (0.1353ms)
+✔ canonical package separates facts, evidence, classification, and presentation (15.0492ms)
+✔ template registry exposes role-aware and universal design IDs (0.7953ms)
+✔ deterministic recommendation distinguishes functional SAP, technical SAP, leadership, transition, and fallback (7.3286ms)
+✔ admin/customer operations recommendation requires matching target and verified service evidence (7.6032ms)
+✔ technical recommendation covers software, web, cloud, data, and QA targets only with verified evidence (3.7357ms)
+✔ ABAP development evidence qualifies while functional collaboration does not (0.6306ms)
+✔ adjacent SAP module pivot remains functional without inserting the target module (2.4132ms)
+✔ template override changes presentation only and preserves factual IDs and content hash (0.6515ms)
+✔ visual design switches preserve strategy, canonical content, evidence IDs, and readiness authorization (4.1004ms)
+✔ strategy switches can change section logic without changing canonical facts or selected design (0.8686ms)
+✔ all selectable templates keep the same selected factual item IDs (2.8505ms)
+✔ universal design styles inherit occupation-aware content without changing facts (2.2425ms)
+✔ B3 direct recommendations require verified marketing or creative candidate evidence (2.4859ms)
+✔ B3 adjacent candidates stay capped and never acquire posting metrics, platforms, portfolios, or leadership (1.1471ms)
+✔ posting requirements can identify a B3 target but can never satisfy candidate-side evidence (0.8745ms)
+✔ B3 false-positive overlaps never produce a strong family recommendation (2.2646ms)
+✔ B3 portfolio URLs are allowlisted, explicitly identified, and visible without inventing a portfolio (2.3652ms)
+✔ incomplete postings cap direct B3 recommendations and produce preliminary-only authorization (3.3649ms)
+✔ B2 recommendation distinguishes regulated, apprentice, field-service, general-maintenance, and landscape profiles (2.6263ms)
+✔ category and ambiguous maintenance language never create direct trade evidence (1.2009ms)
+✔ direct hands-on evidence with a missing regulated credential cannot receive a strong recommendation (0.5052ms)
+✔ posting credential language never counts as candidate credential evidence (0.3883ms)
+✔ noisy duplicated posting requirements stay review-only and deduplicate credential gaps (1.518ms)
+✔ manual B2 selection changes render strategy only and stays conservative without direct trade evidence (0.4812ms)
+✔ B2 section order adapts deterministically without changing canonical content (2.9541ms)
+✔ admin template preserves coordination wording instead of upgrading it to management (1.7399ms)
+✔ malformed values and cycles are omitted with warnings instead of object coercion (0.619ms)
+✔ unknown future canonical schema versions fail closed (0.3912ms)
+✔ wording analysis reports repeated verbs, vague wording, duplicate bullets, and unsupported ownership (0.4035ms)
+✔ export authorization is bound to content, identity, posting, schema, and mode (1.7647ms)
+✔ partial posting creates a preliminary context and missing identity blocks export (1.4894ms)
+✔ ats-core-v1 keeps DOCX, PDF, and text aligned with the canonical manifest (426.4703ms)
+✔ sap-functional-v1 keeps DOCX, PDF, and text aligned with the canonical manifest (38.2678ms)
+✔ project-leadership-v1 keeps DOCX, PDF, and text aligned with the canonical manifest (30.6708ms)
+✔ career-transition-v1 keeps DOCX, PDF, and text aligned with the canonical manifest (25.2548ms)
+✔ technical-software-v1 keeps DOCX, PDF, and text aligned with the canonical manifest (26.1762ms)
+✔ admin-customer-operations-v1 keeps DOCX, PDF, and text aligned with the canonical manifest (26.326ms)
+✔ skilled-trades-field-services-v1 keeps DOCX, PDF, and text aligned with the canonical manifest (24.4013ms)
+✔ marketing-communications-v1 keeps DOCX, PDF, and text aligned with the canonical manifest (21.828ms)
+✔ creative-design-v1 keeps DOCX, PDF, and text aligned with the canonical manifest (26.401ms)
+✔ essential-ats-v1 keeps DOCX, PDF, and text aligned with the canonical manifest (25.9434ms)
+✔ classic-ledger-v1 keeps DOCX, PDF, and text aligned with the canonical manifest (26.0958ms)
+✔ modern-signal-v1 keeps DOCX, PDF, and text aligned with the canonical manifest (21.6532ms)
+✔ compact-focus-v1 keeps DOCX, PDF, and text aligned with the canonical manifest (25.7465ms)
+✔ bold-impact-v1 keeps DOCX, PDF, and text aligned with the canonical manifest (22.0014ms)
+✔ studio-editorial-v1 keeps DOCX, PDF, and text aligned with the canonical manifest (22.4792ms)
+✔ field-ready-v1 keeps DOCX, PDF, and text aligned with the canonical manifest (21.6615ms)
+✔ direct PDF contains ordered selectable ATS text and no object artifacts (331.4066ms)
+✔ preliminary state stays outside both preliminary and final PDF content (37.2084ms)
+✔ direct PDF paginates long resumes without losing first or last experience bullets (39.9726ms)
+✔ direct PDF keeps compact project bullets together across a page boundary (24.6259ms)
+✔ direct PDF rejects missing or placeholder identity (1.3733ms)
+✔ browser print fallback preserves preview markup as searchable HTML (0.1878ms)
+✔ browser print fallback refuses an empty preview (0.1449ms)
+✔ seven public styles plus three dormant prototypes preserve identical canonical content (34.8245ms)
+✔ presentation choices change render identity and layout tokens without changing evidence (3.8306ms)
+✔ all palettes maintain readable accent contrast on white and their soft surface (0.4612ms)
+✔ export authorization is bound to palette, density, header, and length choices (3.5486ms)
+✔ export notices distinguish final, incomplete-posting, evidence, and identity states (15.1643ms)
+✔ a complete posting with no atomic requirement inventory is explicitly preliminary (0.4087ms)
+✔ resume keys are isolated by account (0.7096ms)
+✔ a resume is saved and loaded only for its account (0.2308ms)
+✔ an empty resume removes the local copy (0.1325ms)
+✔ career-change analysis selects the dedicated hybrid resume template (0.7767ms)
+✔ trades remain credential-forward and direct candidates remain professional (0.1265ms)
+✔ public recommendation contract includes strength and a deterministic reason code (13.8775ms)
+✔ public B2 recommendation exposes the credential-safe trade classification (3.0331ms)
+✔ public B3 recommendation exposes disposition and family-safe classification (2.78ms)
+✔ cross-device résumé sync is fail-closed until production is explicitly enabled (0.6559ms)
+✔ workspace sync status explains whether the résumé can move between devices (1.2511ms)
+✔ template selection is isolated by account and target (1.4979ms)
+✔ unknown or malformed stored template IDs fail safely (0.2453ms)
+✔ template persistence requires an account-scoped identity (0.1278ms)
+✔ Phase B1 template IDs persist without crossing account or target scope (0.1952ms)
+✔ Phase B2 persists per account and target and adapts the hidden legacy trades ID (0.189ms)
+✔ Phase B3 persists both families per account and migrates unversioned aliases (0.203ms)
+✔ visual design and content strategy persist independently and legacy choices migrate deterministically (1.4929ms)
+✔ presentation modifiers round-trip and version 2 choices receive deterministic defaults (0.2257ms)
+✔ universal design styles preserve occupation-aware content across broad career fixtures (33.852ms)
+✔ universal styles are visually distinct and retain readable text contrast (0.4646ms)
+✔ distinguishes an unknown query from recognized technology with thin inventory (5.5099ms)
+✔ reports work-type and location mismatches separately (0.244ms)
+✔ returns no diagnostic when credible matches are visible (0.1965ms)
+✔ recognizes the PostgREST future-JWT clock-skew error (0.8033ms)
+✔ a future JWT gets one delayed retry before refreshing the session (0.8142ms)
+✔ persistent clock skew gets one refresh and one final retry (0.2405ms)
+✔ using verified original wording preserves immutable resume structure (0.8333ms)
+✔ a user wording adjustment makes the export preliminary until restored (0.2919ms)
+✔ QA grouped consulting history keeps employer, role, dates and client evidence together (85.0998ms)
+✔ QA user examples survive capability submission and server validation; only generated statements refresh (1.3882ms)
+✔ QA forecast percentages retain their qualifier with whitespace, decimals, and repeated claims (2.6844ms)
+✔ QA pending, negated, preparation-only and expired credentials cannot establish PMP certification (1.4455ms)
+✔ QA letter edits cannot borrow leadership from unrelated résumé evidence (13.3396ms)
+✔ QA known integrity failures cannot export through preliminary DOCX, PDF or a matching letter (13.518ms)
+✔ QA conservative fallback preserves structured degrees and credentials instead of stringifying them (0.9613ms)
+[tailor:resume_rebuild] Clean rebuild requested {"pass":1,"metricCount":0,"historyCount":0,"provenanceCount":0}
+[tailor:request] started {"source":"trusted_listing","resumeSize":"short","postingSize":"short","requestBudgetMs":285000,"requirementCount":null,"analysisMaxTokens":7500,"correlationId":"tailor-b3352459-403a-4ee7-ab75-5e4d690589b2"}
+[tailor:evidence_analysis] AI request started {"tool":"return_tailoring_analysis","timeoutMs":95000,"maxTokens":7500,"reasoningEffort":"low","correlationId":"tailor-b3352459-403a-4ee7-ab75-5e4d690589b2"}
+[tailor:evidence_analysis] AI request completed {"tool":"return_tailoring_analysis","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-b3352459-403a-4ee7-ab75-5e4d690589b2"}
+[tailor:resume_draft] AI request started {"tool":"return_tailored_resume","timeoutMs":105000,"maxTokens":5200,"reasoningEffort":null,"correlationId":"tailor-b3352459-403a-4ee7-ab75-5e4d690589b2"}
+[tailor:resume_draft] AI request completed {"tool":"return_tailored_resume","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":4,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-b3352459-403a-4ee7-ab75-5e4d690589b2"}
+[tailor:validation] draft checked {"correlationId":"tailor-b3352459-403a-4ee7-ab75-5e4d690589b2","attempt":1,"status":"blocked","issueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":1,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:resume_rebuild] AI request started {"tool":"return_tailored_resume","timeoutMs":70000,"maxTokens":5200,"reasoningEffort":null,"correlationId":"tailor-b3352459-403a-4ee7-ab75-5e4d690589b2"}
+[tailor:resume_rebuild] AI request completed {"tool":"return_tailored_resume","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":1,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-b3352459-403a-4ee7-ab75-5e4d690589b2"}
+[tailor:validation] draft checked {"correlationId":"tailor-b3352459-403a-4ee7-ab75-5e4d690589b2","attempt":2,"status":"review","issueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:editorial] {"status":"not_tested_here","reason":null,"applied":false}
+[tailor:request] completed {"durationMs":94,"repairApplied":true,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":2,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":1,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+✔ QA long letter paragraphs export every line inside PDF page bounds (254.7311ms)
+✔ QA letter-only intake recognizes a name followed by a professional title (12.3922ms)
+✔ QA API rebuild through DOCX/PDF preserves grouped history and qualifications (225.027ms)
+{"event":"scheduled_feed_refresh","health":{"state":"success","attempted":1,"succeeded":1,"failed":0,"skipped":1},"sources":{"adzuna":{"ok":true,"state":"success","skipped":false,"durationMs":1,"requests":16,"saved":500,"inserted":450,"updated":50},"employerDirect":{"ok":true,"state":"skipped","skipped":true,"durationMs":0,"skipCategory":"configuration","requests":0,"received":0,"saved":0,"boards":0}}}
+{"event":"scheduled_feed_refresh","health":{"state":"skipped","attempted":0,"succeeded":0,"failed":0,"skipped":2},"sources":{"adzuna":{"ok":true,"state":"skipped","skipped":true,"durationMs":0,"skipCategory":"configuration","requests":0,"received":0,"saved":0},"employerDirect":{"ok":true,"state":"skipped","skipped":true,"durationMs":0,"skipCategory":"configuration","requests":0,"received":0,"saved":0,"boards":0}}}
+{"event":"scheduled_feed_refresh","health":{"state":"success","attempted":1,"succeeded":1,"failed":0,"skipped":1},"sources":{"adzuna":{"ok":true,"state":"skipped","skipped":true,"durationMs":0,"skipCategory":"disabled_by_policy","requests":0,"received":0,"saved":0},"employerDirect":{"ok":true,"state":"success","skipped":false,"durationMs":0,"received":8,"saved":5,"boards":1}}}
+{"event":"scheduled_feed_refresh","health":{"state":"partial","attempted":2,"succeeded":1,"failed":1,"skipped":0},"sources":{"adzuna":{"ok":true,"state":"success","skipped":false,"durationMs":0,"requests":16,"saved":500},"employerDirect":{"ok":false,"state":"failed","error":"Employer-direct ATS import failed","errorCategory":"upstream","durationMs":0}}}
+{"event":"scheduled_feed_refresh","health":{"state":"partial","attempted":2,"succeeded":1,"failed":1,"skipped":0},"sources":{"adzuna":{"ok":false,"state":"failed","error":"Adzuna CA import failed","errorCategory":"upstream","durationMs":0},"employerDirect":{"ok":true,"state":"success","skipped":false,"durationMs":0,"saved":25,"boards":1}}}
+✔ category discovery covers the Canadian jobs-and-gigs catalogue within quota (1.9374ms)
+✔ Adzuna fetches one fresh, date-sorted Canadian page per category and deduplicates results (1.9908ms)
+✔ Adzuna mapping produces a structured Canadian trades listing (2.6325ms)
+✔ deterministic listing IDs are stable and source-scoped (0.6976ms)
+✔ Adzuna ingestion preserves IDs but remains observation-only (4.1168ms)
+✔ cron rejects an invalid secret before creating clients or importing (0.3842ms)
+✔ cron returns a bounded operational summary after a successful import (1.9531ms)
+✔ cron skips optional paid feeds cleanly when none are configured (0.6031ms)
+✔ source policy disables Adzuna while an eligible employer board still runs (0.4359ms)
+✔ cron isolates an employer-board outage from a successful Adzuna import (0.7196ms)
+✔ configured employer boards can succeed while Adzuna is temporarily unavailable (0.4678ms)
+✔ server configuration never accepts browser-exposed ingestion secrets (0.5896ms)
+✔ Adzuna credentials are optional when secure shared cron configuration exists (0.1143ms)
+[ai-provider] attempt failed {"stage":"return_test_payload","attempt":1,"providerAttempt":1,"provider":"openai","model":"gpt-5.6-terra","status":null,"category":"incomplete_max_output","providerType":null,"requestId":null,"responseId":"resp_incomplete","responseStatus":"incomplete","incompleteReason":"max_output_tokens","outputItems":[{"type":"reasoning","status":"incomplete","name":null}],"inputTokens":100,"outputTokens":100,"reasoningTokens":90,"maxTokens":4200,"correlationId":null}
+[ai-provider] attempt failed {"stage":"return_test_payload","attempt":1,"providerAttempt":1,"provider":"openai","model":"gpt-5.6-terra","status":null,"category":"malformed_tool_arguments","providerType":null,"requestId":null,"responseId":null,"responseStatus":"completed","incompleteReason":null,"outputItems":[{"type":"function_call","status":"completed","name":"return_test_payload"}],"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"maxTokens":100,"correlationId":null}
+[ai-provider] attempt failed {"stage":"return_test_payload","attempt":1,"providerAttempt":1,"provider":"openai","model":"gpt-5.6-terra","status":null,"category":"schema_validation_failed","providerType":null,"requestId":null,"responseId":null,"responseStatus":"completed","incompleteReason":null,"outputItems":[{"type":"function_call","status":"completed","name":"return_test_payload"}],"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"maxTokens":100,"correlationId":null}
+[ai-provider] attempt failed {"stage":"return_test_payload","attempt":1,"providerAttempt":1,"provider":"openai","model":"gpt-5.6-terra","status":null,"category":"provider_refusal","providerType":null,"requestId":null,"responseId":null,"responseStatus":"completed","incompleteReason":null,"outputItems":[{"type":"message","status":"completed","name":null}],"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"maxTokens":100,"correlationId":null}
+[ai-provider] attempt failed {"stage":"return_test_payload","attempt":1,"providerAttempt":1,"provider":"openai","model":"gpt-5.6-terra","status":null,"category":"missing_tool_call","providerType":null,"requestId":null,"responseId":null,"responseStatus":"completed","incompleteReason":null,"outputItems":[{"type":"message","status":"completed","name":null}],"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"maxTokens":100,"correlationId":null}
+[ai-provider] attempt failed {"stage":"return_test_payload","attempt":2,"providerAttempt":2,"provider":"openai","model":"gpt-5.6-terra","status":null,"category":"incomplete_tool_call","providerType":null,"requestId":null,"responseId":null,"responseStatus":"completed","incompleteReason":null,"outputItems":[{"type":"function_call","status":"incomplete","name":"return_test_payload"}],"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"maxTokens":2100,"correlationId":null}
+[ai-provider] attempt failed {"stage":"return_test_payload","attempt":1,"providerAttempt":1,"provider":"openai","model":"gpt-5.6-terra","status":null,"category":"missing_tool_call","providerType":null,"requestId":null,"responseId":null,"responseStatus":"completed","incompleteReason":null,"outputItems":[],"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"maxTokens":100,"correlationId":"tailor-test"}
+[ai-provider] attempt failed {"stage":"return_test_payload","attempt":2,"providerAttempt":2,"provider":"openai","model":"gpt-5.6-terra","status":null,"category":"missing_tool_call","providerType":null,"requestId":null,"responseId":null,"responseStatus":"completed","incompleteReason":null,"outputItems":[],"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"maxTokens":2100,"correlationId":"tailor-test"}
+[ai-provider] attempt failed {"stage":"return_test_payload","attempt":3,"providerAttempt":1,"provider":"anthropic","model":"claude-sonnet-4-6","status":400,"category":"billing","providerType":"invalid_request_error","requestId":"req_billing","responseId":null,"responseStatus":null,"incompleteReason":null,"outputItems":[],"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"maxTokens":100,"correlationId":"tailor-test"}
+[ai-provider] attempt failed {"stage":"provider_fallback_test","attempt":1,"providerAttempt":1,"provider":"openai","model":"gpt-5.6-terra","status":429,"category":"rate_limit","providerType":"rate_limit_error","requestId":null,"responseId":null,"responseStatus":null,"incompleteReason":null,"outputItems":[],"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"maxTokens":100,"correlationId":null}
+[ai-provider] attempt failed {"stage":"return_test_payload","attempt":1,"providerAttempt":1,"provider":"unknown","model":"gpt-5.6-terra","status":null,"category":"timeout","providerType":null,"requestId":null,"responseId":null,"responseStatus":null,"incompleteReason":null,"outputItems":[],"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"maxTokens":100,"correlationId":null}
+[ai-provider] retrying structured output {"stage":"return_test_payload","provider":"openai","category":"incomplete_max_output","providerAttempt":2,"previousMaxTokens":4200,"maxTokens":6200,"correlationId":null}
+[ai-provider] retrying structured output {"stage":"return_test_payload","provider":"openai","category":"malformed_tool_arguments","providerAttempt":2,"previousMaxTokens":100,"maxTokens":2100,"correlationId":null}
+[ai-provider] retrying structured output {"stage":"return_test_payload","provider":"openai","category":"schema_validation_failed","providerAttempt":2,"previousMaxTokens":100,"maxTokens":2100,"correlationId":null}
+[ai-provider] falling back {"stage":"return_test_payload","from":"openai","to":"anthropic","afterCategory":"provider_refusal","correlationId":null}
+[ai-provider] retrying structured output {"stage":"return_test_payload","provider":"openai","category":"missing_tool_call","providerAttempt":2,"previousMaxTokens":100,"maxTokens":2100,"correlationId":null}
+[ai-provider] falling back {"stage":"return_test_payload","from":"openai","to":"anthropic","afterCategory":"incomplete_tool_call","correlationId":null}
+[ai-provider] retrying structured output {"stage":"return_test_payload","provider":"openai","category":"missing_tool_call","providerAttempt":2,"previousMaxTokens":100,"maxTokens":2100,"correlationId":"tailor-test"}
+[ai-provider] falling back {"stage":"return_test_payload","from":"openai","to":"anthropic","afterCategory":"missing_tool_call","correlationId":"tailor-test"}
+[ai-provider] falling back {"stage":"provider_fallback_test","from":"openai","to":"anthropic","afterCategory":"rate_limit","correlationId":null}
+✔ OpenAI is primary and uses server-side Responses API structured output (3.0453ms)
+✔ strict OpenAI tools use a recursively closed schema and low reasoning when requested (0.6058ms)
+✔ strict schema conversion rejects optional properties instead of silently changing semantics (0.6497ms)
+✔ OpenAI retries an incomplete max-output response with a larger budget (0.9667ms)
+✔ OpenAI retries malformed function arguments before falling back (0.5038ms)
+✔ OpenAI retries a schema-invalid strict payload (0.4492ms)
+✔ OpenAI refusal is classified and falls back without retrying the refusal (0.5524ms)
+✔ OpenAI retries a missing or incomplete function call then uses Anthropic (0.5941ms)
+✔ the final Anthropic billing error retains the preceding OpenAI output failures (0.868ms)
+✔ Anthropic is used only after an OpenAI provider failure (0.492ms)
+✔ cancellation never starts a fallback provider request (0.9488ms)
+✔ provider configuration accepts either key and rejects an empty pair (0.1258ms)
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["Use one opening, distinct evidence paragraphs when useful, and one closing, in that order."],"durationMs":12}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["This paragraph needs candidate evidence citations."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["This paragraph needs posting requirement citations."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["Use one opening, distinct evidence paragraphs when useful, and one closing, in that order."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["The complete letter exceeds the 180-word short limit."],"durationMs":3}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["The verified sources do not establish leadership or ownership of this work.","The cited evidence does not establish leadership or ownership of this work. Keep the supported responsibility level or regenerate using relevant evidence."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["paragraph regeneration must preserve the requested id and purpose in an existing complete draft"],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["The complete letter exceeds the 180-word short limit."],"durationMs":2}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":22,"writingIssueCount":0,"durationMs":1}
+[cover-letter] editorial {"status":"not_requested","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":1,"regenerated":true,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":22,"writingIssueCount":0,"durationMs":1}
+✔ same contract blocks closing-only in generation, readiness and export (44.9349ms)
+✔ same contract blocks missing-candidate-citation in generation, readiness and export (7.5316ms)
+✔ same contract blocks missing-posting-citation in generation, readiness and export (3.8022ms)
+✔ same contract blocks wrong-order in generation, readiness and export (3.9161ms)
+✔ same contract blocks over-budget in generation, readiness and export (5.7399ms)
+✔ same contract blocks unsupported-leadership in generation, readiness and export (3.7507ms)
+✔ valid generation, saved draft, safe edit and export agree (4.2836ms)
+✔ regeneration cannot change purpose and cannot expand past the complete letter budget (4.497ms)
+✔ a valid paragraph regeneration retains untouched paragraphs (2.2919ms)
+✔ removing the opening preserves a reviewable draft but blocks export (1.4309ms)
+✔ resume assessment is bound to reviewed content across canonicalization and presentation (12.5311ms)
+✔ valid domain nouns, degree abbreviations and different results are positive controls (0.6452ms)
+✔ nominalized repetition is caught and a generic replacement cannot win by being shorter (0.6172ms)
+✔ languages appear once without losing proficiency (1.033ms)
+✔ whole-letter word budget is reviewed during a partial revision (0.3731ms)
+✔ service disclaimer advice does not remove material supervision or project scope (0.1523ms)
+✔ employer extraction stops before a following verb and handles pipe headings (0.5899ms)
+✔ legacy generated assessments need review and cannot bypass the gate through a new export context (3.1622ms)
+✔ ATS board configuration is server-only, validated, and deduplicated (1.8875ms)
+✔ ATS providers use their documented public job-board endpoints (0.1924ms)
+✔ employer-direct mapping preserves each ATS provider's canonical URL (7.6604ms)
+✔ employer-direct mapping excludes obvious US-only roles (0.5594ms)
+✔ ATS ingestion skips cleanly until employer boards are configured (0.2603ms)
+✔ ATS freshness finalization is isolated to each successful employer board (2.007ms)
+✔ experience is deterministically restored to reverse chronological order (1.7657ms)
+✔ ATS truth check blocks numbers and employment history absent from the base resume (38.8604ms)
+✔ ATS review recognizes supported history, metrics, verbs, and keywords (5.1102ms)
+✔ ATS truth check accepts cosmetic history formatting changes (2.8933ms)
+✔ ATS truth check blocks real history fields recombined into the wrong job (3.0098ms)
+✔ ATS truth check blocks a tailored resume that silently omits a verified role (2.4158ms)
+✔ history completeness accepts job headers split across three adjacent lines (1.6983ms)
+✔ ATS truth check accepts a history tuple split across adjacent source lines (1.4945ms)
+✔ ATS truth check still blocks target-role history invented for a career change (1.617ms)
+✔ ATS truth check allows transferable-skills rewriting inside supported history (2.6374ms)
+✔ ATS truth check ignores numbers in the non-exported fit assessment (1.611ms)
+✔ ATS writing review recognizes common truthful action verbs (3.6662ms)
+✔ occupation-aware writing review gives exact SAP functional tense and wording suggestions (1.7266ms)
+✔ candidate-confirmed contribution level blocks an ownership escalation (3.7158ms)
+✔ defined and applied are recognized as valid SAP functional action verbs (1.7045ms)
+✔ ATS review reports a missing placeholder identity separately from evidence integrity (0.9911ms)
+✔ application-ready export requires independently verified posting readiness (4.3268ms)
+✔ a verified posting with zero analyzed requirements remains preliminary (1.1599ms)
+✔ tailoring changes map rewritten bullets to exact candidate evidence (1.7694ms)
+✔ change explanations do not claim unrelated C4C or Cash Journal alignment (0.7743ms)
+✔ tailoring provenance can cite multiple source lines for one composite bullet (0.4371ms)
+✔ tailoring provenance blocks contributed-to-authored ownership escalation (1.3417ms)
+✔ requirement count mismatches block application-ready export (1.3468ms)
+✔ candidate evidence requires explicit confirmation (1.2071ms)
+✔ validated candidate evidence is normalized and formatted separately (0.9408ms)
+✔ a candidate-selected capability is valid without a project narrative (1.4059ms)
+✔ all twelve visible candidate selections can reach document generation (0.3121ms)
+✔ declining a question becomes an explicit hard constraint, not supporting evidence (0.1523ms)
+✔ validated evidence preserves its application or reusable scope (0.1485ms)
+✔ approved coach evidence is revalidated and retains traceable provenance (1.849ms)
+✔ tampering with an approved coach proposal is rejected before tailoring (0.2509ms)
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":4,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":99,"writingIssueCount":0,"durationMs":30}
+[cover-letter] editorial {"status":"not_requested","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":1,"regenerated":true,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":99,"writingIssueCount":0,"durationMs":4}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":4,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":91,"writingIssueCount":0,"durationMs":3}
+[cover-letter] editorial {"status":"not_requested","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":1,"regenerated":true,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":91,"writingIssueCount":0,"durationMs":2}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":4,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":95,"writingIssueCount":0,"durationMs":2}
+[cover-letter] editorial {"status":"not_requested","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":1,"regenerated":true,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":95,"writingIssueCount":0,"durationMs":2}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":4,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":91,"writingIssueCount":0,"durationMs":2}
+[cover-letter] editorial {"status":"not_requested","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":1,"regenerated":true,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":91,"writingIssueCount":0,"durationMs":2}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":4,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":88,"writingIssueCount":0,"durationMs":1}
+[cover-letter] editorial {"status":"not_requested","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":1,"regenerated":true,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":88,"writingIssueCount":0,"durationMs":1}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":4,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":93,"writingIssueCount":0,"durationMs":2}
+[cover-letter] editorial {"status":"not_requested","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":1,"regenerated":true,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":93,"writingIssueCount":0,"durationMs":3}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":4,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":97,"writingIssueCount":0,"durationMs":1}
+[cover-letter] editorial {"status":"not_requested","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":1,"regenerated":true,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":97,"writingIssueCount":0,"durationMs":2}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":4,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":96,"writingIssueCount":0,"durationMs":2}
+[cover-letter] editorial {"status":"not_requested","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":1,"regenerated":true,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":96,"writingIssueCount":0,"durationMs":2}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":4,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":102,"writingIssueCount":0,"durationMs":2}
+[cover-letter] editorial {"status":"not_requested","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":1,"regenerated":true,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":102,"writingIssueCount":0,"durationMs":1}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":4,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":99,"writingIssueCount":0,"durationMs":2}
+[cover-letter] editorial {"status":"not_requested","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":1,"regenerated":true,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":99,"writingIssueCount":0,"durationMs":2}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":4,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":62,"writingIssueCount":0,"durationMs":2}
+✔ G01: truthful letter and paragraph regeneration retain evidence and export authorization (63.9067ms)
+✔ G01 patient-unit: false claim blocked in generation, regeneration, edit, restore, PDF and DOCX (17.9651ms)
+✔ G01 team-credit: false claim blocked in generation, regeneration, edit, restore, PDF and DOCX (15.383ms)
+✔ G02: truthful letter and paragraph regeneration retain evidence and export authorization (14.6898ms)
+✔ G02 licence-upgrade: false claim blocked in generation, regeneration, edit, restore, PDF and DOCX (18.3556ms)
+✔ G02 independent-inspection: false claim blocked in generation, regeneration, edit, restore, PDF and DOCX (12.9593ms)
+✔ G03: truthful letter and paragraph regeneration retain evidence and export authorization (12.251ms)
+✔ G03 mixed-credentials: false claim blocked in generation, regeneration, edit, restore, PDF and DOCX (15.5326ms)
+✔ G03 timebase: false claim blocked in generation, regeneration, edit, restore, PDF and DOCX (13.0231ms)
+✔ G04: truthful letter and paragraph regeneration retain evidence and export authorization (9.3456ms)
+✔ G04 rate-inflation: false claim blocked in generation, regeneration, edit, restore, PDF and DOCX (10.2613ms)
+✔ G04 availability-invention: false claim blocked in generation, regeneration, edit, restore, PDF and DOCX (10.896ms)
+✔ G05: truthful letter and paragraph regeneration retain evidence and export authorization (8.8046ms)
+✔ G05 client-unit: false claim blocked in generation, regeneration, edit, restore, PDF and DOCX (11.1924ms)
+✔ G05 insurance-invention: false claim blocked in generation, regeneration, edit, restore, PDF and DOCX (10.8299ms)
+✔ G06: truthful letter and paragraph regeneration retain evidence and export authorization (15.2326ms)
+✔ G06 meal-unit: false claim blocked in generation, regeneration, edit, restore, PDF and DOCX (13.5021ms)
+✔ G06 allergy-guarantee: false claim blocked in generation, regeneration, edit, restore, PDF and DOCX (12.0982ms)
+✔ G07: truthful letter and paragraph regeneration retain evidence and export authorization (8.4443ms)
+✔ G07 sessions-to-students: false claim blocked in generation, regeneration, edit, restore, PDF and DOCX (10.1229ms)
+✔ G07 guaranteed-results: false claim blocked in generation, regeneration, edit, restore, PDF and DOCX (10.2457ms)
+✔ G07 reused-numeral: false claim blocked in generation, regeneration, edit, restore, PDF and DOCX (10.4249ms)
+✔ G08: truthful letter and paragraph regeneration retain evidence and export authorization (9.8333ms)
+✔ G08 turnaround-invention: false claim blocked in generation, regeneration, edit, restore, PDF and DOCX (11.7383ms)
+✔ G08 rights-invention: false claim blocked in generation, regeneration, edit, restore, PDF and DOCX (10.6108ms)
+✔ G09: truthful letter and paragraph regeneration retain evidence and export authorization (9.4435ms)
+✔ G09 negation-reversal: false claim blocked in generation, regeneration, edit, restore, PDF and DOCX (10.8669ms)
+✔ G09 group-size: false claim blocked in generation, regeneration, edit, restore, PDF and DOCX (11.8424ms)
+✔ G09 minimal-negation: false claim blocked in generation, regeneration, edit, restore, PDF and DOCX (11.4914ms)
+✔ G10: truthful letter and paragraph regeneration retain evidence and export authorization (10.2175ms)
+✔ G10 pesticide-licence: false claim blocked in generation, regeneration, edit, restore, PDF and DOCX (10.6515ms)
+✔ G10 crew-ownership: false claim blocked in generation, regeneration, edit, restore, PDF and DOCX (11.8951ms)
+✔ generic measured nouns, time units and word/digit paraphrases preserve meaning (1.6178ms)
+✔ team attribution and action polarity survive small edits (0.3962ms)
+✔ compound credentials retain AND/OR and individual status in either order (0.5304ms)
+✔ assurances require source support even with an unrelated negative clause (0.5008ms)
+✔ required availability is actionable and preliminary; preferences are not blockers (4.0008ms)
+✔ writing advice recognizes occupations without a verb allowlist or invented ownership (2.4019ms)
+✔ application notes stay out of prose while source history and portfolio survive (20.6549ms)
+✔ supported personal claims use the same generation and edit contract (4.0107ms)
+✔ a credential gap never deletes a real title, and a mere mention never grants it (2.4148ms)
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["A number or duration is not supported by this claim’s cited candidate evidence."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["A number or duration is not supported by this claim’s cited candidate evidence."],"durationMs":3}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["Preserve the team or crew attribution for this quantity.","Keep this result attributed to the team or programme and preserve the candidate’s contribution."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["Preserve the team or crew attribution for this quantity.","Keep this result attributed to the team or programme and preserve the candidate’s contribution."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["The cited evidence does not establish every required credential with the stated current status."],"durationMs":3}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["The cited evidence does not establish every required credential with the stated current status."],"durationMs":3}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["Supervised or observed work cannot be presented as independent execution or certification."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["Supervised or observed work cannot be presented as independent execution or certification."],"durationMs":3}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["The cited evidence does not establish every required credential with the stated current status."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["The cited evidence does not establish every required credential with the stated current status."],"durationMs":3}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["A number or duration is not supported by this claim’s cited candidate evidence."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["A number or duration is not supported by this claim’s cited candidate evidence."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["A number or duration is not supported by this claim’s cited candidate evidence."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["A number or duration is not supported by this claim’s cited candidate evidence."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["The cited evidence does not establish this availability claim."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["The cited evidence does not establish this availability claim."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["A number or duration is not supported by this claim’s cited candidate evidence."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["A number or duration is not supported by this claim’s cited candidate evidence."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["The cited evidence does not establish this insurance claim.","The cited evidence does not establish this background check claim."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["The cited evidence does not establish this insurance claim.","The cited evidence does not establish this background check claim."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["A number or duration is not supported by this claim’s cited candidate evidence."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["A number or duration is not supported by this claim’s cited candidate evidence."],"durationMs":3}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["A number or duration is not supported by this claim’s cited candidate evidence.","The cited evidence does not establish this guarantee claim."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["A number or duration is not supported by this claim’s cited candidate evidence.","The cited evidence does not establish this guarantee claim."],"durationMs":3}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["A number or duration is not supported by this claim’s cited candidate evidence."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["A number or duration is not supported by this claim’s cited candidate evidence."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["The cited evidence does not establish this guarantee claim."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["The cited evidence does not establish this guarantee claim."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["A number or duration is not supported by this claim’s cited candidate evidence."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["A number or duration is not supported by this claim’s cited candidate evidence."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["A number or duration is not supported by this claim’s cited candidate evidence."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["A number or duration is not supported by this claim’s cited candidate evidence."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["The cited evidence does not establish this rights claim.","The verified sources do not establish leadership or ownership of this work."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["The cited evidence does not establish this rights claim.","The verified sources do not establish leadership or ownership of this work."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["The proposed action contradicts an explicit negative statement in its cited evidence."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["The proposed action contradicts an explicit negative statement in its cited evidence."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["A number or duration is not supported by this claim’s cited candidate evidence."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["A number or duration is not supported by this claim’s cited candidate evidence."],"durationMs":3}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["The proposed action contradicts an explicit negative statement in its cited evidence."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["The proposed action contradicts an explicit negative statement in its cited evidence."],"durationMs":3}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["The cited evidence does not establish every required credential with the stated current status."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["The cited evidence does not establish every required credential with the stated current status."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["The verified sources do not establish leadership or ownership of this work.","The cited evidence does not establish leadership or ownership of this work. Keep the supported responsibility level or regenerate using relevant evidence."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["The verified sources do not establish leadership or ownership of this work.","The cited evidence does not establish leadership or ownership of this work. Keep the supported responsibility level or regenerate using relevant evidence."],"durationMs":2}
+✔ comparison freezes 48 unique cells and selection adds no candidate facts (1.0213ms)
+✔ confirmation metadata makes the frozen complete postings assessable; runner rejects baseline arms (2.7106ms)
+✔ comparison authenticates and gates the capability before any provider call (0.7795ms)
+✔ comparison rejects arbitrary prompts, models and sources (0.1983ms)
+✔ baseline attempts are single-call, with actual provider response and failure preserved (18.5511ms)
+✔ reasoning changes only effort and selected arm changes only the prompt (4.2047ms)
+✔ trace captures incomplete upstream attempt without leaking authorization headers (0.4566ms)
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":2,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":20,"writingIssueCount":0,"durationMs":22}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":35,"writingIssueCount":0,"durationMs":3}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":35,"writingIssueCount":0,"durationMs":1}
+[cover-letter] editorial {"status":"not_requested","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":1,"regenerated":true,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":35,"writingIssueCount":0,"durationMs":1}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":35,"writingIssueCount":0,"durationMs":0}
+✔ cover-letter generation rejects missing authentication before external work (1.6176ms)
+✔ a short letter can use its opening as the only evidence example without a redundant third paragraph (23.1555ms)
+✔ cover-letter generation uses reviewed sources and exact citations (3.5894ms)
+✔ cover-letter generation resolves stable citation ids to exact source excerpts (1.2943ms)
+✔ unsupported flattery remains blocked after one bounded repair (2.0538ms)
+✔ unsolicited career-transition and gap-confession language remains blocked after repair (1.9334ms)
+✔ self-disqualifying adjacent-experience caveats remain blocked after repair (1.4282ms)
+✔ the exact material-gap confession from a legacy draft remains blocked (1.3582ms)
+✔ paragraph regeneration must return exactly the requested paragraph (1.8207ms)
+✔ generation removes an embedded duplicate signoff and normalizes the signoff field (1.1416ms)
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["Remove unsupported motivation or employer flattery.","The cited evidence does not establish this motivation claim."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":3,"issueTypes":["explanation contains self-disqualifying positioning","Use one opening, distinct evidence paragraphs when useful, and one closing, in that order.","Remove self-disqualifying or gap-focused positioning."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["Remove self-disqualifying or gap-focused positioning."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["Remove self-disqualifying or gap-focused positioning."],"durationMs":1}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":2,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":18,"writingIssueCount":0,"durationMs":16}
+✔ candidate credential prose separates the name from sentence context and retains issuer tokens (11.8037ms)
+✔ credential conjunctions, specialty and current status remain strict after prose parsing (0.6903ms)
+✔ supported issuer wording passes generation, manual editing, readiness and export with one contract (34.4375ms)
+✔ unsupported issuer remains blocked by generation, editing and export (4.7734ms)
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["The cited evidence does not establish every required credential with the stated current status."],"durationMs":2}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":true,"wordCount":37,"writingIssueCount":0,"durationMs":21}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":43,"writingIssueCount":1,"durationMs":4}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":43,"writingIssueCount":1,"durationMs":2}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":false,"repairApplied":true,"wordCount":37,"writingIssueCount":0,"durationMs":2}
+[tailor:request] started {"source":"reviewed_custom_job","resumeSize":"short","postingSize":"short","requestBudgetMs":285000,"requirementCount":2,"analysisMaxTokens":5200,"correlationId":"tailor-9dc52a06-1fb9-4088-a3e8-8de0c8d37ddf"}
+[tailor:evidence_analysis] AI request started {"tool":"return_tailoring_analysis","timeoutMs":95000,"maxTokens":5200,"reasoningEffort":"low","correlationId":"tailor-9dc52a06-1fb9-4088-a3e8-8de0c8d37ddf"}
+[tailor:evidence_analysis] AI request completed {"tool":"return_tailoring_analysis","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-9dc52a06-1fb9-4088-a3e8-8de0c8d37ddf"}
+[tailor:resume_draft] AI request started {"tool":"return_tailored_resume","timeoutMs":105000,"maxTokens":5200,"reasoningEffort":null,"correlationId":"tailor-9dc52a06-1fb9-4088-a3e8-8de0c8d37ddf"}
+[tailor:resume_draft] AI request completed {"tool":"return_tailored_resume","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-9dc52a06-1fb9-4088-a3e8-8de0c8d37ddf"}
+✔ writing review detects dense and repetitive prose without demanding filler (7.3458ms)
+✔ paragraph patch rejects missing, duplicate and unexpected ids; untouched sources stay exact (0.2586ms)
+✔ API polishes only an affected paragraph and preserves the other paragraphs (22.4807ms)
+✔ an unsafe or failed optional polish cannot replace a truthful draft (6.3154ms)
+✔ API repairs a factual error in one paragraph, then revalidates the complete letter (1.9701ms)
+✔ source restoration is exact, scoped and declines ambiguous originals (31.7629ms)
+[ai-provider] attempt failed {"stage":"cover_letter","attempt":1,"providerAttempt":1,"provider":"unknown","model":"claude-sonnet-4-6","status":null,"category":"unknown","providerType":null,"requestId":null,"responseId":null,"responseStatus":null,"incompleteReason":null,"outputItems":[],"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"maxTokens":1000,"correlationId":null}
+[cover-letter] optional polish unavailable {"name":"Error","status":null}
+[tailor:validation] draft checked {"correlationId":"tailor-9dc52a06-1fb9-4088-a3e8-8de0c8d37ddf","attempt":1,"status":"blocked","issueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":1,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:source_repair] checked {"correlationId":"tailor-9dc52a06-1fb9-4088-a3e8-8de0c8d37ddf","attempt":1,"restoredBullets":1,"status":"review","issueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:editorial] {"status":"not_tested_here","reason":null,"applied":false}
+[tailor:request] completed {"durationMs":140,"repairApplied":true,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":1,"sourceRestoredBullets":1,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":1,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[job-intake] completed {"provider":"anthropic","mode":"screenshots"}
+[job-intake] completed {"provider":"anthropic","mode":"paste"}
+✔ full résumé handler repairs a restorable bullet without another model draft (141.8746ms)
+✔ document readiness stays separate from gaps and unknown requirements (2.0134ms)
+✔ level-specific optional questions preserve candidate words through submission (1.2327ms)
+✔ shared styles retain capitalization intent and consistent header rules (0.3302ms)
+✔ multi-image intake retains conflict and completeness review before assessment (1.4834ms)
+✔ pasted SAP migration source instructions stay untrusted in intake (0.6155ms)
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":false,"repairApplied":true,"wordCount":39,"writingIssueCount":1,"durationMs":19}
+[cover-letter] editorial {"status":"not_requested","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":1,"regenerated":true,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":39,"writingIssueCount":0,"durationMs":2}
+✔ source restoration keeps language and clearance out of training (10.1013ms)
+✔ structured section repair is idempotent and preserves distinct course providers and dates (9.6561ms)
+✔ training restoration stops at common heading variants and retains later qualifications (1.227ms)
+✔ experienced transition documents lead with experience and standard section headings (3.1399ms)
+✔ contiguous consulting roles share context without merging role records or dates (1.2743ms)
+✔ different periods and noncontiguous employers do not form a presentation group (0.1987ms)
+✔ professional contact line removes street addresses and preserves supplied contact methods (0.5934ms)
+✔ combined language lines deduplicate against separate entries without dropping proficiency (0.2317ms)
+✔ repetition within a paragraph and empty clichés receive specific nonblocking advice (4.5526ms)
+✔ necessary repeated technical names and short factual letters do not demand filler (0.3074ms)
+✔ duplicate removal preserves similar work with distinct results and assignments (0.7185ms)
+✔ résumé editorial suggestions identify the summary and repeated bullets without blocking (2.8745ms)
+✔ length policies differ structurally and target useful shortening without padding (0.5484ms)
+✔ voice rules remain distinct and paragraph regeneration uses the saved settings (0.1725ms)
+✔ workspace source identity survives equivalent parent objects but detects source changes (1.9748ms)
+✔ actual API rebuilds a verbose four-paragraph Short draft into one concise example (19.9687ms)
+✔ actual paragraph API cannot relabel the whole draft with pending settings (2.4556ms)
+✔ PDF long roles repeat context, keep compact roles together, and preserve every bullet (173.1528ms)
+✔ an oversized PDF render-plan bullet remains within pages without losing its ending (48.0308ms)
+✔ DOCX groups roles and keeps compact bullet paragraphs together (57.9893ms)
+✔ employment inventory recognizes common inline, parenthesized, and multiline headers (5.4939ms)
+✔ missing intermediate Deloitte role blocks integrity even with accurate included roles (37.9015ms)
+✔ omitted degree and certification are detected separately from training (0.693ms)
+✔ similar accomplishments in different positions do not erase one role's content (2.3688ms)
+✔ training and guidance cannot become responsibility for configuration (4.9239ms)
+✔ projected results remain projected without rejecting a separately realized metric (4.1042ms)
+✔ project achievements cannot establish PMP or SAP Activate certification (1.5517ms)
+✔ PMO reporting is only partial support for compound delivery ownership (0.7481ms)
+✔ historical provenance cannot borrow leadership from another engagement (1.1062ms)
+✔ a multi-source bullet shows a synthesis and cannot restore a fragment (0.752ms)
+✔ legacy unscoped change cannot overwrite a user edit or restore unrelated text (0.182ms)
+✔ candidate level survives submission and API validation without a compulsory example (1.7018ms)
+✔ central responsibilities stay visible even when all formal qualifications match (1.0811ms)
+✔ internal wording in a legacy letter is preserved for review but cannot be exported (7.7749ms)
+✔ recipient block omits job location conflicts while the target retains the reviewed data (17.1316ms)
+✔ a safe paragraph edit survives plan export authorization (3.837ms)
+✔ a capability-level change marks an older letter as needing refresh (1.2188ms)
+✔ unrelated degree evidence cannot support budget ownership (0.2438ms)
+✔ training consolidation preserves different providers and dates (1.3347ms)
+✔ a capability selection that echoes certification wording does not establish the credential (6.8649ms)
+✔ internal generation terminology in a resume summary is a blocking claim issue (1.3421ms)
+✔ all ten careers distinguish an experience recap from a selective professional context (18.0098ms)
+✔ bookkeeper paraphrase and unsubstantiated scale receive summary advice (0.8536ms)
+✔ shared occupation terminology alone does not make two contributions duplicates (0.2679ms)
+✔ the live translator profile cannot repeat its direction or disguise a skills list as a summary (1.3368ms)
+✔ an analyst summary cannot paraphrase an achievement as a second profile sentence (1.7325ms)
+✔ a trailing analyst task list can be removed without another model call or any change to work history (6.0803ms)
+✔ an educator profile cannot disguise a numbered classroom example as professional context (1.6646ms)
+✔ a short bookkeeper duty list still needs a summary-only rewrite without comma separators (1.9972ms)
+✔ changing a short experience bullet to present tense does not make it a distinct summary (1.0041ms)
+✔ application announcements are flagged across careers without banning ordinary first-person evidence (7.0382ms)
+✔ a concrete opening is not padded with a second sentence defining the same work (1.6836ms)
+✔ the bookkeeper opening cannot pad a reconciliation example with a generic work-combination sentence (0.5645ms)
+✔ a repeated opening example is detected in complete letters and targeted opening revisions (0.4276ms)
+✔ summary polish changes only the profile after full validation and skips a good profile (1.0726ms)
+✔ summary polish preserves the checked original on provider failure, repetition, or new unsupported metrics (31.5332ms)
+✔ failed first attempts survive successful retries and unrun cases stay in denominator (11.6017ms)
+[evidence-coach] completed {"disposition":"reviewable","confidence":"high","factCount":2,"durationMs":0}
+✔ a grounded evidence proposal is reviewable and receives a stable hash (3.0329ms)
+✔ the validator blocks invented metrics, credentials, regulated actions, and elevated leadership (0.6216ms)
+✔ missing facts produce one follow-up and no candidate-ready wording (0.2198ms)
+✔ facts used must be exact excerpts from the named candidate field (0.2102ms)
+✔ grounded proposals validate consistently across representative careers (0.6865ms)
+✔ private evidence coaching authenticates before reading or sending candidate input (0.4197ms)
+✔ the endpoint sends only the normalized requirement and one candidate answer to the model (1.0941ms)
+✔ provider configuration and upstream failures use provider-neutral candidate copy (0.5719ms)
+[evidence-coach] failed {"name":"Error","status":null,"durationMs":0}
+✔ the optional coach exposes source, proposal, facts, unresolved details, and candidate controls (0.9717ms)
+✔ evidence clarification has its own just-in-time private-processing disclosure (0.7005ms)
+✔ /app renders the shared application without ProtectedRoute (0.941ms)
+✔ guest discovery renders immediately and does not use a full-page auth loading step (0.1398ms)
+✔ guest search, geographic filters, workplace filters, pagination, and public links remain wired (0.23ms)
+✔ guest profile synchronization has an explicit verified-user guard (0.1196ms)
+✔ all private application entry points use the centralized account gate (0.5864ms)
+✔ DOCX, PDF, and copied text use the centralized account gate (0.1646ms)
+✔ account-action dialog has labels, modal semantics, escape handling, and focus containment (0.1514ms)
+✔ public listing queries use an explicit view projection without wildcard selection (0.1561ms)
+✔ public listing migration combines explicit grants, RLS, and security-invoker view (0.3913ms)
+✔ profile migration denies guests and enforces same-user SELECT and UPDATE (0.3183ms)
+✔ frontend configuration has no service-role or secret-key fallback (0.1388ms)
+✔ Himalayas requests recent Canada-eligible pages without credentials (0.8486ms)
+✔ Himalayas pagination deduplicates fresh listings and stops on an empty page (1.3863ms)
+✔ Himalayas accepts the live feed's Unix-second publication and expiry dates (4.7749ms)
+✔ Himalayas finalizes only after reaching a terminal page (4.032ms)
+✔ Himalayas budget exhaustion remains observation-only (1.2279ms)
+✔ a failed Himalayas page never reaches miss finalization (0.6041ms)
+✔ Himalayas mapping preserves attribution and Canadian remote eligibility (0.2839ms)
+✔ Himalayas mapping rejects links that cannot provide required attribution (0.1414ms)
+[job-intake] completed {"provider":"anthropic","mode":"paste"}
+✔ job URL validation rejects loopback and private DNS results (5.7096ms)
+✔ job URL validation fails closed with a clear error for malformed DNS records (0.2257ms)
+✔ pinned DNS lookup supports modern all-address and legacy callback shapes (0.7783ms)
+✔ job page redirects are revalidated before another request (0.6237ms)
+✔ career-site blocking returns an actionable fallback instead of a raw HTTP error (0.4323ms)
+✔ job URL failures never expose raw DNS or invalid-IP internals (0.5103ms)
+✔ blocked publishers and timeouts produce distinct recovery categories (0.1605ms)
+✔ job intake authenticates before reading or extracting a posting (0.4194ms)
+✔ pasted posting is extracted into a normalized editable brief (1.812ms)
+✔ partial screenshot batches remain mergeable when a later page has no repeated title (3.6821ms)
+✔ non-screenshot intake still requires both a title and description (0.1853ms)
+✔ extracts and normalizes a single JobPosting JSON-LD record (2.4515ms)
+✔ supports arrays, @graph, and @type arrays while ignoring malformed JSON-LD (0.8526ms)
+✔ selects the posting matching both the trusted title and employer (0.9015ms)
+✔ Jobicy requests a bounded Canada-only remote feed (1.8552ms)
+✔ Jobicy feed URL is stable and does not require credentials (0.1413ms)
+✔ Jobicy mapping preserves canonical attribution and structured Canada-remote fields (5.0672ms)
+✔ Jobicy mapping rejects non-Jobicy URLs (0.1556ms)
+✔ Jobicy listing IDs are stable and source-scoped UUIDs (0.756ms)
+✔ Jobicy ingestion preserves IDs but remains observation-only (4.2685ms)
+✔ Jobicy leaves existing rows untouched when the fresh batch is empty (0.5518ms)
+{"event":"scheduled_feed_refresh","health":{"state":"success","attempted":3,"succeeded":3,"failed":0,"skipped":0},"sources":{"jooble":{"ok":true,"state":"success","skipped":false,"durationMs":1,"requests":12,"saved":300,"inserted":250,"updated":50},"jobicy":{"ok":true,"state":"success","skipped":false,"durationMs":0,"requests":1,"saved":80,"inserted":70,"updated":10},"himalayas":{"ok":true,"state":"success","skipped":false,"durationMs":0,"requests":5,"saved":60,"inserted":55,"updated":5}}}
+{"event":"scheduled_feed_refresh","health":{"state":"success","attempted":2,"succeeded":2,"failed":0,"skipped":1},"sources":{"jooble":{"ok":true,"state":"skipped","skipped":true,"durationMs":1,"skipCategory":"configuration","requests":0,"received":0,"saved":0},"jobicy":{"ok":true,"state":"success","skipped":false,"durationMs":0,"requests":1,"saved":40},"himalayas":{"ok":true,"state":"success","skipped":false,"durationMs":0,"requests":5,"saved":60,"inserted":55,"updated":5}}}
+{"event":"scheduled_feed_refresh","health":{"state":"success","attempted":2,"succeeded":2,"failed":0,"skipped":1},"sources":{"jooble":{"ok":true,"state":"success","skipped":false,"durationMs":0,"requests":1,"saved":5},"jobicy":{"ok":true,"state":"skipped","skipped":true,"durationMs":0,"skipCategory":"disabled_by_policy","requests":0,"received":0,"saved":0},"himalayas":{"ok":true,"state":"success","skipped":false,"durationMs":0,"requests":5,"saved":60,"inserted":55,"updated":5}}}
+{"event":"scheduled_feed_refresh","health":{"state":"partial","attempted":3,"succeeded":2,"failed":1,"skipped":0},"sources":{"jooble":{"ok":true,"state":"success","skipped":false,"durationMs":0,"requests":12,"saved":300},"jobicy":{"ok":false,"state":"failed","error":"jobicy CA import failed","errorCategory":"upstream","durationMs":0},"himalayas":{"ok":true,"state":"success","skipped":false,"durationMs":0,"requests":5,"saved":60,"inserted":55,"updated":5}}}
+{"event":"scheduled_feed_refresh","health":{"state":"failed","attempted":3,"succeeded":0,"failed":3,"skipped":0},"sources":{"jooble":{"ok":false,"state":"failed","error":"jooble CA import failed","errorCategory":"upstream","durationMs":0},"jobicy":{"ok":false,"state":"failed","error":"jobicy CA import failed","errorCategory":"upstream","durationMs":0},"himalayas":{"ok":false,"state":"failed","error":"himalayas CA import failed","errorCategory":"upstream","durationMs":0}}}
+✔ Jooble search plan covers the jobs-and-gigs catalogue within a conservative budget (1.1092ms)
+✔ Jooble sends bounded Canada-only POST searches and deduplicates fresh results (1.9536ms)
+✔ Jooble mapping produces a structured Canadian trades listing (3.9467ms)
+✔ Jooble refreshes do not replace a complete employer description with a provider snippet (2.8768ms)
+✔ Jooble listing IDs are stable UUIDs (0.2806ms)
+✔ Jooble ingestion preserves existing IDs but remains observation-only (1.7769ms)
+✔ Jooble ingestion leaves existing rows untouched when no fresh batch is available (0.7645ms)
+✔ Jooble cron rejects an invalid secret before creating clients or importing (0.3494ms)
+✔ Jooble cron returns an operational summary after a successful import (1.1988ms)
+✔ free public feeds still run when Jooble credentials are absent (0.4561ms)
+✔ source policy disables one public feed without blocking its companions (0.3023ms)
+✔ Jooble cron isolates a Jobicy outage and reports a partial success (0.472ms)
+✔ Jooble cron fails only when all scheduled imports fail (0.4444ms)
+✔ Jooble server configuration never accepts browser-exposed secrets (0.3206ms)
+✔ Jooble API credentials are optional when secure shared cron configuration exists (0.5423ms)
+{"event":"listing_availability_check","status":"active","reason":"manual_refresh","source":"greenhouse","durationBand":"under_1s"}
+{"event":"listing_availability_check","status":"active","reason":"manual_refresh","source":"greenhouse","durationBand":"under_1s"}
+{"event":"listing_availability_check","status":"closed","reason":"http_closed","source":"greenhouse","durationBand":"under_1s"}
+{"event":"listing_availability_check","status":"uncertain","reason":"publisher_blocked","source":"jooble","durationBand":"under_1s"}
+✔ a matching JobPosting refreshes availability and valid-through safely (4.7319ms)
+✔ a stale stored expiry cannot override a currently matching publisher page (0.5003ms)
+✔ 404 closes a listing while publisher blocking stays uncertain and actionable (0.679ms)
+✔ the endpoint authenticates and validates ids before privileged reads (0.2072ms)
+listing_enrichment {
+  listingId: 'listing-1',
+  source: 'employer_jsonld',
+  status: 'complete',
+  cached: false,
+  durationMs: 2
+}
+✔ enriches a trusted listing from matching JobPosting JSON-LD (4.3194ms)
+✔ returns a usable fallback and records blocked employer pages (0.5423ms)
+✔ reuses a fresh complete description without refetching (0.1863ms)
+listing_enrichment_failed { listingId: 'listing-1', errorCode: 'blocked', durationMs: 0 }
+✔ observed rows reactivate deterministically without replacing richer descriptions (1.7522ms)
+✔ partial source runs save observations but never finalize misses (0.914ms)
+✔ authoritative source snapshots use one idempotent finalization RPC (0.3418ms)
+✔ observation-only is the fail-safe default and never finalizes misses (0.8819ms)
+✔ availability classification closes only on strong evidence (0.7198ms)
+✔ availability cooldown is deterministic (0.15ms)
+✔ listing freshness migration is drift-safe, least-privilege, and idempotent (4.7106ms)
+✔ analyst querying and cleaning receive separate source-backed credit without treating SQL alone as data cleaning (16.8445ms)
+✔ late candidate portfolio links survive both documents without collecting employer URLs or date ranges (16.9791ms)
+✔ skills do not repeat certificates already displayed in their own section (1.271ms)
+✔ copied letters include the date and subject from the rendered letter (15.4345ms)
+✔ total classroom staffing cannot become additional colleagues alongside the candidate (11.2676ms)
+✔ preliminary letter downloads remain distinguishable from the matching resume (0.2195ms)
+✔ all ten live careers have bounded, profession-independent source history (20.7508ms)
+✔ dental source examples cannot silently disappear or migrate to a retail role (14.2842ms)
+✔ document copy rejects unavailable or denied clipboard instead of claiming success (0.6032ms)
+✔ expired application request refreshes once and preserves its body and cancellation signal (0.6594ms)
+✔ authentication recovery never retries generation failures or loops on rejected refreshes (0.5536ms)
+✔ cancelled and switched-account requests cannot replay private input (0.3376ms)
+✔ a refreshed session from another request is reused without another refresh (0.1511ms)
+✔ held journeyperson plumber certificates are recognized but unfinished and expired ones are not (3.5405ms)
+✔ older helper history does not demote an experienced carpenter, while current helpers remain helpers (0.4391ms)
+✔ live bookkeeper posting echoes receive editorial advice without rejecting ordinary work descriptions (0.6673ms)
+✔ PDF résumé and letter preserve Łukasz Żółć (351.5688ms)
+✔ PDF résumé and letter preserve Αλέξανδρος Παππάς (121.8437ms)
+✔ PDF résumé and letter preserve Анна Иванова (149.5629ms)
+✔ PDF résumé and letter preserve 李明 (450.3448ms)
+✔ unsupported PDF glyphs produce an explicit error without mutating the source (8.9268ms)
+✔ private APIs disable response and browser caching (1.0502ms)
+✔ private API operational logs do not serialize resume or upstream bodies (0.4924ms)
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":4,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":106,"writingIssueCount":2,"durationMs":33}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":70,"writingIssueCount":1,"durationMs":2}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":85,"writingIssueCount":1,"durationMs":2}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":76,"writingIssueCount":1,"durationMs":3}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":4,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":95,"writingIssueCount":1,"durationMs":2}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":86,"writingIssueCount":1,"durationMs":3}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":74,"writingIssueCount":1,"durationMs":2}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":89,"writingIssueCount":1,"durationMs":2}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":78,"writingIssueCount":1,"durationMs":1}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":71,"writingIssueCount":1,"durationMs":1}
+✔ P01: truthful Senior Accountant letter passes API, readiness and export context (63.93ms)
+✔ P02: truthful Bookkeeper letter passes API, readiness and export context (8.9957ms)
+✔ P02: unsupported consequential claim fails generation, edit and restored-draft export (8.2187ms)
+✔ P03: truthful Residential Service Plumber letter passes API, readiness and export context (7.9639ms)
+✔ P04: truthful Registered Plumbing Apprentice letter passes API, readiness and export context (6.8074ms)
+✔ P04: unsupported consequential claim fails generation, edit and restored-draft export (4.9861ms)
+✔ P05: truthful Finish Carpenter letter passes API, readiness and export context (9.9595ms)
+✔ P06: truthful Construction Labourer letter passes API, readiness and export context (7.7192ms)
+✔ P06: unsupported consequential claim fails generation, edit and restored-draft export (4.8489ms)
+✔ P07: truthful Warehouse Associate letter passes API, readiness and export context (7.1865ms)
+✔ P07: unsupported consequential claim fails generation, edit and restored-draft export (7.0406ms)
+✔ P08: truthful Customer Service Associate letter passes API, readiness and export context (6.4281ms)
+✔ P08: unsupported consequential claim fails generation, edit and restored-draft export (4.2489ms)
+✔ P09: truthful Graphic Designer letter passes API, readiness and export context (5.7137ms)
+✔ P10: truthful Administrative Assistant letter passes API, readiness and export context (6.64ms)
+✔ borrowed job tenure rejects spelled-out and numeric requirements (2.524ms)
+✔ metric attribution stays with its employer and its team (1.4172ms)
+✔ generic occupational credentials preserve state, AND/OR and level (0.3772ms)
+✔ observed pressure tests remain adjacent; actual leadership is accepted (0.5022ms)
+✔ paragraph limit rejects full raw input, preserves saved text and rejects oversized stored drafts (22.5636ms)
+✔ export authorization binds employer context (2.7704ms)
+✔ structured employment headers support cashier and new professions without crossing sections (15.8543ms)
+✔ keyword coverage includes credentials, education and languages in the exported document (10.4549ms)
+✔ plain headings, front-loaded trade credentials, portfolios and volunteer paragraphs (5.5617ms)
+✔ letter-only fragment advice does not pad a concise complete letter (0.6488ms)
+✔ quantity units and mixed credential status remain attached to the specific fact (0.2746ms)
+✔ paragraph length boundary is checked before whitespace normalization (1.8347ms)
+✔ relevant outcomes lead the role and an active accountant credential appears near the top (4.5954ms)
+✔ profession-neutral parsing retains recognized company-first employment headings (0.1995ms)
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["The verified sources do not establish leadership or ownership of this work.","The cited evidence does not establish every required credential with the stated current status."],"durationMs":3}
+[cover-letter] validation blocked {"issueCount":4,"issueTypes":["The verified sources do not establish leadership or ownership of this work.","Supervised or observed work cannot be presented as independent execution or certification.","The cited evidence does not establish every required credential with the stated current status.","The cited evidence does not establish leadership or ownership of this work. Keep the supported responsibility level or regenerate using relevant evidence."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["A number or duration is not supported by this claim’s cited candidate evidence.","The verified sources do not establish leadership or ownership of this work."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["The cited evidence does not establish every required credential with the stated current status."],"durationMs":4}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["The verified sources do not establish leadership or ownership of this work.","The cited evidence does not establish leadership or ownership of this work. Keep the supported responsibility level or regenerate using relevant evidence."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["A number or duration is not supported by this claim’s cited candidate evidence.","The verified sources do not establish leadership or ownership of this work."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["paragraph exceeds the 2400-character limit; shorten it without truncation","The complete letter exceeds the 320-word standard limit."],"durationMs":4}
+✔ posting intake rejects a missing token before processing private input (1.1473ms)
+✔ posting intake rejects an invalid token before processing private input (0.2359ms)
+✔ listing enrichment rejects a missing token before privileged database access (0.3307ms)
+✔ listing enrichment rejects an invalid token before privileged database access (0.1619ms)
+✔ cover-letter generation rejects a missing token before private content is processed (0.8084ms)
+✔ cover-letter generation rejects an invalid token before private content is processed (0.1913ms)
+✔ public-feed IDs are stable UUIDs and remain source-scoped (1.3478ms)
+✔ public-feed HTML cleanup removes markup and unsafe embedded content (0.6597ms)
+✔ public-feed dates normalize Unix seconds and milliseconds (0.9339ms)
+✔ an empty public-feed batch never touches or prunes existing inventory (0.9914ms)
+✔ redacted P3.2 corpus passes the deterministic release contract (15.8793ms)
+✔ quality report exposes only redacted dimensions and numeric operations (8.1242ms)
+✔ a wrong expected decision fails the release gate without leaking fixture content (6.9953ms)
+✔ privacy gate blocks sensitive keys, contact text, URLs, and explicit fixture terms (0.3192ms)
+✔ quality corpus rejects duplicate case identifiers (0.4904ms)
+✔ the same redacted case ID can compare multiple model variants (1.9046ms)
+✔ quality signal endpoint accepts a strict signal without echoing it (1.5204ms)
+✔ quality signal endpoint blocks invalid origin, type, marker, method, and extra data before storage (0.3655ms)
+✔ quality signal endpoint enforces declared and actual size caps (0.2871ms)
+✔ quality signal endpoint logs no signal dimensions on storage failure (0.9978ms)
+✔ evaluation publishes only cohorts of ten or more (11.8195ms)
+✔ evaluation refuses a minimum cohort below the privacy floor (0.368ms)
+✔ quality aggregate migration keeps data private and the RPC service-only (4.9673ms)
+[resume-intake] completed {"provider":"anthropic","pageCount":1}
+✔ résumé image intake authenticates before processing private content (1.0521ms)
+✔ résumé image intake returns faithful review text without echoing source images (1.885ms)
+✔ résumé image intake rejects unsupported or oversized batches before provider work (0.2151ms)
+✔ career-change shaping removes placeholders, unsupported progress, and irrelevant skill inventory (7.6816ms)
+✔ non-career-change shaping preserves content while still removing identity placeholders (0.7092ms)
+✔ employer-facing résumé profiles omit private fit and gap disclosures (0.3461ms)
+✔ SAP tailoring keeps relevant SAP training and omits unrelated training filler (1.2008ms)
+✔ focus review prioritizes relevant evidence, removes repetition, and leaves canonical input unchanged (0.6988ms)
+✔ resume shaping consolidates duplicate history headers and normalizes safe presentation details (0.6141ms)
+✔ presentation removes redundant employer country and repairs contradictory lead phrasing (0.3403ms)
+✔ presentation removes internal audit wording, normalizes style, and restores continuation employers (0.4535ms)
+✔ relevant SAP training is restored from the verified base resume when the model omits it (0.8598ms)
+✔ export readiness blocks placeholder identity and labels large-gap drafts as preliminary (14.3102ms)
+✔ canonical application readiness controls preliminary and final export labels (0.8271ms)
+✔ a stale ready flag cannot bypass verified-posting export gating (0.3357ms)
+✔ a verified required degree is restored when the draft model omits education (0.996ms)
+✔ verified education is preserved even when the posting does not explicitly require a degree (1.7974ms)
+✔ multi-device résumé controls are visible before the long résumé intake form (0.7656ms)
+✔ workspace and second-device copy expose activation and restore paths (0.2542ms)
+✔ the deterministic fallback omits final unsafe claims instead of failing the whole resume (48.2929ms)
+✔ the deterministic fallback restores cited wording after an ownership escalation (5.2411ms)
+✔ source summaries expose only bounded metrics and never raw failure text (1.6096ms)
+✔ source summaries expose only allowlisted run modes (0.141ms)
+✔ cron health distinguishes success, partial failure, complete failure, and skipped runs (0.2746ms)
+✔ skipped source summaries reduce arbitrary reasons to a safe category (0.1991ms)
+✔ structured health logging emits one sanitized JSON record (0.2129ms)
+✔ source policy parses a bounded case-insensitive emergency-disable list (1.7447ms)
+✔ source decisions separate configuration from an explicit policy stop (0.3261ms)
+✔ policy skips expose only a safe category and zeroed metrics (0.77ms)
+✔ disabled ATS providers are filtered without mutating configured boards (0.2316ms)
+[cover-letter] editorial {"status":"kept","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":2,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":19,"writingIssueCount":0,"durationMs":6}
+✔ unlisted structured roles and unfamiliar action verbs restore only their own source facts (30.7855ms)
+✔ unclassified dated rows bound history even when they are not valid job headers (0.324ms)
+✔ qualification sections never become employment when the course contains a role title (0.1961ms)
+✔ post-holdout regression: source history remains complete for F01 (1.5021ms)
+✔ post-holdout regression: source history remains complete for F02 (0.5387ms)
+✔ post-holdout regression: source history remains complete for F03 (0.4672ms)
+✔ post-holdout regression: source history remains complete for F04 (1.1029ms)
+✔ post-holdout regression: source history remains complete for F05 (0.5009ms)
+✔ post-holdout regression: source history remains complete for F06 (0.5283ms)
+✔ post-holdout regression: source history remains complete for F07 (0.4702ms)
+✔ post-holdout regression: source history remains complete for F08 (0.417ms)
+✔ post-holdout regression: source history remains complete for F09 (0.3798ms)
+✔ post-holdout regression: source history remains complete for F10 (0.3959ms)
+✔ one qualification has one section, with renewals and status preserved (0.812ms)
+✔ a labelled portfolio on the next line survives, unrelated project URLs do not (0.3822ms)
+✔ current credential metadata passes and cannot confer status on a different expired credential (1.188ms)
+✔ academic status cannot be inferred from the year or borrowed from another qualification (4.4868ms)
+✔ factual closing citations are required through the same letter contract (6.6227ms)
+✔ editorial review validates a useful revision and preserves all other résumé fields (1.9173ms)
+✔ shortening or self-awarded scores alone cannot authorize an editorial revision (0.1832ms)
+✔ editorial timeout or unsupported rewrite preserves the already checked original (0.662ms)
+✔ letter editorial cannot change ids or purposes even with a favourable review (1.9589ms)
+✔ production letter handler invokes content review even when mechanical writing checks pass (6.7761ms)
+✔ profile review can trade repeated bullet detail for context while preserving the experience section (0.3486ms)
+✔ full editorial revision may merge redundant evidence paragraphs but must keep opening and closing (0.9251ms)
+✔ editorial diagnostics distinguish unsupported quotation from inadequate content gain (0.3796ms)
+✔ a portfolio contact link is not repeated as a standalone profile label (0.4369ms)
+✔ an inline portfolio URL is owned by the header without deleting its professional context (0.5233ms)
+✔ editorial source ids resolve to exact server-owned excerpts before the unchanged validation gate (0.4459ms)
+✔ unknown or conflicting editorial source references cannot bypass the review (0.1772ms)
+✔ a valid editorial source id does not authorize an unsupported rewrite (0.3507ms)
+✔ a header-owned portfolio link is not an empty project or additional section (1.9738ms)
+[tailor:request] started {"source":"reviewed_custom_job","resumeSize":"short","postingSize":"short","requestBudgetMs":285000,"requirementCount":2,"analysisMaxTokens":5200,"correlationId":"tailor-f2db1296-5218-41d0-8baa-20d0ea2db299"}
+[tailor:evidence_analysis] AI request started {"tool":"return_tailoring_analysis","timeoutMs":95000,"maxTokens":5200,"reasoningEffort":"low","correlationId":"tailor-f2db1296-5218-41d0-8baa-20d0ea2db299"}
+[tailor:evidence_analysis] AI request completed {"tool":"return_tailoring_analysis","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-f2db1296-5218-41d0-8baa-20d0ea2db299"}
+[tailor:resume_draft] AI request started {"tool":"return_tailored_resume","timeoutMs":105000,"maxTokens":5200,"reasoningEffort":null,"correlationId":"tailor-f2db1296-5218-41d0-8baa-20d0ea2db299"}
+[tailor:resume_draft] AI request completed {"tool":"return_tailored_resume","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-f2db1296-5218-41d0-8baa-20d0ea2db299"}
+✔ production timing gives evidence-analysis retry a useful window without consuming the draft budget (0.9632ms)
+✔ evidence-analysis output budget scales for production-sized requirement inventories (0.1559ms)
+✔ tailoring rejects a missing authorization header before external work (1.5028ms)
+[tailor:resume_rebuild] Clean rebuild requested {"pass":1,"metricCount":1,"historyCount":1,"provenanceCount":1}
+[tailor:resume_rebuild] Clean rebuild requested {"pass":1,"metricCount":0,"historyCount":0,"provenanceCount":0}
+[tailor:resume_rebuild] Clean rebuild requested {"pass":1,"metricCount":2,"historyCount":1,"provenanceCount":1}
+[tailor:resume_rebuild] Clean rebuild requested {"pass":2,"metricCount":2,"historyCount":1,"provenanceCount":1}
+[tailor:safety_fallback] Applied deterministic fallback {"omittedExperience":1,"removedNumbers":2}
+[ai-provider] attempt failed {"stage":"tailor_evidence_analysis","attempt":1,"providerAttempt":1,"provider":"unknown","model":"claude-sonnet-4-6","status":null,"category":"timeout","providerType":null,"requestId":null,"responseId":null,"responseStatus":null,"incompleteReason":null,"outputItems":[],"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"maxTokens":7500,"correlationId":"tailor-67292834-6430-473f-8698-d6872312eb01"}
+[tailor:evidence_analysis] AI request failed {"tool":"return_tailoring_analysis","durationMs":6,"timeoutMs":5,"name":"AbortError","status":null,"category":null,"responseId":null,"correlationId":"tailor-67292834-6430-473f-8698-d6872312eb01"}
+[tailor:evidence_analysis] Retrying transient provider failure {"attempt":1,"name":"AbortError","status":null,"remainingMs":5994}
+[tailor:validation] draft checked {"correlationId":"tailor-f2db1296-5218-41d0-8baa-20d0ea2db299","attempt":1,"status":"review","issueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:summary_editorial] AI request started {"tool":"return_content_editorial_review","timeoutMs":20000,"maxTokens":2000,"reasoningEffort":"low","correlationId":"tailor-f2db1296-5218-41d0-8baa-20d0ea2db299"}
+[tailor:summary_editorial] AI request completed {"tool":"return_content_editorial_review","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":1,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-f2db1296-5218-41d0-8baa-20d0ea2db299"}
+[tailor:editorial] {"status":"revised","reason":null,"applied":true}
+[tailor:request] completed {"durationMs":185,"repairApplied":true,"summaryPolishApplied":true,"safetyFallbackApplied":false,"draftAttempts":1,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:request] started {"source":"trusted_listing","resumeSize":"short","postingSize":"short","requestBudgetMs":285000,"requirementCount":null,"analysisMaxTokens":7500,"correlationId":"tailor-c1576904-172b-4f09-b6d5-51255dede1cc"}
+[tailor:evidence_analysis] AI request started {"tool":"return_tailoring_analysis","timeoutMs":95000,"maxTokens":7500,"reasoningEffort":"low","correlationId":"tailor-c1576904-172b-4f09-b6d5-51255dede1cc"}
+[tailor:evidence_analysis] AI request completed {"tool":"return_tailoring_analysis","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":1,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-c1576904-172b-4f09-b6d5-51255dede1cc"}
+[tailor:resume_draft] AI request started {"tool":"return_trades_resume","timeoutMs":105000,"maxTokens":5200,"reasoningEffort":null,"correlationId":"tailor-c1576904-172b-4f09-b6d5-51255dede1cc"}
+[tailor:resume_draft] AI request completed {"tool":"return_trades_resume","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-c1576904-172b-4f09-b6d5-51255dede1cc"}
+[tailor:validation] draft checked {"correlationId":"tailor-c1576904-172b-4f09-b6d5-51255dede1cc","attempt":1,"status":"review","issueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:editorial] {"status":"not_tested_here","reason":null,"applied":false}
+[tailor:request] completed {"durationMs":8,"repairApplied":false,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":1,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:request] started {"source":"reviewed_custom_job","resumeSize":"short","postingSize":"short","requestBudgetMs":285000,"requirementCount":1,"analysisMaxTokens":5200,"correlationId":"tailor-40a01aad-16f9-4812-a49c-fb0bcfa88e26"}
+[tailor:evidence_analysis] AI request started {"tool":"return_tailoring_analysis","timeoutMs":95000,"maxTokens":5200,"reasoningEffort":"low","correlationId":"tailor-40a01aad-16f9-4812-a49c-fb0bcfa88e26"}
+[tailor:evidence_analysis] AI request completed {"tool":"return_tailoring_analysis","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-40a01aad-16f9-4812-a49c-fb0bcfa88e26"}
+[tailor:resume_draft] AI request started {"tool":"return_tailored_resume","timeoutMs":105000,"maxTokens":5200,"reasoningEffort":null,"correlationId":"tailor-40a01aad-16f9-4812-a49c-fb0bcfa88e26"}
+[tailor:resume_draft] AI request completed {"tool":"return_tailored_resume","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":1,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-40a01aad-16f9-4812-a49c-fb0bcfa88e26"}
+[tailor:validation] draft checked {"correlationId":"tailor-40a01aad-16f9-4812-a49c-fb0bcfa88e26","attempt":1,"status":"review","issueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:editorial] {"status":"not_tested_here","reason":null,"applied":false}
+[tailor:request] completed {"durationMs":33,"repairApplied":false,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":1,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:request] started {"source":"reviewed_custom_job","resumeSize":"short","postingSize":"short","requestBudgetMs":285000,"requirementCount":1,"analysisMaxTokens":5200,"correlationId":"tailor-0bae89e0-91df-4369-ae17-824eadc630fd"}
+[tailor:evidence_analysis] AI request started {"tool":"return_tailoring_analysis","timeoutMs":95000,"maxTokens":5200,"reasoningEffort":"low","correlationId":"tailor-0bae89e0-91df-4369-ae17-824eadc630fd"}
+[tailor:evidence_analysis] AI request completed {"tool":"return_tailoring_analysis","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-0bae89e0-91df-4369-ae17-824eadc630fd"}
+[tailor:resume_draft] AI request started {"tool":"return_tailored_resume","timeoutMs":105000,"maxTokens":5200,"reasoningEffort":null,"correlationId":"tailor-0bae89e0-91df-4369-ae17-824eadc630fd"}
+[tailor:resume_draft] AI request completed {"tool":"return_tailored_resume","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-0bae89e0-91df-4369-ae17-824eadc630fd"}
+[tailor:validation] draft checked {"correlationId":"tailor-0bae89e0-91df-4369-ae17-824eadc630fd","attempt":1,"status":"review","issueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:editorial] {"status":"not_tested_here","reason":null,"applied":false}
+[tailor:request] completed {"durationMs":32,"repairApplied":false,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":1,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:request] started {"source":"trusted_listing","resumeSize":"short","postingSize":"short","requestBudgetMs":285000,"requirementCount":null,"analysisMaxTokens":7500,"correlationId":"tailor-e27317ed-e4b9-41d0-8f57-896ae1050be2"}
+[tailor:evidence_analysis] AI request started {"tool":"return_tailoring_analysis","timeoutMs":95000,"maxTokens":7500,"reasoningEffort":"low","correlationId":"tailor-e27317ed-e4b9-41d0-8f57-896ae1050be2"}
+[tailor:evidence_analysis] AI request completed {"tool":"return_tailoring_analysis","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-e27317ed-e4b9-41d0-8f57-896ae1050be2"}
+[tailor:request] completed {"durationMs":1,"repairApplied":false,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":0,"sourceRestoredBullets":0,"firstDraftIssueCounts":null}
+[tailor:request] started {"source":"trusted_listing","resumeSize":"short","postingSize":"short","requestBudgetMs":285000,"requirementCount":null,"analysisMaxTokens":7500,"correlationId":"tailor-10999526-38c1-40d0-aa3c-86bc5cad3699"}
+[tailor:evidence_analysis] AI request started {"tool":"return_tailoring_analysis","timeoutMs":95000,"maxTokens":7500,"reasoningEffort":"low","correlationId":"tailor-10999526-38c1-40d0-aa3c-86bc5cad3699"}
+[tailor:evidence_analysis] AI request completed {"tool":"return_tailoring_analysis","provider":"openai","model":"gpt-5.6-terra","durationMs":1,"inputTokens":100,"outputTokens":50,"reasoningTokens":10,"stopReason":"completed","responseId":"resp_tailor_test","correlationId":"tailor-10999526-38c1-40d0-aa3c-86bc5cad3699"}
+[tailor:request] completed {"durationMs":2,"repairApplied":false,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":0,"sourceRestoredBullets":0,"firstDraftIssueCounts":null}
+[tailor:request] started {"source":"trusted_listing","resumeSize":"short","postingSize":"short","requestBudgetMs":285000,"requirementCount":null,"analysisMaxTokens":7500,"correlationId":"tailor-e6dc381a-994b-4768-95a4-a329cedec9a5"}
+[tailor:evidence_analysis] AI request started {"tool":"return_tailoring_analysis","timeoutMs":95000,"maxTokens":7500,"reasoningEffort":"low","correlationId":"tailor-e6dc381a-994b-4768-95a4-a329cedec9a5"}
+[tailor:evidence_analysis] AI request completed {"tool":"return_tailoring_analysis","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-e6dc381a-994b-4768-95a4-a329cedec9a5"}
+[tailor:resume_draft] AI request started {"tool":"return_tailored_resume","timeoutMs":105000,"maxTokens":5200,"reasoningEffort":null,"correlationId":"tailor-e6dc381a-994b-4768-95a4-a329cedec9a5"}
+[tailor:resume_draft] AI request completed {"tool":"return_tailored_resume","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-e6dc381a-994b-4768-95a4-a329cedec9a5"}
+[tailor:validation] draft checked {"correlationId":"tailor-e6dc381a-994b-4768-95a4-a329cedec9a5","attempt":1,"status":"blocked","issueCounts":{"unsupported_metrics":1,"unsupported_history":1,"missing_history":1,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":1,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:resume_rebuild] AI request started {"tool":"return_tailored_resume","timeoutMs":70000,"maxTokens":5200,"reasoningEffort":null,"correlationId":"tailor-e6dc381a-994b-4768-95a4-a329cedec9a5"}
+[tailor:resume_rebuild] AI request completed {"tool":"return_tailored_resume","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-e6dc381a-994b-4768-95a4-a329cedec9a5"}
+[tailor:validation] draft checked {"correlationId":"tailor-e6dc381a-994b-4768-95a4-a329cedec9a5","attempt":2,"status":"review","issueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:editorial] {"status":"not_tested_here","reason":null,"applied":false}
+[tailor:request] completed {"durationMs":54,"repairApplied":true,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":2,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":1,"unsupported_history":1,"missing_history":1,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":1,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:request] started {"source":"trusted_listing","resumeSize":"short","postingSize":"short","requestBudgetMs":285000,"requirementCount":null,"analysisMaxTokens":7500,"correlationId":"tailor-ddda9525-c66a-426a-9266-1e4c10ea29ae"}
+[tailor:evidence_analysis] AI request started {"tool":"return_tailoring_analysis","timeoutMs":95000,"maxTokens":7500,"reasoningEffort":"low","correlationId":"tailor-ddda9525-c66a-426a-9266-1e4c10ea29ae"}
+[tailor:evidence_analysis] AI request completed {"tool":"return_tailoring_analysis","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-ddda9525-c66a-426a-9266-1e4c10ea29ae"}
+[tailor:resume_draft] AI request started {"tool":"return_tailored_resume","timeoutMs":105000,"maxTokens":5200,"reasoningEffort":null,"correlationId":"tailor-ddda9525-c66a-426a-9266-1e4c10ea29ae"}
+[tailor:resume_draft] AI request completed {"tool":"return_tailored_resume","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":1,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-ddda9525-c66a-426a-9266-1e4c10ea29ae"}
+[tailor:validation] draft checked {"correlationId":"tailor-ddda9525-c66a-426a-9266-1e4c10ea29ae","attempt":1,"status":"blocked","issueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":1,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:resume_rebuild] AI request started {"tool":"return_tailored_resume","timeoutMs":70000,"maxTokens":5200,"reasoningEffort":null,"correlationId":"tailor-ddda9525-c66a-426a-9266-1e4c10ea29ae"}
+[tailor:resume_rebuild] AI request completed {"tool":"return_tailored_resume","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-ddda9525-c66a-426a-9266-1e4c10ea29ae"}
+[tailor:validation] draft checked {"correlationId":"tailor-ddda9525-c66a-426a-9266-1e4c10ea29ae","attempt":2,"status":"review","issueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:editorial] {"status":"not_tested_here","reason":null,"applied":false}
+[tailor:request] completed {"durationMs":56,"repairApplied":true,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":2,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":1,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:request] started {"source":"trusted_listing","resumeSize":"short","postingSize":"short","requestBudgetMs":285000,"requirementCount":null,"analysisMaxTokens":7500,"correlationId":"tailor-192a58ff-1329-4d57-8e0f-d250f99d1c01"}
+[tailor:evidence_analysis] AI request started {"tool":"return_tailoring_analysis","timeoutMs":95000,"maxTokens":7500,"reasoningEffort":"low","correlationId":"tailor-192a58ff-1329-4d57-8e0f-d250f99d1c01"}
+[tailor:evidence_analysis] AI request completed {"tool":"return_tailoring_analysis","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-192a58ff-1329-4d57-8e0f-d250f99d1c01"}
+[tailor:resume_draft] AI request started {"tool":"return_tailored_resume","timeoutMs":105000,"maxTokens":5200,"reasoningEffort":null,"correlationId":"tailor-192a58ff-1329-4d57-8e0f-d250f99d1c01"}
+[tailor:resume_draft] AI request completed {"tool":"return_tailored_resume","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-192a58ff-1329-4d57-8e0f-d250f99d1c01"}
+[tailor:validation] draft checked {"correlationId":"tailor-192a58ff-1329-4d57-8e0f-d250f99d1c01","attempt":1,"status":"blocked","issueCounts":{"unsupported_metrics":2,"unsupported_history":1,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":1,"risky_claims":0,"provenance_issues":1,"contract_issues":1,"requirement_consistency":0,"writing":0}}
+[tailor:resume_rebuild] AI request started {"tool":"return_tailored_resume","timeoutMs":70000,"maxTokens":5200,"reasoningEffort":null,"correlationId":"tailor-192a58ff-1329-4d57-8e0f-d250f99d1c01"}
+[tailor:resume_rebuild] AI request completed {"tool":"return_tailored_resume","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-192a58ff-1329-4d57-8e0f-d250f99d1c01"}
+[tailor:validation] draft checked {"correlationId":"tailor-192a58ff-1329-4d57-8e0f-d250f99d1c01","attempt":2,"status":"blocked","issueCounts":{"unsupported_metrics":2,"unsupported_history":1,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":1,"risky_claims":0,"provenance_issues":1,"contract_issues":1,"requirement_consistency":0,"writing":0}}
+[tailor:resume_conservative_rebuild] AI request started {"tool":"return_tailored_resume","timeoutMs":70000,"maxTokens":5200,"reasoningEffort":null,"correlationId":"tailor-192a58ff-1329-4d57-8e0f-d250f99d1c01"}
+[tailor:resume_conservative_rebuild] AI request completed {"tool":"return_tailored_resume","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":1,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-192a58ff-1329-4d57-8e0f-d250f99d1c01"}
+[tailor:validation] draft checked {"correlationId":"tailor-192a58ff-1329-4d57-8e0f-d250f99d1c01","attempt":3,"status":"blocked","issueCounts":{"unsupported_metrics":2,"unsupported_history":1,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":1,"risky_claims":0,"provenance_issues":1,"contract_issues":1,"requirement_consistency":0,"writing":0}}
+[tailor:request] completed {"durationMs":108,"repairApplied":true,"summaryPolishApplied":false,"safetyFallbackApplied":true,"draftAttempts":3,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":2,"unsupported_history":1,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":1,"risky_claims":0,"provenance_issues":1,"contract_issues":1,"requirement_consistency":0,"writing":0}}
+[tailor:request] started {"source":"trusted_listing","resumeSize":"short","postingSize":"short","requestBudgetMs":6000,"requirementCount":null,"analysisMaxTokens":7500,"correlationId":"tailor-67292834-6430-473f-8698-d6872312eb01"}
+[tailor:evidence_analysis] AI request started {"tool":"return_tailoring_analysis","timeoutMs":5,"maxTokens":7500,"reasoningEffort":"low","correlationId":"tailor-67292834-6430-473f-8698-d6872312eb01"}
+✔ tailoring polishes a repeated profile once while preserving source history (186.0256ms)
+✔ tailoring rejects an invalid token before calling Anthropic (0.29ms)
+✔ tailoring rejects unconfirmed candidate evidence before calling Anthropic (0.4847ms)
+✔ tailoring loads the trusted listing by id and ignores a caller URL (8.0632ms)
+✔ tailoring accepts a reviewed custom job without loading a database listing (65.4699ms)
+✔ analysis-only mode returns shared evidence assessment without requesting a résumé draft (1.6785ms)
+✔ tailoring evidence analysis uses the strict OpenAI contract and explicit low reasoning (1.6066ms)
+✔ tailoring automatically repairs one unsafe model draft before returning it (54.5437ms)
+✔ tailoring rebuilds from source when a draft omits a verified employment entry (57.0877ms)
+✔ tailoring falls back to verified content when the model repair still has one unsafe entry (108.0836ms)
+[tailor:evidence_analysis_retry] AI request started {"tool":"return_tailoring_analysis","timeoutMs":100,"maxTokens":7500,"reasoningEffort":"low","correlationId":"tailor-67292834-6430-473f-8698-d6872312eb01"}
+[tailor:evidence_analysis_retry] AI request completed {"tool":"return_tailoring_analysis","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-67292834-6430-473f-8698-d6872312eb01"}
+[tailor:resume_draft] AI request started {"tool":"return_tailored_resume","timeoutMs":100,"maxTokens":5200,"reasoningEffort":null,"correlationId":"tailor-67292834-6430-473f-8698-d6872312eb01"}
+[tailor:resume_draft] AI request completed {"tool":"return_tailored_resume","provider":"anthropic","model":"claude-sonnet-4-6","durationMs":0,"inputTokens":null,"outputTokens":null,"reasoningTokens":null,"stopReason":null,"responseId":null,"correlationId":"tailor-67292834-6430-473f-8698-d6872312eb01"}
+[tailor:validation] draft checked {"correlationId":"tailor-67292834-6430-473f-8698-d6872312eb01","attempt":1,"status":"review","issueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+[tailor:editorial] {"status":"budget_unavailable","reason":null,"applied":false}
+[tailor:request] completed {"durationMs":30,"repairApplied":false,"summaryPolishApplied":false,"safetyFallbackApplied":false,"draftAttempts":1,"sourceRestoredBullets":0,"firstDraftIssueCounts":{"unsupported_metrics":0,"unsupported_history":0,"missing_history":0,"missing_qualifications":0,"unsupported_skills":0,"unsupported_projects":0,"unsupported_training":0,"unsupported_target_terms":0,"unsupported_positioning":0,"risky_claims":0,"provenance_issues":0,"contract_issues":0,"requirement_consistency":0,"writing":0}}
+✔ tailoring automatically retries a timed-out evidence analysis (30.7922ms)
+✔ short and abruptly truncated aggregator descriptions are not treated as complete postings (1.9138ms)
+✔ a complete reviewed paste is not marked truncated when its final keyword is a short word (0.3904ms)
+✔ reviewed structured qualifications remain authoritative when model analysis omits them (12.8286ms)
+✔ a complete IS-U FI-CA mandatory list survives intake as an atomic reviewed inventory (2.663ms)
+✔ three verified neighboring SAP requirements produce adjacent positioning without hiding the material gap (2.4863ms)
+✔ senior FI-CA and PSCD evidence calibrates as adjacent IS-U expertise without downgrading seniority (1.7021ms)
+✔ reviewed FICO inventory stays canonical while lifecycle evidence and module adjacency are calibrated separately (5.8098ms)
+✔ service experience for a teller role remains transferable rather than being called a professional transition (0.7434ms)
+✔ a short provider snippet cannot produce a definitive fit or application-ready output (0.4791ms)
+✔ candidate-facing positioning removes internal posting-gate field names (0.3424ms)
+✔ a reviewed complete posting permits evidence-backed fit and exact résumé citations (1.0022ms)
+✔ a complete-looking screenshot posting stays preliminary until the user confirms the final page (0.1289ms)
+✔ a confirmed complete screenshot posting can support fit assessment (0.099ms)
+✔ confirmed screenshots keep their reviewed requirements when model analysis returns none (1.2813ms)
+✔ unresolved screenshot identity conflicts block application-ready tailoring (0.1101ms)
+✔ a complete developer posting preserves a material gap for functional-only evidence (0.3594ms)
+✔ database posting text produces non-empty fallback keywords (0.1315ms)
+✔ unsupported evidence excerpts are downgraded to missing (0.2128ms)
+✔ career-change target identity, unsupported skills, and equivalence language are blocked (1.8162ms)
+✔ adjacent-domain equivalence language is blocked for automatic repair (0.8097ms)
+✔ supported transferable professional positioning passes semantic checks (0.3152ms)
+✔ candidate-confirmed notes can support a requirement without being relabeled as base résumé evidence (0.4423ms)
+✔ a candidate-selected capability may appear in skills without inventing work history (0.2401ms)
+✔ employer-facing resume gap disclosures are blocked as risky claims (0.1835ms)
+✔ invented projects and training are blocked even without unsupported numbers (0.2669ms)
+✔ compound testing requirements become atomic and preserve partial verified coverage (0.773ms)
+✔ strict concepts block false positives while recovering exact language, education, ABAP, and collaboration evidence (1.9117ms)
+✔ regulated-trade requirements distinguish blockers, material gaps, preferences, and supported evidence (3.34ms)
+✔ work authorization remains a candidate-controlled application question, not a résumé blocker (0.4426ms)
+✔ FI-CAX and financial postings recognize FI-CA and PSCD as adjacent foundations (0.4322ms)
+✔ keeps SAP and major languages in every daily technology plan (0.8422ms)
+✔ rotates supplementary technology families deterministically by UTC day (0.6763ms)
+✔ keeps provider plans within their existing request budgets (0.3439ms)
+{"event":"scheduled_feed_refresh","health":{"state":"partial","attempted":2,"succeeded":1,"failed":1,"skipped":1},"sources":{"adzuna":{"ok":true,"state":"success","skipped":false,"durationMs":1,"requests":2,"saved":10},"adzunaUS":{"ok":false,"state":"failed","error":"Adzuna US import failed","errorCategory":"upstream","durationMs":0},"employerDirect":{"ok":true,"state":"skipped","skipped":true,"durationMs":0,"skipCategory":"configuration","requests":0,"received":0,"saved":0,"boards":0}}}
+{"event":"scheduled_feed_refresh","health":{"state":"success","attempted":6,"succeeded":6,"failed":0,"skipped":0},"sources":{"jooble":{"ok":true,"state":"success","skipped":false,"durationMs":1,"requests":1,"saved":3},"jobicy":{"ok":true,"state":"success","skipped":false,"durationMs":1,"requests":1,"saved":2},"himalayas":{"ok":true,"state":"success","skipped":false,"durationMs":1,"requests":1,"saved":2},"joobleUS":{"ok":true,"state":"success","skipped":false,"durationMs":1,"requests":1,"saved":3},"jobicyUS":{"ok":true,"state":"success","skipped":false,"durationMs":0,"requests":1,"saved":2},"himalayasUS":{"ok":true,"state":"success","skipped":false,"durationMs":0,"requests":1,"saved":2}}}
+✔ Adzuna cron isolates a US failure and keeps the Canadian result successful (2.6577ms)
+✔ Jooble cron sends distinct regional keys and reports public feeds per market (1.9657ms)
+✔ cron configuration is Canada-first and keeps the US Jooble key server-only (0.721ms)
+✔ the market registry is allowlisted, Canada-first, and identity-safe (1.6441ms)
+✔ a source can be stopped in the US without stopping Canada (0.305ms)
+✔ Adzuna routes US searches and maps isolated US records (4.4826ms)
+✔ Jooble uses the US domain and never reuses the Canadian location body (2.1638ms)
+✔ public remote feeds use their documented US filters (1.4468ms)
+✔ employer boards require an explicit US market and reject the other country (0.8393ms)
+✔ captured one-point editorial improvement reaches the validated document (32.05ms)
+✔ redundancy removal can pass with unchanged scores but still needs the factual contract (3.1934ms)
+✔ small-edit exception cannot remove a distinct constraint, quantity, example, or closing (0.5803ms)
+✔ a kept high-self-score letter retains observable repetition advice (0.8001ms)
+✔ source-selection brief preserves employer boundaries, exact excerpts and references (1.0049ms)
+✔ empty or contact-only evidence does not manufacture an example (0.1447ms)
+✔ a distinct follow-up condition is retained by the writing advice (0.7ms)
+✔ a rate stops before alongside rather than treating a colleague as the denominator (4.2887ms)
+✔ résumé profile cannot derive a spelled-out tenure from employment years (33.4599ms)
+✔ captured mechanic letter retains both endpoints of a cited employment range (2.9163ms)
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["Preserve whether the cited action was or was not performed.","Preserve whether this work required approval or supervision; the proposed condition contradicts its cited evidence."],"durationMs":14}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["Preserve whether the cited action was or was not performed.","Preserve whether this work required approval or supervision; the proposed condition contradicts its cited evidence."],"durationMs":4}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["Preserve whether the cited action was or was not performed.","Preserve whether this work required approval or supervision; the proposed condition contradicts its cited evidence."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["Preserve whether the cited action was or was not performed.","Preserve whether this work required approval or supervision; the proposed condition contradicts its cited evidence."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["Preserve whether this work required approval or supervision; the proposed condition contradicts its cited evidence."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["Preserve whether this work required approval or supervision; the proposed condition contradicts its cited evidence."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["Preserve whether this work required approval or supervision; the proposed condition contradicts its cited evidence."],"durationMs":0}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["Preserve whether this work required approval or supervision; the proposed condition contradicts its cited evidence."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["Preserve whether this work required approval or supervision; the proposed condition contradicts its cited evidence."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["Preserve whether this work required approval or supervision; the proposed condition contradicts its cited evidence."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["Work requiring approval or supervision cannot be presented as independent or unrestricted."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["Work requiring approval or supervision cannot be presented as independent or unrestricted."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["Work requiring approval or supervision cannot be presented as independent or unrestricted."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["Work requiring approval or supervision cannot be presented as independent or unrestricted."],"durationMs":2}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["Keep approval or supervision with the person established by this action’s cited evidence.","Retain the cited approval or supervision condition when describing this work."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["Keep approval or supervision with the person established by this action’s cited evidence.","Retain the cited approval or supervision condition when describing this work."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["Keep approval or supervision with the person established by this action’s cited evidence."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["Keep approval or supervision with the person established by this action’s cited evidence."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["Retain the cited approval or supervision condition when describing this work."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":1,"issueTypes":["Retain the cited approval or supervision condition when describing this work."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["Preserve whether the cited action was or was not performed.","Preserve whether this work required approval or supervision; the proposed condition contradicts its cited evidence."],"durationMs":1}
+[evaluation] recorder unavailable
+[evaluation] recorder unavailable
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["Preserve whether the cited action was or was not performed.","Preserve whether this work required approval or supervision; the proposed condition contradicts its cited evidence."],"durationMs":1}
+[cover-letter] validation blocked {"issueCount":2,"issueTypes":["Preserve whether the cited action was or was not performed.","Preserve whether this work required approval or supervision; the proposed condition contradicts its cited evidence."],"durationMs":1}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":21,"writingIssueCount":0,"durationMs":1}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":23,"writingIssueCount":0,"durationMs":1}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":23,"writingIssueCount":0,"durationMs":1}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":19,"writingIssueCount":0,"durationMs":1}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":24,"writingIssueCount":0,"durationMs":2}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":false,"repairApplied":true,"wordCount":21,"writingIssueCount":0,"durationMs":1}
+[cover-letter] editorial {"status":"not_tested_here","reason":null,"applied":false}
+[cover-letter] completed {"paragraphCount":3,"regenerated":false,"firstDraftIntegrityPass":true,"repairApplied":false,"wordCount":21,"writingIssueCount":0,"durationMs":1}
+✔ approval condition rejects: Design alterations required no approval. (55.472ms)
+✔ approval condition rejects: Design alterations did not require the supervisor’s approval. (9.1929ms)
+✔ approval condition rejects: Approval was optional for design alterations. (6.5654ms)
+✔ approval condition rejects: No approval was required for design alterations. (6.1834ms)
+✔ approval condition rejects: The supervisor’s approval was not required for design alterations. (6.4594ms)
+✔ approval condition rejects: I made design alterations independently. (5.0694ms)
+✔ approval condition rejects: I made design alterations without approval. (5.1147ms)
+✔ approval condition rejects: I approved design alterations. (5.2198ms)
+✔ approval condition rejects: Design alterations required the client’s approval. (5.2484ms)
+✔ approval condition rejects: I made design alterations. (4.8132ms)
+✔ approval paraphrase passes every letter path: Design alterations needed the supervisor’s approval. (5.015ms)
+✔ approval paraphrase passes every letter path: Design alterations were subject to the supervisor’s approval. (3.9639ms)
+✔ approval paraphrase passes every letter path: The supervisor’s approval was required for design alterations. (4.2121ms)
+✔ authority and supervision remain scoped to the same action (0.9774ms)
+✔ résumé provenance and export reject changed approval conditions (16.1568ms)
+✔ non-factual courtesy needs no source vocabulary: Thank you for considering my application. (2.5ms)
+✔ non-factual courtesy needs no source vocabulary: Thank you for your time and consideration. I welcome a conversation. (4.39ms)
+✔ shared tool checks reject unsupported tools but allow cited tools and courtesy (1.0905ms)
+✔ quantities use their cited object and rate even when another clause has more overlap (3.3129ms)
+✔ evaluation capture preserves the first rejection, repair and final outcome separately (3.5337ms)
+✔ an evaluation recorder cannot mutate the checked draft or change acceptance on failure (0.9894ms)
+✔ title-only profiles are advisory and cannot win an editorial revision (1.1781ms)
+✔ low-scored keep remains review-needed; model self-scoring cannot hide visible repetition (0.4943ms)
+✔ restatement advice covers required/included without deleting a distinct constraint (1.119ms)
+✔ authenticated opt-in evaluation response retains a failed draft without enabling default logging (2.2489ms)
+✔ captured floral first draft preserves shared credit with coordinated subjects (0.8992ms)
+✔ an explicit project year can be supported by the separately cited project heading (4.4525ms)
+✔ wardrobe work completion cannot change a diploma status in the next sentence (3.2633ms)
+✔ every résumé contract blocker is counted and available to repairs and the review UI (6.117ms)
+✔ C02: captured project-year paragraph retains its date and passes claim checks (12.8467ms)
+✔ C06: captured project-year paragraph retains its date and passes claim checks (5.2265ms)
+✔ calendar years cannot authorize counts, durations or another employer/project (1.5045ms)
+✔ captured apprentice profile distinguishes a held certificate and supervised work (6.9676ms)
+✔ employment after a selected project has its own evidence and survives fallback (40.7538ms)
+✔ project sections recover explicit new jobs, never project titles or courses (0.8546ms)
+✔ operational transition is accepted while career-change positioning remains flagged (4.3338ms)
+✔ shared résumé contract rejects empty role content without relying on parser success (0.2023ms)
+ℹ tests 919
+ℹ suites 0
+ℹ pass 919
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 43284.2242

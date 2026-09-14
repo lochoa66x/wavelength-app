@@ -1,0 +1,41 @@
+
+> wavelength-app@1.0.0 build
+> vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 2484 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                   2.88 kB │ gzip:   1.05 kB
+dist/assets/pdf.worker.min-CLrFZWeq.mjs       1,312.45 kB
+dist/assets/PrivacyPage-BEOFvVjJ.css              2.54 kB │ gzip:   0.99 kB
+dist/assets/LandingPage-CHm362Ug.css             31.70 kB │ gzip:   6.42 kB
+dist/assets/pdf.worker.min-FyRH-AZg.js            0.07 kB │ gzip:   0.09 kB
+dist/assets/resumeSyncConfig-B0wucYY3.js          0.97 kB │ gzip:   0.72 kB
+dist/assets/authenticatedRequest-oEIv6EeV.js      1.50 kB │ gzip:   0.76 kB
+dist/assets/pdfFonts-3DSCudQH.js                  1.68 kB │ gzip:   0.93 kB
+dist/assets/privacyConfig-Dlm7YmF7.js             1.75 kB │ gzip:   1.04 kB
+dist/assets/coverLetterPdf-zclMU9GR.js            3.19 kB │ gzip:   1.60 kB
+dist/assets/coverLetterDocx-CcROR38o.js           3.24 kB │ gzip:   1.47 kB
+dist/assets/resumeDocx-DIbNhqj7.js                6.84 kB │ gzip:   2.84 kB
+dist/assets/resumePdf-D4O3fMCL.js                11.86 kB │ gzip:   4.73 kB
+dist/assets/PrivacyPage-B4uLFNAn.js              12.63 kB │ gzip:   4.34 kB
+dist/assets/ValidationRecovery-QBIWXj7r.js       28.44 kB │ gzip:   8.65 kB
+dist/assets/purify.es-BnINGy_Y.js                28.93 kB │ gzip:  11.14 kB
+dist/assets/LandingPage-CR2S018q.js              33.39 kB │ gzip:   9.73 kB
+dist/assets/landingIntents-CVRNYU60.js          125.77 kB │ gzip:  38.11 kB
+dist/assets/index.es-BUmIVLBf.js                150.85 kB │ gzip:  51.62 kB
+dist/assets/html2canvas.esm-CBrSDip1.js         201.42 kB │ gzip:  48.03 kB
+dist/assets/App-B4_z0JKR.js                     376.07 kB │ gzip: 108.84 kB
+dist/assets/jspdf.es.min-nqUoByrT.js            390.43 kB │ gzip: 128.77 kB
+dist/assets/index-BmpJy8SR.js                   411.05 kB │ gzip: 119.21 kB
+dist/assets/index-B8NrwLl6.js                   429.85 kB │ gzip: 126.70 kB
+dist/assets/index-D-2TPZzF.js                   496.64 kB │ gzip: 130.31 kB
+dist/assets/pdf-aGDrFUlY.js                     535.18 kB │ gzip: 162.31 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 7.58s

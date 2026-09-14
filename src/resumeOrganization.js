@@ -13,7 +13,7 @@ export function resumeSectionKind(value) {
   if (/^(?:(?:professional|technical) )?(?:certifications?|certificates?|credentials?|licen[cs]es?)(?: (?:and|&) (?:certifications?|licen[cs]es?))?$/i.test(heading)) return "certifications";
   if (/^(?:(?:professional|relevant|work|employment|career) )?(?:experience|history|employment)$/i.test(heading)) return "experience";
   if (/^(?:(?:core|technical|professional|key) )?(?:skills|competencies|expertise)$/i.test(heading)) return "skills";
-  if (/^(?:(?:selected|technical|professional|relevant) )?projects?$/i.test(heading)) return "projects";
+  if (/^(?:(?:selected|technical|professional|relevant|academic|course) )?projects?$/i.test(heading)) return "projects";
   if (/^(?:(?:professional|career) )?(?:summary|profile|objective)$/i.test(heading)) return "summary";
   if (/^(?:interests|hobbies|publications|references|awards|achievements|portfolio|work[- ]samples?|professional website|personal website|volunteer(?:ing| experience)?|memberships|additional information)$/i.test(heading)) return "other";
   return "";

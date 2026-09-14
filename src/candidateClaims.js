@@ -9,7 +9,12 @@ const words = value => normalize(value).split(' ').filter(x => x.length > 3 && !
 const leadership = /\b(?:led|lead|leads|leading|owned|own|owns|managed|manage|manages|directed|direct|oversaw|oversee|supervised|supervise|accountable for|responsible for)\b/i;
 const leadershipClaim = /\b(?:led|owned|managed|directed|oversaw|supervised|accountable for|responsible for)\b|\b(?:I (?:also |currently )?|and )(?:lead|own|manage|direct|oversee|supervise)\b/i;
 const support = /\b(?:observed|assisted|supported|participated|helped|knowledge of|familiarity with|under supervision|under .*supervision|supervised (?:clinical )?(?:placements?|training|practice|sessions?))\b/i;
-const activeLeadership = text => String(text).replace(/\b(?:(?:was|were|been|being)\s+supervised\b|supervised\s+(?:clinical\s+)?(?:placements?|training|practice|sessions?)\b)/gi,'');
+const activeLeadership = text => String(text)
+ .replace(/\b(?:(?:was|were|been|being)\s+supervised\b|supervised\s+(?:clinical\s+)?(?:placements?|training|practice|sessions?)\b)/gi,'')
+ // An adjective modifying work is not a claim that the candidate supervised it.
+ .replace(/\b(?:with|including|through|during|of|in)\s+(?:(?:a|an|the)\s+)?supervised\b/gi,'')
+ .replace(/\band\s+supervised\s+(?=[^.!?]*\b(?:experience|skills)\b)/gi,'')
+ .replace(/(?<=[,;]\s*(?:and\s+)?)supervised\s+(?=(?:leak|pressure|safety|quality)\s+checks?\b)/gi,'');
 const credentialMarker = /\b(?:certificat(?:e|ion)|certified|credential|licen[cs]e|authori[sz]ation|registered|registration|PMP|CPA)\b/i;
 const credentialNames = [
  ['cpa', /\bCPA\b/i], ['pmp', /\bPMP\b/i], ['sap activate', /\bSAP Activate\b/i],
@@ -32,7 +37,7 @@ export function credentialStatus(value) {
 
 function credentialKeys(text, {prose=false}={}) {
  const parts=String(text).split(/\s+(?:and|&)\s+|,\s*/i);
- if(parts.length>1)return parts.flatMap((part,index)=>prose && index>0 && credentialMarker.test(parts[index-1]) && !credentialMarker.test(part) && !credentialNames.some(([,pattern])=>pattern.test(part)) ? [] : credentialKeys(part,{prose}));
+ if(parts.length>1)return parts.flatMap((part,index)=>prose && index>0 && !credentialMarker.test(part) && !credentialNames.some(([,pattern])=>pattern.test(part)) ? [] : credentialKeys(part,{prose}));
  // In a candidate sentence, the noun phrase names the credential. A following
  // explanation is not another part of its name. Keep specialty/provider phrases.
  if(prose){
@@ -111,11 +116,12 @@ export function candidateClaimIssues(proposed,sources=[],context={}) {
    // Percentages and untyped values retain lexical scope. An explicit calendar
    // year can belong to a separately cited project heading.
    const calendarRange=calendarRanges.find(range=>range[1]===number||range[2]===number);
-   const calendarYear = !measure.unit && /^(?:19|20)\d{2}$/.test(measure.number) && (calendarRange || new RegExp(`\\b(?:in|during|since|until|from)\\s+${measure.number}\\b`, 'i').test(sentence));
+   const calendarYear = measure.kind === 'calendar';
+   const projectName = calendarYear ? sentence.match(new RegExp(`\\b${number}\\s+([A-Z][\\p{L}-]+(?:\\s+[A-Z][\\p{L}-]+)*)`, 'u'))?.[1] : '';
    const numericFacts=(measure.unit && measure.unit!=='percent') || calendarYear ? scored : relevant;
    // Both endpoints must occur together in one cited fact; do not stitch a
    // tenure from separate employers, projects or single-year milestones.
-   const matches=numericFacts.filter(f=>(!namedEmployer || !f.employer || normalize(f.employer)===normalize(namedEmployer) || normalize(f.text).includes(normalize(namedEmployer))) && f.measures.some(source=>sameQuantity(measure,source)) && (!calendarRange || new RegExp(`\\b${calendarRange[1]}\\s*(?:[-–—]|to|through|until|and)\\s*${calendarRange[2]}\\b`, 'i').test(f.text)));
+   const matches=numericFacts.filter(f=>(!namedEmployer || !f.employer || normalize(f.employer)===normalize(namedEmployer) || normalize(f.text).includes(normalize(namedEmployer))) && (!projectName || normalize(f.text).includes(normalize(projectName))) && f.measures.some(source=>sameQuantity(measure,source)) && (!calendarRange || new RegExp(`\\b${calendarRange[1]}\\s*(?:[-–—]|to|through|until|and)\\s*${calendarRange[2]}\\b`, 'i').test(f.text)));
    if(!matches.length){issues.push('A number or duration is not supported by this claim’s cited candidate evidence.');continue;}
    const shared = f => /\b(?:as part of|with|our|the)\s+(?:an?\s+)?(?:[a-z]+\s+)?(?:team|crew|assistant)\b|\bcombined(?: [a-z-]+){0,2} (?:total|output)\b/i.test(f.text);
    const sharedSubject = /\b(?:(?:an?|the|my|our)\s+)?(?:[a-z-]+\s+){0,3}(?:assistant|team|crew)\s+and\s+I\s+(?:have\s+)?(?:prepared|made|produced|created|completed|built|assembled|baked)\b|\bI\s+and\s+(?:an?|the|my|our)\s+(?:[a-z-]+\s+){0,3}(?:assistant|team|crew)\s+(?:have\s+)?(?:prepared|made|produced|created|completed|built|assembled|baked)\b/i.test(sentence);

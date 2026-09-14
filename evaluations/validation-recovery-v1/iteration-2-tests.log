@@ -1,0 +1,16 @@
+✔ C02: captured project-year paragraph retains its date and passes claim checks (12.7496ms)
+✔ C06: captured project-year paragraph retains its date and passes claim checks (5.2588ms)
+✔ calendar years cannot authorize counts, durations or another employer/project (1.5104ms)
+✔ captured apprentice profile distinguishes a held certificate and supervised work (7.4158ms)
+✔ employment after a selected project has its own evidence and survives fallback (41.1206ms)
+✔ project sections recover explicit new jobs, never project titles or courses (0.8557ms)
+✔ operational transition is accepted while career-change positioning remains flagged (4.8042ms)
+✔ shared résumé contract rejects empty role content without relying on parser success (0.1916ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 516.6519

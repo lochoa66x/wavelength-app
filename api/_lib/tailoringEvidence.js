@@ -134,7 +134,8 @@ const PRIORITY_WEIGHT = Object.freeze({ required: 1, responsibility: 0.72, prefe
 const PRIORITY_RANK = Object.freeze({ required: 4, responsibility: 3, preferred: 2, context: 1 });
 const EVIDENCE_RANK = Object.freeze({ direct: 4, adjacent: 3, transferable: 2, missing: 1 });
 const LEGACY_TRANSFERABLE_PATHS = new Set(["career_change", "career-change", "career_transition", "career-transition", "major-transition"]);
-const FORBIDDEN_POSITIONING_PATTERN = /\b(?:career[ -](?:change|transition)|transition(?:al|ing)?(?:\s+(?:into|to))?|new\s+(?:career|path|journey))\b/i;
+const FORBIDDEN_POSITIONING_PATTERN = CAREER_POSITIONING_PATTERN;
+import { CAREER_POSITIONING_PATTERN } from '../../src/careerPositioning.js';
 
 const CAPABILITY_FAMILIES = Object.freeze([
   { id: "sap_utilities_meter_to_cash", specificity: "target_specific", pattern: /\bmeter\s+to\s+cash\b|\bmeter\s+reading\b/i },

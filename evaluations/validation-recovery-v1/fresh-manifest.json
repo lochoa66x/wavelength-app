@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "createdAt": "2026-09-14T01:41:50.617Z",
+  "baseline": "fe823c46bdbe4ab67f2208d87aaae6e31b269eeb",
+  "protocol": "PROMPT.md",
+  "cases": [
+    {
+      "id": "R01",
+      "title": "Brewery Cellar Technician",
+      "sha256": "6dcbe6d4f92916684eb15210d747a6ff6fe30c25b6870e48a3a5a2a707bdd8ea"
+    },
+    {
+      "id": "R02",
+      "title": "Floral Designer",
+      "sha256": "44349b8c9373cdb061567de6a6f1c71bdbcab128e0846d8c147ea1b1183535b2"
+    },
+    {
+      "id": "R03",
+      "title": "Pet Groomer",
+      "sha256": "b081eef33af93935f2bf27c497d3f629d7334ead74a417b550ee09c7635b1cd6"
+    },
+    {
+      "id": "R04",
+      "title": "Freelance Podcast Audio Editor",
+      "sha256": "2f7dbfe8227ffa788d93e342def31f931c67b15a24991f3452148d45b71e7587"
+    },
+    {
+      "id": "R05",
+      "title": "Museum Collections Assistant",
+      "sha256": "98ba1d78579ba39a42caeb3492bb3927baceb5853a4b300164267f65977d6a0c"
+    },
+    {
+      "id": "R06",
+      "title": "CNC Machine Operator",
+      "sha256": "008bab37e4d92d2e74201f9dd720dbe8c3912e3b7dea4059ad4a83e0c35c206c"
+    },
+    {
+      "id": "R07",
+      "title": "Hotel Night Auditor",
+      "sha256": "0494cc700e1ed1c573f7b350168786ef7a22c129535f1453ab68b0c65f312419"
+    },
+    {
+      "id": "R08",
+      "title": "Arborist Ground Worker",
+      "sha256": "5925bec7f7d190737568fd6931fa25d9e437bef9727946d04f9e99be231c746e"
+    },
+    {
+      "id": "R09",
+      "title": "Library Assistant",
+      "sha256": "206bc17ea8cba4b74c83dad485d1115bb2b2ef82acff9a8a34cb1fbe0ec862c6"
+    },
+    {
+      "id": "R10",
+      "title": "E-commerce Catalogue Specialist",
+      "sha256": "9534595ff0a5e1c4b5719097dc0f1522f3daebee64a124b3a863eecfa8d6eb4b"
+    }
+  ]
+}

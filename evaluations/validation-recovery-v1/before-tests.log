@@ -1,0 +1,209 @@
+✖ C02: captured project-year paragraph retains its date and passes claim checks (11.881ms)
+✖ C06: captured project-year paragraph retains its date and passes claim checks (3.803ms)
+✖ calendar years cannot authorize counts, durations or another employer/project (0.4616ms)
+✖ captured apprentice profile distinguishes a held certificate and supervised work (4.7405ms)
+✖ employment after a selected project has its own evidence and survives fallback (3.6443ms)
+✖ project sections recover explicit new jobs, never project titles or courses (0.4258ms)
+✖ operational transition is accepted while career-change positioning remains flagged (6.6783ms)
+✖ shared résumé contract rejects empty role content without relying on parser success (0.5099ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 0
+ℹ fail 8
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 487.2387
+
+✖ failing tests:
+
+test at tests\validationRecovery.test.js:17:32
+✖ C02: captured project-year paragraph retains its date and passes claim checks (11.881ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   'A number or duration is not supported by this claim’s cited candidate evidence.'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///C:/Users/Luis/Documents/Codex/gigscapes-v7/tests/validationRecovery.test.js:19:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'A number or duration is not supported by this claim’s cited candidate evidence.' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests\validationRecovery.test.js:17:32
+✖ C06: captured project-year paragraph retains its date and passes claim checks (3.803ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   'A number or duration is not supported by this claim’s cited candidate evidence.'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///C:/Users/Luis/Documents/Codex/gigscapes-v7/tests/validationRecovery.test.js:19:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'A number or duration is not supported by this claim’s cited candidate evidence.' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests\validationRecovery.test.js:22:1
+✖ calendar years cannot authorize counts, durations or another employer/project (0.4616ms)
+  AssertionError [ERR_ASSERTION]: In the 2025 Riverside Apartment Series, I matched colour across adjoining rooms.
+  + actual - expected
+  
+  + [
+  +   'A number or duration is not supported by this claim’s cited candidate evidence.'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///C:/Users/Luis/Documents/Codex/gigscapes-v7/tests/validationRecovery.test.js:24:206)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [ 'A number or duration is not supported by this claim’s cited candidate evidence.' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests\validationRecovery.test.js:32:1
+✖ captured apprentice profile distinguishes a held certificate and supervised work (4.7405ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + [
+  +   'The verified sources do not establish leadership or ownership of this work.',
+  +   'The cited evidence does not establish every required credential with the stated current status.'
+  + ]
+  - []
+  
+      at TestContext.<anonymous> (file:///C:/Users/Luis/Documents/Codex/gigscapes-v7/tests/validationRecovery.test.js:34:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'The verified sources do not establish leadership or ownership of this work.', 'The cited evidence does not establish every required credential with the stated current status.' ],
+    expected: [],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests\validationRecovery.test.js:39:1
+✖ employment after a selected project has its own evidence and survives fallback (3.6443ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      'Freelance Photo Editor',
+  -   'Event Photo Assistant'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/Luis/Documents/Codex/gigscapes-v7/tests/validationRecovery.test.js:41:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'Freelance Photo Editor' ],
+    expected: [ 'Freelance Photo Editor', 'Event Photo Assistant' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests\validationRecovery.test.js:53:1
+✖ project sections recover explicit new jobs, never project titles or courses (0.4258ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      'Freelance Photo Editor',
+  -   'Event Photo Assistant'
+    ]
+  
+      at TestContext.<anonymous> (file:///C:/Users/Luis/Documents/Codex/gigscapes-v7/tests/validationRecovery.test.js:57:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 'Freelance Photo Editor' ],
+    expected: [ 'Freelance Photo Editor', 'Event Photo Assistant' ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests\validationRecovery.test.js:61:1
+✖ operational transition is accepted while career-change positioning remains flagged (6.6783ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 0
+  
+      at TestContext.<anonymous> (file:///C:/Users/Luis/Documents/Codex/gigscapes-v7/tests/validationRecovery.test.js:64:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 0,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests\validationRecovery.test.js:68:1
+✖ shared résumé contract rejects empty role content without relying on parser success (0.5099ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  true !== false
+  
+      at TestContext.<anonymous> (file:///C:/Users/Luis/Documents/Codex/gigscapes-v7/tests/validationRecovery.test.js:70:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: true,
+    expected: false,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

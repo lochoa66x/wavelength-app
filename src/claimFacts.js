@@ -19,9 +19,24 @@ function countUnit(tail) {
   const unit=singular(tokens.at(-1)||'');
   return {unit,business:timeUnit.test(unit)&&tokens.includes('business')};
 }
+function isCalendarYear(text, match) {
+  if (!/^(?:19|20)\d{2}$/.test(match[0])) return false;
+  const before=text.slice(0,match.index), after=text.slice(match.index+match[0].length);
+  const phrase=after.trim().split(/[,.;:|]/)[0].split(boundaries)[0];
+  if (/^(?:[a-z-]+\s+){0,3}[a-z]+s\b/i.test(phrase) && !/\bseries\b/i.test(phrase) && !/^[A-Z]/.test(phrase)) return false;
+  // Plural count nouns/durations remain quantities even after "during".
+  if (/^\s+(?:years?|months?|days?|hours?|files?|projects|accounts?|clients?|units?|items?|records?|reviews?)\b(?!-)/i.test(after)) return false;
+  if (/(?:\b(?:in|during|since|until|from|through|before|after)|\b(?:in|during)\s+(?:a|an|the))\s*$/i.test(before)) return true;
+  if (/(?:\||[–—]|\s-\s)\s*$/.test(before) && /^\s*(?:$|[,;|.)]|[-–—]\s*(?:(?:19|20)\d{2}|present|current))/i.test(after)) return true;
+  if (/\b(?:19|20)\d{2}\s*(?:[-–—]|to|through|until|and)\s*$/i.test(before)) return true;
+  if (/^\s*(?:[-–—]|to|through|until|and)\s*(?:(?:19|20)\d{2}|present|current)\b/i.test(after)) return true;
+  return /^\s*(?:[|:–—-]|$)/.test(after) && (!before.trim() || /\b(?:project|series|education|certificate|diploma)\b/i.test(before));
+}
 export function quantityFacts(value) {
-  const text=normalizeClaimNumbers(value).toLowerCase();
+  const original=normalizeClaimNumbers(value);
+  const text=original.toLowerCase();
   return [...text.matchAll(/\b\d+(?:[,.]\d+)*(?:\s*%|\+)?/g)].map(m=>{
+    if (isCalendarYear(original,m)) return {number:m[0],unit:'',business:false,rate:'',kind:'calendar'};
     const tail=text.slice(m.index+m[0].length);
     const {unit,business}=m[0].trim().endsWith('%')?{unit:'percent',business:false}:countUnit(tail);
     // Restrict the denominator to this measured clause, not a later metric.
@@ -34,7 +49,7 @@ export function quantityFacts(value) {
   });
 }
 export function sameQuantity(claim, source) {
-  return claim.number===source.number && (!claim.unit || claim.unit===source.unit)
+  return claim.number===source.number && (claim.kind==='calendar')===(source.kind==='calendar') && (!claim.unit || claim.unit===source.unit)
     && (!timeUnit.test(claim.unit) || claim.business===source.business)
     && (!claim.rate || claim.rate===source.rate);
 }
